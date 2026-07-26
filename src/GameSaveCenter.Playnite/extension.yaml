@@ -1,0 +1,7 @@
+Id: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
+Name: GameSaveCenter
+Author: OpenAI / Community
+Version: 0.1.0
+Module: GameSaveCenter.Playnite.dll
+Type: GenericPlugin
+Icon: icon.png

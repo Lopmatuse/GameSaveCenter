@@ -1,0 +1,53 @@
+<UserControl x:Class="GameSaveCenter.Playnite.Settings.GameSaveCenterSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="18">
+            <TextBlock Text="GameSaveCenter" FontSize="22" FontWeight="SemiBold" />
+            <TextBlock Text="Playnite 负责游戏入口，Worker 负责耗时文件任务。敏感凭据仍由 Rclone 自己管理。"
+                       Opacity="0.68" Margin="0,4,0,18" TextWrapping="Wrap" />
+
+            <GroupBox Header="核心工具" Margin="0,0,0,14">
+                <Grid Margin="12">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="160"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" Text="Worker" VerticalAlignment="Center" Margin="0,5"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding WorkerExecutable, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                    <TextBlock Grid.Row="1" Text="Ludusavi" VerticalAlignment="Center" Margin="0,5"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding LudusaviExecutable, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                    <TextBlock Grid.Row="2" Text="存档历史目录" VerticalAlignment="Center" Margin="0,5"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding LudusaviBackupDirectory, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                    <TextBlock Grid.Row="3" Text="Rclone" VerticalAlignment="Center" Margin="0,5"/>
+                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding RcloneExecutable, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                    <TextBlock Grid.Row="4" Text="Rclone 目标" VerticalAlignment="Center" Margin="0,5"/>
+                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding RcloneDestination, UpdateSourceTrigger=PropertyChanged}" Margin="0,4" ToolTip="例如 myremote:GameSaveCenter"/>
+                    <TextBlock Grid.Row="5" Text="媒体同步目录" VerticalAlignment="Center" Margin="0,5"/>
+                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding MediaArchiveDirectory, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                </Grid>
+            </GroupBox>
+
+            <GroupBox Header="自动化与安全">
+                <StackPanel Margin="12">
+                    <CheckBox Content="随 Playnite 启动 Worker" IsChecked="{Binding AutoStartWorker}" Margin="0,5"/>
+                    <CheckBox Content="检测从 Steam、Xbox、启动器和 MOD 管理器外部启动的游戏" IsChecked="{Binding EnableProcessDetection}" Margin="0,5"/>
+                    <CheckBox Content="同步新增截图和录像（不做镜像删除）" IsChecked="{Binding EnableMediaSync}" Margin="0,5"/>
+                    <CheckBox Content="完成本地任务后允许单向云端复制" IsChecked="{Binding EnableCloudUpload}" Margin="0,5"/>
+                    <Grid Margin="0,10,0,0">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="160"/><ColumnDefinition Width="120"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                        <TextBlock Text="默认备份间隔（分钟）" VerticalAlignment="Center" Margin="0,5"/>
+                        <TextBox Grid.Column="1" Text="{Binding DefaultBackupIntervalMinutes, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                        <TextBlock Grid.Row="1" Text="进程检测间隔（秒）" VerticalAlignment="Center" Margin="0,5"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ProcessPollingSeconds, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                    </Grid>
+                    <Border Background="#18FF9500" CornerRadius="10" Padding="12" Margin="0,12,0,0">
+                        <TextBlock Text="自动恢复始终关闭。恢复必须经过当前快照、游戏关闭确认、预览、恢复后校验和可撤销快照。" TextWrapping="Wrap"/>
+                    </Border>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
