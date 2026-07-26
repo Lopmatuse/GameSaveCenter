@@ -20,6 +20,7 @@ namespace GameSaveCenter.Contracts
         public List<GameStatusDto> Games { get; set; } = new List<GameStatusDto>();
         public List<TaskStatusDto> RecentTasks { get; set; } = new List<TaskStatusDto>();
         public List<ValidationFindingDto> Findings { get; set; } = new List<ValidationFindingDto>();
+        public List<AuditLogEntryDto> RecentAudit { get; set; } = new List<AuditLogEntryDto>();
     }
 
     /// <summary>Backup metadata presented in the timeline and restore wizard.</summary>
@@ -36,6 +37,25 @@ namespace GameSaveCenter.Contracts
         public string SourceDevice { get; set; } = string.Empty;
         public string OperatingSystem { get; set; } = string.Empty;
         public bool IsPreRestore { get; set; }
+    }
+
+    /// <summary>Persisted audit message exposed to the Playnite log page.</summary>
+    public sealed class AuditLogEntryDto
+    {
+        public string Category { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+        public string DetailJson { get; set; } = "{}";
+        public DateTime CreatedUtc { get; set; }
+    }
+
+    /// <summary>Detected save path that still requires a user decision.</summary>
+    public sealed class SavePathCandidateDto
+    {
+        public string PlayniteId { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
+        public double Score { get; set; }
+        public List<string> Reasons { get; set; } = new List<string>();
+        public string Status { get; set; } = "Pending";
     }
 
     /// <summary>Media item indexed by the Worker.</summary>

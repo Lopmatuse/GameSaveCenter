@@ -47,6 +47,6 @@ namespace GameSaveCenter.Core.Services
             return left.LastWriteUtc == right.LastWriteUtc;
         }
 
-        private static string NormalizePath(string path) => (path ?? string.Empty).Replace('/', '\').TrimStart('\');
+        private static string NormalizePath(string path) => (path ?? string.Empty).Replace('/', '\\').TrimStart('\\');
     }
 }

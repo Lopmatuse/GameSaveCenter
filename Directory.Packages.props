@@ -5,6 +5,7 @@
   <ItemGroup>
     <PackageVersion Include="Microsoft.Data.Sqlite" Version="8.0.19" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
     <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies.net462" Version="1.0.3" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />

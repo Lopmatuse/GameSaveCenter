@@ -77,10 +77,73 @@ namespace GameSaveCenter.Contracts
     /// <summary>One validation result displayed to the user.</summary>
     public sealed class ValidationFindingDto
     {
+        public string PlayniteId { get; set; } = string.Empty;
         public FindingSeverity Severity { get; set; }
         public string Code { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string Detail { get; set; } = string.Empty;
         public string SuggestedAction { get; set; } = string.Empty;
     }
+
+
+    /// <summary>Updates a Ludusavi backup comment and lock state.</summary>
+    public sealed class BackupMetadataUpdateDto
+    {
+        public string PlayniteId { get; set; } = string.Empty;
+        public string BackupId { get; set; } = string.Empty;
+        public string Comment { get; set; } = string.Empty;
+        public bool? Locked { get; set; }
+    }
+
+    /// <summary>Simple per-game query used by list and undo operations.</summary>
+    public sealed class GameQueryDto
+    {
+        public string PlayniteId { get; set; } = string.Empty;
+        public int Limit { get; set; } = 200;
+    }
+
+    /// <summary>Request to cancel a background task.</summary>
+    public sealed class CancelTaskRequestDto
+    {
+        public string TaskId { get; set; } = string.Empty;
+    }
+
+
+
+    /// <summary>Moves an indexed media item to another game without touching the original capture.</summary>
+    public sealed class ReassignMediaRequestDto
+    {
+        public string MediaId { get; set; } = string.Empty;
+        public string TargetPlayniteId { get; set; } = string.Empty;
+    }
+
+    /// <summary>Accepts a detected save directory and creates a custom Ludusavi rule draft.</summary>
+    public sealed class AcceptSavePathRequestDto
+    {
+        public string PlayniteId { get; set; } = string.Empty;
+        public string Path { get; set; } = string.Empty;
+        public bool IncludeSubdirectories { get; set; } = true;
+    }
+
+    /// <summary>Requests an immediate validity check for one game's latest backup.</summary>
+    public sealed class ValidateGameRequestDto
+    {
+        public string PlayniteId { get; set; } = string.Empty;
+    }
+
+    /// <summary>Non-secret runtime settings supplied by the Playnite plugin.</summary>
+    public sealed class WorkerSettingsDto
+    {
+        public string LudusaviExecutable { get; set; } = string.Empty;
+        public string LudusaviBackupDirectory { get; set; } = string.Empty;
+        public string RcloneExecutable { get; set; } = string.Empty;
+        public string RcloneDestination { get; set; } = string.Empty;
+        public string MediaArchiveDirectory { get; set; } = string.Empty;
+        public int ProcessPollingSeconds { get; set; } = 5;
+        public int DefaultBackupIntervalMinutes { get; set; } = 30;
+        public bool EnableProcessDetection { get; set; } = true;
+        public bool EnableMediaSync { get; set; } = true;
+        public bool EnableCloudUpload { get; set; }
+    }
+
 }
