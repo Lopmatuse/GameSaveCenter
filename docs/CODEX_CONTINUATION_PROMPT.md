@@ -1,0 +1,49 @@
+# 供 Codex 延续开发的完整提示词
+
+将下面内容连同整个仓库交给 Codex：
+
+```text
+你正在继续开发 GameSaveCenter。请先完整读取：
+
+1. docs/PROJECT_MEMORY.md
+2. docs/DEVELOPMENT_PROGRESS.md
+3. docs/REQUIREMENTS.md
+4. docs/ARCHITECTURE.md
+5. docs/IMPLEMENTATION_LIMITATIONS.md
+6. docs/WINDOWS_TEST_PLAN.md
+7. design/APPLE_UI_GUIDE.md
+8. 最近 20 条 Git 提交
+
+不可违反的约束：
+
+- 架构固定为 Playnite 插件 + 后台 Worker；Playnite 是唯一主要 UI。
+- Ludusavi 负责存档底层；Rclone 默认只允许 copy/check，不使用 sync/delete/purge。
+- 截图/录像是增量媒体同步，不随每个存档版本重复打包。
+- 自动备份可以积极；自动恢复默认关闭。
+- 任何恢复都必须：确认游戏关闭 → 创建并锁定 PreRestore → 预览 → 恢复 → 校验 → 失败回滚。
+- 未确认的存档候选不能直接生效；Xbox WGS 只能保守处理。
+- 从 Playnite 启动时事件优先；从 Steam/Xbox/Epic/Ubisoft/EA/GOG、桌面或 MOD manager 启动时由 Worker 进程侦测兜底。
+- UI 只借鉴 Apple HIG 的层级、留白、圆角、材质和克制动效，不照搬 macOS，也不能破坏 Playnite 主题/键盘/缩放可用性。
+- 所有需求、进度、限制和架构变化必须同步更新 PROJECT_MEMORY.md 与 DEVELOPMENT_PROGRESS.md。
+- 每个逻辑阶段必须自行 git commit；禁止 squash 掉既有历史。
+- 交付源码 ZIP 必须包含完整 .git，并排除真实存档、截图、数据库、日志和凭据。
+- 不允许声称通过了没有实际执行的编译、测试或真机验证。
+
+当前优先级：
+
+P0：在 Windows 运行 scripts/build.ps1，修复所有真实编译错误；加载到 Playnite 10；跑通 Steam 低风险游戏的备份、媒体和安全恢复测试。
+P1：实现 Worker → Playnite 持续任务事件推送与后台成功/失败通知。
+P1：为公共 Captures/Screenshots 加入会话时间窗口归类和未识别收件箱。
+P1：把候选路径检测升级为显式“启动前快照/退出后差异”模式。
+P2：生成设备状态 sidecar，并通过 Rclone 读取其他设备摘要，完成多设备冲突 UI。
+P2：增加未知进程/MOD 启动链的人工学习和持久化界面。
+P2：补齐游戏级云端状态、rclone check 结果与重试队列。
+
+工作方式：
+
+- 先执行 git status、git log、python scripts/validate-source.py。
+- 在 Windows 执行 dotnet restore/build/test，不要跳过错误。
+- 所有真实文件操作先使用临时目录和假数据集成测试。
+- 恢复测试只能使用可丢弃存档，并保存测试证据。
+- 每完成一组功能更新进度表并提交 Git。
+```

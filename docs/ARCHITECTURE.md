@@ -5,8 +5,8 @@
 ```text
 Playnite 10
   └─ GameSaveCenter.Playnite (net462/WPF)
-       ├─ Dashboard / Settings / Restore Wizard
-       ├─ Playnite game events and menus
+       ├─ Apple HIG 启发的 Dashboard / Settings / Restore UI
+       ├─ Playnite game events, library metadata and Game Actions
        └─ Named-pipe IPC client
                 │
                 ▼
@@ -14,44 +14,101 @@ GameSaveCenter.Worker (net8.0-windows)
   ├─ Named-pipe IPC server
   ├─ Game session coordinator
   ├─ Ludusavi process adapter
-  ├─ Rclone process adapter
+  ├─ Rclone copy/check adapter
   ├─ Save validation / retention / restore orchestration
   ├─ Process and MOD launch-chain detection
   ├─ Media source adapters and incremental synchronizer
   ├─ Save path / Xbox WGS candidate detector
-  └─ SQLite state and structured logs
+  └─ SQLite state, tasks, findings and audit logs
 ```
 
 ## 关键边界
 
-- `Contracts` 只保存 IPC DTO 与枚举，不依赖 Playnite、WPF 或数据库。
-- `Core` 保存纯算法和领域模型，可独立测试。
-- `Worker` 负责 I/O 和外部进程。
-- `Playnite` 项目只负责适配 Playnite SDK、UI 和通知。
+- `GameSaveCenter.Contracts` 只保存 IPC DTO、枚举和协议常量，不依赖 Playnite、WPF、数据库或外部工具。
+- `GameSaveCenter.Core` 保存纯算法和领域模型，可独立单元测试。
+- `GameSaveCenter.Worker` 负责文件 I/O、数据库、进程侦测、定时任务和外部程序调用。
+- `GameSaveCenter.Playnite` 只负责 Playnite SDK 适配、UI、用户确认和短生命周期 IPC 调用。
+- Ludusavi 仍是存档复制/版本/恢复引擎；GameSaveCenter 不重写其底层格式。
+- 媒体同步不进入 Ludusavi 历史，避免截图和录像在每个存档版本中重复。
 
 ## IPC
 
 使用当前用户范围内的命名管道：
 
-- 管道名：`GameSaveCenter.Worker.v1`
-- 一行一个 JSON envelope。
-- 每条请求包含 `requestId`、`type`、`timestampUtc`、`payload`。
-- 响应使用相同 `requestId`。
-- Worker 可主动推送任务状态事件。
+- 管道名：`GameSaveCenter.Worker.v1`；
+- 一行一个 JSON envelope；
+- 每条请求包含 `requestId`、`type`、`timestampUtc`、`payload`；
+- 响应复用相同 `requestId`；
+- 协议版本和最大消息大小由 Contracts 固定；
+- 当前实现是请求/响应模式；任务事件消息类型已预留，但 Worker 主动持续推送尚未完成。
+
+长任务由 Worker 写入 SQLite 任务表，Playnite 页面通过刷新查询状态。后续事件推送只能作为体验增强，不能成为任务正确性的唯一依赖。
 
 ## 数据存储
 
-- SQLite 保存游戏映射、策略、任务、备份摘要、媒体索引、会话、候选路径和冲突记录。
-- 配置文件只保存工具路径、目录和无敏感策略。
-- Rclone 凭据由 Rclone 自己管理，不复制到数据库。
+SQLite 保存：
+
+- Playnite 游戏映射、平台 ID、安装路径、已知 EXE 和 Game Actions；
+- 每游戏备份/媒体/云端策略；
+- 游戏会话和定时备份状态；
+- Worker 任务、异常 finding 和审计事件；
+- Ludusavi 历史摘要与可用 manifest；
+- 媒体来源、文件哈希、归档路径、归类和同步状态；
+- 存档候选路径和确认状态。
+
+配置文件只保存工具路径、目录和无敏感策略。Rclone 凭据由 Rclone 自己管理，不复制到数据库或插件设置。
+
+## 游戏会话识别
+
+优先级：
+
+1. Playnite `OnGameStarted/OnGameStopped` 事件；
+2. Playnite Game Actions、已知安装 EXE 和平台 ID；
+3. Worker 进程路径、父子关系和 MOD loader 规则；
+4. 后续人工学习映射。
+
+同一游戏可能同时存在 loader、启动器、反作弊和主游戏进程。Worker 将它们合并为一个逻辑会话，并只在所有已映射游戏进程退出后结束会话。
+
+## 媒体同步
+
+```text
+平台/游戏截图目录
+→ 稳定写入检测
+→ 游戏归类
+→ SHA-256 去重
+→ 原子复制到媒体库
+→ 可选 rclone copy
+```
+
+规则：
+
+- 只处理新增文件；
+- 同图改名仍去重；
+- 源文件删除不传播到归档；
+- 共享目录只在匹配当前游戏或后续会话时间窗口确认时归类；
+- 无法确认的媒体应进入待处理流程，而不是静默猜测；
+- 游戏存档恢复不触碰媒体库。
+
+## 备份可靠性
+
+每次备份后可比较前后 manifest 或摘要：
+
+- 文件数量；
+- 总体积；
+- 零字节文件；
+- 异常下降；
+- 长游戏会话却无变化；
+- 路径消失或工具错误。
+
+异常写入 finding，不因云端失败而撤销本地成功备份。
 
 ## 安全恢复状态机
 
 ```text
 Requested
 → GameClosedVerified
-→ PreRestoreBackupCreated
-→ CloudJobsPaused
+→ PreRestoreBackupCreatedAndLocked
+→ RestorePreviewed
 → RestoreExecuted
 → PostRestoreValidated
 → Completed
@@ -64,3 +121,14 @@ Failed
 → RollbackAttempted
 → RolledBack / ManualInterventionRequired
 ```
+
+当前“云同步暂停”主要体现在恢复编排期间不主动创建上传任务；独立并发上传任务的全局暂停锁仍属于待增强项。
+
+## 云端边界
+
+- 默认只调用 `rclone copy`；
+- 校验使用 `rclone check --one-way` 等只读校验；
+- 不调用 `sync`、`delete`、`purge`；
+- 本地副本是主副本，云端失败只记录任务错误；
+- 多设备默认使用不同设备子目录；
+- 完整多设备冲突闭环仍需远端设备摘要 sidecar 和摄取逻辑。

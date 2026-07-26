@@ -15,3 +15,4 @@
 - Apple HIG: https://developer.apple.com/design/human-interface-guidelines
 - Apple HIG materials: https://developer.apple.com/design/human-interface-guidelines/materials
 - Apple HIG layout: https://developer.apple.com/design/human-interface-guidelines/layout
+- .NET 8 downloads and SDK 8.0.420: https://dotnet.microsoft.com/en-us/download/dotnet/8.0

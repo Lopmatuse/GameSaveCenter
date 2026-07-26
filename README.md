@@ -1,58 +1,98 @@
 # GameSaveCenter
 
-GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体管理系统：
+GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体管理系统，采用 **Playnite 插件 + 后台 Worker** 架构：
 
-- **Playnite 插件**：统一 UI、游戏菜单、启动/退出事件与通知。
-- **后台 Worker**：执行 Ludusavi、Rclone、进程侦测、截图增量同步、校验和恢复编排。
-- **Ludusavi**：作为成熟的存档扫描、版本备份和恢复引擎。
-- **Rclone**：只读安全策略优先的云端单向复制与校验通道。
+- **Playnite 插件**：统一 UI、游戏库、启动/退出事件、策略和安全恢复入口。
+- **后台 Worker**：执行 Ludusavi、Rclone、进程侦测、截图/录像增量同步、校验和恢复编排。
+- **Ludusavi**：作为存档扫描、版本备份和恢复引擎。
+- **Rclone**：作为可选的云端单向复制与校验通道。
 
-主要兼容 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD 加载器启动的游戏。
+目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> 当前仓库是 Windows 集成开发版本。请先阅读 `docs/DEVELOPMENT_PROGRESS.md` 和 `docs/PROJECT_MEMORY.md`。
+> **当前状态：`0.1.0-development-preview`。** 仓库已完成完整源码基线、Git 分阶段历史、文档、测试源码和 Windows 构建/打包脚本，但尚未在本执行环境中完成 Windows 编译、Playnite 真机加载和真实存档端到端验证。请先阅读 [`docs/DEVELOPMENT_PROGRESS.md`](docs/DEVELOPMENT_PROGRESS.md) 与 [`docs/IMPLEMENTATION_LIMITATIONS.md`](docs/IMPLEMENTATION_LIMITATIONS.md)。
 
 ## 核心原则
 
 1. 自动备份可以积极，自动恢复必须保守。
-2. 恢复前始终创建 `PreRestore` 快照。
-3. 截图/录像采用增量同步与哈希去重，不跟随每个存档版本重复打包。
+2. 恢复前始终创建并锁定 `PreRestore` 快照。
+3. 截图/录像采用增量同步与 SHA-256 去重，不跟随每个存档版本重复打包。
 4. 从 Playnite 启动时优先使用精确事件；从平台客户端、快捷方式或 MOD 管理器启动时由 Worker 进程侦测兜底。
-5. 云端默认使用 `rclone copy`，不默认使用会删除目标文件的 `sync`。
-6. 所有可破坏性操作必须可审计、可取消、可回滚。
+5. 云端默认只使用 `rclone copy` 与 `rclone check`，不调用 `sync/delete/purge`。
+6. 未确认的 Xbox WGS、未知存档路径和媒体归类只进入候选流程，不静默生效。
+7. 所有恢复、回滚、任务和异常均写入本地审计记录。
+
+## 已落地的源码范围
+
+- Apple HIG 启发的 Playnite 侧边栏总览、游戏策略、备份历史、媒体、候选路径、任务与日志页面；
+- Playnite 游戏库、平台 ID、安装路径和多个 Game Action/MOD 启动动作导出；
+- Worker 命名管道 IPC、SQLite 状态库、任务队列和结构化日志；
+- Ludusavi 单游戏/全部/定时/退出备份、历史索引、备注、锁定、恢复与回滚编排；
+- 外部进程与多进程 MOD 启动链识别基础；
+- Steam、Xbox/Game Bar、Windows 公共目录和自定义来源的截图/录像增量同步；
+- 文件数量、大小、零字节、异常下降、长时间无变化等校验；
+- 分层历史保留预览、候选存档路径评分、Xbox WGS 辅助扫描；
+- Rclone 单向复制与校验适配；
+- Core xUnit 测试源码与跨平台源码结构校验。
+
+部分高级闭环仍需 Windows 真机和真实数据继续完善，详见进度表。
 
 ## 仓库结构
 
 ```text
 src/GameSaveCenter.Playnite   Playnite 10 插件（.NET Framework 4.6.2 / WPF）
-src/GameSaveCenter.Worker     Windows 后台助手（.NET 8）
-src/GameSaveCenter.Core       领域逻辑与算法
-src/GameSaveCenter.Contracts  插件与 Worker 的 IPC 契约
-tests/                        单元与集成测试
-scripts/                      Windows 构建、打包、安装和验证脚本
-docs/                         需求、进度、架构、记忆与操作文档
-design/                       Apple HIG 启发的 UI 规范和原型资料
+src/GameSaveCenter.Worker     Windows 后台助手（.NET 8 / win-x64）
+src/GameSaveCenter.Core       领域逻辑与安全算法
+src/GameSaveCenter.Contracts  插件与 Worker 的版本化 IPC 契约
+tests/                        xUnit 测试源码
+scripts/                      Windows 构建、验证、打包和开发安装脚本
+docs/                         需求、架构、进度、限制、安全和交接文档
+design/                       Apple HIG 启发的 UI 规范
 ```
 
-## 快速开始（开发机）
+## Windows 构建
 
-要求：
+建议环境：
 
-- Windows 10/11 x64
-- Visual Studio 2022 或 Rider
-- .NET Framework 4.6.2 Developer Pack
-- .NET 8 SDK
-- Playnite 10.56+
-- Ludusavi 0.30+
-- Rclone（云同步需要）
+- Windows 10/11 x64；
+- Playnite 10.56 或兼容的 Playnite 10 稳定版；
+- .NET 8 SDK 8.0.420 或兼容 8.0 SDK；
+- .NET Framework 4.6.2 Developer Pack；
+- Ludusavi 最新稳定版；
+- Rclone 最新稳定版（仅云端复制需要）。
 
 在 PowerShell 中执行：
 
 ```powershell
-./scripts/build.ps1
-./scripts/package.ps1
+Set-ExecutionPolicy -Scope Process Bypass
+./scripts/build.ps1 -Configuration Release
+./scripts/package.ps1 -Configuration Release
 ./scripts/install-dev.ps1 -PlayniteExtensionsPath "$env:APPDATA\Playnite\Extensions"
 ```
 
-## 安全状态
+完整步骤见 [`docs/INSTALLATION.md`](docs/INSTALLATION.md)，真机验证门禁见 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md)。
 
-在完成 Windows 真机恢复测试前，本项目应视为 **开发预览版**。默认配置禁用自动恢复和云端反向覆盖。
+## 源码静态校验
+
+在有 Python 3 的环境执行：
+
+```bash
+python scripts/validate-source.py
+```
+
+该检查不能替代真实的 `dotnet restore/build/test` 和 Playnite 加载测试。
+
+## Git 与继续开发
+
+仓库从初始化开始按阶段提交。继续开发前请依次阅读：
+
+1. [`docs/PROJECT_MEMORY.md`](docs/PROJECT_MEMORY.md)
+2. [`docs/DEVELOPMENT_PROGRESS.md`](docs/DEVELOPMENT_PROGRESS.md)
+3. [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md)
+4. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+5. [`docs/CODEX_CONTINUATION_PROMPT.md`](docs/CODEX_CONTINUATION_PROMPT.md)
+
+源码交付包包含完整 `.git`，但不会包含真实存档、截图、运行数据库、日志或凭据。
+
+## 安全声明
+
+在完成 Windows 真机恢复测试前，本项目应视为**开发预览版**。不要将它作为重要存档的唯一副本，不要对 Xbox WGS 或唯一存档执行首次恢复测试，也不要启用自动恢复或双向云同步。
