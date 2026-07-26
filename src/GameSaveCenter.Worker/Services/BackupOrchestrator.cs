@@ -52,7 +52,7 @@ public sealed class BackupOrchestrator
                     await _store.AddBackupVersionAsync(indexed,JsonSerializer.Serialize(snapshot.Files),ct).ConfigureAwait(false);
                 }
                 var policy=await _store.GetPolicyAsync(game.PlayniteId,ct).ConfigureAwait(false);
-                if(policy.UploadAfterBackup&&_rclone.IsConfigured)
+                if(_options.EnableCloudUpload&&policy.UploadAfterBackup&&_rclone.IsConfigured)
                 {
                     await progress.ReportAsync(82,"正在复制到云端").ConfigureAwait(false);
                     var cloud=await _rclone.CopyAsync(_options.LudusaviBackupDirectory,Path.Combine(Environment.MachineName,"Saves"),ct).ConfigureAwait(false);

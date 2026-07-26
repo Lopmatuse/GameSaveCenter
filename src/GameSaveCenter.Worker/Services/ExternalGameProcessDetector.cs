@@ -20,10 +20,12 @@ public sealed class ExternalGameProcessDetector : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if(!_options.EnableProcessDetection)return;
         while(!stoppingToken.IsCancellationRequested)
         {
-            try{await ScanAsync(stoppingToken).ConfigureAwait(false);}catch(Exception ex){_logger.LogWarning(ex,"External process scan failed");}
+            if(_options.EnableProcessDetection)
+            {
+                try{await ScanAsync(stoppingToken).ConfigureAwait(false);}catch(Exception ex){_logger.LogWarning(ex,"External process scan failed");}
+            }
             await Task.Delay(TimeSpan.FromSeconds(_options.ProcessPollingSeconds),stoppingToken).ConfigureAwait(false);
         }
     }

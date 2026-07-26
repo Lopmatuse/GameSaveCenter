@@ -28,6 +28,7 @@ public sealed class MediaSyncService
 
     public async Task<List<TaskStatusDto>> SyncAsync(MediaSyncRequestDto request,CancellationToken token)
     {
+        if(!_options.EnableMediaSync) return new List<TaskStatusDto>();
         var games=await _catalog.GetGamesAsync(token).ConfigureAwait(false);
         if(request.PlayniteIds.Count>0) games=games.Where(x=>request.PlayniteIds.Contains(x.PlayniteId,StringComparer.OrdinalIgnoreCase)).ToList();
         var output=new List<TaskStatusDto>();
@@ -73,7 +74,7 @@ public sealed class MediaSyncService
                 }
 
                 var policy=await _store.GetPolicyAsync(game.PlayniteId,ct).ConfigureAwait(false);
-                if((request.UploadAfterSync||policy.UploadAfterBackup)&&copied>0&&_rclone.IsConfigured)
+                if(_options.EnableCloudUpload&&(request.UploadAfterSync||policy.UploadAfterBackup)&&copied>0&&_rclone.IsConfigured)
                 {
                     await progress.ReportAsync(90,"正在复制媒体到云端").ConfigureAwait(false);
                     var gameDirectory=Path.Combine(_options.MediaArchiveDirectory,Sanitize(game.Name));

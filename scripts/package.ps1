@@ -14,7 +14,7 @@ New-Item $workerStage -ItemType Directory -Force | Out-Null
 
 & (Join-Path $PSScriptRoot 'build.ps1') -Configuration $Configuration
 
-$publishArgs = @('publish', (Join-Path $root 'src\GameSaveCenter.Worker\GameSaveCenter.Worker.csproj'), '-c', $Configuration, '-r', $Runtime, '-o', $workerStage, '--no-restore')
+$publishArgs = @('publish', (Join-Path $root 'src\GameSaveCenter.Worker\GameSaveCenter.Worker.csproj'), '-c', $Configuration, '-r', $Runtime, '-o', $workerStage)
 if ($SelfContainedWorker) { $publishArgs += @('--self-contained','true') } else { $publishArgs += @('--self-contained','false') }
 & dotnet @publishArgs
 
