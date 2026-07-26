@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>GameSaveCenter.Core</RootNamespace>
+    <AssemblyName>GameSaveCenter.Core</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GameSaveCenter.Contracts\GameSaveCenter.Contracts.csproj" />
+  </ItemGroup>
+</Project>
