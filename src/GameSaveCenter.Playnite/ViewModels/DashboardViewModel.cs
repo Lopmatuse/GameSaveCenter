@@ -18,6 +18,16 @@ namespace GameSaveCenter.Playnite.ViewModels
         private GameStatusDto selectedGame;
         private BackupVersionDto selectedBackup;
         private DashboardSnapshotDto snapshot = new DashboardSnapshotDto();
+        private SavePathCandidateDto selectedCandidate;
+        private string backupComment = string.Empty;
+        private bool lockSelectedBackup;
+        private string customMediaSourcePath = string.Empty;
+        private string customMediaPattern = "*";
+        private bool customMediaShared;
+        private MediaItemDto selectedMedia;
+        private GameStatusDto mediaTargetGame;
+        private string diffSummary = string.Empty;
+        private string retentionSummary = string.Empty;
 
         public DashboardViewModel(GameSaveCenterPlugin plugin)
         {
@@ -31,6 +41,13 @@ namespace GameSaveCenter.Playnite.ViewModels
             RestoreCommand = new RelayCommand(_ => Run(RestoreAsync), _ => SelectedGame != null && SelectedBackup != null);
             UndoRestoreCommand = new RelayCommand(_ => Run(UndoRestoreAsync), _ => SelectedGame != null);
             LoadDetailsCommand = new RelayCommand(_ => Run(LoadDetailsAsync), _ => SelectedGame != null);
+            SavePolicyCommand = new RelayCommand(_ => Run(SavePolicyAsync), _ => SelectedGame != null);
+            UpdateBackupMetadataCommand = new RelayCommand(_ => Run(UpdateBackupMetadataAsync), _ => SelectedGame != null && SelectedBackup != null);
+            CompareBackupCommand = new RelayCommand(_ => Run(CompareBackupAsync), _ => SelectedGame != null && SelectedBackup != null);
+            PreviewRetentionCommand = new RelayCommand(_ => Run(PreviewRetentionAsync), _ => SelectedGame != null);
+            AddMediaSourceCommand = new RelayCommand(_ => Run(AddMediaSourceAsync), _ => SelectedGame != null);
+            AcceptCandidateCommand = new RelayCommand(_ => Run(AcceptCandidateAsync), _ => SelectedGame != null && SelectedCandidate != null);
+            ReassignMediaCommand = new RelayCommand(_ => Run(ReassignMediaAsync), _ => SelectedMedia != null && MediaTargetGame != null);
             Run(RefreshAsync);
         }
 
@@ -41,6 +58,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ObservableCollection<MediaItemDto> Media { get; } = new ObservableCollection<MediaItemDto>();
         public ObservableCollection<AuditLogEntryDto> Audit { get; } = new ObservableCollection<AuditLogEntryDto>();
         public ObservableCollection<SavePathCandidateDto> SaveCandidates { get; } = new ObservableCollection<SavePathCandidateDto>();
+        public ObservableCollection<MediaSourceRuleDto> MediaSources { get; } = new ObservableCollection<MediaSourceRuleDto>();
 
         public DashboardSnapshotDto Snapshot { get => snapshot; private set => SetValue(ref snapshot, value); }
         public bool IsBusy { get => isBusy; private set => SetValue(ref isBusy, value); }
@@ -50,7 +68,17 @@ namespace GameSaveCenter.Playnite.ViewModels
             get => selectedGame;
             set { SetValue(ref selectedGame, value); Run(LoadDetailsAsync); }
         }
-        public BackupVersionDto SelectedBackup { get => selectedBackup; set => SetValue(ref selectedBackup, value); }
+        public BackupVersionDto SelectedBackup { get => selectedBackup; set { SetValue(ref selectedBackup, value); if(value!=null){ BackupComment=value.Comment; LockSelectedBackup=value.IsLocked; } } }
+        public SavePathCandidateDto SelectedCandidate { get => selectedCandidate; set => SetValue(ref selectedCandidate,value); }
+        public string BackupComment { get => backupComment; set => SetValue(ref backupComment,value); }
+        public bool LockSelectedBackup { get => lockSelectedBackup; set => SetValue(ref lockSelectedBackup,value); }
+        public string CustomMediaSourcePath { get => customMediaSourcePath; set => SetValue(ref customMediaSourcePath,value); }
+        public string CustomMediaPattern { get => customMediaPattern; set => SetValue(ref customMediaPattern,value); }
+        public bool CustomMediaShared { get => customMediaShared; set => SetValue(ref customMediaShared,value); }
+        public MediaItemDto SelectedMedia { get => selectedMedia; set => SetValue(ref selectedMedia,value); }
+        public GameStatusDto MediaTargetGame { get => mediaTargetGame; set => SetValue(ref mediaTargetGame,value); }
+        public string DiffSummary { get => diffSummary; private set => SetValue(ref diffSummary,value); }
+        public string RetentionSummary { get => retentionSummary; private set => SetValue(ref retentionSummary,value); }
 
         public ICommand RefreshCommand { get; }
         public ICommand BackupSelectedCommand { get; }
@@ -61,6 +89,13 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand RestoreCommand { get; }
         public ICommand UndoRestoreCommand { get; }
         public ICommand LoadDetailsCommand { get; }
+        public ICommand SavePolicyCommand { get; }
+        public ICommand UpdateBackupMetadataCommand { get; }
+        public ICommand CompareBackupCommand { get; }
+        public ICommand PreviewRetentionCommand { get; }
+        public ICommand AddMediaSourceCommand { get; }
+        public ICommand AcceptCandidateCommand { get; }
+        public ICommand ReassignMediaCommand { get; }
 
         public async Task RefreshAsync()
         {
@@ -83,7 +118,8 @@ namespace GameSaveCenter.Playnite.ViewModels
             var id = SelectedGame.PlayniteId;
             var backups = await plugin.RequestAsync<BackupVersionDto[]>(MessageTypes.ListBackups, new GameQueryDto { PlayniteId = id, Limit = 500 });
             var media = await plugin.RequestAsync<MediaItemDto[]>(MessageTypes.ListMedia, new GameQueryDto { PlayniteId = id, Limit = 1000 });
-            ApplyOnUi(() => { Replace(Backups, backups); Replace(Media, media); SaveCandidates.Clear(); });
+            var mediaSources = await plugin.RequestAsync<MediaSourceRuleDto[]>(MessageTypes.ListMediaSources, new GameQueryDto { PlayniteId = id });
+            ApplyOnUi(() => { Replace(Backups, backups); Replace(Media, media); Replace(MediaSources, mediaSources); SaveCandidates.Clear(); });
         }
 
         private async Task BackupSelectedAsync()
@@ -117,6 +153,53 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             await plugin.RequestAsync<object>(MessageTypes.ValidateGame, new ValidateGameRequestDto { PlayniteId = SelectedGame.PlayniteId });
             await RefreshAsync();
+        }
+
+        private async Task SavePolicyAsync()
+        {
+            await plugin.RequestAsync<object>(MessageTypes.UpdateGamePolicy,new GamePolicyUpdateDto{PlayniteId=SelectedGame.PlayniteId,Policy=SelectedGame.Policy});
+            StatusMessage="游戏策略已保存";
+        }
+
+        private async Task UpdateBackupMetadataAsync()
+        {
+            await plugin.RequestAsync<object>(MessageTypes.UpdateBackupMetadata,new BackupMetadataUpdateDto{PlayniteId=SelectedGame.PlayniteId,BackupId=SelectedBackup.BackupId,Comment=BackupComment,Locked=LockSelectedBackup});
+            await LoadDetailsAsync();
+        }
+
+        private async Task CompareBackupAsync()
+        {
+            var index=Backups.IndexOf(SelectedBackup);
+            if(index<0||index+1>=Backups.Count){DiffSummary="没有可比较的上一个版本。";return;}
+            var diff=await plugin.RequestAsync<BackupDiffDto>(MessageTypes.CompareBackups,new BackupCompareRequestDto{PlayniteId=SelectedGame.PlayniteId,LeftBackupId=Backups[index+1].BackupId,RightBackupId=SelectedBackup.BackupId});
+            DiffSummary=diff.Summary;
+        }
+
+        private async Task PreviewRetentionAsync()
+        {
+            var preview=await plugin.RequestAsync<RetentionPreviewDto>(MessageTypes.PreviewRetention,new GameQueryDto{PlayniteId=SelectedGame.PlayniteId});
+            RetentionSummary=preview.Summary;
+        }
+
+        private async Task AddMediaSourceAsync()
+        {
+            if(string.IsNullOrWhiteSpace(CustomMediaSourcePath))throw new InvalidOperationException("请输入截图或录像目录。");
+            await plugin.RequestAsync<MediaSourceRuleDto>(MessageTypes.AddMediaSource,new MediaSourceRuleDto{PlayniteId=SelectedGame.PlayniteId,RootPath=CustomMediaSourcePath,IncludePattern=string.IsNullOrWhiteSpace(CustomMediaPattern)?"*":CustomMediaPattern,SharedDirectory=CustomMediaShared,SourceKind=MediaSourceKind.Custom});
+            StatusMessage="自定义媒体来源已添加";
+            await LoadDetailsAsync();
+        }
+
+        private async Task AcceptCandidateAsync()
+        {
+            await plugin.RequestAsync<object>(MessageTypes.AcceptSavePath,new AcceptSavePathRequestDto{PlayniteId=SelectedGame.PlayniteId,Path=SelectedCandidate.Path,IncludeSubdirectories=true});
+            SelectedCandidate.Status="Accepted";StatusMessage="已生成 Ludusavi 自定义规则草案";
+        }
+
+        private async Task ReassignMediaAsync()
+        {
+            await plugin.RequestAsync<object>(MessageTypes.ReassignMedia,new ReassignMediaRequestDto{MediaId=SelectedMedia.MediaId,TargetPlayniteId=MediaTargetGame.PlayniteId});
+            StatusMessage=$"媒体已重新归类到 {MediaTargetGame.Name}";
+            await LoadDetailsAsync();
         }
 
         private async Task RestoreAsync()

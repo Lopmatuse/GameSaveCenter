@@ -34,6 +34,29 @@ public sealed class SqliteStateStore
         var command = connection.CreateCommand();
         command.CommandText = Schema;
         await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+        await EnsureColumnAsync(connection, "media_sources", "shared_directory", "INTEGER NOT NULL DEFAULT 0", token).ConfigureAwait(false);
+    }
+
+    private static async Task EnsureColumnAsync(SqliteConnection connection, string table, string column, string definition, CancellationToken token)
+    {
+        var inspect = connection.CreateCommand();
+        inspect.CommandText = $"PRAGMA table_info({table});";
+        var found = false;
+        await using (var reader = await inspect.ExecuteReaderAsync(token).ConfigureAwait(false))
+        {
+            while (await reader.ReadAsync(token).ConfigureAwait(false))
+            {
+                if (string.Equals(reader.GetString(1), column, StringComparison.OrdinalIgnoreCase))
+                {
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (found) return;
+        var alter = connection.CreateCommand();
+        alter.CommandText = $"ALTER TABLE {table} ADD COLUMN {column} {definition};";
+        await alter.ExecuteNonQueryAsync(token).ConfigureAwait(false);
     }
 
     public async Task UpsertGamesAsync(IEnumerable<GameDescriptorDto> games, CancellationToken token)
@@ -240,10 +263,19 @@ ON CONFLICT(backup_id) DO UPDATE SET total_bytes=excluded.total_bytes,file_count
         while(await reader.ReadAsync(token).ConfigureAwait(false)) result.Add(new BackupVersionDto
         {
             BackupId=reader.GetString(0),PlayniteId=playniteId,LudusaviName=reader.GetString(1),CreatedUtc=DateTime.Parse(reader.GetString(2)).ToUniversalTime(),
-            TotalBytes=reader.GetInt64(3),FileCount=reader.GetInt32(4),IsLocked=reader.GetInt32(5)==1,Comment=reader.GetString(6),SourceDevice=reader.GetString(7),
-            OperatingSystem=reader.GetString(8),IsPreRestore=reader.GetInt32(9)==1
+            TotalBytes=reader.GetInt64(3),FileCount=reader.GetInt32(4),IsLocked=reader.GetInt32(5)==1,Comment=reader.IsDBNull(6)?string.Empty:reader.GetString(6),SourceDevice=reader.IsDBNull(7)?string.Empty:reader.GetString(7),
+            OperatingSystem=reader.IsDBNull(8)?string.Empty:reader.GetString(8),IsPreRestore=reader.GetInt32(9)==1
         });
         return result;
+    }
+
+    public async Task<string> GetBackupManifestAsync(string playniteId,string backupId,CancellationToken token)
+    {
+        await using var connection=Open(); await connection.OpenAsync(token).ConfigureAwait(false);
+        var command=connection.CreateCommand();
+        command.CommandText="SELECT manifest_json FROM backup_versions WHERE playnite_id=$game AND backup_id=$backup;";
+        command.Parameters.AddWithValue("$game",playniteId);command.Parameters.AddWithValue("$backup",backupId);
+        return await command.ExecuteScalarAsync(token).ConfigureAwait(false) as string ?? "[]";
     }
 
     public async Task<bool> MediaHashExistsAsync(string sha256, CancellationToken token)
@@ -267,7 +299,24 @@ VALUES($id,$game,$kind,$source,$archive,$original,$captured,$size,$hash,$favorit
         await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);
         while(await reader.ReadAsync(token).ConfigureAwait(false)) result.Add(new MediaItemDto
         { MediaId=reader.GetString(0),PlayniteId=playniteId,Kind=(MediaKind)reader.GetInt32(1),Source=(MediaSourceKind)reader.GetInt32(2),ArchivePath=reader.GetString(3),OriginalPath=reader.GetString(4),
-          CapturedUtc=DateTime.Parse(reader.GetString(5)).ToUniversalTime(),SizeBytes=reader.GetInt64(6),Sha256=reader.GetString(7),IsFavorite=reader.GetInt32(8)==1,Comment=reader.GetString(9),CloudState=reader.GetString(10)});
+          CapturedUtc=DateTime.Parse(reader.GetString(5)).ToUniversalTime(),SizeBytes=reader.GetInt64(6),Sha256=reader.GetString(7),IsFavorite=reader.GetInt32(8)==1,Comment=reader.IsDBNull(9)?string.Empty:reader.GetString(9),CloudState=reader.IsDBNull(10)?string.Empty:reader.GetString(10)});
+        return result;
+    }
+
+    public Task AddMediaSourceAsync(MediaSourceRuleDto source,CancellationToken token) => ExecuteAsync(@"
+INSERT INTO media_sources(source_id,playnite_id,source_kind,root_path,include_pattern,enabled,shared_directory) VALUES($id,$game,$kind,$root,$pattern,$enabled,$shared)
+ON CONFLICT(source_id) DO UPDATE SET playnite_id=excluded.playnite_id,source_kind=excluded.source_kind,root_path=excluded.root_path,include_pattern=excluded.include_pattern,enabled=excluded.enabled,shared_directory=excluded.shared_directory;",
+        new Dictionary<string,object?>{["$id"]=string.IsNullOrWhiteSpace(source.SourceId)?Guid.NewGuid().ToString("N"):source.SourceId,["$game"]=source.PlayniteId,["$kind"]=(int)source.SourceKind,["$root"]=source.RootPath,["$pattern"]=source.IncludePattern,["$enabled"]=source.Enabled?1:0,["$shared"]=source.SharedDirectory?1:0},token);
+
+    public async Task<List<MediaSourceRuleDto>> GetMediaSourcesAsync(string playniteId,CancellationToken token)
+    {
+        var result=new List<MediaSourceRuleDto>();
+        await using var connection=Open();await connection.OpenAsync(token).ConfigureAwait(false);
+        var command=connection.CreateCommand();command.CommandText="SELECT source_id,playnite_id,source_kind,root_path,include_pattern,enabled,shared_directory FROM media_sources WHERE playnite_id=$game OR COALESCE(playnite_id,'')='';";
+        command.Parameters.AddWithValue("$game",playniteId);
+        await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        while(await reader.ReadAsync(token).ConfigureAwait(false))result.Add(new MediaSourceRuleDto
+        {SourceId=reader.GetString(0),PlayniteId=reader.IsDBNull(1)?string.Empty:reader.GetString(1),SourceKind=(MediaSourceKind)reader.GetInt32(2),RootPath=reader.GetString(3),IncludePattern=reader.IsDBNull(4)?"*":reader.GetString(4),Enabled=reader.GetInt32(5)==1,SharedDirectory=!reader.IsDBNull(6)&&reader.GetInt32(6)==1});
         return result;
     }
 
@@ -357,7 +406,7 @@ CREATE TABLE IF NOT EXISTS tasks(task_id TEXT PRIMARY KEY,task_type TEXT NOT NUL
 CREATE TABLE IF NOT EXISTS findings(finding_id TEXT PRIMARY KEY,playnite_id TEXT,severity INTEGER NOT NULL,code TEXT NOT NULL,title TEXT NOT NULL,detail TEXT,suggested_action TEXT,created_utc TEXT NOT NULL,resolved INTEGER NOT NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS backup_versions(backup_id TEXT PRIMARY KEY,playnite_id TEXT NOT NULL,ludusavi_name TEXT NOT NULL,created_utc TEXT NOT NULL,total_bytes INTEGER NOT NULL,file_count INTEGER NOT NULL,is_locked INTEGER NOT NULL DEFAULT 0,comment TEXT,source_device TEXT,operating_system TEXT,is_pre_restore INTEGER NOT NULL DEFAULT 0,manifest_json TEXT);
 CREATE TABLE IF NOT EXISTS media(media_id TEXT PRIMARY KEY,playnite_id TEXT,kind INTEGER NOT NULL,source INTEGER NOT NULL,archive_path TEXT NOT NULL,original_path TEXT NOT NULL,captured_utc TEXT NOT NULL,size_bytes INTEGER NOT NULL,sha256 TEXT NOT NULL UNIQUE,is_favorite INTEGER NOT NULL DEFAULT 0,comment TEXT,cloud_state TEXT NOT NULL DEFAULT 'Pending');
-CREATE TABLE IF NOT EXISTS media_sources(source_id TEXT PRIMARY KEY,playnite_id TEXT,source_kind INTEGER NOT NULL,root_path TEXT NOT NULL,include_pattern TEXT,enabled INTEGER NOT NULL DEFAULT 1);
+CREATE TABLE IF NOT EXISTS media_sources(source_id TEXT PRIMARY KEY,playnite_id TEXT,source_kind INTEGER NOT NULL,root_path TEXT NOT NULL,include_pattern TEXT,enabled INTEGER NOT NULL DEFAULT 1,shared_directory INTEGER NOT NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS save_candidates(candidate_id TEXT PRIMARY KEY,playnite_id TEXT NOT NULL,path TEXT NOT NULL,score REAL NOT NULL,reasons_json TEXT,status TEXT NOT NULL,created_utc TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS audit_log(audit_id TEXT PRIMARY KEY,category TEXT NOT NULL,message TEXT NOT NULL,detail_json TEXT,created_utc TEXT NOT NULL);
 CREATE INDEX IF NOT EXISTS ix_tasks_created ON tasks(created_utc DESC);

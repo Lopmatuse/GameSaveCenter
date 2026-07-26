@@ -21,7 +21,8 @@ namespace GameSaveCenter.Playnite.Settings
             this.plugin = plugin;
             var saved = plugin.LoadPluginSettings<GameSaveCenterSettings>();
             if (saved != null) CopyFrom(saved);
-            EnsureDefaults(plugin.GetPluginUserDataPath());
+            var pluginInstallPath = Path.GetDirectoryName(typeof(GameSaveCenterPlugin).Assembly.Location) ?? plugin.GetPluginUserDataPath();
+            EnsureDefaults(pluginInstallPath);
         }
 
         public string WorkerExecutable { get; set; } = string.Empty;
@@ -80,12 +81,12 @@ namespace GameSaveCenter.Playnite.Settings
             EnableCloudUpload = EnableCloudUpload
         };
 
-        private void EnsureDefaults(string pluginDataPath)
+        private void EnsureDefaults(string pluginInstallPath)
         {
             var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             var pictures = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
             if (string.IsNullOrWhiteSpace(WorkerExecutable))
-                WorkerExecutable = Path.Combine(pluginDataPath, "Worker", "GameSaveCenter.Worker.exe");
+                WorkerExecutable = Path.Combine(pluginInstallPath, "Worker", "GameSaveCenter.Worker.exe");
             if (string.IsNullOrWhiteSpace(LudusaviBackupDirectory))
                 LudusaviBackupDirectory = Path.Combine(documents, "GameSaveCenter", "Saves");
             if (string.IsNullOrWhiteSpace(MediaArchiveDirectory))

@@ -39,6 +39,26 @@ namespace GameSaveCenter.Contracts
         public bool IsPreRestore { get; set; }
     }
 
+    /// <summary>Human-readable manifest difference between two backups.</summary>
+    public sealed class BackupDiffDto
+    {
+        public string LeftBackupId { get; set; } = string.Empty;
+        public string RightBackupId { get; set; } = string.Empty;
+        public List<string> Added { get; set; } = new List<string>();
+        public List<string> Removed { get; set; } = new List<string>();
+        public List<string> Modified { get; set; } = new List<string>();
+        public int UnchangedCount { get; set; }
+        public string Summary { get; set; } = string.Empty;
+    }
+
+    /// <summary>Retention recommendation. Deletion is never implied by this DTO.</summary>
+    public sealed class RetentionPreviewDto
+    {
+        public List<string> KeepBackupIds { get; set; } = new List<string>();
+        public List<string> DeleteCandidateIds { get; set; } = new List<string>();
+        public string Summary { get; set; } = string.Empty;
+    }
+
     /// <summary>Persisted audit message exposed to the Playnite log page.</summary>
     public sealed class AuditLogEntryDto
     {

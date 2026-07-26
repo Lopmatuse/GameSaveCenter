@@ -1,6 +1,8 @@
 using System.Text.Json;
 using GameSaveCenter.Contracts;
 using GameSaveCenter.Worker.Configuration;
+using GameSaveCenter.Core.Models;
+using GameSaveCenter.Core.Services;
 using GameSaveCenter.Worker.Infrastructure;
 using GameSaveCenter.Worker.Persistence;
 using GameSaveCenter.Worker.Services;
@@ -44,6 +46,8 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.GameSessionStopped=>await StopAsync(Read<GameSessionEventDto>(request),token).ConfigureAwait(false),
                 MessageTypes.BackupGame or MessageTypes.BackupAll=>await _backup.BackupAsync(Read<BackupRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ListBackups=>await ListBackupsAsync(Read<GameQueryDto>(request),token).ConfigureAwait(false),
+                MessageTypes.CompareBackups=>await CompareBackupsAsync(Read<BackupCompareRequestDto>(request),token).ConfigureAwait(false),
+                MessageTypes.PreviewRetention=>await PreviewRetentionAsync(Read<GameQueryDto>(request),token).ConfigureAwait(false),
                 MessageTypes.UpdateBackupMetadata=>await UpdateMetadataAsync(Read<BackupMetadataUpdateDto>(request),token).ConfigureAwait(false),
                 MessageTypes.RestorePreview=>ToPortable(await _restore.PreviewAsync(Read<RestoreRequestDto>(request),token).ConfigureAwait(false)),
                 MessageTypes.RestoreExecute=>await _restore.ExecuteAsync(Read<RestoreRequestDto>(request),token).ConfigureAwait(false),
@@ -51,9 +55,13 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.SyncMedia=>await _media.SyncAsync(Read<MediaSyncRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ListMedia=>await ListMediaAsync(Read<GameQueryDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ReassignMedia=>await ReassignMediaAsync(Read<ReassignMediaRequestDto>(request),token).ConfigureAwait(false),
+                MessageTypes.AddMediaSource=>await AddMediaSourceAsync(Read<MediaSourceRuleDto>(request),token).ConfigureAwait(false),
+                MessageTypes.ListMediaSources=>await _store.GetMediaSourcesAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
                 MessageTypes.DetectSavePaths=>await _detection.DetectAsync(Read<DetectionRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.AcceptSavePath=>await _detection.AcceptAsync(Read<AcceptSavePathRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ValidateGame=>await ValidateAsync(Read<ValidateGameRequestDto>(request),token).ConfigureAwait(false),
+                MessageTypes.GetGamePolicy=>await _store.GetPolicyAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
+                MessageTypes.UpdateGamePolicy=>await UpdatePolicyAsync(Read<GamePolicyUpdateDto>(request),token).ConfigureAwait(false),
                 MessageTypes.GetTasks=>await _store.GetRecentTasksAsync(200,token).ConfigureAwait(false),
                 MessageTypes.GetLogs=>await _store.GetAuditAsync(500,token).ConfigureAwait(false),
                 MessageTypes.GetSettings=>SanitizedSettings(),
@@ -74,6 +82,44 @@ public sealed class IpcRequestDispatcher
     private async Task<object> StopAsync(GameSessionEventDto value,CancellationToken token){await _sessions.StopAsync(value,token).ConfigureAwait(false);return new{stopped=true};}
     private Task<List<BackupVersionDto>> ListBackupsAsync(GameQueryDto query,CancellationToken token)=>_store.GetBackupVersionsAsync(query.PlayniteId,token);
     private Task<List<MediaItemDto>> ListMediaAsync(GameQueryDto query,CancellationToken token)=>_store.GetMediaAsync(query.PlayniteId,query.Limit,token);
+
+    private async Task<object> UpdatePolicyAsync(GamePolicyUpdateDto update,CancellationToken token)
+    {
+        await _store.SetPolicyAsync(update.PlayniteId,update.Policy,token).ConfigureAwait(false);
+        await _store.AppendAuditAsync("Policy","Updated game policy",JsonSerializer.Serialize(new{update.PlayniteId,update.Policy}),token).ConfigureAwait(false);
+        return new{updated=true};
+    }
+
+    private async Task<object> AddMediaSourceAsync(MediaSourceRuleDto source,CancellationToken token)
+    {
+        source.RootPath=Path.GetFullPath(Environment.ExpandEnvironmentVariables(source.RootPath));
+        if(!Directory.Exists(source.RootPath))throw new DirectoryNotFoundException(source.RootPath);
+        if(string.IsNullOrWhiteSpace(source.SourceId))source.SourceId=Guid.NewGuid().ToString("N");
+        await _store.AddMediaSourceAsync(source,token).ConfigureAwait(false);
+        return source;
+    }
+
+    private async Task<BackupDiffDto> CompareBackupsAsync(BackupCompareRequestDto request,CancellationToken token)
+    {
+        var left=JsonSerializer.Deserialize<List<FileManifestEntry>>(await _store.GetBackupManifestAsync(request.PlayniteId,request.LeftBackupId,token).ConfigureAwait(false),_json)??new List<FileManifestEntry>();
+        var right=JsonSerializer.Deserialize<List<FileManifestEntry>>(await _store.GetBackupManifestAsync(request.PlayniteId,request.RightBackupId,token).ConfigureAwait(false),_json)??new List<FileManifestEntry>();
+        var diff=new FileManifestDiffService().Compare(left,right);
+        return new BackupDiffDto
+        {
+            LeftBackupId=request.LeftBackupId,RightBackupId=request.RightBackupId,Added=diff.Added.Select(x=>x.RelativePath).ToList(),Removed=diff.Removed.Select(x=>x.RelativePath).ToList(),
+            Modified=diff.Modified.Select(x=>x.RelativePath).ToList(),UnchangedCount=diff.Unchanged.Count,
+            Summary=$"新增 {diff.Added.Count}，删除 {diff.Removed.Count}，修改 {diff.Modified.Count}，未变化 {diff.Unchanged.Count}"
+        };
+    }
+
+    private async Task<RetentionPreviewDto> PreviewRetentionAsync(GameQueryDto query,CancellationToken token)
+    {
+        var versions=await _store.GetBackupVersionsAsync(query.PlayniteId,token).ConfigureAwait(false);
+        var policy=await _store.GetPolicyAsync(query.PlayniteId,token).ConfigureAwait(false);
+        var snapshots=versions.Select(x=>new BackupSnapshot{BackupId=x.BackupId,CreatedUtc=x.CreatedUtc,TotalBytes=x.TotalBytes,FileCount=x.FileCount,IsLocked=x.IsLocked,IsPreRestore=x.IsPreRestore,Comment=x.Comment,SourceDevice=x.SourceDevice}).ToList();
+        var plan=new RetentionPlanner().CreatePlan(snapshots,new RetentionPolicy{KeepAllFor=TimeSpan.FromHours(policy.KeepRecentAllHours),KeepDailyDays=policy.KeepDailyDays,KeepWeeklyWeeks=policy.KeepWeeklyWeeks,KeepMonthlyMonths=policy.KeepMonthlyMonths},DateTime.UtcNow);
+        return new RetentionPreviewDto{KeepBackupIds=plan.Keep.Select(x=>x.BackupId).ToList(),DeleteCandidateIds=plan.DeleteCandidates.Select(x=>x.BackupId).ToList(),Summary=$"建议保留 {plan.Keep.Count} 个版本；{plan.DeleteCandidates.Count} 个版本可由用户审核后清理。自动删除未启用。"};
+    }
 
     private async Task<object> ReassignMediaAsync(ReassignMediaRequestDto request,CancellationToken token)
     {

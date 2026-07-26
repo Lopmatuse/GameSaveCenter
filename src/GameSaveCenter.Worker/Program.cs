@@ -38,7 +38,8 @@ internal static class Program
         builder.Services.AddSingleton<IpcRequestDispatcher>();
         builder.Services.AddHostedService<WorkerInitializationService>();
         builder.Services.AddHostedService<NamedPipeServerService>();
-        builder.Services.AddHostedService<GameSessionCoordinator>();
+        builder.Services.AddSingleton<GameSessionCoordinator>();
+        builder.Services.AddHostedService(provider => provider.GetRequiredService<GameSessionCoordinator>());
         builder.Services.AddHostedService<ExternalGameProcessDetector>();
 
         await builder.Build().RunAsync().ConfigureAwait(false);

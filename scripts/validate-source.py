@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+"""Cross-platform structural checks that do not replace a real Windows build."""
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+import xml.etree.ElementTree as ET
+
+try:
+    import yaml
+except ImportError:  # pragma: no cover
+    yaml = None
+
+ROOT = Path(__file__).resolve().parents[1]
+ERRORS: list[str] = []
+
+
+def fail(message: str) -> None:
+    ERRORS.append(message)
+
+
+def check_structured_files() -> None:
+    for path in ROOT.rglob("*.json"):
+        if any(part in {"bin", "obj", ".git", "artifacts"} for part in path.parts):
+            continue
+        try:
+            json.loads(path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            fail(f"JSON invalid: {path.relative_to(ROOT)}: {exc}")
+
+    for pattern in ("*.xaml", "*.csproj", "*.props"):
+        for path in ROOT.rglob(pattern):
+            if any(part in {"bin", "obj", ".git", "artifacts"} for part in path.parts):
+                continue
+            try:
+                ET.parse(path)
+            except Exception as exc:
+                fail(f"XML invalid: {path.relative_to(ROOT)}: {exc}")
+
+    manifest = ROOT / "src/GameSaveCenter.Playnite/extension.yaml"
+    if yaml is not None:
+        try:
+            data = yaml.safe_load(manifest.read_text(encoding="utf-8"))
+            for key in ("Id", "Name", "Version", "Module", "Type"):
+                if not data.get(key):
+                    fail(f"extension.yaml missing {key}")
+        except Exception as exc:
+            fail(f"YAML invalid: {manifest.relative_to(ROOT)}: {exc}")
+
+
+def strip_csharp(text: str) -> str:
+    """Remove comments and strings before delimiter checks; current source uses no raw strings."""
+    result: list[str] = []
+    i = 0
+    state = "code"
+    while i < len(text):
+        ch = text[i]
+        nxt = text[i + 1] if i + 1 < len(text) else ""
+        if state == "code":
+            if ch == "/" and nxt == "/":
+                state = "line_comment"; result.extend("  "); i += 2; continue
+            if ch == "/" and nxt == "*":
+                state = "block_comment"; result.extend("  "); i += 2; continue
+            if ch == '@' and nxt == '"':
+                state = "verbatim"; result.extend("  "); i += 2; continue
+            if ch == '"':
+                state = "string"; result.append(" "); i += 1; continue
+            if ch == "'":
+                state = "char"; result.append(" "); i += 1; continue
+            result.append(ch); i += 1; continue
+        if state == "line_comment":
+            if ch == "\n": state = "code"; result.append("\n")
+            else: result.append(" ")
+            i += 1; continue
+        if state == "block_comment":
+            if ch == "*" and nxt == "/": state = "code"; result.extend("  "); i += 2
+            else: result.append("\n" if ch == "\n" else " "); i += 1
+            continue
+        if state == "verbatim":
+            if ch == '"' and nxt == '"': result.extend("  "); i += 2
+            elif ch == '"': state = "code"; result.append(" "); i += 1
+            else: result.append("\n" if ch == "\n" else " "); i += 1
+            continue
+        if state in {"string", "char"}:
+            quote = '"' if state == "string" else "'"
+            if ch == "\\": result.extend("  "); i += 2
+            elif ch == quote: state = "code"; result.append(" "); i += 1
+            else: result.append("\n" if ch == "\n" else " "); i += 1
+            continue
+    return "".join(result)
+
+
+def check_csharp_delimiters() -> None:
+    pairs = {')': '(', ']': '[', '}': '{'}
+    for path in list((ROOT / "src").rglob("*.cs")) + list((ROOT / "tests").rglob("*.cs")):
+        clean = strip_csharp(path.read_text(encoding="utf-8"))
+        stack: list[tuple[str, int]] = []
+        for index, ch in enumerate(clean):
+            if ch in "([{":
+                stack.append((ch, index))
+            elif ch in ")]}":
+                if not stack or stack[-1][0] != pairs[ch]:
+                    fail(f"Delimiter mismatch: {path.relative_to(ROOT)} at offset {index}")
+                    break
+                stack.pop()
+        if stack:
+            fail(f"Unclosed delimiter: {path.relative_to(ROOT)} ({stack[-1][0]})")
+
+
+def check_solution() -> None:
+    solution = (ROOT / "GameSaveCenter.sln").read_text(encoding="utf-8")
+    project_lines = re.findall(r'^Project\([^\n]+?\) = "([^"]+)", "([^"]+)"', solution, re.M)
+    names = [name for name, _ in project_lines]
+    if len(names) != len(set(names)):
+        fail("Solution contains duplicate projects")
+    expected = {
+        "GameSaveCenter.Contracts", "GameSaveCenter.Core", "GameSaveCenter.Worker",
+        "GameSaveCenter.Playnite", "GameSaveCenter.Core.Tests"
+    }
+    if set(names) != expected:
+        fail(f"Solution project set mismatch: {set(names)!r}")
+    for _, rel in project_lines:
+        path = ROOT / rel.replace("\\", "/")
+        if not path.exists():
+            fail(f"Solution project missing: {rel}")
+    if len(re.findall(r"^Global$", solution, re.M)) != 1 or len(re.findall(r"^EndGlobal$", solution, re.M)) != 1:
+        fail("Solution Global structure is invalid")
+
+
+def check_ipc_constants() -> None:
+    constants_text = (ROOT / "src/GameSaveCenter.Contracts/MessageTypes.cs").read_text(encoding="utf-8")
+    declared = set(re.findall(r'public const string (\w+)\s*=', constants_text))
+    for path in list((ROOT / "src").rglob("*.cs")):
+        for name in re.findall(r'MessageTypes\.(\w+)', path.read_text(encoding="utf-8")):
+            if name not in declared:
+                fail(f"Unknown MessageTypes.{name} in {path.relative_to(ROOT)}")
+
+
+def check_delivery_guards() -> None:
+    forbidden = ["rclone.conf", "secrets.json", "appsettings.local.json"]
+    for name in forbidden:
+        for path in ROOT.rglob(name):
+            if ".git" not in path.parts:
+                fail(f"Secret-bearing file must not be committed: {path.relative_to(ROOT)}")
+    if not (ROOT / "docs/DEVELOPMENT_PROGRESS.md").exists():
+        fail("Missing development progress document")
+    if not (ROOT / "docs/PROJECT_MEMORY.md").exists():
+        fail("Missing project memory document")
+
+
+def main() -> int:
+    check_structured_files()
+    check_csharp_delimiters()
+    check_solution()
+    check_ipc_constants()
+    check_delivery_guards()
+    if ERRORS:
+        print("Source validation failed:")
+        for item in ERRORS:
+            print(f" - {item}")
+        return 1
+    print("Source validation passed: JSON/XML/YAML, C# delimiters, solution, IPC constants and delivery guards.")
+    print("Note: this does not replace dotnet build/test on Windows with Playnite installed.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

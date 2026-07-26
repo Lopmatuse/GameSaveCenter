@@ -86,6 +86,33 @@ namespace GameSaveCenter.Contracts
     }
 
 
+    /// <summary>Updates one game's independent automation policy.</summary>
+    public sealed class GamePolicyUpdateDto
+    {
+        public string PlayniteId { get; set; } = string.Empty;
+        public BackupPolicyDto Policy { get; set; } = new BackupPolicyDto();
+    }
+
+    /// <summary>Compares two indexed backup manifests.</summary>
+    public sealed class BackupCompareRequestDto
+    {
+        public string PlayniteId { get; set; } = string.Empty;
+        public string LeftBackupId { get; set; } = string.Empty;
+        public string RightBackupId { get; set; } = string.Empty;
+    }
+
+    /// <summary>User-defined screenshot/video source for a game or shared inbox.</summary>
+    public sealed class MediaSourceRuleDto
+    {
+        public string SourceId { get; set; } = string.Empty;
+        public string PlayniteId { get; set; } = string.Empty;
+        public MediaSourceKind SourceKind { get; set; } = MediaSourceKind.Custom;
+        public string RootPath { get; set; } = string.Empty;
+        public string IncludePattern { get; set; } = "*";
+        public bool Enabled { get; set; } = true;
+        public bool SharedDirectory { get; set; }
+    }
+
     /// <summary>Updates a Ludusavi backup comment and lock state.</summary>
     public sealed class BackupMetadataUpdateDto
     {

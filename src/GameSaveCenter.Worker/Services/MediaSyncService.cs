@@ -36,13 +36,13 @@ public sealed class MediaSyncService
             output.Add(await _tasks.RunAsync("MediaSync",game.PlayniteId,game.Name,async(progress,ct)=>
             {
                 await progress.ReportAsync(5,"正在查找媒体来源").ConfigureAwait(false);
-                var sources=DiscoverSources(game).DistinctBy(x=>x.Path,StringComparer.OrdinalIgnoreCase).Where(x=>Directory.Exists(x.Path)).ToList();
+                var sources=(await DiscoverSourcesAsync(game,ct).ConfigureAwait(false)).DistinctBy(x=>$"{x.Path}|{x.IncludePattern}|{x.SharedDirectory}",StringComparer.OrdinalIgnoreCase).Where(x=>Directory.Exists(x.Path)).ToList();
                 var candidates=new List<(string Path,MediaSourceKind Source,bool Shared)>();
                 foreach(var source in sources)
                 {
                     try
                     {
-                        candidates.AddRange(Directory.EnumerateFiles(source.Path,"*",SearchOption.AllDirectories)
+                        candidates.AddRange(Directory.EnumerateFiles(source.Path,string.IsNullOrWhiteSpace(source.IncludePattern)?"*":source.IncludePattern,SearchOption.AllDirectories)
                             .Where(IsMedia)
                             .Where(x=>!source.SharedDirectory||SharedFileMatchesGame(x,game.Name))
                             .Select(x=>(x,source.Source,source.SharedDirectory)));
@@ -92,8 +92,9 @@ public sealed class MediaSyncService
         return output;
     }
 
-    private IEnumerable<MediaSource> DiscoverSources(GameDescriptorDto game)
+    private async Task<List<MediaSource>> DiscoverSourcesAsync(GameDescriptorDto game,CancellationToken token)
     {
+        var output=new List<MediaSource>();
         if(game.Platform==GamePlatformKind.Steam&&!string.IsNullOrWhiteSpace(game.PlatformGameId))
         {
             foreach(var steamRoot in SteamRoots())
@@ -101,7 +102,7 @@ public sealed class MediaSyncService
                 var userdata=Path.Combine(steamRoot,"userdata");
                 if(!Directory.Exists(userdata)) continue;
                 foreach(var user in Directory.EnumerateDirectories(userdata))
-                    yield return new MediaSource(Path.Combine(user,"760","remote",game.PlatformGameId,"screenshots"),MediaSourceKind.Steam);
+                    output.Add(new MediaSource(Path.Combine(user,"760","remote",game.PlatformGameId,"screenshots"),MediaSourceKind.Steam));
             }
         }
 
@@ -109,23 +110,26 @@ public sealed class MediaSyncService
         // later reliability passes; MVP archives files only when the name identifies the game.
         var captures=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos),"Captures");
         if(Directory.Exists(captures))
-            yield return new MediaSource(captures,MediaSourceKind.XboxGameBar,true);
+            output.Add(new MediaSource(captures,MediaSourceKind.XboxGameBar,true));
 
         var windowsScreens=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),"Screenshots");
         if(Directory.Exists(windowsScreens))
-            yield return new MediaSource(windowsScreens,MediaSourceKind.WindowsScreenshot,true);
+            output.Add(new MediaSource(windowsScreens,MediaSourceKind.WindowsScreenshot,true));
 
         if(!string.IsNullOrWhiteSpace(game.InstallDirectory))
         {
             foreach(var child in new[]{"Screenshots","Screenshot","Captures","Capture","Media"})
-                yield return new MediaSource(Path.Combine(game.InstallDirectory,child),PlatformSource(game.Platform));
+                output.Add(new MediaSource(Path.Combine(game.InstallDirectory,child),PlatformSource(game.Platform)));
         }
         foreach(var action in game.Actions)
         {
             var basePath=string.IsNullOrWhiteSpace(action.WorkingDirectory)?Path.GetDirectoryName(action.Path):action.WorkingDirectory;
             if(string.IsNullOrWhiteSpace(basePath)) continue;
-            foreach(var child in new[]{"Screenshots","Captures"}) yield return new MediaSource(Path.Combine(basePath,child),action.IsModLoader?MediaSourceKind.Custom:PlatformSource(game.Platform));
+            foreach(var child in new[]{"Screenshots","Captures"}) output.Add(new MediaSource(Path.Combine(basePath,child),action.IsModLoader?MediaSourceKind.Custom:PlatformSource(game.Platform)));
         }
+        foreach(var custom in await _store.GetMediaSourcesAsync(game.PlayniteId,token).ConfigureAwait(false))
+            if(custom.Enabled&&!string.IsNullOrWhiteSpace(custom.RootPath)) output.Add(new MediaSource(custom.RootPath,custom.SourceKind,custom.SharedDirectory,string.IsNullOrWhiteSpace(custom.IncludePattern)?"*":custom.IncludePattern));
+        return output;
     }
 
     private IEnumerable<string> SteamRoots()
@@ -192,5 +196,5 @@ public sealed class MediaSyncService
         return string.IsNullOrWhiteSpace(normalized)?"Unknown Game":normalized;
     }
 
-    private sealed record MediaSource(string Path,MediaSourceKind Source,bool SharedDirectory=false);
+    private sealed record MediaSource(string Path,MediaSourceKind Source,bool SharedDirectory=false,string IncludePattern="*");
 }

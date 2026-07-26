@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using GameSaveCenter.Contracts;
@@ -34,8 +36,6 @@ namespace GameSaveCenter.Playnite
         }
 
         public override Guid Id => PluginId;
-        public IPlayniteAPI PlayniteApi => PlayniteApiInternal;
-        private IPlayniteAPI PlayniteApiInternal => base.PlayniteApi;
         public GameSaveCenterSettings Settings { get; }
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
@@ -83,8 +83,8 @@ namespace GameSaveCenter.Playnite
             {
                 Title = "GameSaveCenter",
                 Type = SiderbarItemType.View,
-                Icon = "\ue8b7",
-                Opened = () => new SidebarItemView { Type = SidebarItemViewType.UserControl, Content = new DashboardView(this) }
+                Icon = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "icon.png"),
+                Opened = () => new DashboardView(this)
             };
         }
 

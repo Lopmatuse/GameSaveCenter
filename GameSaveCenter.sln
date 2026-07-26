@@ -6,6 +6,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameSaveCenter.Contracts", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameSaveCenter.Core", "src\GameSaveCenter.Core\GameSaveCenter.Core.csproj", "{D517C3B7-5A56-4CBE-B884-36151C1262A6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameSaveCenter.Worker", "src\GameSaveCenter.Worker\GameSaveCenter.Worker.csproj", "{A8543826-44A1-4B61-A988-D2E02D1C4338}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameSaveCenter.Playnite", "src\GameSaveCenter.Playnite\GameSaveCenter.Playnite.csproj", "{B982A533-613B-42A8-BA18-73C91F50FBC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameSaveCenter.Core.Tests", "tests\GameSaveCenter.Core.Tests\GameSaveCenter.Core.Tests.csproj", "{C03FEF6B-5E82-43F6-93C0-1463AB38DF66}"
+EndProject
 Global
     GlobalSection(SolutionConfigurationPlatforms) = preSolution
         Debug|Any CPU = Debug|Any CPU
@@ -20,5 +26,17 @@ Global
         {D517C3B7-5A56-4CBE-B884-36151C1262A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
         {D517C3B7-5A56-4CBE-B884-36151C1262A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
         {D517C3B7-5A56-4CBE-B884-36151C1262A6}.Release|Any CPU.Build.0 = Release|Any CPU
+        {A8543826-44A1-4B61-A988-D2E02D1C4338}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {A8543826-44A1-4B61-A988-D2E02D1C4338}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {A8543826-44A1-4B61-A988-D2E02D1C4338}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {A8543826-44A1-4B61-A988-D2E02D1C4338}.Release|Any CPU.Build.0 = Release|Any CPU
+        {B982A533-613B-42A8-BA18-73C91F50FBC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {B982A533-613B-42A8-BA18-73C91F50FBC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {B982A533-613B-42A8-BA18-73C91F50FBC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {B982A533-613B-42A8-BA18-73C91F50FBC5}.Release|Any CPU.Build.0 = Release|Any CPU
+        {C03FEF6B-5E82-43F6-93C0-1463AB38DF66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {C03FEF6B-5E82-43F6-93C0-1463AB38DF66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {C03FEF6B-5E82-43F6-93C0-1463AB38DF66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {C03FEF6B-5E82-43F6-93C0-1463AB38DF66}.Release|Any CPU.Build.0 = Release|Any CPU
     EndGlobalSection
 EndGlobal
