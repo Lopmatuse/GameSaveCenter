@@ -37,6 +37,9 @@ namespace GameSaveCenter.Playnite.Settings
         public bool EnableCloudUpload { get; set; }
         public bool EnableDashboardAutoRefresh { get; set; } = true;
         public bool EnableTaskNotifications { get; set; } = true;
+        public bool EnableUiAnimations { get; set; } = true;
+        public bool EnableGlassEffects { get; set; } = true;
+        public int GlassEffectStrength { get; set; } = 78;
         public int DashboardRefreshSeconds { get; set; } = 10;
         public int ProcessPollingSeconds { get; set; } = 5;
         public int DefaultBackupIntervalMinutes { get; set; } = 30;
@@ -75,6 +78,8 @@ namespace GameSaveCenter.Playnite.Settings
                 errors.Add("进程检测间隔必须为 2–60 秒。");
             if (DashboardRefreshSeconds < 5 || DashboardRefreshSeconds > 300)
                 errors.Add("管理面板自动刷新间隔必须为 5–300 秒。");
+            if (GlassEffectStrength < 20 || GlassEffectStrength > 100)
+                errors.Add("毛玻璃强度必须为 20–100。");
             if (FullBackupLimit < 1 || FullBackupLimit > 255)
                 errors.Add("完整备份保留数量必须为 1–255。");
             if (DifferentialBackupLimit < 0 || DifferentialBackupLimit > 255)
@@ -131,6 +136,9 @@ namespace GameSaveCenter.Playnite.Settings
             EnableCloudUpload = other.EnableCloudUpload;
             EnableDashboardAutoRefresh = other.EnableDashboardAutoRefresh;
             EnableTaskNotifications = other.EnableTaskNotifications;
+            EnableUiAnimations = other.EnableUiAnimations;
+            EnableGlassEffects = other.EnableGlassEffects;
+            GlassEffectStrength = other.GlassEffectStrength <= 0 ? 78 : other.GlassEffectStrength;
             DashboardRefreshSeconds = other.DashboardRefreshSeconds;
             ProcessPollingSeconds = other.ProcessPollingSeconds;
             DefaultBackupIntervalMinutes = other.DefaultBackupIntervalMinutes;

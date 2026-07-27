@@ -16,6 +16,14 @@
         <SolidColorBrush x:Key="GscErrorBrush" Color="#FF453A"/>
         <SolidColorBrush x:Key="GscInfoBrush" Color="#0A84FF"/>
 
+        <!-- These brushes are replaced at runtime after inspecting the active Playnite theme. -->
+        <SolidColorBrush x:Key="GscGlassFillBrush" Color="#D8FFFFFF"/>
+        <SolidColorBrush x:Key="GscGlassStrongBrush" Color="#F0FFFFFF"/>
+        <SolidColorBrush x:Key="GscGlassStrokeBrush" Color="#2A000000"/>
+        <SolidColorBrush x:Key="GscGlassHighlightBrush" Color="#A8FFFFFF"/>
+        <SolidColorBrush x:Key="GscSidebarBrush" Color="#B8FFFFFF"/>
+        <SolidColorBrush x:Key="GscBackdropBrush" Color="#18F1F2F7"/>
+
         <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
             <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
             <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI"/>
@@ -23,9 +31,9 @@
         </Style>
 
         <Style x:Key="GscSurface" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource GscGlassFillBrush}"/>
             <Setter Property="CornerRadius" Value="18"/>
-            <Setter Property="BorderBrush" Value="{StaticResource GscDividerBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Effect">
@@ -41,6 +49,8 @@
             <Setter Property="MinHeight" Value="80"/>
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
             <Setter Property="RenderTransform"><Setter.Value><TranslateTransform Y="0"/></Setter.Value></Setter>
+            <EventSetter Event="MouseEnter" Handler="OnMetricCardMouseEnter"/>
+            <EventSetter Event="MouseLeave" Handler="OnMetricCardMouseLeave"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="BorderBrush" Value="{StaticResource GscAccentTintStrongBrush}"/>
@@ -90,6 +100,10 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="1" ScaleY="1"/></Setter.Value></Setter>
+            <EventSetter Event="MouseEnter" Handler="OnButtonMouseEnter"/>
+            <EventSetter Event="MouseLeave" Handler="OnButtonMouseLeave"/>
         </Style>
 
         <Style x:Key="GscPrimaryButton" TargetType="Button" BasedOn="{StaticResource GscButtonBase}">
@@ -261,6 +275,41 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="GscNavItem" TargetType="RadioButton">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="13,10"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform"><Setter.Value><TranslateTransform X="0"/></Setter.Value></Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="NavChrome" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="12" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="NavChrome" Property="Background" Value="{StaticResource GscAccentTintStrongBrush}"/>
+                                <Setter TargetName="NavChrome" Property="BorderBrush" Value="{StaticResource GscAccentTintStrongBrush}"/>
+                                <Setter Property="Foreground" Value="{StaticResource GscAccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="NavChrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <EventSetter Event="MouseEnter" Handler="OnNavigationMouseEnter"/>
+            <EventSetter Event="MouseLeave" Handler="OnNavigationMouseLeave"/>
+        </Style>
+
         <Style x:Key="GscEmptyText" TargetType="TextBlock">
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -271,7 +320,73 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Margin="22,18,22,16">
+    <Grid x:Name="RootShell" Background="{DynamicResource GscBackdropBrush}" ClipToBounds="True">
+        <Grid x:Name="AmbientGlowLayer" IsHitTestVisible="False" Opacity="0.9">
+            <Ellipse Width="360" Height="360" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-95,-130,0,0" Fill="#267C5CFC">
+                <Ellipse.Effect><BlurEffect Radius="82"/></Ellipse.Effect>
+            </Ellipse>
+            <Ellipse Width="320" Height="320" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,35,-105,0" Fill="#1E0A84FF">
+                <Ellipse.Effect><BlurEffect Radius="90"/></Ellipse.Effect>
+            </Ellipse>
+            <Ellipse Width="300" Height="300" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,20,-165" Fill="#1830D158">
+                <Ellipse.Effect><BlurEffect Radius="96"/></Ellipse.Effect>
+            </Ellipse>
+        </Grid>
+
+        <Grid Margin="18,16,18,14">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="194"/><ColumnDefinition Width="18"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Background="{DynamicResource GscSidebarBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}" BorderThickness="1" CornerRadius="22" Padding="15">
+                <Border.Effect><DropShadowEffect Color="#26000000" BlurRadius="24" ShadowDepth="3" Opacity="0.35"/></Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <StackPanel Margin="3,3,3,20">
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="38" Height="38" CornerRadius="12" Background="{StaticResource GscAccentBrush}">
+                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18"/>
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.3.1" FontSize="11" Opacity="0.48"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                    <Border Grid.Row="1" Height="1" Background="{StaticResource GscDividerBrush}" Margin="0,0,0,15"/>
+                    <StackPanel Grid.Row="2">
+                        <RadioButton x:Name="NavOverview" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" IsChecked="True" Tag="0" Checked="OnNavigationChecked">
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE80F;" Width="27" FontSize="16"/><TextBlock Text="概览" FontWeight="SemiBold"/></StackPanel>
+                        </RadioButton>
+                        <RadioButton x:Name="NavMedia" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="1" Checked="OnNavigationChecked">
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB9F;" Width="27" FontSize="16"/><TextBlock Text="截图与录像"/></StackPanel>
+                        </RadioButton>
+                        <RadioButton x:Name="NavPaths" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="2" Checked="OnNavigationChecked">
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Width="27" FontSize="16"/><TextBlock Text="候选路径"/></StackPanel>
+                        </RadioButton>
+                        <RadioButton x:Name="NavTasks" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="3" Checked="OnNavigationChecked">
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D5;" Width="27" FontSize="16"/><TextBlock Text="备份任务"/></StackPanel>
+                        </RadioButton>
+                        <RadioButton x:Name="NavDiagnostics" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="4" Checked="OnNavigationChecked">
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D9;" Width="27" FontSize="16"/><TextBlock Text="诊断中心"/></StackPanel>
+                        </RadioButton>
+                        <RadioButton x:Name="NavLogs" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="5" Checked="OnNavigationChecked">
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D2;" Width="27" FontSize="16"/><TextBlock Text="异常与日志"/></StackPanel>
+                        </RadioButton>
+                    </StackPanel>
+                    <StackPanel Grid.Row="3" Margin="4,12,4,2">
+                        <Border Height="1" Background="{StaticResource GscDividerBrush}" Margin="0,0,0,13"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Border Width="9" Height="9" CornerRadius="5" Margin="0,0,8,0" VerticalAlignment="Center">
+                                <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="{StaticResource GscErrorBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Snapshot.WorkerHealthy}" Value="True"><Setter Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger></Style.Triggers></Style></Border.Style>
+                            </Border>
+                            <TextBlock Text="Worker" FontSize="12" Opacity="0.7"/>
+                            <TextBlock FontSize="12" Opacity="0.7"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource TextBrush}"/><Setter Property="Text" Value=" 正常"/><Style.Triggers><DataTrigger Binding="{Binding Snapshot.WorkerHealthy}" Value="False"><Setter Property="Text" Value=" 不可用"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+                        </StackPanel>
+                        <TextBlock Text="{Binding Snapshot.LudusaviVersion, StringFormat=Ludusavi：{0}}" FontSize="11" Opacity="0.48" Margin="0,7,0,0" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Grid x:Name="MainShell" Grid.Column="2" Opacity="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -282,10 +397,22 @@
         <Grid Grid.Row="0" Margin="4,0,0,16">
             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
             <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="GameSaveCenter" FontSize="25" FontWeight="SemiBold"/>
-                <TextBlock Text="概览 · 存档、截图与云同步中心" Opacity="0.58" Margin="0,4,0,0"/>
+                <TextBlock Text="概览" FontSize="25" FontWeight="SemiBold"/>
+                <TextBlock Text="存档、截图、任务与云同步中心" Opacity="0.58" Margin="0,4,0,0"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Background="{StaticResource GscAccentTintBrush}" BorderBrush="{StaticResource GscAccentTintStrongBrush}" BorderThickness="1" CornerRadius="12" Padding="11,7" Margin="0,0,8,8">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers><DataTrigger Binding="{Binding IsBusy}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel Orientation="Horizontal">
+                        <ProgressBar Width="42" Height="4" IsIndeterminate="True" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="正在处理" Foreground="{StaticResource GscAccentBrush}" FontWeight="SemiBold"/>
+                    </StackPanel>
+                </Border>
                 <Button Style="{StaticResource GscButtonBase}" Command="{Binding RefreshCommand}">
                     <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72C;" Margin="0,0,8,0"/><TextBlock Text="刷新"/></StackPanel>
                 </Button>
@@ -401,7 +528,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Column="2" Style="{StaticResource GscSurface}" Padding="18">
+            <Border x:Name="GameDetailCard" Grid.Column="2" Style="{StaticResource GscSurface}" Padding="18">
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                     <Grid>
@@ -455,7 +582,7 @@
                         </WrapPanel>
                     </Border>
 
-                    <TabControl Grid.Row="3" Background="Transparent" BorderThickness="0">
+                    <TabControl x:Name="DetailsTabControl" Grid.Row="3" Background="Transparent" BorderThickness="0" SelectionChanged="OnDetailsTabSelectionChanged">
                         <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource GscTabItem}"/></TabControl.Resources>
                         <TabItem Header="存档历史">
                             <Grid Margin="0,12,0,0">
@@ -585,7 +712,7 @@
                                         </DataGrid.Columns>
                                     </DataGrid>
                                 </Border>
-                                <Border Grid.Row="1" Style="{StaticResource GscSurface}" CornerRadius="12" Padding="14" Margin="0,10,0,0">
+                                <Border x:Name="TaskDetailCard" Grid.Row="1" Style="{StaticResource GscSurface}" CornerRadius="12" Padding="14" Margin="0,10,0,0">
                                     <Grid>
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                         <StackPanel>
@@ -643,6 +770,7 @@
 
         <Grid Grid.Row="3" Margin="4,13,4,0">
             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <Border x:Name="StatusPill" Background="{DynamicResource GscGlassFillBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}" BorderThickness="1" CornerRadius="12" Padding="10,6" HorizontalAlignment="Left">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <Border Width="8" Height="8" CornerRadius="4" Margin="0,0,7,0">
                     <Border.Style>
@@ -657,6 +785,7 @@
                 <TextBlock Text="  ·  " Opacity="0.35"/>
                 <TextBlock Text="{Binding Snapshot.GeneratedLocal, StringFormat=更新 {0:HH:mm:ss}}" Opacity="0.5"/>
             </StackPanel>
+            </Border>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="自动更新" Opacity="0.45" Margin="0,0,8,0">
                     <TextBlock.Style>
@@ -669,6 +798,8 @@
                 </TextBlock>
                 <ProgressBar Width="120" Height="4" IsIndeterminate="{Binding IsBusy}"/>
             </StackPanel>
+        </Grid>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>
