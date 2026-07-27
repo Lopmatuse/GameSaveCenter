@@ -8,15 +8,17 @@ namespace GameSaveCenter.Worker.Services;
 public sealed class WorkerInitializationService : IHostedService
 {
     private readonly SqliteStateStore _store;
+    private readonly SavePathDetectionService _detection;
     private readonly ILogger<WorkerInitializationService> _logger;
 
-    public WorkerInitializationService(SqliteStateStore store, ILogger<WorkerInitializationService> logger)
-    { _store=store; _logger=logger; }
+    public WorkerInitializationService(SqliteStateStore store, SavePathDetectionService detection, ILogger<WorkerInitializationService> logger)
+    { _store=store; _detection=detection; _logger=logger; }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await _store.InitializeAsync(cancellationToken).ConfigureAwait(false);
         await _store.MarkInterruptedTasksAsync(cancellationToken).ConfigureAwait(false);
+        await _detection.CleanupExpiredSnapshotsAsync(cancellationToken).ConfigureAwait(false);
         _logger.LogInformation("GameSaveCenter Worker storage initialized and stale tasks reconciled");
     }
 

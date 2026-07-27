@@ -33,10 +33,12 @@ namespace GameSaveCenter.Playnite.Settings
         public string MediaArchiveDirectory { get; set; } = string.Empty;
         public bool AutoStartWorker { get; set; } = true;
         public bool EnableProcessDetection { get; set; } = true;
+        public bool EnableSessionSavePathDetection { get; set; } = true;
         public bool EnableMediaSync { get; set; } = true;
         public bool EnableCloudUpload { get; set; }
         public bool EnableDashboardAutoRefresh { get; set; } = true;
         public bool EnableTaskNotifications { get; set; } = true;
+        public GameSaveCenterThemeMode ThemeMode { get; set; } = GameSaveCenterThemeMode.FollowPlaynite;
         public bool EnableUiAnimations { get; set; } = true;
         public bool EnableGlassEffects { get; set; } = true;
         public int GlassEffectStrength { get; set; } = 78;
@@ -60,6 +62,7 @@ namespace GameSaveCenter.Playnite.Settings
         {
             if (plugin == null) return;
             plugin.SavePluginSettings(this);
+            plugin.NotifyVisualSettingsChanged();
             plugin.ApplySettingsAsync();
         }
 
@@ -99,6 +102,7 @@ namespace GameSaveCenter.Playnite.Settings
             ProcessPollingSeconds = ProcessPollingSeconds,
             DefaultBackupIntervalMinutes = DefaultBackupIntervalMinutes,
             EnableProcessDetection = EnableProcessDetection,
+            EnableSessionSavePathDetection = EnableSessionSavePathDetection,
             EnableMediaSync = EnableMediaSync,
             EnableCloudUpload = EnableCloudUpload,
             BackupFormat = BackupFormat,
@@ -132,10 +136,12 @@ namespace GameSaveCenter.Playnite.Settings
             MediaArchiveDirectory = other.MediaArchiveDirectory;
             AutoStartWorker = other.AutoStartWorker;
             EnableProcessDetection = other.EnableProcessDetection;
+            EnableSessionSavePathDetection = other.EnableSessionSavePathDetection;
             EnableMediaSync = other.EnableMediaSync;
             EnableCloudUpload = other.EnableCloudUpload;
             EnableDashboardAutoRefresh = other.EnableDashboardAutoRefresh;
             EnableTaskNotifications = other.EnableTaskNotifications;
+            ThemeMode = other.ThemeMode;
             EnableUiAnimations = other.EnableUiAnimations;
             EnableGlassEffects = other.EnableGlassEffects;
             GlassEffectStrength = other.GlassEffectStrength <= 0 ? 78 : other.GlassEffectStrength;

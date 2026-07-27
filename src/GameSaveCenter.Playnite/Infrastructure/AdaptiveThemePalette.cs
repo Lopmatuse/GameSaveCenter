@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using GameSaveCenter.Playnite.Settings;
 
 namespace GameSaveCenter.Playnite.Infrastructure
 {
@@ -42,14 +43,20 @@ namespace GameSaveCenter.Playnite.Infrastructure
             "BackgroundBrush"
         };
 
-        public static AdaptiveThemePalette Create(FrameworkElement host, bool glassEnabled, int strengthPercent)
+        public static AdaptiveThemePalette Create(FrameworkElement host, bool glassEnabled, int strengthPercent, GameSaveCenterThemeMode themeMode = GameSaveCenterThemeMode.FollowPlaynite)
         {
-            var rawBackground = ResolveHostBackground(host)
-                ?? ResolveFirstResourceColor(host, BackgroundResourceKeys)
-                ?? Color.FromRgb(18, 20, 30);
+            var forcedLight = themeMode == GameSaveCenterThemeMode.Light;
+            var forcedDark = themeMode == GameSaveCenterThemeMode.Dark;
+            var rawBackground = forcedLight
+                ? Color.FromRgb(243, 244, 248)
+                : forcedDark
+                    ? Color.FromRgb(23, 24, 31)
+                    : ResolveHostBackground(host)
+                        ?? ResolveFirstResourceColor(host, BackgroundResourceKeys)
+                        ?? Color.FromRgb(18, 20, 30);
 
-            var text = ResolveResourceColor(host, "TextBrush");
-            var inverseText = ResolveResourceColor(host, "TextBrushDark");
+            var text = forcedLight ? Colors.Black : forcedDark ? Colors.White : ResolveResourceColor(host, "TextBrush");
+            var inverseText = forcedLight ? Colors.White : forcedDark ? Colors.Black : ResolveResourceColor(host, "TextBrushDark");
 
             // If a theme uses a transparent/image background, infer a stable local surface from the
             // required text brushes. Otherwise preserve some of the theme's own color character.

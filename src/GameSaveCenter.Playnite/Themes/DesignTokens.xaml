@@ -1,0 +1,33 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Shared defaults. Runtime palette adaptation replaces the theme-sensitive brushes locally. -->
+    <SolidColorBrush x:Key="GscAccentBrush" Color="#7C5CFC"/>
+    <SolidColorBrush x:Key="GscAccentHoverBrush" Color="#6A49EE"/>
+    <SolidColorBrush x:Key="GscAccentPressedBrush" Color="#5B3EDB"/>
+    <SolidColorBrush x:Key="GscAccentTintBrush" Color="#247C5CFC"/>
+    <SolidColorBrush x:Key="GscAccentTintStrongBrush" Color="#387C5CFC"/>
+    <SolidColorBrush x:Key="GscSuccessBrush" Color="#30D158"/>
+    <SolidColorBrush x:Key="GscWarningBrush" Color="#FF9F0A"/>
+    <SolidColorBrush x:Key="GscErrorBrush" Color="#FF453A"/>
+    <SolidColorBrush x:Key="GscInfoBrush" Color="#0A84FF"/>
+
+    <SolidColorBrush x:Key="GscGlassFillBrush" Color="#D8FFFFFF"/>
+    <SolidColorBrush x:Key="GscGlassStrongBrush" Color="#F0FFFFFF"/>
+    <SolidColorBrush x:Key="GscGlassStrokeBrush" Color="#2A000000"/>
+    <SolidColorBrush x:Key="GscGlassHighlightBrush" Color="#A8FFFFFF"/>
+    <SolidColorBrush x:Key="GscSidebarBrush" Color="#B8FFFFFF"/>
+    <SolidColorBrush x:Key="GscBackdropBrush" Color="#18F1F2F7"/>
+    <SolidColorBrush x:Key="GscPrimaryTextBrush" Color="#F2FFFFFF"/>
+    <SolidColorBrush x:Key="GscSecondaryTextBrush" Color="#BFFFFFFF"/>
+    <SolidColorBrush x:Key="GscMutedTextBrush" Color="#91FFFFFF"/>
+    <SolidColorBrush x:Key="GscDisabledTextBrush" Color="#61FFFFFF"/>
+    <SolidColorBrush x:Key="GscControlFillBrush" Color="#CC171A25"/>
+    <SolidColorBrush x:Key="GscControlStrokeBrush" Color="#30FFFFFF"/>
+    <SolidColorBrush x:Key="GscDividerBrush" Color="#2B8E8E93"/>
+
+    <CornerRadius x:Key="GscCornerSmall">8</CornerRadius>
+    <CornerRadius x:Key="GscCornerControl">11</CornerRadius>
+    <CornerRadius x:Key="GscCornerCard">18</CornerRadius>
+    <CornerRadius x:Key="GscCornerPanel">22</CornerRadius>
+    <Thickness x:Key="GscFocusThickness">2</Thickness>
+</ResourceDictionary>

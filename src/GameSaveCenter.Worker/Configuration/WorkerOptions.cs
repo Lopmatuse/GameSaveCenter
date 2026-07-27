@@ -23,6 +23,7 @@ public sealed class WorkerOptions
     public int ProcessPollingSeconds { get; set; } = 5;
     public int DefaultBackupIntervalMinutes { get; set; } = 30;
     public bool EnableProcessDetection { get; set; } = true;
+    public bool EnableSessionSavePathDetection { get; set; } = true;
     public bool EnableMediaSync { get; set; } = true;
     public bool EnableCloudUpload { get; set; }
     public BackupStorageFormat BackupFormat { get; set; } = BackupStorageFormat.Zip;
@@ -54,6 +55,7 @@ public sealed class WorkerOptions
         ProcessPollingSeconds = Math.Clamp(settings.ProcessPollingSeconds, 2, 60);
         DefaultBackupIntervalMinutes = Math.Clamp(settings.DefaultBackupIntervalMinutes, 5, 1440);
         EnableProcessDetection = settings.EnableProcessDetection;
+        EnableSessionSavePathDetection = settings.EnableSessionSavePathDetection;
         EnableMediaSync = settings.EnableMediaSync;
         EnableCloudUpload = settings.EnableCloudUpload;
         BackupFormat = settings.BackupFormat;
@@ -75,6 +77,7 @@ public sealed class WorkerOptions
         ProcessPollingSeconds = ProcessPollingSeconds,
         DefaultBackupIntervalMinutes = DefaultBackupIntervalMinutes,
         EnableProcessDetection = EnableProcessDetection,
+        EnableSessionSavePathDetection = EnableSessionSavePathDetection,
         EnableMediaSync = EnableMediaSync,
         EnableCloudUpload = EnableCloudUpload,
         BackupFormat = BackupFormat,

@@ -183,6 +183,7 @@ namespace GameSaveCenter.Contracts
         public int ProcessPollingSeconds { get; set; } = 5;
         public int DefaultBackupIntervalMinutes { get; set; } = 30;
         public bool EnableProcessDetection { get; set; } = true;
+        public bool EnableSessionSavePathDetection { get; set; } = true;
         public bool EnableMediaSync { get; set; } = true;
         public bool EnableCloudUpload { get; set; }
         public BackupStorageFormat BackupFormat { get; set; } = BackupStorageFormat.Zip;
@@ -224,6 +225,7 @@ namespace GameSaveCenter.Contracts
         public int ProcessPollingSeconds { get; set; } = 5;
         public int DefaultBackupIntervalMinutes { get; set; } = 30;
         public bool EnableProcessDetection { get; set; } = true;
+        public bool EnableSessionSavePathDetection { get; set; } = true;
         public bool EnableMediaSync { get; set; } = true;
         public bool EnableCloudUpload { get; set; }
         public BackupStorageFormat BackupFormat { get; set; } = BackupStorageFormat.Zip;

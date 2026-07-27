@@ -39,6 +39,7 @@ namespace GameSaveCenter.Playnite
 
         public override Guid Id => PluginId;
         public GameSaveCenterSettings Settings { get; }
+        public event EventHandler? VisualSettingsChanged;
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
@@ -100,6 +101,8 @@ namespace GameSaveCenter.Playnite
         {
             await launcher.EnsureStartedAsync(Environment.ExpandEnvironmentVariables(Settings.WorkerExecutable));
         }
+
+        public void NotifyVisualSettingsChanged() => VisualSettingsChanged?.Invoke(this, EventArgs.Empty);
 
         public async void ApplySettingsAsync()
         {

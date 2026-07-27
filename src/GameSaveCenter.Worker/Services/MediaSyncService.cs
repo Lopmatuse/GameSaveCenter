@@ -37,6 +37,7 @@ public sealed class MediaSyncService
             output.Add(await _tasks.RunAsync("MediaSync",game.PlayniteId,game.Name,async(progress,ct)=>
             {
                 await progress.ReportAsync(5,"正在查找媒体来源").ConfigureAwait(false);
+                var session=await ResolveSessionAsync(request.SessionId,game.PlayniteId,ct).ConfigureAwait(false);
                 var sources=(await DiscoverSourcesAsync(game,ct).ConfigureAwait(false)).DistinctBy(x=>$"{x.Path}|{x.IncludePattern}|{x.SharedDirectory}",StringComparer.OrdinalIgnoreCase).Where(x=>Directory.Exists(x.Path)).ToList();
                 var candidates=new List<(string Path,MediaSourceKind Source,bool Shared)>();
                 foreach(var source in sources)
@@ -45,7 +46,7 @@ public sealed class MediaSyncService
                     {
                         candidates.AddRange(Directory.EnumerateFiles(source.Path,string.IsNullOrWhiteSpace(source.IncludePattern)?"*":source.IncludePattern,SearchOption.AllDirectories)
                             .Where(IsMedia)
-                            .Where(x=>!source.SharedDirectory||SharedFileMatchesGame(x,game.Name))
+                            .Where(x=>!source.SharedDirectory||SharedFileMatchesGame(x,game.Name)||SharedFileWithinSession(x,session))
                             .Select(x=>(x,source.Source,source.SharedDirectory)));
                     }
                     catch(Exception ex){_logger.LogWarning(ex,"Could not scan media source {Path}",source.Path);}
@@ -91,6 +92,20 @@ public sealed class MediaSyncService
             },token).ConfigureAwait(false));
         }
         return output;
+    }
+
+    private async Task<GameSessionEventDto?> ResolveSessionAsync(string sessionId,string playniteId,CancellationToken token)
+    {
+        if(string.IsNullOrWhiteSpace(sessionId)) return null;
+        var session=await _store.GetSessionAsync(sessionId,token).ConfigureAwait(false);
+        if(session==null||!string.Equals(session.PlayniteId,playniteId,StringComparison.OrdinalIgnoreCase))return null;
+        var stop=session.StoppedUtc??DateTime.UtcNow;
+        if(await _store.HasOverlappingGameSessionAsync(playniteId,session.StartedUtc.AddMinutes(-2),stop.AddMinutes(10),token).ConfigureAwait(false))
+        {
+            _logger.LogInformation("Skipped time-only shared media attribution for {Game} because another game session overlaps",playniteId);
+            return null;
+        }
+        return session;
     }
 
     private async Task<List<MediaSource>> DiscoverSourcesAsync(GameDescriptorDto game,CancellationToken token)
@@ -155,6 +170,20 @@ public sealed class MediaSyncService
         if(file.Contains(game,StringComparison.OrdinalIgnoreCase))return true;
         var meaningful=game.Split(' ',StringSplitOptions.RemoveEmptyEntries).Where(x=>x.Length>=4).ToArray();
         return meaningful.Length>0&&meaningful.Count(x=>file.Contains(x,StringComparison.OrdinalIgnoreCase))>=Math.Min(2,meaningful.Length);
+    }
+
+    private static bool SharedFileWithinSession(string path,GameSessionEventDto? session)
+    {
+        if(session==null||session.StartedUtc==default)return false;
+        try
+        {
+            var info=new FileInfo(path);
+            var captured=info.CreationTimeUtc==DateTime.MinValue?info.LastWriteTimeUtc:info.CreationTimeUtc;
+            var start=session.StartedUtc.ToUniversalTime().AddMinutes(-2);
+            var stop=(session.StoppedUtc??DateTime.UtcNow).ToUniversalTime().AddMinutes(10);
+            return captured>=start&&captured<=stop;
+        }
+        catch{return false;}
     }
 
     private static bool IsMedia(string path){var ext=Path.GetExtension(path);return ImageExtensions.Contains(ext)||VideoExtensions.Contains(ext);}

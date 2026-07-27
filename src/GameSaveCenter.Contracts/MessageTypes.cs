@@ -29,7 +29,9 @@ namespace GameSaveCenter.Contracts
         public const string AddMediaSource = "media.source.add";
         public const string ListMediaSources = "media.source.list";
         public const string DetectSavePaths = "detection.savePaths";
+        public const string ListSaveCandidates = "detection.candidates.list";
         public const string AcceptSavePath = "detection.accept";
+        public const string RejectSavePath = "detection.reject";
         public const string GetTasks = "tasks.get";
         public const string GetLogs = "logs.get";
         public const string UpdateSettings = "settings.update";

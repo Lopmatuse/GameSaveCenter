@@ -12,11 +12,12 @@ public sealed class GameSessionCoordinator : BackgroundService
     private readonly SqliteStateStore _store;
     private readonly BackupOrchestrator _backup;
     private readonly MediaSyncService _media;
+    private readonly SavePathDetectionService _detection;
     private readonly ILogger<GameSessionCoordinator> _logger;
     private readonly ConcurrentDictionary<string,ActiveSession> _active=new(StringComparer.OrdinalIgnoreCase);
 
-    public GameSessionCoordinator(SqliteStateStore store,BackupOrchestrator backup,MediaSyncService media,ILogger<GameSessionCoordinator> logger)
-    { _store=store;_backup=backup;_media=media;_logger=logger; }
+    public GameSessionCoordinator(SqliteStateStore store,BackupOrchestrator backup,MediaSyncService media,SavePathDetectionService detection,ILogger<GameSessionCoordinator> logger)
+    { _store=store;_backup=backup;_media=media;_detection=detection;_logger=logger; }
 
     public IReadOnlyCollection<GameSessionEventDto> ActiveSessions=>_active.Values.Select(x=>x.Event).ToList();
 
@@ -36,6 +37,7 @@ public sealed class GameSessionCoordinator : BackgroundService
         var policy=await _store.GetPolicyAsync(incoming.PlayniteId,token).ConfigureAwait(false);
         var active=new ActiveSession(incoming,DateTime.UtcNow.AddMinutes(Math.Max(5,policy.DuringPlayIntervalMinutes)));
         _active[incoming.PlayniteId]=active;await _store.AddSessionAsync(incoming,token).ConfigureAwait(false);
+        _detection.BeginSessionCapture(incoming);
         _logger.LogInformation("Session started for {Game} from {Source}",incoming.GameName,incoming.Source);return incoming;
     }
 
@@ -50,6 +52,7 @@ public sealed class GameSessionCoordinator : BackgroundService
             _=RunSafeAsync(()=>_backup.BackupAsync(new BackupRequestDto{PlayniteIds=new(){active.Event.PlayniteId},Force=true,Reason="GameStopped",SessionId=active.Event.SessionId},CancellationToken.None),"exit backup",active.Event.GameName);
         if(policy.Enabled&&policy.SyncMediaOnGameStop)
             _=RunSafeAsync(()=>_media.SyncAsync(new MediaSyncRequestDto{PlayniteIds=new(){active.Event.PlayniteId},SessionId=active.Event.SessionId,UploadAfterSync=policy.UploadAfterBackup},CancellationToken.None),"exit media sync",active.Event.GameName);
+        _=RunSafeAsync(()=>_detection.AnalyzeSessionStopAsync(active.Event,CancellationToken.None),"session save-path analysis",active.Event.GameName);
         _logger.LogInformation("Session stopped for {Game}",active.Event.GameName);
     }
 

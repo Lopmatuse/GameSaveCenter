@@ -223,6 +223,46 @@ ON CONFLICT(session_id) DO UPDATE SET stopped_utc=excluded.stopped_utc,elapsed_s
         return result;
     }
 
+    public async Task<GameSessionEventDto?> GetSessionAsync(string sessionId, CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(sessionId)) return null;
+        await using var connection = Open();
+        await connection.OpenAsync(token).ConfigureAwait(false);
+        var command = connection.CreateCommand();
+        command.CommandText = @"SELECT session_id,playnite_id,source,process_id,process_name,launch_profile,started_utc,stopped_utc,elapsed_seconds
+FROM sessions WHERE session_id=$session LIMIT 1;";
+        command.Parameters.AddWithValue("$session", sessionId);
+        await using var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        if (!await reader.ReadAsync(token).ConfigureAwait(false)) return null;
+        return new GameSessionEventDto
+        {
+            SessionId = reader.GetString(0),
+            PlayniteId = reader.GetString(1),
+            Source = (SessionSourceKind)reader.GetInt32(2),
+            ProcessId = reader.IsDBNull(3) ? null : reader.GetInt32(3),
+            ProcessName = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
+            LaunchProfile = reader.IsDBNull(5) ? string.Empty : reader.GetString(5),
+            StartedUtc = DateTime.Parse(reader.GetString(6)).ToUniversalTime(),
+            StoppedUtc = reader.IsDBNull(7) ? null : DateTime.Parse(reader.GetString(7)).ToUniversalTime(),
+            ElapsedSeconds = reader.IsDBNull(8) ? 0 : reader.GetInt64(8)
+        };
+    }
+
+    public async Task<bool> HasOverlappingGameSessionAsync(string playniteId, DateTime startUtc, DateTime stopUtc, CancellationToken token)
+    {
+        await using var connection = Open();
+        await connection.OpenAsync(token).ConfigureAwait(false);
+        var command = connection.CreateCommand();
+        command.CommandText = @"SELECT COUNT(*) FROM sessions
+WHERE playnite_id<>$game
+  AND started_utc<=$stop
+  AND (stopped_utc IS NULL OR stopped_utc>=$start);";
+        command.Parameters.AddWithValue("$game", playniteId);
+        command.Parameters.AddWithValue("$start", startUtc.ToUniversalTime().ToString("O"));
+        command.Parameters.AddWithValue("$stop", stopUtc.ToUniversalTime().ToString("O"));
+        return Convert.ToInt32(await command.ExecuteScalarAsync(token).ConfigureAwait(false)) > 0;
+    }
+
     public Task MarkInterruptedTasksAsync(CancellationToken token) => ExecuteAsync(@"
 UPDATE tasks
 SET state=$failed, progress=CASE WHEN progress>99 THEN 99 ELSE progress END, message=$message,
@@ -401,8 +441,20 @@ ON CONFLICT(source_id) DO UPDATE SET playnite_id=excluded.playnite_id,source_kin
     }
 
     public Task AddSaveCandidateAsync(string playniteId, string path, double score, string reasonsJson, CancellationToken token) => ExecuteAsync(@"
+UPDATE save_candidates
+SET score=$score,reasons_json=$reasons,status='Pending',created_utc=$utc
+WHERE candidate_id=(
+    SELECT candidate_id FROM save_candidates
+    WHERE playnite_id=$game AND path=$path AND status<>'Accepted'
+    ORDER BY created_utc DESC LIMIT 1
+);
 INSERT INTO save_candidates(candidate_id,playnite_id,path,score,reasons_json,status,created_utc)
-VALUES($id,$game,$path,$score,$reasons,'Pending',$utc);",
+SELECT $id,$game,$path,$score,$reasons,'Pending',$utc
+WHERE changes()=0
+  AND NOT EXISTS(
+      SELECT 1 FROM save_candidates
+      WHERE playnite_id=$game AND path=$path AND status='Accepted'
+  );",
         new Dictionary<string, object?> { ["$id"]=Guid.NewGuid().ToString("N"),["$game"]=playniteId,["$path"]=path,["$score"]=score,["$reasons"]=reasonsJson,["$utc"]=DateTime.UtcNow.ToString("O")},token);
 
     public Task ReassignMediaAsync(string mediaId, string targetPlayniteId, CancellationToken token) => ExecuteAsync(
@@ -418,7 +470,19 @@ VALUES($id,$game,$path,$score,$reasons,'Pending',$utc);",
         var result=new List<SavePathCandidateDto>();
         await using var connection=Open(); await connection.OpenAsync(token).ConfigureAwait(false);
         var command=connection.CreateCommand();
-        command.CommandText="SELECT path,score,reasons_json,status FROM save_candidates WHERE playnite_id=$game ORDER BY score DESC,created_utc DESC LIMIT 100;";
+        command.CommandText=@"SELECT s.path,s.score,s.reasons_json,s.status
+FROM save_candidates s
+WHERE s.playnite_id=$game
+  AND s.candidate_id=(
+      SELECT x.candidate_id FROM save_candidates x
+      WHERE x.playnite_id=s.playnite_id AND x.path=s.path
+      ORDER BY CASE x.status WHEN 'Accepted' THEN 0 WHEN 'Pending' THEN 1 ELSE 2 END,
+               x.created_utc DESC
+      LIMIT 1
+  )
+ORDER BY CASE s.status WHEN 'Pending' THEN 0 WHEN 'Accepted' THEN 1 ELSE 2 END,
+         s.score DESC
+LIMIT 100;";
         command.Parameters.AddWithValue("$game",playniteId);
         await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);
         while(await reader.ReadAsync(token).ConfigureAwait(false)) result.Add(new SavePathCandidateDto
@@ -493,5 +557,6 @@ CREATE INDEX IF NOT EXISTS ix_tasks_created ON tasks(created_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_backup_versions_game_time ON backup_versions(playnite_id,created_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_media_game ON media(playnite_id,captured_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_sessions_open ON sessions(stopped_utc);
+CREATE INDEX IF NOT EXISTS ix_save_candidates_game_path ON save_candidates(playnite_id,path,created_utc DESC);
 ";
 }

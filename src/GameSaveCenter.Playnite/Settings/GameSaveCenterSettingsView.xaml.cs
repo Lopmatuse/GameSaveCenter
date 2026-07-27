@@ -41,6 +41,11 @@ namespace GameSaveCenter.Playnite.Settings
             if (IsVisible) ApplyAdaptiveTheme();
         }
 
+        private void OnThemeModeChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (IsLoaded) Dispatcher.BeginInvoke(new Action(ApplyAdaptiveTheme), DispatcherPriority.Background);
+        }
+
         private void OnVisualSettingChanged(object sender, RoutedEventArgs e)
         {
             if (IsLoaded) Dispatcher.BeginInvoke(new Action(ApplyAdaptiveTheme), DispatcherPriority.Background);
@@ -78,17 +83,17 @@ namespace GameSaveCenter.Playnite.Settings
         {
             var glassEnabled = CurrentSettings?.EnableGlassEffects ?? true;
             var strength = CurrentSettings?.GlassEffectStrength ?? 78;
-            var palette = AdaptiveThemePaletteFactory.Create(this, glassEnabled, strength);
+            var palette = AdaptiveThemePaletteFactory.Create(this, glassEnabled, strength, CurrentSettings?.ThemeMode ?? GameSaveCenterThemeMode.FollowPlaynite);
 
-            Resources["SettingsPrimaryText"] = AdaptiveThemePaletteFactory.Brush(palette.PrimaryText);
-            Resources["SettingsSecondaryText"] = AdaptiveThemePaletteFactory.Brush(palette.SecondaryText);
-            Resources["SettingsMutedText"] = AdaptiveThemePaletteFactory.Brush(palette.MutedText);
-            Resources["SettingsInputFill"] = AdaptiveThemePaletteFactory.Brush(palette.ControlFill);
-            Resources["SettingsInputStroke"] = AdaptiveThemePaletteFactory.Brush(palette.ControlStroke);
-            Resources["SettingsDivider"] = AdaptiveThemePaletteFactory.Brush(palette.Divider);
-            Resources["SettingsGlassFill"] = AdaptiveThemePaletteFactory.Gradient(palette.SurfaceTop, palette.SurfaceBottom);
-            Resources["SettingsGlassStroke"] = AdaptiveThemePaletteFactory.Brush(palette.ControlStroke);
-            Resources["SettingsBackdrop"] = AdaptiveThemePaletteFactory.Brush(palette.Backdrop);
+            Resources["GscPrimaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.PrimaryText);
+            Resources["GscSecondaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.SecondaryText);
+            Resources["GscMutedTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.MutedText);
+            Resources["GscControlFillBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlFill);
+            Resources["GscControlStrokeBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlStroke);
+            Resources["GscDividerBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Divider);
+            Resources["GscGlassFillBrush"] = AdaptiveThemePaletteFactory.Gradient(palette.SurfaceTop, palette.SurfaceBottom);
+            Resources["GscGlassStrokeBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlStroke);
+            Resources["GscBackdropBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Backdrop);
 
             SettingsAmbientLayer.Opacity = SystemParameters.HighContrast || !glassEnabled
                 ? 0

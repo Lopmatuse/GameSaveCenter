@@ -19,6 +19,7 @@ namespace GameSaveCenter.Playnite.Views
         private DashboardViewModel viewModel;
         private bool syncingNavigation;
         private bool hasPlayedEntrance;
+        private bool visualSettingsSubscribed;
 
         public DashboardView(GameSaveCenterPlugin plugin)
         {
@@ -47,6 +48,11 @@ namespace GameSaveCenter.Playnite.Views
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            if (!visualSettingsSubscribed)
+            {
+                plugin.VisualSettingsChanged += OnVisualSettingsChanged;
+                visualSettingsSubscribed = true;
+            }
             var version = typeof(DashboardView).Assembly.GetName().Version;
             SidebarVersionText.Text = version == null ? "开发预览" : "v" + version.ToString(3);
             ApplyAdaptiveTheme();
@@ -64,7 +70,25 @@ namespace GameSaveCenter.Playnite.Views
             }
         }
 
-        private void OnUnloaded(object sender, RoutedEventArgs e) => refreshTimer.Stop();
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            refreshTimer.Stop();
+            if (visualSettingsSubscribed)
+            {
+                plugin.VisualSettingsChanged -= OnVisualSettingsChanged;
+                visualSettingsSubscribed = false;
+            }
+        }
+
+        private void OnVisualSettingsChanged(object sender, EventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ApplyAdaptiveTheme();
+                refreshTimer.Interval = TimeSpan.FromSeconds(Math.Max(5, Math.Min(300, plugin.Settings.DashboardRefreshSeconds)));
+                if (plugin.Settings.EnableDashboardAutoRefresh) refreshTimer.Start(); else refreshTimer.Stop();
+            }), DispatcherPriority.Background);
+        }
 
         private void OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
@@ -258,7 +282,7 @@ namespace GameSaveCenter.Playnite.Views
         private void ApplyAdaptiveTheme()
         {
             var glassEnabled = plugin.Settings.EnableGlassEffects && !SystemParameters.HighContrast;
-            var palette = AdaptiveThemePaletteFactory.Create(this, glassEnabled, plugin.Settings.GlassEffectStrength);
+            var palette = AdaptiveThemePaletteFactory.Create(this, glassEnabled, plugin.Settings.GlassEffectStrength, plugin.Settings.ThemeMode);
 
             Resources["GscPrimaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.PrimaryText);
             Resources["GscSecondaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.SecondaryText);

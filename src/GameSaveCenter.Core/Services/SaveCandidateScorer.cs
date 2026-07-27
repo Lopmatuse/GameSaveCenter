@@ -10,12 +10,13 @@ namespace GameSaveCenter.Core.Services
     {
         private static readonly HashSet<string> SaveExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            ".sav", ".save", ".dat", ".bin", ".profile", ".slot", ".json", ".xml"
+            ".sav", ".save", ".dat", ".bin", ".profile", ".slot", ".json", ".xml",
+            ".ini", ".cfg", ".db", ".sqlite", ".vdf"
         };
 
         private static readonly HashSet<string> CacheExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
-            ".log", ".tmp", ".cache", ".dmp", ".shader", ".bak.tmp"
+            ".log", ".tmp", ".cache", ".dmp", ".shader", ".bak.tmp", ".etl", ".evtx"
         };
 
         /// <summary>

@@ -92,6 +92,8 @@ namespace GameSaveCenter.Contracts
         public double Score { get; set; }
         public List<string> Reasons { get; set; } = new List<string>();
         public string Status { get; set; } = "Pending";
+        public string ReasonsDisplay => string.Join("；", Reasons ?? new List<string>());
+        public string StatusDisplay => Status == "Accepted" ? "已接受" : Status == "Rejected" ? "已忽略" : "待确认";
     }
 
     /// <summary>Media item indexed by the Worker.</summary>
