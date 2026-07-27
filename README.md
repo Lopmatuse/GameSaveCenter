@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.2.0-development-preview`。** Windows 真机已确认项目能够编译、测试、打包并加载到 Playnite；游戏库、运行状态、Ludusavi 匹配和首个本地备份已跑通。本版本集中修复 Worker 设置丢失、刷新不重匹配、历史刷新、UTC 显示、真实错误详情和 ZIP 多版本策略，并重构主题自适应的 Apple HIG 启发界面。仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 完成连续多版本、安全恢复、截图来源和云端回归后，才能用于重要存档。
+> **当前状态：`0.3.0-development-preview`。** Windows 真机已确认项目能够编译、测试、打包并加载到 Playnite；游戏库、运行状态、Ludusavi 匹配和首个本地备份已跑通。本版本在 0.2.0 可靠性修复基础上，新增管理面板自动刷新、后台任务进度与取消、Playnite 任务通知和可复制的诊断中心，并继续完善主题自适应的 Apple HIG 启发界面。仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 完成连续多版本、安全恢复、截图来源和云端回归后，才能用于重要存档。
 
 ## 核心原则
 
@@ -25,13 +25,14 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 - Apple HIG 启发的 Playnite 侧边栏总览、游戏策略、备份历史、媒体、候选路径、任务与日志页面；
 - Playnite 游戏库、平台 ID、安装路径和多个 Game Action/MOD 启动动作导出；
-- Worker 命名管道 IPC、SQLite 状态库、任务队列和结构化日志；
+- Worker 命名管道 IPC、SQLite 状态库、任务队列、可取消任务和结构化日志；
 - Ludusavi 单游戏/全部/定时/退出备份、历史索引、备注、锁定、恢复与回滚编排；
 - 外部进程与多进程 MOD 启动链识别基础；
 - Steam、Xbox/Game Bar、Windows 公共目录和自定义来源的截图/录像增量同步；
 - 文件数量、大小、零字节、异常下降、长时间无变化等校验；
 - 分层历史保留预览、候选存档路径评分、Xbox WGS 辅助扫描；
 - Rclone 单向复制与校验适配；
+- 管理面板自动刷新、Playnite 任务通知、任务进度详情和可复制诊断中心；
 - Core xUnit 测试源码与跨平台源码结构校验。
 
 部分高级闭环仍需 Windows 真机和真实数据继续完善，详见进度表。

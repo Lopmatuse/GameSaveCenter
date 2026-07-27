@@ -1,3 +1,13 @@
+# 0.3.0 Development Preview
+
+- 管理面板支持可配置的轻量自动刷新，手动长任务执行期间仍能看到实时进度。
+- 任务页新增进度条、耗时、任务 ID、完整详情和 Queued/Running 任务取消入口。
+- 修复排队阶段取消可能无法写入 Cancelled 状态及清理任务 Token 的问题；运行中取消会终止对应外部工具进程，避免孤儿进程。
+- Worker 启动时自动把异常退出遗留的 Queued/Running 任务标记为 `WORKER_RESTARTED`。
+- 自动任务成功、失败或取消时可显示 Playnite 通知；设置页可关闭通知。
+- 新增诊断中心：查看有效 Worker/Ludusavi/备份策略，复制诊断摘要并打开数据、存档、媒体和 Worker 日志目录。
+- `settings.get` 使用稳定的非敏感 DTO，Rclone 远端只暴露是否已配置。
+
 # 0.2.0 Development Preview
 
 - Worker 运行设置持久化到本地文件，重启后不再丢失 Ludusavi 路径。

@@ -1,7 +1,7 @@
 # 已知缺陷与回归状态
 
 更新时间：2026-07-27
-目标版本：`0.2.0-development-preview`
+目标版本：`0.3.0-development-preview`
 
 本文档是持续缺陷台账。任何修复必须同步更新 `DEVELOPMENT_PROGRESS.md` 与 `PROJECT_MEMORY.md`。
 
@@ -47,3 +47,27 @@
 - **现象：** `DashboardView.xaml` 编译时报 `MC3015`，提示 `StackPanel` 上未定义附加属性 `DataTemplate.Triggers`。
 - **根因：** 任务状态列为了压缩成单行，将 `<DataTemplate.Triggers>` 错误嵌入了 `<StackPanel>` 内容中，而它必须是 `<DataTemplate>` 的直属属性元素。
 - **修复：** 将任务状态模板展开为标准 XAML 结构，触发器移到 `StackPanel` 结束标签之后；新增 `scripts/check-xaml.ps1`，在正式构建前检查触发器父级、模板 TargetName 和 Transform 目标等常见 WPF 名称作用域错误。
+
+
+### GSC-022：长任务执行期间管理面板无法看到实时进度
+
+- **状态：已修复，待 Windows 回归**
+- **现象：** 手动备份请求等待 Worker 完成期间，旧版 `IsBusy` 会阻止所有刷新，任务页无法持续看到 Running 状态和进度。
+- **修复：** Dashboard 使用独立轻量轮询，不受手动操作 Busy 状态阻断；只刷新仪表盘和任务，任务完成后按需重载当前游戏历史。
+
+### GSC-023：排队任务取消时可能永久停留在 Queued
+
+- **状态：已修复，待 Windows 回归**
+- **根因：** `TaskCoordinator` 在进入 `try/finally` 前等待每游戏锁；若等待期间取消，状态、Token 清理和锁释放逻辑均不会执行。
+- **修复：** 将锁等待纳入统一状态机，通过 `gateEntered` 只释放实际获得的锁，并确保取消状态写入 SQLite。
+
+### GSC-024：缺少用户可直接复制的诊断信息
+
+- **状态：已开发，待 Windows 回归**
+- **实现：** 新增诊断页，显示有效 Worker 设置、版本、目录、备份策略和最近失败任务；支持复制摘要以及打开数据、存档、媒体和 Worker 日志位置。
+
+### GSC-025：Worker 异常退出后任务可能永久停留在 Running
+
+- **状态：已修复，待 Windows 回归**
+- **现象：** Worker 被强制结束或升级重启时，SQLite 中已排队/执行中的任务没有机会进入 finally，管理面板会长期显示旧的 Queued/Running。
+- **修复：** Worker 初始化数据库后将遗留活动任务标记为 Failed，错误码为 `WORKER_RESTARTED`，提醒用户检查目标文件后重新执行。
