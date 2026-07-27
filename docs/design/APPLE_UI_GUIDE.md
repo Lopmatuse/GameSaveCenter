@@ -1,7 +1,9 @@
 # Apple HIG 启发的 WPF 界面规范
 
 更新时间：2026-07-27
-适用版本：`0.3.1-development-preview`
+适用版本：`0.4.0-development-preview`
+
+完整实现约束以 `APPLE_WPF_IMPLEMENTATION_PROMPT.md` 为准；任何新增或修改 UI 的提交还必须通过 `UI_CHANGE_GATE.md`。
 
 GameSaveCenter 是 Playnite 内嵌 WPF 插件页面，不拥有 Playnite 外层窗口。因此不伪造 macOS 红黄绿窗口按钮，也不强行修改 Playnite 标题栏。设计目标是借鉴 macOS/iPadOS 的层级、留白、圆角、克制色彩和微动效，而不是逐像素复制某个系统窗口。
 

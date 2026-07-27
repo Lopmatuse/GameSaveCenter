@@ -11,8 +11,10 @@
 4. docs/ARCHITECTURE.md
 5. docs/IMPLEMENTATION_LIMITATIONS.md
 6. docs/WINDOWS_TEST_PLAN.md
-7. design/APPLE_UI_GUIDE.md
-8. 最近 20 条 Git 提交
+7. docs/design/APPLE_WPF_IMPLEMENTATION_PROMPT.md
+8. docs/design/UI_CHANGE_GATE.md
+9. docs/design/APPLE_UI_GUIDE.md
+10. 最近 20 条 Git 提交
 
 不可违反的约束：
 
@@ -23,7 +25,7 @@
 - 任何恢复都必须：确认游戏关闭 → 创建并锁定 PreRestore → 预览 → 恢复 → 校验 → 失败回滚。
 - 未确认的存档候选不能直接生效；Xbox WGS 只能保守处理。
 - 从 Playnite 启动时事件优先；从 Steam/Xbox/Epic/Ubisoft/EA/GOG、桌面或 MOD manager 启动时由 Worker 进程侦测兜底。
-- UI 只借鉴 Apple HIG 的层级、留白、圆角、材质和克制动效，不照搬 macOS，也不能破坏 Playnite 主题/键盘/缩放可用性。
+- 所有 UI 变更必须先遵守 docs/design/APPLE_WPF_IMPLEMENTATION_PROMPT.md 与 UI_CHANGE_GATE.md；不得把页面做成通用玻璃网站或 Windows Fluent 仿制品。
 - 所有需求、进度、限制和架构变化必须同步更新 PROJECT_MEMORY.md 与 DEVELOPMENT_PROGRESS.md。
 - 每个逻辑阶段必须自行 git commit；禁止 squash 掉既有历史。
 - 交付源码 ZIP 必须包含完整 .git，并排除真实存档、截图、数据库、日志和凭据。
@@ -34,7 +36,7 @@
 P0：在 Windows 运行 scripts/build.ps1，修复所有真实编译错误；加载到 Playnite 10；跑通 Steam 低风险游戏的备份、媒体和安全恢复测试。
 P1：实现 Worker → Playnite 持续任务事件推送与后台成功/失败通知。
 P1：为公共 Captures/Screenshots 加入会话时间窗口归类和未识别收件箱。
-P1：把候选路径检测升级为显式“启动前快照/退出后差异”模式。
+P1：在 Windows 用未匹配测试游戏验证“启动前快照/退出后差异”候选闭环，并根据真实数据调优根目录、深度、扩展名和评分阈值。
 P2：生成设备状态 sidecar，并通过 Rclone 读取其他设备摘要，完成多设备冲突 UI。
 P2：增加未知进程/MOD 启动链的人工学习和持久化界面。
 P2：补齐游戏级云端状态、rclone check 结果与重试队列。

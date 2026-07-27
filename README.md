@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.3.5-development-preview`。** Windows 真机已确认项目能够编译、测试、打包并加载到 Playnite；游戏库、运行状态、Ludusavi 匹配和 ZIP 本地备份已跑通。本版本进一步修复备份成功但历史索引不可见、自动刷新绑定异常和空闲进度条问题，增加大型游戏库搜索/筛选/排序，并按宿主实际配色派生文字、输入框与玻璃表面。仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 完成连续多版本、安全恢复、截图来源和云端回归后，才能用于重要存档。
+> **当前状态：`0.4.0-development-preview`。** Windows 真机已确认项目能够编译、测试、打包并加载到 Playnite；游戏库、运行状态、Ludusavi 匹配和 ZIP 本地备份已跑通。本版本把用户提供的 Apple-inspired WPF 规范正式纳入 UI 门禁，新增“跟随 Playnite / 浅色 / 深色”主题模式、任务错误复制与安全重试，并接入未匹配游戏的启动前/退出后文件差分快照，自动沉淀可解释的存档路径候选。仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 完成连续多版本、安全恢复、自动候选、截图来源和云端回归后，才能用于重要存档。
 
 ## 核心原则
 
@@ -33,6 +33,8 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 - 分层历史保留预览、候选存档路径评分、Xbox WGS 辅助扫描；
 - Rclone 单向复制与校验适配；
 - 管理面板自动刷新、Playnite 任务通知、任务进度详情和可复制诊断中心；
+- 未匹配游戏会话的启动前/退出后文件快照、候选持久化、判断依据、接受/忽略流程；
+- 失败或取消的备份/媒体任务可复制完整详情，并在明确支持的任务类型上执行安全重试；
 - Core xUnit 测试源码与跨平台源码结构校验。
 
 部分高级闭环仍需 Windows 真机和真实数据继续完善，详见进度表。
@@ -102,6 +104,8 @@ python scripts/validate-source.py
 4. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 5. [`docs/CODEX_CONTINUATION_PROMPT.md`](docs/CODEX_CONTINUATION_PROMPT.md)
 6. [`docs/PUBLIC_REPOSITORY.md`](docs/PUBLIC_REPOSITORY.md)
+7. [`docs/design/APPLE_WPF_IMPLEMENTATION_PROMPT.md`](docs/design/APPLE_WPF_IMPLEMENTATION_PROMPT.md)
+8. [`docs/design/UI_CHANGE_GATE.md`](docs/design/UI_CHANGE_GATE.md)
 
 公开仓库默认使用英文笔名维护者 **Sable Drift**；Git 提交说明统一使用中文。
 
