@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.3.2-development-preview`。** Windows 真机已确认项目能够编译、测试、打包并加载到 Playnite；游戏库、运行状态、Ludusavi 匹配和首个本地备份已跑通。本版本在 0.2.0 可靠性修复基础上，新增管理面板自动刷新、后台任务进度与取消、Playnite 任务通知、可复制诊断中心，以及主题自适应毛玻璃、侧栏导航和可关闭微动效。仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 完成连续多版本、安全恢复、截图来源和云端回归后，才能用于重要存档。
+> **当前状态：`0.3.3-development-preview`。** Windows 真机已确认项目能够编译、测试、打包并加载到 Playnite；游戏库、运行状态、Ludusavi 匹配和首个本地备份已跑通。本版本在 0.2.0 可靠性修复基础上，新增管理面板自动刷新、后台任务进度与取消、Playnite 任务通知、可复制诊断中心，以及主题自适应毛玻璃、侧栏导航和可关闭微动效。仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 完成连续多版本、安全恢复、截图来源和云端回归后，才能用于重要存档。
 
 ## 核心原则
 
@@ -49,6 +49,16 @@ scripts/                      Windows 构建、验证、打包和开发安装脚
 docs/                         需求、架构、进度、限制、安全和交接文档
 docs/design/                  Apple HIG 启发的 UI 规范
 ```
+
+## 一键开发安装
+
+Windows 上可直接双击仓库根目录：
+
+```text
+GameSaveCenter-一键构建安装运行.cmd
+```
+
+脚本会自动关闭 Playnite/Worker、清理、构建、测试、打包、替换实际扩展目录、核验版本并重新启动 Playnite。安装报告保存到 `artifacts/last-dev-install.txt`。
 
 ## Windows 构建
 

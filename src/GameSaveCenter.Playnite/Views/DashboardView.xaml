@@ -344,7 +344,7 @@
                             </Border>
                             <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.3.1" FontSize="11" Opacity="0.48"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.3.3" FontSize="11" Opacity="0.48"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>

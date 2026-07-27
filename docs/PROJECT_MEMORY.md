@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-27
-当前版本：`0.3.1-development-preview`
+当前版本：`0.3.3-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
@@ -199,3 +199,11 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 - 根因不是 Blur 或页面进入动画，而是 WPF 会冻结 Style Setter 中共享的 `TranslateTransform`/`ScaleTransform`。
 - 鼠标经过侧栏或指标卡时，`AnimateTranslate` 对冻结对象执行 `BeginAnimation`，Playnite 捕获为不可恢复扩展异常。
 - 后续所有代码动画必须使用元素独占且未冻结的 Transform；遇到 `IsFrozen` 必须 `CloneCurrentValue()` 后回写。
+
+
+## 2026-07-27 0.3.3 开发安装链路记忆
+
+- 用户应用 0.3.2 精准动画修复后，Playnite 扩展管理仍显示 0.3.1，并继续触发旧版闪退。截图证明实际安装目录没有被新产物替换。
+- 新增仓库根目录 `GameSaveCenter-一键构建安装运行.cmd`，双击后自动停止 Playnite 和 Worker、清理、构建、测试、打包、原子安装、版本核验并重新启动 Playnite。
+- `package.ps1` 不再写死 0.2.0 文件名，而是从 extension.yaml 动态读取版本。
+- `install-dev.ps1` 不再忽略旧目录删除失败，并核对安装后的清单版本和 DLL 文件版本。

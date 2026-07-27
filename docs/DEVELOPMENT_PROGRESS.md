@@ -1,7 +1,7 @@
 # 开发实现进度
 
 更新时间：2026-07-27
-当前版本：`0.3.1-development-preview`
+当前版本：`0.3.3-development-preview`
 
 状态定义：
 
@@ -181,3 +181,13 @@
 - Style Setter 不再提供共享 Transform；所有平移和缩放动画会创建或克隆当前元素专属的可变 Transform。
 - 构建前检查新增 Style RenderTransform Freezable 风险检测，避免同类问题再次进入提交。
 - Windows 仍需回归侧栏、指标卡、按钮和状态胶囊动画。
+
+
+## 2026-07-27 0.3.3 开发安装可靠性
+
+- 新增双击式一键构建、测试、打包、安装和启动入口。
+- 自动发现标准或便携 Playnite 扩展目录；若发现已有安装，则优先更新实际存在的目录。
+- 安装前停止 Playnite Desktop/Fullscreen 与 Worker，避免 DLL 锁定。
+- 安装采用临时目录验证后原子替换，禁止静默保留旧版本。
+- 打包文件名改为跟随 extension.yaml 版本。
+- 安装完成后检查 extension.yaml 与 GameSaveCenter.Playnite.dll 文件版本，并生成 `artifacts/last-dev-install.txt`。
