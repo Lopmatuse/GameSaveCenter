@@ -27,6 +27,18 @@ internal static class LudusaviResultParser
         return snapshot;
     }
 
+    public static int? GetReportedBackupCount(JsonElement root,string gameName)
+    {
+        if(root.ValueKind!=JsonValueKind.Object || !root.TryGetProperty("games",out var games) || games.ValueKind!=JsonValueKind.Object) return null;
+        if(!games.TryGetProperty(gameName,out var game))
+        {
+            var found=games.EnumerateObject().FirstOrDefault(x=>string.Equals(x.Name,gameName,StringComparison.OrdinalIgnoreCase));
+            game=found.Value;
+        }
+        if(game.ValueKind!=JsonValueKind.Object || !game.TryGetProperty("backups",out var backups) || backups.ValueKind!=JsonValueKind.Array) return null;
+        return backups.GetArrayLength();
+    }
+
     public static List<BackupVersionDto> ParseBackupList(JsonElement root,string playniteId,string gameName)
     {
         var output=new List<BackupVersionDto>();

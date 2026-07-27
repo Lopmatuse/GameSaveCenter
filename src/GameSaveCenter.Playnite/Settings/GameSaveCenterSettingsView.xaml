@@ -2,14 +2,28 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:contracts="clr-namespace:GameSaveCenter.Contracts;assembly=GameSaveCenter.Contracts"
-             Foreground="{DynamicResource TextBrush}">
+             Foreground="{DynamicResource SettingsPrimaryText}"
+             UseLayoutRounding="True" SnapsToDevicePixels="True"
+             TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed" RenderOptions.ClearTypeHint="Enabled">
     <UserControl.Resources>
         <SolidColorBrush x:Key="SettingsAccent" Color="#7C5CFC"/>
         <SolidColorBrush x:Key="SettingsDivider" Color="#268E8E93"/>
         <SolidColorBrush x:Key="SettingsGlassFill" Color="#D8FFFFFF"/>
         <SolidColorBrush x:Key="SettingsGlassStroke" Color="#2A000000"/>
         <SolidColorBrush x:Key="SettingsBackdrop" Color="#18F1F2F7"/>
-        <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource TextBrush}"/></Style>
+        <SolidColorBrush x:Key="SettingsPrimaryText" Color="#F2FFFFFF"/>
+        <SolidColorBrush x:Key="SettingsSecondaryText" Color="#BFFFFFFF"/>
+        <SolidColorBrush x:Key="SettingsMutedText" Color="#91FFFFFF"/>
+        <SolidColorBrush x:Key="SettingsInputFill" Color="#CC171A25"/>
+        <SolidColorBrush x:Key="SettingsInputStroke" Color="#30FFFFFF"/>
+        <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+            <Setter Property="Foreground" Value="{DynamicResource SettingsPrimaryText}"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+            <Setter Property="TextOptions.TextHintingMode" Value="Fixed"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
         <Style x:Key="SettingsCard" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource SettingsGlassFill}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource SettingsGlassStroke}"/>
@@ -20,9 +34,9 @@
             <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="#20000000" BlurRadius="16" ShadowDepth="2" Opacity="0.3"/></Setter.Value></Setter>
         </Style>
         <Style TargetType="TextBox">
-            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
-            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource SettingsDivider}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SettingsPrimaryText}"/>
+            <Setter Property="Background" Value="{DynamicResource SettingsInputFill}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SettingsInputStroke}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="10,7"/>
             <Setter Property="MinHeight" Value="36"/>
@@ -40,6 +54,17 @@
                 </Setter.Value>
             </Setter>
         </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="{DynamicResource SettingsPrimaryText}"/>
+            <Setter Property="Background" Value="{DynamicResource SettingsInputFill}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SettingsInputStroke}"/>
+            <Setter Property="Padding" Value="9,6"/>
+            <Setter Property="MinHeight" Value="36"/>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource SettingsPrimaryText}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
     </UserControl.Resources>
 
     <Grid Background="{DynamicResource SettingsBackdrop}" ClipToBounds="True">
@@ -55,11 +80,11 @@
                 </Border>
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="GameSaveCenter 设置" FontSize="24" FontWeight="SemiBold"/>
-                    <TextBlock Text="工具路径、版本策略与自动化安全" Opacity="0.52" Margin="0,2,0,0"/>
+                    <TextBlock Text="工具路径、版本策略与自动化安全" Foreground="{DynamicResource SettingsSecondaryText}" Margin="0,2,0,0"/>
                 </StackPanel>
             </StackPanel>
             <TextBlock Text="Playnite 管理游戏入口，Worker 执行存档、媒体与云端任务。设置会同时保存在 Playnite 与 Worker 本地配置中。"
-                       Opacity="0.62" Margin="0,5,0,20" TextWrapping="Wrap"/>
+                       Foreground="{DynamicResource SettingsSecondaryText}" Margin="0,5,0,20" TextWrapping="Wrap"/>
 
             <Border Style="{StaticResource SettingsCard}">
                 <StackPanel>
@@ -89,7 +114,7 @@
             <Border Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal"><Border Width="30" Height="30" CornerRadius="10" Background="#220A84FF" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="#0A84FF" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="存档格式与历史版本" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
-                    <TextBlock Text="推荐 ZIP + Zstandard。Simple 模式只维护一个当前副本，不适合作为多版本恢复历史。" Opacity="0.62" Margin="0,4,0,13" TextWrapping="Wrap"/>
+                    <TextBlock Text="推荐 ZIP + Zstandard。Simple 模式只维护一个当前副本，不适合作为多版本恢复历史。" Foreground="{DynamicResource SettingsSecondaryText}" Margin="0,4,0,13" TextWrapping="Wrap"/>
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="180"/><ColumnDefinition Width="28"/><ColumnDefinition Width="150"/><ColumnDefinition Width="180"/></Grid.ColumnDefinitions>
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -121,7 +146,7 @@
                         <Border Width="30" Height="30" CornerRadius="10" Background="#247C5CFC" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE790;" Foreground="{StaticResource SettingsAccent}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
                         <TextBlock Text="外观与动态效果" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <TextBlock Text="毛玻璃采用主题自适应的半透明表面和模糊环境光，不会修改 Playnite 外层窗口。系统高对比度或关闭动画时会自动降级。" Opacity="0.62" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                    <TextBlock Text="毛玻璃采用主题自适应的半透明表面和模糊环境光，不会修改 Playnite 外层窗口。系统高对比度或关闭动画时会自动降级。" Foreground="{DynamicResource SettingsSecondaryText}" TextWrapping="Wrap" Margin="0,0,0,10"/>
                     <CheckBox Content="启用界面动画（淡入、滑动、悬停与按钮按压反馈）" IsChecked="{Binding EnableUiAnimations}" Margin="0,5" Checked="OnVisualSettingChanged" Unchecked="OnVisualSettingChanged"/>
                     <CheckBox Content="启用毛玻璃与环境光效果" IsChecked="{Binding EnableGlassEffects}" Margin="0,5" Checked="OnVisualSettingChanged" Unchecked="OnVisualSettingChanged"/>
                     <Grid Margin="0,10,0,0">

@@ -86,7 +86,45 @@ public sealed class IpcRequestDispatcher
 
     private async Task<object> UpsertAsync(List<GameDescriptorDto> games,CancellationToken token){await _catalog.UpsertAndMatchAsync(games,token).ConfigureAwait(false);return new{accepted=games.Count};}
     private async Task<object> StopAsync(GameSessionEventDto value,CancellationToken token){await _sessions.StopAsync(value,token).ConfigureAwait(false);return new{stopped=true};}
-    private Task<List<BackupVersionDto>> ListBackupsAsync(GameQueryDto query,CancellationToken token)=>_store.GetBackupVersionsAsync(query.PlayniteId,token);
+    private async Task<List<BackupVersionDto>> ListBackupsAsync(GameQueryDto query,CancellationToken token)
+    {
+        if (string.IsNullOrWhiteSpace(query.PlayniteId)) return new List<BackupVersionDto>();
+
+        // The database is only an index. Reconcile it with Ludusavi whenever the UI opens a
+        // game's history so a completed backup can never remain invisible because of stale state.
+        Exception? reconcileError = null;
+        if (_ludusavi.IsAvailable)
+        {
+            try
+            {
+                var matches = await _catalog.GetMatchesAsync(token).ConfigureAwait(false);
+                if (matches.TryGetValue(query.PlayniteId, out var match) && !string.IsNullOrWhiteSpace(match.Name))
+                {
+                    await _backup.RefreshBackupHistoryAsync(query.PlayniteId, match.Name, token).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                reconcileError = ex;
+                _logger.LogWarning(ex, "Could not reconcile backup history for {PlayniteId}", query.PlayniteId);
+                await _store.AppendAuditAsync(
+                    "BackupHistory",
+                    "读取历史版本失败，已保留最后一次有效索引",
+                    ex.ToString(),
+                    token).ConfigureAwait(false);
+            }
+        }
+
+        var cached = await _store.GetBackupVersionsAsync(query.PlayniteId, token).ConfigureAwait(false);
+        if (cached.Count == 0 && reconcileError != null)
+        {
+            throw new WorkerOperationException(
+                "BACKUP_HISTORY_REFRESH_FAILED",
+                "磁盘备份可能已经存在，但读取历史索引失败；请查看诊断页中的 BackupHistory 日志。",
+                reconcileError.ToString());
+        }
+        return cached;
+    }
     private Task<List<MediaItemDto>> ListMediaAsync(GameQueryDto query,CancellationToken token)=>_store.GetMediaAsync(query.PlayniteId,query.Limit,token);
 
     private async Task<object> UpdatePolicyAsync(GamePolicyUpdateDto update,CancellationToken token)

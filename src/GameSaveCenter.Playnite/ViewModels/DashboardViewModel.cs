@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Data;
 using GameSaveCenter.Contracts;
 using Playnite.SDK;
 
@@ -41,10 +43,17 @@ namespace GameSaveCenter.Playnite.ViewModels
         private string diffSummary = string.Empty;
         private string retentionSummary = string.Empty;
         private bool suppressSelectionLoad;
+        private string gameSearchText = string.Empty;
+        private string gameStatusFilter = "全部";
+        private string gameSortMode = "名称";
+        private int filteredGameCount;
 
         public DashboardViewModel(GameSaveCenterPlugin plugin)
         {
             this.plugin = plugin;
+            GamesView = CollectionViewSource.GetDefaultView(Games);
+            GamesView.Filter = FilterGame;
+            ApplyGameSort();
             RefreshCommand = new RelayCommand(_ => Run(RefreshAsync), _ => !IsBusy);
             BackupSelectedCommand = new RelayCommand(_ => Run(BackupSelectedAsync), _ => !IsBusy && SelectedGame != null && SelectedGame.LudusaviMatched && Snapshot.LudusaviAvailable);
             BackupAllCommand = new RelayCommand(_ => Run(BackupAllAsync), _ => !IsBusy && Snapshot.LudusaviAvailable && Games.Any(x => x.LudusaviMatched));
@@ -79,6 +88,9 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ObservableCollection<AuditLogEntryDto> Audit { get; } = new ObservableCollection<AuditLogEntryDto>();
         public ObservableCollection<SavePathCandidateDto> SaveCandidates { get; } = new ObservableCollection<SavePathCandidateDto>();
         public ObservableCollection<MediaSourceRuleDto> MediaSources { get; } = new ObservableCollection<MediaSourceRuleDto>();
+        public ICollectionView GamesView { get; }
+        public IReadOnlyList<string> GameStatusFilterOptions { get; } = new[] { "全部", "已就绪", "未匹配", "运行中", "需关注", "有历史" };
+        public IReadOnlyList<string> GameSortOptions { get; } = new[] { "名称", "运行优先", "匹配优先", "最近备份" };
 
         public DashboardSnapshotDto Snapshot { get => snapshot; private set => SetValue(ref snapshot, value); }
         public WorkerSettingsSnapshotDto EffectiveSettings
@@ -111,6 +123,35 @@ namespace GameSaveCenter.Playnite.ViewModels
         }
         public string StatusMessage { get => statusMessage; private set => SetValue(ref statusMessage, value); }
         public string DiagnosticSummary { get => diagnosticSummary; private set => SetValue(ref diagnosticSummary, value); }
+        public string GameSearchText
+        {
+            get => gameSearchText;
+            set
+            {
+                SetValue(ref gameSearchText, value ?? string.Empty);
+                RefreshGameView();
+            }
+        }
+        public string GameStatusFilter
+        {
+            get => gameStatusFilter;
+            set
+            {
+                SetValue(ref gameStatusFilter, string.IsNullOrWhiteSpace(value) ? "全部" : value);
+                RefreshGameView();
+            }
+        }
+        public string GameSortMode
+        {
+            get => gameSortMode;
+            set
+            {
+                SetValue(ref gameSortMode, string.IsNullOrWhiteSpace(value) ? "名称" : value);
+                ApplyGameSort();
+                RefreshGameView();
+            }
+        }
+        public int FilteredGameCount { get => filteredGameCount; private set => SetValue(ref filteredGameCount, value); }
         public GameStatusDto SelectedGame
         {
             get => selectedGame;
@@ -269,7 +310,9 @@ namespace GameSaveCenter.Playnite.ViewModels
                 try
                 {
                     Replace(Games, data.Games);
-                    SelectedGame = Games.FirstOrDefault(x => x.PlayniteId == selectedGameId) ?? Games.FirstOrDefault();
+                    RefreshGameView(false);
+                    SelectedGame = Games.FirstOrDefault(x => x.PlayniteId == selectedGameId && GamesView.Contains(x))
+                        ?? GamesView.Cast<GameStatusDto>().FirstOrDefault();
                 }
                 finally { suppressSelectionLoad = false; }
                 Replace(Tasks, data.RecentTasks);
@@ -323,8 +366,12 @@ namespace GameSaveCenter.Playnite.ViewModels
         private async Task BackupSelectedAsync()
         {
             var tasks = await plugin.RequestAsync<TaskStatusDto[]>(MessageTypes.BackupGame, new BackupRequestDto { PlayniteIds = { SelectedGame.PlayniteId }, Force = true, Reason = "Manual" }, TimeSpan.FromMinutes(15));
-            await RefreshCoreAsync(false);
             ThrowIfUnsuccessful(tasks);
+            await RefreshCoreAsync(false);
+            await LoadDetailsAsync();
+            StatusMessage = Backups.Count > 0
+                ? $"备份完成，已读取 {Backups.Count} 个历史版本"
+                : "备份完成，但历史索引仍为空；请打开诊断页查看 Ludusavi 输出。";
             if (plugin.Settings.EnableTaskNotifications) plugin.ShowInfo($"{SelectedGame.Name} 的存档备份已完成");
         }
 
@@ -567,6 +614,79 @@ namespace GameSaveCenter.Playnite.ViewModels
             var cancelled = tasks?.FirstOrDefault(x => x.State == TaskState.Cancelled);
             if (cancelled != null) throw new TaskCanceledException(string.IsNullOrWhiteSpace(cancelled.Message) ? "任务已取消" : cancelled.Message);
         }
+
+        private bool FilterGame(object item)
+        {
+            var game = item as GameStatusDto;
+            if (game == null) return false;
+
+            var query = (GameSearchText ?? string.Empty).Trim();
+            if (query.Length > 0)
+            {
+                var matched = Contains(game.Name, query)
+                    || Contains(game.LudusaviName, query)
+                    || Contains(game.PlatformDisplay, query)
+                    || Contains(game.HealthStateDisplay, query);
+                if (!matched) return false;
+            }
+
+            switch (GameStatusFilter)
+            {
+                case "已就绪":
+                    return game.LudusaviMatched && !IsAttention(game);
+                case "未匹配":
+                    return !game.LudusaviMatched;
+                case "运行中":
+                    return game.IsRunning;
+                case "需关注":
+                    return IsAttention(game);
+                case "有历史":
+                    return game.BackupVersionCount > 0;
+                default:
+                    return true;
+            }
+        }
+
+        private void ApplyGameSort()
+        {
+            if (GamesView == null) return;
+            GamesView.SortDescriptions.Clear();
+            switch (GameSortMode)
+            {
+                case "运行优先":
+                    GamesView.SortDescriptions.Add(new SortDescription(nameof(GameStatusDto.IsRunning), ListSortDirection.Descending));
+                    break;
+                case "匹配优先":
+                    GamesView.SortDescriptions.Add(new SortDescription(nameof(GameStatusDto.LudusaviMatched), ListSortDirection.Descending));
+                    break;
+                case "最近备份":
+                    GamesView.SortDescriptions.Add(new SortDescription(nameof(GameStatusDto.LastBackupUtc), ListSortDirection.Descending));
+                    break;
+            }
+            GamesView.SortDescriptions.Add(new SortDescription(nameof(GameStatusDto.Name), ListSortDirection.Ascending));
+        }
+
+        private void RefreshGameView(bool keepSelection = true)
+        {
+            if (GamesView == null) return;
+            GamesView.Refresh();
+            FilteredGameCount = GamesView.Cast<object>().Count();
+            if (!keepSelection || SelectedGame == null || GamesView.Contains(SelectedGame)) return;
+
+            suppressSelectionLoad = true;
+            try { SelectedGame = GamesView.Cast<GameStatusDto>().FirstOrDefault(); }
+            finally { suppressSelectionLoad = false; }
+            if (SelectedGame != null) Run(LoadDetailsAsync);
+            else ClearSelectedGameDetails();
+        }
+
+        private static bool Contains(string value, string query)
+            => !string.IsNullOrWhiteSpace(value) && value.IndexOf(query, StringComparison.CurrentCultureIgnoreCase) >= 0;
+
+        private static bool IsAttention(GameStatusDto game)
+            => string.Equals(game.HealthState, "Attention", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(game.HealthState, "Warning", StringComparison.OrdinalIgnoreCase)
+               || string.Equals(game.HealthState, "LudusaviUnavailable", StringComparison.OrdinalIgnoreCase);
 
         private void ClearSelectedGameDetails()
         {

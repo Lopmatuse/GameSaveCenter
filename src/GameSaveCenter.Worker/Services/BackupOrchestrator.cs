@@ -245,6 +245,21 @@ public sealed class BackupOrchestrator
         var versions = LudusaviResultParser
             .ParseBackupList(listed.Json.Value, playniteId, ludusaviName)
             .ToList();
+        var reportedCount = LudusaviResultParser.GetReportedBackupCount(listed.Json.Value, ludusaviName);
+        if (reportedCount.GetValueOrDefault() > 0 && versions.Count == 0)
+        {
+            throw new WorkerOperationException(
+                "LUDUSAVI_BACKUP_LIST_PARSE_FAILED",
+                "Ludusavi 报告存在历史版本，但 GameSaveCenter 未能解析版本列表。",
+                listed.RawOutput);
+        }
+
+        await _store.AppendAuditAsync(
+            "BackupHistory",
+            $"已同步 {ludusaviName} 的 {versions.Count} 个历史版本",
+            listed.RawOutput,
+            token).ConfigureAwait(false);
+
         await _store.RemoveMissingBackupVersionsAsync(
             playniteId,
             versions.Select(x => x.BackupId).ToArray(),

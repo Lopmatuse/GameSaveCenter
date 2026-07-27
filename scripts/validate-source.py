@@ -216,6 +216,19 @@ def check_delivery_guards() -> None:
 
 
 
+
+
+def check_dashboard_regressions() -> None:
+    dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    if 'SelectedTask.DurationDisplay, Mode=OneWay' not in dashboard:
+        fail("DurationDisplay must use OneWay binding because it is read-only")
+    if 'ItemsSource="{Binding GamesView}"' not in dashboard or 'GameSearchText' not in dashboard:
+        fail("Dashboard large-library search/filter view is missing")
+    if 'ProgressBar Width="120" Height="4" IsIndeterminate="{Binding IsBusy}"' in dashboard:
+        fail("Dashboard still contains the always-visible idle progress frame")
+    if 'TextOptions.TextRenderingMode="ClearType"' not in dashboard:
+        fail("Dashboard ClearType rendering guard is missing")
+
 def check_windows_launchers() -> None:
     """Keep the double-click bootstrap safe for legacy cmd.exe and Windows PowerShell 5.1."""
     launchers = [
@@ -245,6 +258,7 @@ def main() -> int:
     check_solution()
     check_ipc_constants()
     check_delivery_guards()
+    check_dashboard_regressions()
     check_windows_launchers()
     if ERRORS:
         print("Source validation failed:")

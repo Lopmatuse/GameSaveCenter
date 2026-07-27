@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using GameSaveCenter.Playnite.Infrastructure;
 using GameSaveCenter.Playnite.ViewModels;
 
 namespace GameSaveCenter.Playnite.Views
@@ -128,10 +129,10 @@ namespace GameSaveCenter.Playnite.Views
             => AnimateTranslate(sender as FrameworkElement, 0, 0, 160);
 
         private void OnButtonMouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-            => AnimateScale(sender as FrameworkElement, 1.025, 130);
+            => AnimateTranslate(sender as FrameworkElement, 0, -1, 120);
 
         private void OnButtonMouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
-            => AnimateScale(sender as FrameworkElement, 1, 160);
+            => AnimateTranslate(sender as FrameworkElement, 0, 0, 150);
 
         private void AnimateTranslate(FrameworkElement element, double x, double y, int milliseconds)
         {
@@ -256,80 +257,26 @@ namespace GameSaveCenter.Playnite.Views
 
         private void ApplyAdaptiveTheme()
         {
-            var textColor = ResolveSolidColor("TextBrush", Colors.Black);
-            var darkTheme = GetRelativeLuminance(textColor) > 0.55;
-            var controlColor = ResolveSolidColor("ControlBackgroundBrush", darkTheme ? Color.FromRgb(30, 32, 42) : Colors.White);
+            var glassEnabled = plugin.Settings.EnableGlassEffects && !SystemParameters.HighContrast;
+            var palette = AdaptiveThemePaletteFactory.Create(this, glassEnabled, plugin.Settings.GlassEffectStrength);
 
-            if (SystemParameters.HighContrast)
-            {
-                Resources["GscGlassFillBrush"] = new SolidColorBrush(controlColor);
-                Resources["GscGlassStrongBrush"] = new SolidColorBrush(controlColor);
-                Resources["GscSidebarBrush"] = new SolidColorBrush(controlColor);
-                Resources["GscGlassStrokeBrush"] = new SolidColorBrush(textColor);
-                Resources["GscGlassHighlightBrush"] = new SolidColorBrush(Colors.Transparent);
-                Resources["GscBackdropBrush"] = new SolidColorBrush(Colors.Transparent);
-                AmbientGlowLayer.Opacity = 0;
-                return;
-            }
+            Resources["GscPrimaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.PrimaryText);
+            Resources["GscSecondaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.SecondaryText);
+            Resources["GscMutedTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.MutedText);
+            Resources["GscDisabledTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.DisabledText);
+            Resources["GscControlFillBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlFill);
+            Resources["GscControlStrokeBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlStroke);
+            Resources["GscDividerBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Divider);
+            Resources["GscGlassFillBrush"] = AdaptiveThemePaletteFactory.Gradient(palette.SurfaceTop, palette.SurfaceBottom);
+            Resources["GscGlassStrongBrush"] = AdaptiveThemePaletteFactory.Gradient(palette.StrongSurfaceTop, palette.StrongSurfaceBottom);
+            Resources["GscSidebarBrush"] = AdaptiveThemePaletteFactory.Gradient(palette.SidebarTop, palette.SidebarBottom);
+            Resources["GscGlassStrokeBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlStroke);
+            Resources["GscGlassHighlightBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Highlight);
+            Resources["GscBackdropBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Backdrop);
 
-            if (!plugin.Settings.EnableGlassEffects)
-            {
-                Resources["GscGlassFillBrush"] = new SolidColorBrush(controlColor);
-                Resources["GscGlassStrongBrush"] = new SolidColorBrush(controlColor);
-                Resources["GscSidebarBrush"] = new SolidColorBrush(controlColor);
-                Resources["GscGlassStrokeBrush"] = new SolidColorBrush(darkTheme ? Color.FromArgb(45, 255, 255, 255) : Color.FromArgb(38, 0, 0, 0));
-                Resources["GscGlassHighlightBrush"] = new SolidColorBrush(Colors.Transparent);
-                Resources["GscBackdropBrush"] = new SolidColorBrush(Colors.Transparent);
-                AmbientGlowLayer.Opacity = 0;
-                return;
-            }
-
-            var strength = Math.Max(20, Math.Min(100, plugin.Settings.GlassEffectStrength)) / 100.0;
-            AmbientGlowLayer.Opacity = (darkTheme ? 0.72 : 0.88) * strength;
-            Resources["GscGlassFillBrush"] = CreateGlassGradient(
-                WithAlpha(darkTheme ? Color.FromArgb(218, 28, 30, 41) : Color.FromArgb(221, 255, 255, 255), strength),
-                WithAlpha(darkTheme ? Color.FromArgb(188, 17, 19, 29) : Color.FromArgb(194, 238, 240, 247), strength));
-            Resources["GscGlassStrongBrush"] = CreateGlassGradient(
-                WithAlpha(darkTheme ? Color.FromArgb(240, 35, 37, 49) : Color.FromArgb(244, 255, 255, 255), strength),
-                WithAlpha(darkTheme ? Color.FromArgb(218, 24, 26, 37) : Color.FromArgb(226, 246, 247, 251), strength));
-            Resources["GscSidebarBrush"] = CreateGlassGradient(
-                WithAlpha(darkTheme ? Color.FromArgb(230, 25, 27, 38) : Color.FromArgb(232, 255, 255, 255), strength),
-                WithAlpha(darkTheme ? Color.FromArgb(200, 15, 17, 26) : Color.FromArgb(205, 244, 245, 250), strength));
-            Resources["GscGlassStrokeBrush"] = new SolidColorBrush(darkTheme ? Color.FromArgb(42, 255, 255, 255) : Color.FromArgb(34, 0, 0, 0));
-            Resources["GscGlassHighlightBrush"] = new SolidColorBrush(darkTheme ? Color.FromArgb(18, 255, 255, 255) : Color.FromArgb(145, 255, 255, 255));
-            Resources["GscBackdropBrush"] = new SolidColorBrush(darkTheme ? Color.FromArgb(30, 7, 9, 17) : Color.FromArgb(25, 240, 242, 248));
-        }
-
-        private Color ResolveSolidColor(string resourceKey, Color fallback)
-        {
-            var resource = TryFindResource(resourceKey);
-            var solid = resource as SolidColorBrush;
-            return solid?.Color ?? fallback;
-        }
-
-        private static Color WithAlpha(Color color, double strength)
-        {
-            var alpha = (byte)Math.Max(0, Math.Min(255, Math.Round(color.A * strength)));
-            return Color.FromArgb(alpha, color.R, color.G, color.B);
-        }
-
-        private static LinearGradientBrush CreateGlassGradient(Color top, Color bottom)
-        {
-            var brush = new LinearGradientBrush { StartPoint = new Point(0, 0), EndPoint = new Point(1, 1) };
-            brush.GradientStops.Add(new GradientStop(top, 0));
-            brush.GradientStops.Add(new GradientStop(bottom, 1));
-            brush.Freeze();
-            return brush;
-        }
-
-        private static double GetRelativeLuminance(Color color)
-        {
-            double Convert(byte channel)
-            {
-                var value = channel / 255.0;
-                return value <= 0.03928 ? value / 12.92 : Math.Pow((value + 0.055) / 1.055, 2.4);
-            }
-            return 0.2126 * Convert(color.R) + 0.7152 * Convert(color.G) + 0.0722 * Convert(color.B);
+            AmbientGlowLayer.Opacity = glassEnabled
+                ? (palette.IsDark ? 0.46 : 0.56) * Math.Max(0.2, Math.Min(1, plugin.Settings.GlassEffectStrength / 100d))
+                : 0;
         }
     }
 }
