@@ -80,7 +80,8 @@ public sealed class TaskCoordinator
     public bool Cancel(string taskId)
     {
         if(!_taskTokens.TryGetValue(taskId,out var token)) return false;
-        token.Cancel();return true;
+        try{token.Cancel();return true;}
+        catch(ObjectDisposedException){return false;}
     }
 }
 
