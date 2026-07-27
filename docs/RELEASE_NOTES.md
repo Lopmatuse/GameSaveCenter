@@ -57,3 +57,8 @@
 - 修复 Playnite 插件日志初始化：使用 `LogManager.GetLogger()`，兼容当前 PlayniteSDK 6.16.0。
 - 清理 Windows 首次真实编译暴露的主要可空引用警告。
 - Git 作者统一改为英文笔名 `Sable Drift`。
+
+## 构建热修复
+
+- 修复 Apple 风格按钮按压模板的 WPF 名称作用域错误（`MC4111`）。
+- 按压反馈仍保留 0.97 倍缩放和轻微透明度变化。
