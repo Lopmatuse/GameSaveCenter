@@ -61,22 +61,74 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ObservableCollection<MediaSourceRuleDto> MediaSources { get; } = new ObservableCollection<MediaSourceRuleDto>();
 
         public DashboardSnapshotDto Snapshot { get => snapshot; private set => SetValue(ref snapshot, value); }
-        public bool IsBusy { get => isBusy; private set => SetValue(ref isBusy, value); }
+        public bool IsBusy
+        {
+            get => isBusy;
+            private set
+            {
+                SetValue(ref isBusy, value);
+                RaiseCommandStates();
+            }
+        }
         public string StatusMessage { get => statusMessage; private set => SetValue(ref statusMessage, value); }
         public GameStatusDto SelectedGame
         {
             get => selectedGame;
-            set { SetValue(ref selectedGame, value); Run(LoadDetailsAsync); }
+            set
+            {
+                if (ReferenceEquals(selectedGame, value)) return;
+                SetValue(ref selectedGame, value);
+                RaiseCommandStates();
+                if (value != null) Run(LoadDetailsAsync);
+                else ClearSelectedGameDetails();
+            }
         }
-        public BackupVersionDto SelectedBackup { get => selectedBackup; set { SetValue(ref selectedBackup, value); if(value!=null){ BackupComment=value.Comment; LockSelectedBackup=value.IsLocked; } } }
-        public SavePathCandidateDto SelectedCandidate { get => selectedCandidate; set => SetValue(ref selectedCandidate,value); }
+        public BackupVersionDto SelectedBackup
+        {
+            get => selectedBackup;
+            set
+            {
+                SetValue(ref selectedBackup, value);
+                if (value != null)
+                {
+                    BackupComment = value.Comment;
+                    LockSelectedBackup = value.IsLocked;
+                }
+                RaiseCommandStates();
+            }
+        }
+        public SavePathCandidateDto SelectedCandidate
+        {
+            get => selectedCandidate;
+            set
+            {
+                SetValue(ref selectedCandidate, value);
+                RaiseCommandStates();
+            }
+        }
         public string BackupComment { get => backupComment; set => SetValue(ref backupComment,value); }
         public bool LockSelectedBackup { get => lockSelectedBackup; set => SetValue(ref lockSelectedBackup,value); }
         public string CustomMediaSourcePath { get => customMediaSourcePath; set => SetValue(ref customMediaSourcePath,value); }
         public string CustomMediaPattern { get => customMediaPattern; set => SetValue(ref customMediaPattern,value); }
         public bool CustomMediaShared { get => customMediaShared; set => SetValue(ref customMediaShared,value); }
-        public MediaItemDto SelectedMedia { get => selectedMedia; set => SetValue(ref selectedMedia,value); }
-        public GameStatusDto MediaTargetGame { get => mediaTargetGame; set => SetValue(ref mediaTargetGame,value); }
+        public MediaItemDto SelectedMedia
+        {
+            get => selectedMedia;
+            set
+            {
+                SetValue(ref selectedMedia, value);
+                RaiseCommandStates();
+            }
+        }
+        public GameStatusDto MediaTargetGame
+        {
+            get => mediaTargetGame;
+            set
+            {
+                SetValue(ref mediaTargetGame, value);
+                RaiseCommandStates();
+            }
+        }
         public string DiffSummary { get => diffSummary; private set => SetValue(ref diffSummary,value); }
         public string RetentionSummary { get => retentionSummary; private set => SetValue(ref retentionSummary,value); }
 
@@ -103,8 +155,10 @@ namespace GameSaveCenter.Playnite.ViewModels
             var data = await plugin.RequestAsync<DashboardSnapshotDto>(MessageTypes.GetDashboard, new { });
             ApplyOnUi(() =>
             {
+                var selectedGameId = SelectedGame?.PlayniteId;
                 Snapshot = data;
                 Replace(Games, data.Games);
+                SelectedGame = Games.FirstOrDefault(x => x.PlayniteId == selectedGameId) ?? Games.FirstOrDefault();
                 Replace(Tasks, data.RecentTasks);
                 Replace(Findings, data.Findings);
                 Replace(Audit, data.RecentAudit);
@@ -231,6 +285,34 @@ namespace GameSaveCenter.Playnite.ViewModels
             try { await plugin.EnsureWorkerAsync(); await action(); }
             catch (Exception ex) { StatusMessage = ex.Message; plugin.ShowError(ex.Message); }
             finally { IsBusy = false; }
+        }
+
+        private void ClearSelectedGameDetails()
+        {
+            ApplyOnUi(() =>
+            {
+                Backups.Clear();
+                Media.Clear();
+                MediaSources.Clear();
+                SaveCandidates.Clear();
+                SelectedBackup = null!;
+                SelectedCandidate = null!;
+                SelectedMedia = null!;
+            });
+        }
+
+        private void RaiseCommandStates()
+        {
+            foreach (var command in new[]
+            {
+                BackupSelectedCommand, DetectPathsCommand, ValidateCommand, RestoreCommand,
+                UndoRestoreCommand, LoadDetailsCommand, SavePolicyCommand,
+                UpdateBackupMetadataCommand, CompareBackupCommand, PreviewRetentionCommand,
+                AddMediaSourceCommand, AcceptCandidateCommand, ReassignMediaCommand
+            }.OfType<RelayCommand>())
+            {
+                command.RaiseCanExecuteChanged();
+            }
         }
 
         private void ApplyOnUi(Action action) => plugin.PlayniteApi.MainView.UIDispatcher.Invoke(action);
