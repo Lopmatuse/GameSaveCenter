@@ -57,6 +57,12 @@ foreach ($file in $xamlFiles) {
         }
     }
 
+
+    $styleTransformSetters = $document.SelectNodes("//*[local-name()='Style']/*[local-name()='Setter' and @Property='RenderTransform']/*[local-name()='Setter.Value']/*[substring(local-name(), string-length(local-name()) - string-length('Transform') + 1) = 'Transform']")
+    foreach ($transform in $styleTransformSetters) {
+        $errors.Add("$($file.FullName): Style Setter 中的 <$($transform.LocalName)> 会被 WPF 共享并冻结；需要动画时应在代码中为控件创建独立的可变 Transform。")
+    }
+
     $codeBehind = "$($file.FullName).cs"
     if (Test-Path $codeBehind) {
         $codeText = Get-Content -Raw -Path $codeBehind

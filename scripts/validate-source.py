@@ -153,6 +153,15 @@ def check_xaml_semantics() -> None:
                         elif names[attr_value].endswith("Transform"):
                             fail(f"XAML trigger targets transform directly: {path.relative_to(ROOT)}: {attr_value}")
 
+        for style in [n for n in root.iter() if local_name(n.tag) == "Style"]:
+            for setter in [n for n in style if local_name(n.tag) == "Setter" and n.attrib.get("Property") == "RenderTransform"]:
+                for node in setter.iter():
+                    if node is not setter and local_name(node.tag).endswith("Transform"):
+                        fail(
+                            f"XAML style contains animatable frozen transform: {path.relative_to(ROOT)}: "
+                            f"{local_name(node.tag)}; create a per-element mutable transform in code instead"
+                        )
+
         code_behind = path.with_suffix(path.suffix + ".cs")
         if code_behind.exists():
             code = code_behind.read_text(encoding="utf-8")

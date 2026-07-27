@@ -192,3 +192,10 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 - 设置新增 `EnableUiAnimations`、`EnableGlassEffects`、`GlassEffectStrength`，旧设置默认分别为 true、true、78。
 - 高对比度模式自动关闭环境光和半透明，避免为了视觉牺牲可访问性。
 - `scripts/validate-source.py` 已增加 XAML Trigger/TargetName/事件处理器语义检查；仍不能替代 Windows WPF 编译。
+
+## 2026-07-27 0.3.2 崩溃根因记忆
+
+- `extensions.log` 没有 GameSaveCenter 堆栈，真正异常在 `playnite.log`。
+- 根因不是 Blur 或页面进入动画，而是 WPF 会冻结 Style Setter 中共享的 `TranslateTransform`/`ScaleTransform`。
+- 鼠标经过侧栏或指标卡时，`AnimateTranslate` 对冻结对象执行 `BeginAnimation`，Playnite 捕获为不可恢复扩展异常。
+- 后续所有代码动画必须使用元素独占且未冻结的 Transform；遇到 `IsFrozen` 必须 `CloneCurrentValue()` 后回写。

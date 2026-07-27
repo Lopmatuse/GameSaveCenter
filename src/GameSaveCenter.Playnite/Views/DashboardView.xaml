@@ -48,7 +48,6 @@
             <Setter Property="Margin" Value="0,0,10,0"/>
             <Setter Property="MinHeight" Value="80"/>
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-            <Setter Property="RenderTransform"><Setter.Value><TranslateTransform Y="0"/></Setter.Value></Setter>
             <EventSetter Event="MouseEnter" Handler="OnMetricCardMouseEnter"/>
             <EventSetter Event="MouseLeave" Handler="OnMetricCardMouseLeave"/>
             <Style.Triggers>
@@ -101,7 +100,6 @@
                 </Setter.Value>
             </Setter>
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-            <Setter Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="1" ScaleY="1"/></Setter.Value></Setter>
             <EventSetter Event="MouseEnter" Handler="OnButtonMouseEnter"/>
             <EventSetter Event="MouseLeave" Handler="OnButtonMouseLeave"/>
         </Style>
@@ -285,7 +283,6 @@
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-            <Setter Property="RenderTransform"><Setter.Value><TranslateTransform X="0"/></Setter.Value></Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">

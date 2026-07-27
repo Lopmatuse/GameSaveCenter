@@ -173,3 +173,11 @@
 - [x] 修复任务状态 `DataTemplate.Triggers` 被错误嵌入 `StackPanel` 的 `MC3015`。
 - [x] 新增构建前 XAML 结构检查，覆盖属性元素父级、TargetName 缺失和 Transform 名称作用域风险。
 - [ ] 在 Windows 上重新执行 `scripts/build.ps1`，确认 Playnite 项目编译通过。
+
+## 2026-07-27 0.3.2 动画崩溃精准修复
+
+- Playnite 主日志确认崩溃由导航项和指标卡悬停进入 `DashboardView.AnimateTranslate` 引发。
+- 异常为对已冻结 `TranslateTransform` 调用 `BeginAnimation`，不是毛玻璃绘制或页面进入 Storyboard。
+- Style Setter 不再提供共享 Transform；所有平移和缩放动画会创建或克隆当前元素专属的可变 Transform。
+- 构建前检查新增 Style RenderTransform Freezable 风险检测，避免同类问题再次进入提交。
+- Windows 仍需回归侧栏、指标卡、按钮和状态胶囊动画。

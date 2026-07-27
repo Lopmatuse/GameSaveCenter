@@ -85,3 +85,11 @@
 - **状态：已开发，待 Windows 回归**
 - **风险：** 模糊环境光可能在低性能设备上增加 GPU 负担，半透明表面在高对比度下可能降低可读性。
 - **修复：** 设置页增加动画、毛玻璃开关和强度；遵循 Windows 客户区动画设置；高对比度模式自动使用不透明背景并禁用环境光。
+
+### GSC-028：悬停动画尝试修改被冻结的 Style Transform 导致 Playnite 崩溃
+
+- **根因**：`GscNavItem`、`GscMetricCard` 和按钮样式通过 `Style.Setter` 共享 `TranslateTransform`/`ScaleTransform`。WPF 会冻结这些 `Freezable`，随后 `BeginAnimation` 抛出 `InvalidOperationException`。
+- **日志证据**：Playnite 主日志多次指向 `DashboardView.AnimateTranslate`，由 `OnNavigationMouseEnter` 和 `OnMetricCardMouseEnter` 触发。
+- **修复**：移除 Style 中的动画 Transform；动画入口对已有冻结 Transform 使用 `CloneCurrentValue()`，再把独立可变实例回写到当前元素。
+- **状态**：已精确修复，待 Windows 悬停回归。
+- **门禁**：反复经过侧栏、指标卡和按钮至少 2 分钟，不出现扩展崩溃，动画持续可用。

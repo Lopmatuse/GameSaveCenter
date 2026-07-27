@@ -136,12 +136,7 @@ namespace GameSaveCenter.Playnite.Views
         private void AnimateTranslate(FrameworkElement element, double x, double y, int milliseconds)
         {
             if (element == null || !MotionEnabled) return;
-            var translate = element.RenderTransform as TranslateTransform;
-            if (translate == null)
-            {
-                translate = new TranslateTransform();
-                element.RenderTransform = translate;
-            }
+            var translate = GetMutableTranslateTransform(element);
             var easing = new CubicEase { EasingMode = EasingMode.EaseOut };
             translate.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(x, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
             translate.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(y, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
@@ -150,13 +145,8 @@ namespace GameSaveCenter.Playnite.Views
         private void AnimateScale(FrameworkElement element, double scaleValue, int milliseconds)
         {
             if (element == null || !MotionEnabled) return;
-            var scale = element.RenderTransform as ScaleTransform;
-            if (scale == null)
-            {
-                scale = new ScaleTransform(1, 1);
-                element.RenderTransform = scale;
-                element.RenderTransformOrigin = new Point(0.5, 0.5);
-            }
+            var scale = GetMutableScaleTransform(element);
+            element.RenderTransformOrigin = new Point(0.5, 0.5);
             var easing = new CubicEase { EasingMode = EasingMode.EaseOut };
             scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(scaleValue, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
             scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(scaleValue, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
@@ -199,12 +189,7 @@ namespace GameSaveCenter.Playnite.Views
                 return;
             }
 
-            var translate = element.RenderTransform as TranslateTransform;
-            if (translate == null)
-            {
-                translate = new TranslateTransform();
-                element.RenderTransform = translate;
-            }
+            var translate = GetMutableTranslateTransform(element);
 
             translate.X = offsetX;
             translate.Y = offsetY;
@@ -219,19 +204,54 @@ namespace GameSaveCenter.Playnite.Views
         private void AnimateStatusPill()
         {
             if (StatusPill == null || !MotionEnabled) return;
-            var scale = StatusPill.RenderTransform as ScaleTransform;
-            if (scale == null)
-            {
-                scale = new ScaleTransform(1, 1);
-                StatusPill.RenderTransform = scale;
-                StatusPill.RenderTransformOrigin = new Point(0, 0.5);
-            }
+            var scale = GetMutableScaleTransform(StatusPill);
+            StatusPill.RenderTransformOrigin = new Point(0, 0.5);
 
             var duration = TimeSpan.FromMilliseconds(180);
             var easing = new CubicEase { EasingMode = EasingMode.EaseOut };
             StatusPill.BeginAnimation(UIElement.OpacityProperty, new DoubleAnimation(0.58, 1, duration) { EasingFunction = easing });
             scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(0.985, 1, duration) { EasingFunction = easing });
             scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(0.985, 1, duration) { EasingFunction = easing });
+        }
+
+        private static TranslateTransform GetMutableTranslateTransform(FrameworkElement element)
+        {
+            var translate = element.RenderTransform as TranslateTransform;
+            if (translate == null)
+            {
+                translate = new TranslateTransform();
+                element.RenderTransform = translate;
+                return translate;
+            }
+
+            // Freezables declared in a Style setter are shared and frozen by WPF. They cannot be
+            // animated directly, so every element must receive its own mutable clone first.
+            if (translate.IsFrozen)
+            {
+                translate = (TranslateTransform)translate.CloneCurrentValue();
+                element.RenderTransform = translate;
+            }
+
+            return translate;
+        }
+
+        private static ScaleTransform GetMutableScaleTransform(FrameworkElement element)
+        {
+            var scale = element.RenderTransform as ScaleTransform;
+            if (scale == null)
+            {
+                scale = new ScaleTransform(1, 1);
+                element.RenderTransform = scale;
+                return scale;
+            }
+
+            if (scale.IsFrozen)
+            {
+                scale = (ScaleTransform)scale.CloneCurrentValue();
+                element.RenderTransform = scale;
+            }
+
+            return scale;
         }
 
         private void ApplyAdaptiveTheme()
