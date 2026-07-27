@@ -15,4 +15,4 @@
 - Apple HIG: https://developer.apple.com/design/human-interface-guidelines
 - Apple HIG materials: https://developer.apple.com/design/human-interface-guidelines/materials
 - Apple HIG layout: https://developer.apple.com/design/human-interface-guidelines/layout
-- .NET 8 downloads and SDK 8.0.420: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+- .NET SDK 下载与 `global.json` 版本选择：https://dotnet.microsoft.com/ 与 Microsoft Learn；项目允许 .NET 8 或更高稳定版 SDK

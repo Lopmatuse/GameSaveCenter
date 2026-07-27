@@ -1,0 +1,44 @@
+name: Windows 构建验证
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: 编译、测试与打包
+    runs-on: windows-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: 源码结构检查
+        run: python scripts/validate-source.py
+
+      - name: 编译与测试
+        shell: pwsh
+        run: ./scripts/build.ps1 -Configuration Release
+
+      - name: 生成 Playnite 扩展包
+        shell: pwsh
+        run: ./scripts/package.ps1 -Configuration Release
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: GameSaveCenter-windows-preview
+          path: |
+            artifacts/GameSaveCenter-0.1.0-playnite.zip
+            artifacts/GameSaveCenter-0.1.0.pext
+          if-no-files-found: error

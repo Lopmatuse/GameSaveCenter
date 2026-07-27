@@ -55,7 +55,7 @@ design/                       Apple HIG 启发的 UI 规范
 
 - Windows 10/11 x64；
 - Playnite 10.56 或兼容的 Playnite 10 稳定版；
-- .NET 8 SDK 8.0.420 或兼容 8.0 SDK；
+- .NET 8 或更高版本的稳定版 SDK；已验证配置允许使用 .NET 9 SDK 构建 .NET 8 目标；
 - .NET Framework 4.6.2 Developer Pack；
 - Ludusavi 最新稳定版；
 - Rclone 最新稳定版（仅云端复制需要）。
@@ -90,6 +90,9 @@ python scripts/validate-source.py
 3. [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md)
 4. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 5. [`docs/CODEX_CONTINUATION_PROMPT.md`](docs/CODEX_CONTINUATION_PROMPT.md)
+6. [`docs/PUBLIC_REPOSITORY.md`](docs/PUBLIC_REPOSITORY.md)
+
+公开仓库默认使用笔名维护者 **流沙旅人**；Git 提交说明统一使用中文。
 
 源码交付包包含完整 `.git`，但不会包含真实存档、截图、运行数据库、日志或凭据。
 

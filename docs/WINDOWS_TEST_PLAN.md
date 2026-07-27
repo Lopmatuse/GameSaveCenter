@@ -4,7 +4,7 @@
 
 ## A. 构建门禁
 
-- [ ] `dotnet --info` 显示 8.0.420 或兼容 SDK。
+- [ ] `dotnet --info` 显示 .NET 8 或更高版本的稳定版 SDK（.NET 9 可用）。
 - [ ] `dotnet restore GameSaveCenter.sln` 成功。
 - [ ] `dotnet build GameSaveCenter.sln -c Release` 无错误。
 - [ ] `dotnet test tests/GameSaveCenter.Core.Tests -c Release` 全部通过。

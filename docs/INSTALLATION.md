@@ -5,7 +5,7 @@
 建议使用 Windows 10/11 x64，并安装：
 
 1. Playnite 10.56 或兼容的 Playnite 10 稳定版；
-2. Visual Studio 2022（含“.NET 桌面开发”）或 .NET 8 SDK 8.0.420；
+2. Visual Studio 2022（含“.NET 桌面开发”），或 .NET 8 / .NET 9 稳定版 SDK；
 3. .NET Framework 4.6.2 Developer Pack（项目也引用 reference assemblies 包）；
 4. Ludusavi 最新稳定版；
 5. Rclone 最新稳定版（仅云端复制需要）。
@@ -36,7 +36,7 @@ dotnet build
 dotnet test
 ```
 
-任何错误都应先修复，不能跳过后直接测试真实存档。
+任何错误都会使脚本立即终止，不会再错误地显示“构建完成”。必须先修复，不能跳过后直接测试真实存档。
 
 也可以双击或运行：
 

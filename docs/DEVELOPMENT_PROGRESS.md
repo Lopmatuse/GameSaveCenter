@@ -16,15 +16,15 @@
 
 | 功能 | 状态 | 备注 |
 |---|---|---|
-| Git 仓库与分阶段提交 | ✅ | `main` 分支，交付 ZIP 包含完整 `.git` |
+| Git 仓库与分阶段提交 | ✅ | `main` 分支，完整 `.git`；历史提交已改为中文，作者统一为“流沙旅人” |
 | 项目记忆文件 | ✅ | `PROJECT_MEMORY.md` |
 | 需求、架构、安全与 UI 文档 | ✅ | `REQUIREMENTS.md`、`ARCHITECTURE.md`、`design/APPLE_UI_GUIDE.md` |
 | Codex 延续开发提示词 | ✅ | `CODEX_CONTINUATION_PROMPT.md` |
-| Windows 构建/测试/打包/安装脚本 | ✅ | `scripts/build.ps1`、`package.ps1`、`install-dev.ps1`、`verify.ps1` |
+| Windows 构建/测试/打包/安装脚本 | 🧪 | 已修复 SDK 兼容和原生命令退出码检查；等待用户重新执行验证 |
 | 含 `.git` 的源码打包脚本 | ✅ | `scripts/package-source.ps1` 使用 ZipFile，包含隐藏目录 |
 | 跨平台源码结构校验 | ✅ | `scripts/validate-source.py` 已通过 |
 | Core 单元测试源码 | ✅ | 6 组 xUnit 测试；当前环境未执行 |
-| Windows 真机编译与 Playnite 加载 | ⬜ | 必须在用户 Windows 环境执行 |
+| Windows 真机编译与 Playnite 加载 | 🚧 | 首次执行因 `global.json` 锁定 8.0.420 而失败；现已允许 .NET 9，并修复脚本假成功，等待重新构建 |
 
 ## 第一阶段：最小可用版本
 
@@ -90,3 +90,16 @@
 ## 交付判定
 
 当前交付是**有完整 Git 历史、可继续开发、可在 Windows 构建的开发预览源码**，不是经过真实游戏存档恢复验证的生产安装包。禁止在完成 `WINDOWS_TEST_PLAN.md` 前把它用于唯一的重要存档副本。
+
+## 2026-07-27 Windows 首次构建反馈
+
+用户环境已安装 .NET SDK `9.0.302`，但旧版 `global.json` 锁定 `8.0.420`，导致 `restore/build/test/publish` 均未执行。旧脚本没有检查原生命令退出码，因此随后仍错误输出“构建完成”，并在打包阶段才以缺少 `GameSaveCenter.Playnite.dll` 暴露问题。
+
+本修订已经：
+
+- 将 SDK 选择改为以 .NET 8 为最低目标、允许滚动到更高稳定主版本；
+- 对 `dotnet --info/restore/build/test/publish` 全部检查退出码；
+- 构建失败时立即停止，禁止继续打包或开发安装；
+- 增加公开仓库 Windows CI 工作流。
+
+状态仍为“待 Windows 重新验证”，不能据此声明项目已经编译通过。

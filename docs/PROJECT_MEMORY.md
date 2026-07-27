@@ -17,6 +17,7 @@
 - 截图来源重点：Steam、Xbox/Game Bar、Epic、Ubisoft、EA、GOG；没有统一截图目录时允许按游戏配置自定义来源，并使用游戏会话辅助归类。
 - 从项目建立开始使用 Git；合理阶段自行提交；交付 ZIP 必须包含 `.git` 完整历史。
 - 项目内持续维护功能进度表、需求记忆、已知限制和可供 Codex 接手的提示词。
+- 公开仓库 Git 作者使用笔名“流沙旅人”，提交说明统一使用中文；不得改用平台名称或真实姓名作为作者。
 - UI 采用 Apple HIG 启发风格：清晰层级、宽松留白、圆角分组、克制材质、语义化状态和轻量动画；不是仿冒 macOS，也不能牺牲 Windows/Playnite 可用性。
 
 ## 当前已经进入仓库的实现
@@ -128,7 +129,7 @@
 - PlayniteSDK 6.16.0
 - Playnite 插件目标：.NET Framework 4.6.2
 - Worker 目标：.NET 8 / Windows x64
-- 构建基线：.NET SDK 8.0.420
+- 构建基线：项目目标为 .NET 8；`global.json` 允许使用 .NET 8 或更高稳定版 SDK，用户当前 .NET 9.0.302 可参与构建
 - Ludusavi 推荐：0.30+
 - Ludusavi for Playnite 仅作为交互行为参考，不作为运行依赖
 
