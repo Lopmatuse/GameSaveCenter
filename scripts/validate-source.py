@@ -109,6 +109,62 @@ def check_csharp_delimiters() -> None:
             fail(f"Unclosed delimiter: {path.relative_to(ROOT)} ({stack[-1][0]})")
 
 
+
+def local_name(value: str) -> str:
+    return value.rsplit("}", 1)[-1]
+
+
+def check_xaml_semantics() -> None:
+    """Catch common WPF compile failures before the Windows build is available."""
+    for path in (ROOT / "src/GameSaveCenter.Playnite").rglob("*.xaml"):
+        try:
+            tree = ET.parse(path)
+        except Exception:
+            continue
+        root = tree.getroot()
+
+        expected_parents = {
+            "DataTemplate.Triggers": "DataTemplate",
+            "ControlTemplate.Triggers": "ControlTemplate",
+            "Style.Triggers": "Style",
+        }
+        # ElementTree has no parent pointer. Build a parent map for the same check.
+        parent_map = {child: parent for parent in root.iter() for child in parent}
+        for node in root.iter():
+            node_name = local_name(node.tag)
+            expected = expected_parents.get(node_name)
+            if expected:
+                parent = parent_map.get(node)
+                actual = local_name(parent.tag) if parent is not None else "<none>"
+                if actual != expected:
+                    fail(f"XAML trigger parent invalid: {path.relative_to(ROOT)}: {node_name} is under {actual}, expected {expected}")
+
+        for template in [n for n in root.iter() if local_name(n.tag) in {"ControlTemplate", "DataTemplate"}]:
+            names: dict[str, str] = {}
+            for child in template.iter():
+                for attr_name, attr_value in child.attrib.items():
+                    if local_name(attr_name) == "Name" and attr_value:
+                        names[attr_value] = local_name(child.tag)
+            for child in template.iter():
+                for attr_name, attr_value in child.attrib.items():
+                    if local_name(attr_name).endswith("TargetName"):
+                        if attr_value not in names:
+                            fail(f"XAML TargetName missing: {path.relative_to(ROOT)}: {attr_value}")
+                        elif names[attr_value].endswith("Transform"):
+                            fail(f"XAML trigger targets transform directly: {path.relative_to(ROOT)}: {attr_value}")
+
+        code_behind = path.with_suffix(path.suffix + ".cs")
+        if code_behind.exists():
+            code = code_behind.read_text(encoding="utf-8")
+            handlers: set[str] = set()
+            for node in root.iter():
+                for value in node.attrib.values():
+                    if re.fullmatch(r"On[A-Za-z0-9_]+", value):
+                        handlers.add(value)
+            for handler in handlers:
+                if not re.search(rf"\b{re.escape(handler)}\s*\(", code):
+                    fail(f"XAML event handler missing: {path.relative_to(ROOT)} -> {handler}")
+
 def check_solution() -> None:
     solution = (ROOT / "GameSaveCenter.sln").read_text(encoding="utf-8")
     project_lines = re.findall(r'^Project\([^\n]+?\) = "([^"]+)", "([^"]+)"', solution, re.M)
@@ -153,6 +209,7 @@ def check_delivery_guards() -> None:
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
+    check_xaml_semantics()
     check_solution()
     check_ipc_constants()
     check_delivery_guards()
@@ -161,7 +218,7 @@ def main() -> int:
         for item in ERRORS:
             print(f" - {item}")
         return 1
-    print("Source validation passed: JSON/XML/YAML, C# delimiters, solution, IPC constants and delivery guards.")
+    print("Source validation passed: JSON/XML/YAML, XAML semantics, C# delimiters, solution, IPC constants and delivery guards.")
     print("Note: this does not replace dotnet build/test on Windows with Playnite installed.")
     return 0
 

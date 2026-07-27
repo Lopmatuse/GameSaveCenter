@@ -56,6 +56,24 @@ foreach ($file in $xamlFiles) {
             }
         }
     }
+
+    $codeBehind = "$($file.FullName).cs"
+    if (Test-Path $codeBehind) {
+        $codeText = Get-Content -Raw -Path $codeBehind
+        $handlerNames = [System.Collections.Generic.HashSet[string]]::new()
+        foreach ($element in $document.SelectNodes("//*")) {
+            foreach ($attribute in $element.Attributes) {
+                if ($attribute.Value -match '^On[A-Za-z0-9_]+$') {
+                    [void]$handlerNames.Add($attribute.Value)
+                }
+            }
+        }
+        foreach ($handlerName in $handlerNames) {
+            if ($codeText -notmatch ("\b" + [Regex]::Escape($handlerName) + "\s*\(")) {
+                $errors.Add("$($file.FullName): XAML 事件处理器 '$handlerName' 未在 $codeBehind 中定义。")
+            }
+        }
+    }
 }
 
 if ($errors.Count -gt 0) {
