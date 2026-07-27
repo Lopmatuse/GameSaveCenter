@@ -42,7 +42,9 @@ namespace GameSaveCenter.Playnite.Ipc
                     var response = JsonConvert.DeserializeObject<IpcEnvelope>(responseLine, jsonSettings);
                     if (response == null) throw new IOException("Worker returned an invalid response.");
                     if (!response.Success) throw new WorkerRequestException(response.ErrorCode, response.ErrorMessage);
-                    return JsonConvert.DeserializeObject<TResponse>(response.PayloadJson, jsonSettings);
+                    var payloadResult = JsonConvert.DeserializeObject<TResponse>(response.PayloadJson, jsonSettings);
+                    if (payloadResult is null) throw new IOException("Worker returned an empty or incompatible payload.");
+                    return payloadResult;
                 }
             }
         }
@@ -54,7 +56,7 @@ namespace GameSaveCenter.Playnite.Ipc
             return Task.Run(() => pipe.Connect(timeoutMilliseconds));
         }
 
-        private static async Task<string> ReadLineWithCancellationAsync(StreamReader reader, CancellationToken token)
+        private static async Task<string?> ReadLineWithCancellationAsync(StreamReader reader, CancellationToken token)
         {
             var read = reader.ReadLineAsync();
             var cancellation = Task.Delay(Timeout.Infinite, token);

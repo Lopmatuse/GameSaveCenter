@@ -92,7 +92,7 @@ python scripts/validate-source.py
 5. [`docs/CODEX_CONTINUATION_PROMPT.md`](docs/CODEX_CONTINUATION_PROMPT.md)
 6. [`docs/PUBLIC_REPOSITORY.md`](docs/PUBLIC_REPOSITORY.md)
 
-公开仓库默认使用笔名维护者 **流沙旅人**；Git 提交说明统一使用中文。
+公开仓库默认使用英文笔名维护者 **Sable Drift**；Git 提交说明统一使用中文。
 
 源码交付包包含完整 `.git`，但不会包含真实存档、截图、运行数据库、日志或凭据。
 

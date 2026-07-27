@@ -81,7 +81,7 @@ namespace GameSaveCenter.Playnite.Infrastructure
             catch { return action; }
         }
 
-        private static void AddProcessName(GameDescriptorDto descriptor, string path)
+        private static void AddProcessName(GameDescriptorDto descriptor, string? path)
         {
             if (string.IsNullOrWhiteSpace(path)) return;
             var name = Path.GetFileNameWithoutExtension(path.Trim('"'));
@@ -89,7 +89,7 @@ namespace GameSaveCenter.Playnite.Infrastructure
                 descriptor.KnownProcessNames.Add(name);
         }
 
-        private static bool LooksLikeModLoader(string name, string path)
+        private static bool LooksLikeModLoader(string? name, string? path)
         {
             var value = ((name ?? string.Empty) + " " + (path ?? string.Empty)).ToLowerInvariant();
             return new[] { "mod", "skse", "smapi", "f4se", "nvse", "mo2", "modorganizer", "vortex", "frosty", "reloaded", "r2modman", "thunderstore" }.Any(value.Contains);

@@ -13,7 +13,7 @@ namespace GameSaveCenter.Core.Services
     {
         public IReadOnlyList<ValidationFinding> Validate(
             BackupSnapshot current,
-            BackupSnapshot previous,
+            BackupSnapshot? previous,
             TimeSpan? playedDuration,
             bool sourcePathExists)
         {

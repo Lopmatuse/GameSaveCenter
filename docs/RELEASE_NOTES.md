@@ -33,4 +33,8 @@
 - `build.ps1` 对每一个 `dotnet` 原生命令检查退出码，失败立即终止，不再显示虚假的“构建完成”。
 - `package.ps1` 只有在编译和测试成功后才创建打包目录，并对 Worker 发布退出码进行检查。
 - 新增 GitHub Actions Windows 构建、测试、打包工作流。
-- 插件作者和完整 Git 历史统一改为笔名“流沙旅人”，提交信息统一使用中文。
+- 插件作者和完整 Git 历史统一改为英文笔名“Sable Drift”，提交信息统一使用中文。
+
+- 修复 Playnite 插件日志初始化：使用 `LogManager.GetLogger()`，兼容当前 PlayniteSDK 6.16.0。
+- 清理 Windows 首次真实编译暴露的主要可空引用警告。
+- Git 作者统一改为英文笔名 `Sable Drift`。

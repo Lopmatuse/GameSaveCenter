@@ -23,8 +23,8 @@ namespace GameSaveCenter.Core.Services
         /// confirmed by the user before becoming an active Ludusavi custom rule.
         /// </summary>
         public SavePathCandidate Score(
-            string directory,
-            IEnumerable<string> changedFiles,
+            string? directory,
+            IEnumerable<string>? changedFiles,
             bool changedNearSessionEnd,
             bool repeatedAcrossSessions,
             bool locatedInXboxWgs)
@@ -92,7 +92,7 @@ namespace GameSaveCenter.Core.Services
             return candidate;
         }
 
-        private static bool LooksLikeCacheDirectory(string path)
+        private static bool LooksLikeCacheDirectory(string? path)
         {
             var value = (path ?? string.Empty).ToLowerInvariant();
             return value.Contains("cache") || value.Contains("shader") || value.Contains("logs") ||

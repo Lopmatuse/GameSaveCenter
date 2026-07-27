@@ -62,7 +62,7 @@ public sealed class ExternalGameProcessDetector : BackgroundService
         var map=new Dictionary<string,List<GameDescriptorDto>>(StringComparer.OrdinalIgnoreCase);
         foreach(var game in games.Where(x=>x.IsInstalled))
         {
-            var names=new HashSet<string>(game.KnownProcessNames.Where(x=>!string.IsNullOrWhiteSpace(x)).Select(Path.GetFileNameWithoutExtension),StringComparer.OrdinalIgnoreCase);
+            var names=new HashSet<string>(game.KnownProcessNames.Where(x=>!string.IsNullOrWhiteSpace(x)).Select(Path.GetFileNameWithoutExtension).Where(x=>!string.IsNullOrWhiteSpace(x)).Select(x=>x!),StringComparer.OrdinalIgnoreCase);
             foreach(var action in game.Actions.Where(x=>x.IsPlayAction||x.IsModLoader))
             {
                 var name=Path.GetFileNameWithoutExtension(action.Path);if(!string.IsNullOrWhiteSpace(name))names.Add(name);

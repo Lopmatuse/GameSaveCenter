@@ -2,8 +2,8 @@
 
 ## Git 身份
 
-- 作者与提交者：`流沙旅人`
-- 邮箱：`liusha-traveler@users.noreply.github.com`
+- 作者与提交者：`Sable Drift`
+- 邮箱：`sable-drift@users.noreply.github.com`
 - 提交说明：使用中文，推荐格式为 `类型：具体改动`
 
 示例：

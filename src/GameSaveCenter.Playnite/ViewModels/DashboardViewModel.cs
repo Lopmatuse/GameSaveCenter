@@ -15,17 +15,17 @@ namespace GameSaveCenter.Playnite.ViewModels
         private readonly GameSaveCenterPlugin plugin;
         private bool isBusy;
         private string statusMessage = "准备就绪";
-        private GameStatusDto selectedGame;
-        private BackupVersionDto selectedBackup;
+        private GameStatusDto selectedGame = null!;
+        private BackupVersionDto selectedBackup = null!;
         private DashboardSnapshotDto snapshot = new DashboardSnapshotDto();
-        private SavePathCandidateDto selectedCandidate;
+        private SavePathCandidateDto selectedCandidate = null!;
         private string backupComment = string.Empty;
         private bool lockSelectedBackup;
         private string customMediaSourcePath = string.Empty;
         private string customMediaPattern = "*";
         private bool customMediaShared;
-        private MediaItemDto selectedMedia;
-        private GameStatusDto mediaTargetGame;
+        private MediaItemDto selectedMedia = null!;
+        private GameStatusDto mediaTargetGame = null!;
         private string diffSummary = string.Empty;
         private string retentionSummary = string.Empty;
 

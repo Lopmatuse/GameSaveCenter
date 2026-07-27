@@ -27,7 +27,7 @@ namespace GameSaveCenter.Playnite
 
         public GameSaveCenterPlugin(IPlayniteAPI api) : base(api)
         {
-            logger = api.CreateLogger();
+            logger = LogManager.GetLogger();
             client = new WorkerIpcClient();
             launcher = new WorkerLauncher(client);
             adapter = new PlayniteGameAdapter(api);

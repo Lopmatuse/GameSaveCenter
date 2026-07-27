@@ -16,7 +16,7 @@
 
 | 功能 | 状态 | 备注 |
 |---|---|---|
-| Git 仓库与分阶段提交 | ✅ | `main` 分支，完整 `.git`；历史提交已改为中文，作者统一为“流沙旅人” |
+| Git 仓库与分阶段提交 | ✅ | `main` 分支，完整 `.git`；历史提交已改为中文，作者统一为“Sable Drift” |
 | 项目记忆文件 | ✅ | `PROJECT_MEMORY.md` |
 | 需求、架构、安全与 UI 文档 | ✅ | `REQUIREMENTS.md`、`ARCHITECTURE.md`、`design/APPLE_UI_GUIDE.md` |
 | Codex 延续开发提示词 | ✅ | `CODEX_CONTINUATION_PROMPT.md` |
@@ -103,3 +103,7 @@
 - 增加公开仓库 Windows CI 工作流。
 
 状态仍为“待 Windows 重新验证”，不能据此声明项目已经编译通过。
+
+
+## 最近验证记录
+- 2026-07-27：Windows + .NET SDK 9.0.302 已成功执行还原并编译到 Playnite 项目；修复 `IPlayniteAPI.CreateLogger` 与 PlayniteSDK 6.16.0 不兼容的问题，改用官方 `LogManager.GetLogger()`，并清理本轮构建暴露的空引用警告。

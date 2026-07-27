@@ -11,8 +11,8 @@ namespace GameSaveCenter.Playnite.Settings
     /// <summary>Serializable non-secret plugin settings.</summary>
     public sealed class GameSaveCenterSettings : ObservableObject, ISettings
     {
-        private readonly GameSaveCenterPlugin plugin;
-        private GameSaveCenterSettings editingClone;
+        private readonly GameSaveCenterPlugin? plugin;
+        private GameSaveCenterSettings? editingClone;
 
         public GameSaveCenterSettings() { }
 
@@ -47,6 +47,7 @@ namespace GameSaveCenter.Playnite.Settings
 
         public void EndEdit()
         {
+            if (plugin == null) return;
             plugin.SavePluginSettings(this);
             plugin.ApplySettingsAsync();
         }
@@ -93,7 +94,7 @@ namespace GameSaveCenter.Playnite.Settings
                 MediaArchiveDirectory = Path.Combine(pictures, "GameSaveCenter");
         }
 
-        private GameSaveCenterSettings Clone() => JsonConvert.DeserializeObject<GameSaveCenterSettings>(JsonConvert.SerializeObject(this));
+        private GameSaveCenterSettings Clone() => JsonConvert.DeserializeObject<GameSaveCenterSettings>(JsonConvert.SerializeObject(this)) ?? new GameSaveCenterSettings();
 
         private void CopyFrom(GameSaveCenterSettings other)
         {
