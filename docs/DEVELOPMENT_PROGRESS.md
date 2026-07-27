@@ -1,7 +1,7 @@
 # 开发实现进度
 
 更新时间：2026-07-27
-当前版本：`0.3.3-development-preview`
+当前版本：`0.3.4-development-preview`
 
 状态定义：
 
@@ -191,3 +191,12 @@
 - 安装采用临时目录验证后原子替换，禁止静默保留旧版本。
 - 打包文件名改为跟随 extension.yaml 版本。
 - 安装完成后检查 extension.yaml 与 GameSaveCenter.Playnite.dll 文件版本，并生成 `artifacts/last-dev-install.txt`。
+
+
+## 2026-07-27 0.3.4 Windows 一键入口编码修复
+
+- 双击入口改为 ASCII-only + CRLF，避免中文 Windows 的 `cmd.exe` 将 UTF-8 字节拆成命令。
+- 新增英文文件名 `GameSaveCenter-Run.cmd`；中文入口作为兼容快捷包装。
+- `dev-install-run.ps1` 改为 UTF-8 BOM，并自动生成 `artifacts/one-click-install.log`。
+- 源码校验增加批处理编码、换行和 PowerShell BOM 门禁。
+- Windows 回归目标：双击后必须进入 PowerShell 构建流程，安装报告显示清单与 DLL 均为 0.3.4。

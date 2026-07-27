@@ -1,7 +1,7 @@
 # 已知缺陷与回归状态
 
 更新时间：2026-07-27
-目标版本：`0.3.3-development-preview`
+目标版本：`0.3.4-development-preview`
 
 本文档是持续缺陷台账。任何修复必须同步更新 `DEVELOPMENT_PROGRESS.md` 与 `PROJECT_MEMORY.md`。
 
@@ -101,3 +101,12 @@
 - **现象**：源码和补丁已升级，但 Playnite 扩展管理仍显示 0.3.1，动画崩溃也继续出现。
 - **根因**：旧开发安装流程没有验证实际安装目录、清单版本和 DLL 文件版本；打包文件名长期写死为 0.2.0，且删除旧扩展时忽略错误，容易误以为已替换。
 - **修复**：新增一键构建安装运行入口；自动关闭 Playnite/Worker、清理构建、动态读取版本打包、原子替换扩展，并在启动前验证 extension.yaml 与 DLL 文件版本。
+
+
+## GSC-030：双击一键脚本出现乱码并把参数片段当成命令
+
+- **状态**：已修复，待 Windows 双击回归。
+- **现象**：`cmd.exe` 输出中文乱码，并报告 `rofile`、`se` 等不是内部或外部命令，PowerShell 安装流程没有真正启动。
+- **根因**：入口 `.cmd` 使用无 BOM UTF-8 中文内容和 LF 换行；传统 `cmd.exe` 在解析批处理文件时受系统代码页和换行格式影响，导致字节被误解析。
+- **修复**：新增纯 ASCII、CRLF 的 `GameSaveCenter-Run.cmd`；中文文件名入口只调用该脚本；PowerShell 主脚本使用 UTF-8 BOM 并记录 `artifacts/one-click-install.log`。
+- **门禁**：源码检查强制所有 `.cmd` 入口仅含 ASCII 且使用 CRLF，`dev-install-run.ps1` 必须带 UTF-8 BOM。

@@ -1,3 +1,10 @@
+# 0.3.4 Development Preview
+
+- 修复中文 Windows 双击一键批处理时乱码、命令截断和 PowerShell 未启动的问题。
+- 新增 ASCII-only 的 `GameSaveCenter-Run.cmd`，中文入口保留为兼容包装。
+- PowerShell 安装脚本使用 UTF-8 BOM，并持续记录 `artifacts/one-click-install.log`。
+- 构建前新增批处理 ASCII/CRLF 与 PowerShell BOM 检查。
+
 # 0.3.3 Development Preview
 
 - 修复开发安装后 Playnite 仍加载旧版扩展的问题。

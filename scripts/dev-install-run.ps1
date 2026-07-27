@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [ValidateSet('Debug', 'Release')][string]$Configuration = 'Release',
     [string]$PlayniteExtensionsPath = '',
@@ -8,7 +8,29 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+try {
+    [Console]::InputEncoding = $utf8NoBom
+    [Console]::OutputEncoding = $utf8NoBom
+    $OutputEncoding = $utf8NoBom
+}
+catch {
+    # 某些宿主不允许修改控制台编码；不影响构建和安装。
+}
+
 $root = Split-Path -Parent $PSScriptRoot
+$artifactsPath = Join-Path $root 'artifacts'
+New-Item $artifactsPath -ItemType Directory -Force | Out-Null
+$runLogPath = Join-Path $artifactsPath 'one-click-install.log'
+$transcriptStarted = $false
+try {
+    Start-Transcript -Path $runLogPath -Force | Out-Null
+    $transcriptStarted = $true
+}
+catch {
+    Write-Warning "无法启动安装日志记录：$($_.Exception.Message)"
+}
+
 $extensionId = 'GameSaveCenter_66e9f2d7-67bb-43ef-b62a-b8e60734fcec'
 $reportPath = Join-Path $root 'artifacts\last-dev-install.txt'
 
@@ -251,6 +273,14 @@ try {
         }
     }
 }
+catch {
+    Write-Host "`n一键构建安装失败：$($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "完整日志：$runLogPath" -ForegroundColor Yellow
+    throw
+}
 finally {
     Pop-Location
+    if ($transcriptStarted) {
+        try { Stop-Transcript | Out-Null } catch { }
+    }
 }

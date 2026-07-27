@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-27
-当前版本：`0.3.3-development-preview`
+当前版本：`0.3.4-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
@@ -207,3 +207,10 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 - 新增仓库根目录 `GameSaveCenter-一键构建安装运行.cmd`，双击后自动停止 Playnite 和 Worker、清理、构建、测试、打包、原子安装、版本核验并重新启动 Playnite。
 - `package.ps1` 不再写死 0.2.0 文件名，而是从 extension.yaml 动态读取版本。
 - `install-dev.ps1` 不再忽略旧目录删除失败，并核对安装后的清单版本和 DLL 文件版本。
+
+
+## 2026-07-27 0.3.4 一键脚本编码记忆
+
+- Windows `cmd.exe` 不能可靠解析无 BOM UTF-8 且包含中文的批处理正文；即使脚本第一行执行 `chcp 65001`，解析阶段仍可能已经发生乱码和命令截断。
+- 根目录双击入口必须保持 ASCII-only 和 CRLF；所有中文提示放到带 UTF-8 BOM 的 PowerShell 脚本中。
+- 一键流程失败时优先读取 `artifacts/one-click-install.log`，成功版本核验读取 `artifacts/last-dev-install.txt`。

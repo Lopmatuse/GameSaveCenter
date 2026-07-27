@@ -215,6 +215,29 @@ def check_delivery_guards() -> None:
         fail("Missing project memory document")
 
 
+
+def check_windows_launchers() -> None:
+    """Keep the double-click bootstrap safe for legacy cmd.exe and Windows PowerShell 5.1."""
+    launchers = [
+        ROOT / "GameSaveCenter-Run.cmd",
+        ROOT / "GameSaveCenter-一键构建安装运行.cmd",
+    ]
+    for path in launchers:
+        if not path.exists():
+            fail(f"Missing Windows launcher: {path.relative_to(ROOT)}")
+            continue
+        data = path.read_bytes()
+        if any(byte >= 0x80 for byte in data):
+            fail(f"Windows launcher must be ASCII-only: {path.relative_to(ROOT)}")
+        if b"\n" in data.replace(b"\r\n", b""):
+            fail(f"Windows launcher must use CRLF line endings: {path.relative_to(ROOT)}")
+
+    runner = ROOT / "scripts/dev-install-run.ps1"
+    if not runner.exists():
+        fail("Missing scripts/dev-install-run.ps1")
+    elif not runner.read_bytes().startswith(b"\xef\xbb\xbf"):
+        fail("scripts/dev-install-run.ps1 must include a UTF-8 BOM for Windows PowerShell 5.1")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -222,12 +245,13 @@ def main() -> int:
     check_solution()
     check_ipc_constants()
     check_delivery_guards()
+    check_windows_launchers()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:
             print(f" - {item}")
         return 1
-    print("Source validation passed: JSON/XML/YAML, XAML semantics, C# delimiters, solution, IPC constants and delivery guards.")
+    print("Source validation passed: JSON/XML/YAML, XAML semantics, C# delimiters, solution, IPC constants, delivery guards and Windows launchers.")
     print("Note: this does not replace dotnet build/test on Windows with Playnite installed.")
     return 0
 

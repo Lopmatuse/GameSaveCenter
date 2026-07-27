@@ -186,3 +186,13 @@
 2. 点击复制诊断，剪贴板内容不包含 Rclone 远端路径、密码或 Token。
 3. 数据目录、存档目录、媒体目录和 Worker 日志按钮能够打开正确位置。
 4. Ludusavi 路径失效时，诊断摘要和最近失败任务应明确显示原因。
+
+
+## 0.3.4 一键入口编码与安装版本回归
+
+1. 不打开 PowerShell，直接双击仓库根目录 `GameSaveCenter-Run.cmd`。
+2. 确认控制台不出现乱码命令、`rofile` 或 `se` 等错误。
+3. 等待脚本自动关闭旧 Playnite/Worker、完成构建测试、安装并重新启动 Playnite。
+4. 检查 `artifacts/last-dev-install.txt`：源码、清单为 `0.3.4`，DLL 为 `0.3.4.0`。
+5. 检查 Playnite 扩展管理显示 `0.3.4`，再进行导航、指标卡和按钮悬停回归。
+6. 失败时上传 `artifacts/one-click-install.log`，不需要复制控制台全部内容。
