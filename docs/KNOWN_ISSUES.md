@@ -38,4 +38,5 @@
 - 状态：已修复，待 Windows 回归。
 - 现象：`DashboardView.xaml` 报 `MC4111`，模板触发器无法找到 `ButtonScale`。
 - 原因：触发器尝试跨模板名称作用域直接定位 `ScaleTransform`。
-- 修复：触发器改为定位模板根元素 `Chrome`，并整体替换其 `RenderTransform`；保留按下时 0.97 缩放效果。
+- 第一次修复遗漏了 `GscPrimaryButton` 中的第二处 `ButtonScale`，Windows 构建随后在第 119 行再次报同类错误。
+- 最终修复：基础按钮与主按钮模板均只定位模板根元素 `Chrome`，触发器整体替换其 `RenderTransform`；源码中不再存在任何 `ButtonScale` 引用，并保留按下时 0.97 缩放效果。
