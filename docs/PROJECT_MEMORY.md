@@ -148,3 +148,12 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 - 源码、文档、脚本、测试与完整 `.git` 一并交付。
 - ZIP 不得包含真实用户存档、截图、Token、密码、本机运行数据库或日志。
 - 发布说明必须明确区分“源码已实现”“静态校验已通过”“Windows/真机已验证”。
+
+## 2026-07-27 真机缺陷与验证记忆
+
+- Windows 构建、测试、发布、打包与 Playnite 开发安装均已成功。
+- Ludusavi CLI 匹配正常；`Unmatched` 根因为 Worker 的 `ludusaviExecutable` 未被可靠传入且重启后不持久化。
+- 通过 IPC `settings.update` 写入路径后，整个游戏库重新匹配为 `Ready`。
+- 测试游戏手动备份成功并产生历史版本。
+- UI 中依赖 `SelectedGame`、`SelectedBackup` 等条件的命令没有触发 `CanExecuteChanged`，导致“立即备份/校验/侦测路径/保存策略”等按钮一直禁用；0.1.1 已修复。
+- 后续必须持续修复：设置持久化、完整刷新、Worker 生命周期、本地时间显示、诊断信息以及深色主题视觉。

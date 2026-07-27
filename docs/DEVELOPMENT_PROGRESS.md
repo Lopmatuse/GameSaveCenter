@@ -20,7 +20,7 @@
 | 项目记忆文件 | ✅ | `PROJECT_MEMORY.md` |
 | 需求、架构、安全与 UI 文档 | ✅ | `REQUIREMENTS.md`、`ARCHITECTURE.md`、`design/APPLE_UI_GUIDE.md` |
 | Codex 延续开发提示词 | ✅ | `CODEX_CONTINUATION_PROMPT.md` |
-| Windows 构建/测试/打包/安装脚本 | 🧪 | 已修复 SDK 兼容和原生命令退出码检查；等待用户重新执行验证 |
+| Windows 构建/测试/打包/安装脚本 | ✅ | 用户已在 Windows/.NET 9.0.302 完成 build、test、publish、package 与开发安装 |
 | 含 `.git` 的源码打包脚本 | ✅ | `scripts/package-source.ps1` 使用 ZipFile，包含隐藏目录 |
 | 跨平台源码结构校验 | ✅ | `scripts/validate-source.py` 已通过 |
 | Core 单元测试源码 | ✅ | 6 组 xUnit 测试；当前环境未执行 |
@@ -107,3 +107,26 @@
 
 ## 最近验证记录
 - 2026-07-27：Windows + .NET SDK 9.0.302 已成功执行还原并编译到 Playnite 项目；修复 `IPlayniteAPI.CreateLogger` 与 PlayniteSDK 6.16.0 不兼容的问题，改用官方 `LogManager.GetLogger()`，并清理本轮构建暴露的空引用警告。
+
+## 2026-07-27 Windows 真机验证进展
+
+已验证：
+
+- Playnite 成功加载插件，Worker 可通信。
+- Playnite 游戏库与运行状态可同步到 GameSaveCenter。
+- Ludusavi 0.31.0 可匹配 `Bongo Cat` 与自定义 `GameSaveCenter Test`。
+- Worker 收到 `ludusaviExecutable` 后，两款游戏均进入 `Ready`。
+- `GameSaveCenter Test` 手动备份成功，历史列表显示 1 个文件、11 字节。
+
+已确认并待修复：
+
+- Worker 重启后 Ludusavi 可执行文件路径丢失，设置尚未持久化。
+- “刷新”尚未重发设置、重新导出游戏库和重新匹配。
+- Worker 冷启动等待和残留进程处理不稳。
+- UTC 时间尚未转换为本地时间。
+- 深色主题文字对比度和按钮视觉需重构。
+
+本次 `0.1.1` 修复：
+
+- 选中游戏、备份版本、候选路径或媒体后，相关按钮会立即重新计算可用状态。
+- 页面刷新后保留原选择；没有原选择时自动选择第一款游戏。

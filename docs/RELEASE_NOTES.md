@@ -1,3 +1,10 @@
+# 0.1.1 Development Preview
+
+- 修复选中游戏后操作按钮仍保持禁用的问题。
+- 命令接入 WPF `CommandManager`，选择变化时重新计算可执行状态。
+- 刷新列表后保留已选游戏，首次加载自动选择第一款游戏。
+- 记录 Windows 真机构建、Playnite 加载、Ludusavi 匹配与手动备份验证结果。
+
 # 0.1.0 Development Preview
 
 ## 已实现源码

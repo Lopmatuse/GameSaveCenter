@@ -1,7 +1,12 @@
 using System;
 using System.Windows.Input;
+
 namespace GameSaveCenter.Playnite.ViewModels
 {
+    /// <summary>
+    /// WPF command that participates in CommandManager requery so selection changes
+    /// immediately refresh button enabled states.
+    /// </summary>
     public sealed class RelayCommand : ICommand
     {
         private readonly Action<object?> execute;
@@ -15,7 +20,13 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         public bool CanExecute(object? parameter) => canExecute == null || canExecute(parameter);
         public void Execute(object? parameter) => execute(parameter);
-        public event EventHandler? CanExecuteChanged;
-        public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+
+        public event EventHandler? CanExecuteChanged
+        {
+            add => CommandManager.RequerySuggested += value;
+            remove => CommandManager.RequerySuggested -= value;
+        }
+
+        public void RaiseCanExecuteChanged() => CommandManager.InvalidateRequerySuggested();
     }
 }
