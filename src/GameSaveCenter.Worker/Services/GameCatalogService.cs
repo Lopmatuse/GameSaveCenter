@@ -26,10 +26,22 @@ public sealed class GameCatalogService
             try
             {
                 var result=await _ludusavi.FindAsync(game.Name,game.PlatformGameId,game.Platform==GamePlatformKind.Steam,game.Platform==GamePlatformKind.Gog,token).ConfigureAwait(false);
+                if(!result.Success)
+                {
+                    await _store.SetGameMatchAsync(game.PlayniteId,string.Empty,0,token).ConfigureAwait(false);
+                    await _store.AppendAuditAsync("LudusaviMatch",$"匹配失败：{game.Name}",JsonSerializer.Serialize(new{result.ErrorCode,result.ErrorMessage,result.ExitCode,result.RawOutput}),token).ConfigureAwait(false);
+                    continue;
+                }
                 var match=ExtractBestFindMatch(result.Json);
-                if(match.Name.Length>0) await _store.SetGameMatchAsync(game.PlayniteId,match.Name,match.Score,token).ConfigureAwait(false);
+                await _store.SetGameMatchAsync(game.PlayniteId,match.Name,match.Score,token).ConfigureAwait(false);
+                if(match.Name.Length==0)
+                    await _store.AppendAuditAsync("LudusaviMatch",$"未找到匹配：{game.Name}",result.Json?.GetRawText()??"{}",token).ConfigureAwait(false);
             }
-            catch(Exception ex){_logger.LogWarning(ex,"Could not match {Game}",game.Name);}
+            catch(Exception ex)
+            {
+                _logger.LogWarning(ex,"Could not match {Game}",game.Name);
+                await _store.AppendAuditAsync("LudusaviMatch",$"匹配异常：{game.Name}",JsonSerializer.Serialize(new{error=ex.Message}),token).ConfigureAwait(false);
+            }
         }
     }
 

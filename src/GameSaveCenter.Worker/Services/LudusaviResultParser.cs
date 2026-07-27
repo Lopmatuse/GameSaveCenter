@@ -31,11 +31,17 @@ internal static class LudusaviResultParser
     {
         var output=new List<BackupVersionDto>();
         if(root.ValueKind!=JsonValueKind.Object || !root.TryGetProperty("games",out var games) || games.ValueKind!=JsonValueKind.Object) return output;
-        if(!games.TryGetProperty(gameName,out var game) || game.ValueKind!=JsonValueKind.Object || !game.TryGetProperty("backups",out var backups) || backups.ValueKind!=JsonValueKind.Array) return output;
+        if(!games.TryGetProperty(gameName,out var game))
+        {
+            var found=games.EnumerateObject().FirstOrDefault(x=>string.Equals(x.Name,gameName,StringComparison.OrdinalIgnoreCase));
+            game=found.Value;
+        }
+        if(game.ValueKind!=JsonValueKind.Object || !game.TryGetProperty("backups",out var backups) || backups.ValueKind!=JsonValueKind.Array) return output;
         foreach(var item in backups.EnumerateArray())
         {
             var id=item.TryGetProperty("name",out var name)?name.GetString()??string.Empty:string.Empty;
             var when=item.TryGetProperty("when",out var time)&&DateTime.TryParse(time.GetString(),out var parsed)?parsed.ToUniversalTime():DateTime.MinValue;
+            if(string.IsNullOrWhiteSpace(id) || when==DateTime.MinValue) continue;
             output.Add(new BackupVersionDto
             {
                 BackupId=id,PlayniteId=playniteId,LudusaviName=gameName,CreatedUtc=when,IsLocked=item.TryGetProperty("locked",out var locked)&&locked.GetBoolean(),
@@ -45,6 +51,19 @@ internal static class LudusaviResultParser
             });
         }
         return output;
+    }
+
+
+    public static string ParseGameChange(JsonElement root,string gameName)
+    {
+        if(root.ValueKind!=JsonValueKind.Object || !root.TryGetProperty("games",out var games) || games.ValueKind!=JsonValueKind.Object) return "Unknown";
+        if(!games.TryGetProperty(gameName,out var game))
+        {
+            var found=games.EnumerateObject().FirstOrDefault(x=>string.Equals(x.Name,gameName,StringComparison.OrdinalIgnoreCase));
+            game=found.Value;
+        }
+        if(game.ValueKind!=JsonValueKind.Object || !game.TryGetProperty("change",out var change) || change.ValueKind!=JsonValueKind.String) return "Unknown";
+        return change.GetString()??"Unknown";
     }
 
     public static bool SomeGamesFailed(JsonElement root)=>root.ValueKind==JsonValueKind.Object&&root.TryGetProperty("errors",out var errors)&&errors.ValueKind==JsonValueKind.Object&&errors.TryGetProperty("someGamesFailed",out var flag)&&flag.ValueKind==JsonValueKind.True;

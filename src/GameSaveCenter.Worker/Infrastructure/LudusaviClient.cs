@@ -22,7 +22,23 @@ public sealed class LudusaviClient
 
     public Task<LudusaviCommandResult> BackupAsync(IEnumerable<string> games, bool force, bool preview, CancellationToken token)
     {
-        var args = new List<string> { "backup", "--api", "--path", _options.LudusaviBackupDirectory, "--no-cloud-sync" };
+        var args = new List<string>
+        {
+            "backup", "--api", "--path", _options.LudusaviBackupDirectory, "--no-cloud-sync",
+            "--format", _options.BackupFormat == GameSaveCenter.Contracts.BackupStorageFormat.Zip ? "zip" : "simple",
+            "--full-limit", _options.FullBackupLimit.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            "--differential-limit", _options.DifferentialBackupLimit.ToString(System.Globalization.CultureInfo.InvariantCulture)
+        };
+        if (_options.BackupFormat == GameSaveCenter.Contracts.BackupStorageFormat.Zip)
+        {
+            args.Add("--compression");
+            args.Add(_options.Compression);
+            if (string.Equals(_options.Compression, "zstd", StringComparison.OrdinalIgnoreCase))
+            {
+                args.Add("--compression-level");
+                args.Add(_options.CompressionLevel.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            }
+        }
         if (force) args.Add("--force");
         if (preview) args.Add("--preview");
         args.AddRange(games.Where(x => !string.IsNullOrWhiteSpace(x)));
@@ -75,7 +91,7 @@ public sealed class LudusaviClient
         try
         {
             using var document = JsonDocument.Parse(result.StandardOutput);
-            return LudusaviCommandResult.SuccessResult(document.RootElement.Clone(), result.StandardError, result.ExitCode);
+            return LudusaviCommandResult.SuccessResult(document.RootElement.Clone(), result.StandardError, result.ExitCode, result.StandardOutput);
         }
         catch (JsonException ex)
         {
@@ -108,7 +124,7 @@ public sealed class LudusaviClient
         try
         {
             using var document = JsonDocument.Parse(result.StandardOutput);
-            return LudusaviCommandResult.SuccessResult(document.RootElement.Clone(), result.StandardError, result.ExitCode);
+            return LudusaviCommandResult.SuccessResult(document.RootElement.Clone(), result.StandardError, result.ExitCode, result.StandardOutput);
         }
         catch (JsonException ex)
         {
@@ -129,8 +145,8 @@ public sealed class LudusaviCommandResult
     public string WarningText { get; init; } = string.Empty;
     public string RawOutput { get; init; } = string.Empty;
 
-    public static LudusaviCommandResult SuccessResult(JsonElement json, string warnings, int exitCode) => new()
-    { Success = true, Json = json, WarningText = warnings, ExitCode = exitCode };
+    public static LudusaviCommandResult SuccessResult(JsonElement json, string warnings, int exitCode, string raw = "") => new()
+    { Success = true, Json = json, WarningText = warnings, ExitCode = exitCode, RawOutput = raw };
 
     public static LudusaviCommandResult Failure(string code, string message, int exitCode = -1, string raw = "") => new()
     { Success = false, ErrorCode = code, ErrorMessage = message, ExitCode = exitCode, RawOutput = raw };

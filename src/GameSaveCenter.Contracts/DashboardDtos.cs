@@ -11,6 +11,10 @@ namespace GameSaveCenter.Contracts
         public string WorkerVersion { get; set; } = string.Empty;
         public bool LudusaviAvailable { get; set; }
         public bool RcloneAvailable { get; set; }
+        public string LudusaviVersion { get; set; } = string.Empty;
+        public string LudusaviExecutable { get; set; } = string.Empty;
+        public string LudusaviBackupDirectory { get; set; } = string.Empty;
+        public BackupStorageFormat BackupFormat { get; set; } = BackupStorageFormat.Zip;
         public int ManagedGames { get; set; }
         public int MatchedGames { get; set; }
         public int RunningGames { get; set; }
@@ -37,6 +41,16 @@ namespace GameSaveCenter.Contracts
         public string SourceDevice { get; set; } = string.Empty;
         public string OperatingSystem { get; set; } = string.Empty;
         public bool IsPreRestore { get; set; }
+        public DateTime CreatedLocal => CreatedUtc.ToLocalTime();
+        public string SizeDisplay => FormatBytes(TotalBytes);
+
+        private static string FormatBytes(long bytes)
+        {
+            if (bytes < 1024) return $"{bytes} B";
+            if (bytes < 1024L * 1024) return $"{bytes / 1024d:0.##} KiB";
+            if (bytes < 1024L * 1024 * 1024) return $"{bytes / 1024d / 1024d:0.##} MiB";
+            return $"{bytes / 1024d / 1024d / 1024d:0.##} GiB";
+        }
     }
 
     /// <summary>Human-readable manifest difference between two backups.</summary>
@@ -66,6 +80,7 @@ namespace GameSaveCenter.Contracts
         public string Message { get; set; } = string.Empty;
         public string DetailJson { get; set; } = "{}";
         public DateTime CreatedUtc { get; set; }
+        public DateTime CreatedLocal => CreatedUtc.ToLocalTime();
     }
 
     /// <summary>Detected save path that still requires a user decision.</summary>
@@ -93,5 +108,6 @@ namespace GameSaveCenter.Contracts
         public bool IsFavorite { get; set; }
         public string Comment { get; set; } = string.Empty;
         public string CloudState { get; set; } = "Pending";
+        public DateTime CapturedLocal => CapturedUtc.ToLocalTime();
     }
 }

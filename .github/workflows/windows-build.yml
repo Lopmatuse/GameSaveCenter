@@ -39,6 +39,6 @@ jobs:
         with:
           name: GameSaveCenter-windows-preview
           path: |
-            artifacts/GameSaveCenter-0.1.1-playnite.zip
-            artifacts/GameSaveCenter-0.1.1.pext
+            artifacts/GameSaveCenter-0.2.0-playnite.zip
+            artifacts/GameSaveCenter-0.2.0.pext
           if-no-files-found: error

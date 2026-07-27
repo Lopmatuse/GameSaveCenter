@@ -61,8 +61,8 @@ foreach ($file in $required) {
     Copy-Item $source $stage -Force
 }
 
-$zip = Join-Path $artifacts 'GameSaveCenter-0.1.1-playnite.zip'
-$pext = Join-Path $artifacts 'GameSaveCenter-0.1.1.pext'
+$zip = Join-Path $artifacts 'GameSaveCenter-0.2.0-playnite.zip'
+$pext = Join-Path $artifacts 'GameSaveCenter-0.2.0.pext'
 Remove-Item $zip,$pext -Force -ErrorAction SilentlyContinue
 Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -CompressionLevel Optimal
 Copy-Item $zip $pext

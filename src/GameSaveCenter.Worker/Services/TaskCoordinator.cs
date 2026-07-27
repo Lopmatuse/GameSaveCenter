@@ -43,11 +43,23 @@ public sealed class TaskCoordinator
                 await _store.AddOrUpdateTaskAsync(task,CancellationToken.None).ConfigureAwait(false);
             });
             await operation(progress,linked.Token).ConfigureAwait(false);
-            task.State=TaskState.Succeeded;task.ProgressPercent=100;task.Message="已完成";task.FinishedUtc=DateTime.UtcNow;
+            task.State=TaskState.Succeeded;
+            task.ProgressPercent=100;
+            if(string.IsNullOrWhiteSpace(task.Message) || string.Equals(task.Message,"正在执行",StringComparison.Ordinal)) task.Message="已完成";
+            task.FinishedUtc=DateTime.UtcNow;
         }
         catch(OperationCanceledException)
         {
             task.State=TaskState.Cancelled;task.Message="已取消";task.FinishedUtc=DateTime.UtcNow;
+        }
+        catch(WorkerOperationException ex)
+        {
+            _logger.LogError(ex,"Task {TaskType} failed for {Game}: {Code}",taskType,gameName,ex.Code);
+            task.State=TaskState.Failed;
+            task.ErrorCode=ex.Code;
+            task.ErrorMessage=string.IsNullOrWhiteSpace(ex.DiagnosticDetail)?ex.Message:$"{ex.Message} | {ex.DiagnosticDetail}";
+            task.Message="执行失败";
+            task.FinishedUtc=DateTime.UtcNow;
         }
         catch(Exception ex)
         {

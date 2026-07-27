@@ -65,11 +65,17 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.GetTasks=>await _store.GetRecentTasksAsync(200,token).ConfigureAwait(false),
                 MessageTypes.GetLogs=>await _store.GetAuditAsync(500,token).ConfigureAwait(false),
                 MessageTypes.GetSettings=>SanitizedSettings(),
-                MessageTypes.UpdateSettings=>UpdateSettings(Read<WorkerSettingsDto>(request)),
+                MessageTypes.UpdateSettings=>await UpdateSettingsAsync(Read<WorkerSettingsDto>(request),token).ConfigureAwait(false),
                 MessageTypes.CancelTask=>new{cancelled=_tasks.Cancel(Read<CancelTaskRequestDto>(request).TaskId)},
                 _=>throw new NotSupportedException($"Unknown IPC message type: {request.Type}")
             };
             return Success(request,payload);
+        }
+        catch(WorkerOperationException ex)
+        {
+            _logger.LogError(ex,"IPC request {Type} failed with {Code}",request.Type,ex.Code);
+            var message=string.IsNullOrWhiteSpace(ex.DiagnosticDetail)?ex.Message:$"{ex.Message} | {ex.DiagnosticDetail}";
+            return Error(request,ex.Code,message);
         }
         catch(Exception ex)
         {
@@ -155,9 +161,13 @@ public sealed class IpcRequestDispatcher
 
 
 
-    private object UpdateSettings(WorkerSettingsDto settings)
+    private async Task<object> UpdateSettingsAsync(WorkerSettingsDto settings,CancellationToken token)
     {
-        _options.Apply(settings);
+        _options.Apply(settings,persist:true);
+        await _store.AppendAuditAsync("Settings","Worker settings updated",JsonSerializer.Serialize(new
+        {
+            _options.LudusaviExecutable,_options.LudusaviBackupDirectory,_options.BackupFormat,_options.FullBackupLimit,_options.DifferentialBackupLimit
+        }),token).ConfigureAwait(false);
         return SanitizedSettings();
     }
 
@@ -166,7 +176,8 @@ public sealed class IpcRequestDispatcher
         _options.DataDirectory,_options.LudusaviExecutable,_options.LudusaviBackupDirectory,_options.RcloneExecutable,
         RcloneDestination=string.IsNullOrWhiteSpace(_options.RcloneDestination)?string.Empty:"Configured",
         _options.MediaArchiveDirectory,_options.ProcessPollingSeconds,_options.DefaultBackupIntervalMinutes,_options.EnableProcessDetection,
-        _options.EnableMediaSync,_options.EnableCloudUpload
+        _options.EnableMediaSync,_options.EnableCloudUpload,_options.BackupFormat,_options.Compression,_options.CompressionLevel,
+        _options.FullBackupLimit,_options.DifferentialBackupLimit
     };
 
     private T Read<T>(IpcEnvelope envelope)=>JsonSerializer.Deserialize<T>(envelope.PayloadJson,_json)??throw new InvalidOperationException($"Invalid payload for {envelope.Type}.");
