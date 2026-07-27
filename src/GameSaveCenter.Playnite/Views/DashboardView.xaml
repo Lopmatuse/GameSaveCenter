@@ -550,7 +550,33 @@
                                         <DataGridTextColumn Header="本地时间" Binding="{Binding CreatedLocal, StringFormat={}{0:MM-dd HH:mm:ss}}" Width="120"/>
                                         <DataGridTextColumn Header="任务" Binding="{Binding TaskType}" Width="90"/>
                                         <DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="*"/>
-                                        <DataGridTemplateColumn Header="状态" Width="90"><DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel Orientation="Horizontal"><Border x:Name="TaskDot" Width="7" Height="7" CornerRadius="4" Background="{StaticResource GscWarningBrush}" Margin="0,0,7,0" VerticalAlignment="Center"/><TextBlock Text="{Binding StateDisplay}"/><DataTemplate.Triggers><DataTrigger Binding="{Binding State}" Value="Succeeded"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger><DataTrigger Binding="{Binding State}" Value="Failed"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscErrorBrush}"/></DataTrigger><DataTrigger Binding="{Binding State}" Value="Running"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscInfoBrush}"/></DataTrigger></DataTemplate.Triggers></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+                                        <DataGridTemplateColumn Header="状态" Width="90">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Border x:Name="TaskDot"
+                                                                Width="7"
+                                                                Height="7"
+                                                                CornerRadius="4"
+                                                                Background="{StaticResource GscWarningBrush}"
+                                                                Margin="0,0,7,0"
+                                                                VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding StateDisplay}"/>
+                                                    </StackPanel>
+                                                    <DataTemplate.Triggers>
+                                                        <DataTrigger Binding="{Binding State}" Value="Succeeded">
+                                                            <Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscSuccessBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding State}" Value="Failed">
+                                                            <Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscErrorBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding State}" Value="Running">
+                                                            <Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscInfoBrush}"/>
+                                                        </DataTrigger>
+                                                    </DataTemplate.Triggers>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
                                         <DataGridTextColumn Header="详情" Binding="{Binding DetailMessage}" Width="2*">
                                             <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource TextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding DetailMessage}"/></Style></DataGridTextColumn.ElementStyle>
                                         </DataGridTextColumn>

@@ -47,6 +47,9 @@ try {
     Write-Host '当前可用 SDK：' -ForegroundColor DarkCyan
     $sdkLines | ForEach-Object { Write-Host "  $_" }
 
+    Write-Host "`n==> 检查 XAML 结构" -ForegroundColor Cyan
+    & (Join-Path $PSScriptRoot 'check-xaml.ps1') -ProjectRoot $root
+
     Invoke-DotNet -StepName '显示当前 SDK 信息' -Arguments @('--info')
     Invoke-DotNet -StepName '还原 NuGet 依赖' -Arguments @('restore', '.\GameSaveCenter.sln')
     Invoke-DotNet -StepName "编译解决方案（$Configuration）" -Arguments @('build', '.\GameSaveCenter.sln', '-c', $Configuration, '--no-restore')

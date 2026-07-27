@@ -145,3 +145,9 @@
 
 - 选中游戏、备份版本、候选路径或媒体后，相关按钮会立即重新计算可用状态。
 - 页面刷新后保留原选择；没有原选择时自动选择第一款游戏。
+
+## 2026-07-27 XAML 构建检查补强
+
+- [x] 修复任务状态 `DataTemplate.Triggers` 被错误嵌入 `StackPanel` 的 `MC3015`。
+- [x] 新增构建前 XAML 结构检查，覆盖属性元素父级、TargetName 缺失和 Transform 名称作用域风险。
+- [ ] 在 Windows 上重新执行 `scripts/build.ps1`，确认 Playnite 项目编译通过。

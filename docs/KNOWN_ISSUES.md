@@ -40,3 +40,10 @@
 - 原因：触发器尝试跨模板名称作用域直接定位 `ScaleTransform`。
 - 第一次修复遗漏了 `GscPrimaryButton` 中的第二处 `ButtonScale`，Windows 构建随后在第 119 行再次报同类错误。
 - 最终修复：基础按钮与主按钮模板均只定位模板根元素 `Chrome`，触发器整体替换其 `RenderTransform`；源码中不再存在任何 `ButtonScale` 引用，并保留按下时 0.97 缩放效果。
+
+### GSC-021：任务状态模板的触发器层级错误
+
+- **状态：已修复，待 Windows 构建回归**
+- **现象：** `DashboardView.xaml` 编译时报 `MC3015`，提示 `StackPanel` 上未定义附加属性 `DataTemplate.Triggers`。
+- **根因：** 任务状态列为了压缩成单行，将 `<DataTemplate.Triggers>` 错误嵌入了 `<StackPanel>` 内容中，而它必须是 `<DataTemplate>` 的直属属性元素。
+- **修复：** 将任务状态模板展开为标准 XAML 结构，触发器移到 `StackPanel` 结束标签之后；新增 `scripts/check-xaml.ps1`，在正式构建前检查触发器父级、模板 TargetName 和 Transform 目标等常见 WPF 名称作用域错误。
