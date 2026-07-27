@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
-更新时间：2026-07-26
-当前版本：`0.1.0-development-preview`
+更新时间：2026-07-27
+当前版本：`0.2.0-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
@@ -66,6 +66,19 @@
 6. 多设备冲突尚缺 Rclone 远端 sidecar/摘要读取和完整 UI。
 7. 未知进程/MOD 启动链尚缺人工学习并持久化映射的 UI。
 8. 智能保留只预览，不自动删除；恢复时对正在执行的独立云任务尚缺全局暂停锁。
+
+## 2026-07-27 真机缺陷结论与 0.2.0 决策
+
+- Windows 已完成 build/test/publish/package，插件可加载，游戏库与运行状态可读取。
+- `Unmatched` 与 Backup Failed 的直接原因是 Worker 的 `ludusaviExecutable` 为空；Ludusavi 0.31.0 CLI 对测试游戏和 Bongo Cat 均能返回 score 1.0。
+- 运行时设置必须持久化；Playnite 启动、刷新和游戏事件必须再次发送完整设置。
+- 刷新必须重新导出 Playnite 游戏库、重新匹配并显式重载当前游戏详情。
+- 默认采用 ZIP 多版本，不再把 Simple 单副本误称为完整历史；保留数量由 GameSaveCenter 显式控制。
+- SQLite 备份历史以 `(playnite_id, backup_id)` 为主键，同一 ID 更新时必须更新创建时间。
+- 所有 UTC 继续用于持久化和通信，UI 展示统一调用本地时区。
+- 任务页面必须展示 ErrorCode/ErrorMessage，不能只显示“执行失败”。
+- UI 继续作为 Playnite 内嵌页面，不绘制不存在的 macOS 窗口按钮；通过动态主题资源兼容浅色和深色模式。
+- 完整缺陷状态见 `KNOWN_ISSUES.md`。
 
 ## 安全约束
 
