@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.3.0-development-preview`。** Windows 真机已确认项目能够编译、测试、打包并加载到 Playnite；游戏库、运行状态、Ludusavi 匹配和首个本地备份已跑通。本版本在 0.2.0 可靠性修复基础上，新增管理面板自动刷新、后台任务进度与取消、Playnite 任务通知和可复制的诊断中心，并继续完善主题自适应的 Apple HIG 启发界面。仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 完成连续多版本、安全恢复、截图来源和云端回归后，才能用于重要存档。
+> **当前状态：`0.3.1-development-preview`。** Windows 真机已确认项目能够编译、测试、打包并加载到 Playnite；游戏库、运行状态、Ludusavi 匹配和首个本地备份已跑通。本版本在 0.2.0 可靠性修复基础上，新增管理面板自动刷新、后台任务进度与取消、Playnite 任务通知、可复制诊断中心，以及主题自适应毛玻璃、侧栏导航和可关闭微动效。仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 完成连续多版本、安全恢复、截图来源和云端回归后，才能用于重要存档。
 
 ## 核心原则
 
@@ -23,7 +23,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 ## 已落地的源码范围
 
-- Apple HIG 启发的 Playnite 侧边栏总览、游戏策略、备份历史、媒体、候选路径、任务与日志页面；
+- Apple HIG 启发的 Playnite 侧边栏总览、主题自适应毛玻璃、可关闭微动效、游戏策略、备份历史、媒体、候选路径、任务与日志页面；
 - Playnite 游戏库、平台 ID、安装路径和多个 Game Action/MOD 启动动作导出；
 - Worker 命名管道 IPC、SQLite 状态库、任务队列、可取消任务和结构化日志；
 - Ludusavi 单游戏/全部/定时/退出备份、历史索引、备注、锁定、恢复与回滚编排；
@@ -47,7 +47,7 @@ src/GameSaveCenter.Contracts  插件与 Worker 的版本化 IPC 契约
 tests/                        xUnit 测试源码
 scripts/                      Windows 构建、验证、打包和开发安装脚本
 docs/                         需求、架构、进度、限制、安全和交接文档
-design/                       Apple HIG 启发的 UI 规范
+docs/design/                  Apple HIG 启发的 UI 规范
 ```
 
 ## Windows 构建

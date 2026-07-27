@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-27
-当前版本：`0.3.0-development-preview`
+当前版本：`0.3.1-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
@@ -58,7 +58,7 @@
 
 ## 当前明确未完成或待验证
 
-1. 当前交付环境没有可用 .NET SDK/MSBuild，因此最新 0.3.0 改动只能做结构校验；早期版本已由用户在 Windows 完成 restore/build/test/package 和 Playnite 加载。
+1. 当前交付环境没有可用 .NET SDK/MSBuild，因此最新 0.3.1 改动只能做结构校验；早期版本已由用户在 Windows 完成 restore/build/test/package 和 Playnite 加载。
 2. Windows 已验证游戏库、运行状态、Ludusavi 匹配和测试存档备份；ZIP 多版本、安全恢复、Rclone、真实媒体来源与 MOD 复杂会话仍需端到端回归。
 3. Worker → Playnite 的主动事件推送尚未完成；0.3.0 先通过管理面板轻量轮询实现任务进度、完成通知和取消。面板关闭时不保证即时通知。
 4. 公共截图目录目前以文件名和已知来源匹配为主；会话时间窗口归类与未识别收件箱仍需完善。
@@ -180,3 +180,15 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 - 测试游戏手动备份成功并产生历史版本。
 - UI 中依赖 `SelectedGame`、`SelectedBackup` 等条件的命令没有触发 `CanExecuteChanged`，导致“立即备份/校验/侦测路径/保存策略”等按钮一直禁用；0.1.1 已修复。
 - 后续必须持续修复：设置持久化、完整刷新、Worker 生命周期、本地时间显示、诊断信息以及深色主题视觉。
+
+
+## 2026-07-27 0.3.1 UI 继续开发记忆
+
+- 用户明确将 UI 与动画视为同等重要，并偏好 Blur/毛玻璃视觉。
+- 插件是 Playnite 内嵌 `UserControl`，不拥有宿主 HWND，因此采用主题自适应拟态玻璃，不声称实现系统级 backdrop blur。
+- 新界面增加固定左侧导航，并与详情 Tab 双向同步；不添加红黄绿窗口按钮。
+- 毛玻璃由半透明渐变表面、模糊环境光、细边框和阴影组成，文字和内容本身不能模糊。
+- 动画只操作 `Opacity`、`TranslateTransform`、`ScaleTransform`，遵循 Windows 客户区动画设置。
+- 设置新增 `EnableUiAnimations`、`EnableGlassEffects`、`GlassEffectStrength`，旧设置默认分别为 true、true、78。
+- 高对比度模式自动关闭环境光和半透明，避免为了视觉牺牲可访问性。
+- `scripts/validate-source.py` 已增加 XAML Trigger/TargetName/事件处理器语义检查；仍不能替代 Windows WPF 编译。
