@@ -53,7 +53,13 @@ public sealed class ExternalProcessRunner
         {
             await process.WaitForExitAsync(timeoutCts.Token).ConfigureAwait(false);
         }
-        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            _logger.LogWarning("Cancelling external process {Executable}", Path.GetFileName(executable));
+            TryKill(process);
+            throw;
+        }
+        catch (OperationCanceledException)
         {
             TryKill(process);
             return ProcessResult.Failed(-2, await stdoutTask.ConfigureAwait(false), "Process timed out.");

@@ -112,7 +112,38 @@ namespace GameSaveCenter.Playnite
         public void ShowError(string message)
         {
             logger.Error(message);
-            PlayniteApi.MainView.UIDispatcher.Invoke(() => PlayniteApi.Notifications.Add("GameSaveCenter.Error." + Guid.NewGuid().ToString("N"), message, NotificationType.Error));
+            AddNotification("Error", message, NotificationType.Error);
+        }
+
+        public void ShowInfo(string message)
+        {
+            logger.Info(message);
+            AddNotification("Info", message, NotificationType.Info);
+        }
+
+        public void ShowTaskNotification(TaskStatusDto task)
+        {
+            if (!Settings.EnableTaskNotifications || task == null) return;
+            var game = string.IsNullOrWhiteSpace(task.GameName) ? "后台任务" : task.GameName;
+            var text = task.State == TaskState.Failed
+                ? $"{game} · {task.TaskType} 失败：{LimitNotificationText(task.DetailMessage)}"
+                : task.State == TaskState.Cancelled
+                    ? $"{game} · {task.TaskType} 已取消"
+                    : $"{game} · {task.TaskType} 已完成";
+            AddNotification("Task." + task.TaskId, text, task.State == TaskState.Failed ? NotificationType.Error : NotificationType.Info);
+        }
+
+        private void AddNotification(string category, string message, NotificationType type)
+        {
+            PlayniteApi.MainView.UIDispatcher.Invoke(() =>
+                PlayniteApi.Notifications.Add($"GameSaveCenter.{category}.{Guid.NewGuid():N}", message, type));
+        }
+
+        private static string LimitNotificationText(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return "未知错误";
+            const int maximumLength = 320;
+            return text.Length <= maximumLength ? text : text.Substring(0, maximumLength) + "…";
         }
 
         private async Task ApplySettingsCoreAsync() => await RequestAsync<object>(MessageTypes.UpdateSettings, Settings.ToWorkerSettings());

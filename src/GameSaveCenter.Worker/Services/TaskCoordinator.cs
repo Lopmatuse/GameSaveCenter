@@ -32,9 +32,11 @@ public sealed class TaskCoordinator
         var gate=_gameLocks.GetOrAdd(string.IsNullOrWhiteSpace(gameId)?"__global__":gameId,_=>new SemaphoreSlim(1,1));
         using var linked=CancellationTokenSource.CreateLinkedTokenSource(outerToken);
         _taskTokens[task.TaskId]=linked;
-        await gate.WaitAsync(linked.Token).ConfigureAwait(false);
+        var gateEntered=false;
         try
         {
+            await gate.WaitAsync(linked.Token).ConfigureAwait(false);
+            gateEntered=true;
             task.State=TaskState.Running;task.StartedUtc=DateTime.UtcNow;task.Message="正在执行";
             await _store.AddOrUpdateTaskAsync(task,linked.Token).ConfigureAwait(false);
             var progress=new TaskProgress(async (percent,message)=>
@@ -69,7 +71,8 @@ public sealed class TaskCoordinator
         finally
         {
             await _store.AddOrUpdateTaskAsync(task,CancellationToken.None).ConfigureAwait(false);
-            _taskTokens.TryRemove(task.TaskId,out _);gate.Release();
+            _taskTokens.TryRemove(task.TaskId,out _);
+            if(gateEntered)gate.Release();
         }
         return task;
     }

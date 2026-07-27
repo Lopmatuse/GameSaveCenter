@@ -544,45 +544,90 @@
                         </TabItem>
 
                         <TabItem Header="任务">
-                            <Border Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2" Margin="0,12,0,0">
-                                <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Tasks}">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="本地时间" Binding="{Binding CreatedLocal, StringFormat={}{0:MM-dd HH:mm:ss}}" Width="120"/>
-                                        <DataGridTextColumn Header="任务" Binding="{Binding TaskType}" Width="90"/>
-                                        <DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="*"/>
-                                        <DataGridTemplateColumn Header="状态" Width="90">
-                                            <DataGridTemplateColumn.CellTemplate>
-                                                <DataTemplate>
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <Border x:Name="TaskDot"
-                                                                Width="7"
-                                                                Height="7"
-                                                                CornerRadius="4"
-                                                                Background="{StaticResource GscWarningBrush}"
-                                                                Margin="0,0,7,0"
-                                                                VerticalAlignment="Center"/>
-                                                        <TextBlock Text="{Binding StateDisplay}"/>
-                                                    </StackPanel>
-                                                    <DataTemplate.Triggers>
-                                                        <DataTrigger Binding="{Binding State}" Value="Succeeded">
-                                                            <Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscSuccessBrush}"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding State}" Value="Failed">
-                                                            <Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscErrorBrush}"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding State}" Value="Running">
-                                                            <Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscInfoBrush}"/>
-                                                        </DataTrigger>
-                                                    </DataTemplate.Triggers>
-                                                </DataTemplate>
-                                            </DataGridTemplateColumn.CellTemplate>
-                                        </DataGridTemplateColumn>
-                                        <DataGridTextColumn Header="详情" Binding="{Binding DetailMessage}" Width="2*">
-                                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource TextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding DetailMessage}"/></Style></DataGridTextColumn.ElementStyle>
-                                        </DataGridTextColumn>
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                            </Border>
+                            <Grid Margin="0,12,0,0">
+                                <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <Border Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2">
+                                    <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Tasks}" SelectedItem="{Binding SelectedTask}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="本地时间" Binding="{Binding CreatedLocal, StringFormat={}{0:MM-dd HH:mm:ss}}" Width="120"/>
+                                            <DataGridTextColumn Header="任务" Binding="{Binding TaskType}" Width="90"/>
+                                            <DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="*"/>
+                                            <DataGridTemplateColumn Header="状态" Width="90">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <Border x:Name="TaskDot" Width="7" Height="7" CornerRadius="4"
+                                                                    Background="{StaticResource GscWarningBrush}" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                                            <TextBlock Text="{Binding StateDisplay}"/>
+                                                        </StackPanel>
+                                                        <DataTemplate.Triggers>
+                                                            <DataTrigger Binding="{Binding State}" Value="Succeeded"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding State}" Value="Failed"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscErrorBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding State}" Value="Running"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscInfoBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding State}" Value="Cancelled"><Setter TargetName="TaskDot" Property="Background" Value="#8E8E93"/></DataTrigger>
+                                                        </DataTemplate.Triggers>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                            <DataGridTemplateColumn Header="进度" Width="125">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <Grid Margin="0,2">
+                                                            <ProgressBar Height="7" Minimum="0" Maximum="100" Value="{Binding ProgressPercent}" Opacity="0.72"/>
+                                                            <TextBlock Text="{Binding ProgressPercent, StringFormat={}{0}%}" HorizontalAlignment="Right" Margin="0,-4,2,0" FontSize="10"/>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+                                            <DataGridTextColumn Header="详情" Binding="{Binding DetailMessage}" Width="2*">
+                                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource TextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding DetailMessage}"/></Style></DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Border>
+                                <Border Grid.Row="1" Style="{StaticResource GscSurface}" CornerRadius="12" Padding="14" Margin="0,10,0,0">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock FontWeight="SemiBold"><Run Text="{Binding SelectedTask.GameName}"/><Run Text=" · "/><Run Text="{Binding SelectedTask.TaskType}"/></TextBlock>
+                                            <TextBlock Text="{Binding SelectedTask.DetailMessage}" TextWrapping="Wrap" Opacity="0.68" Margin="0,5,12,0"/>
+                                            <TextBlock Opacity="0.5" Margin="0,5,0,0"><Run Text="耗时 "/><Run Text="{Binding SelectedTask.DurationDisplay}"/><Run Text=" · 任务 ID "/><Run Text="{Binding SelectedTask.TaskId}"/></TextBlock>
+                                        </StackPanel>
+                                        <Button Grid.Column="1" Style="{StaticResource GscButtonBase}" Command="{Binding CancelTaskCommand}" Content="取消任务" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+
+
+
+                        <TabItem Header="诊断">
+                            <Grid Margin="0,12,0,0">
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <WrapPanel>
+                                    <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding RefreshDiagnosticsCommand}" Content="刷新诊断"/>
+                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding CopyDiagnosticsCommand}" Content="复制诊断"/>
+                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding OpenDataDirectoryCommand}" Content="打开数据目录"/>
+                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding OpenBackupDirectoryCommand}" Content="打开存档目录"/>
+                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding OpenMediaDirectoryCommand}" Content="打开媒体目录"/>
+                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding OpenWorkerLogCommand}" Content="Worker 日志"/>
+                                </WrapPanel>
+                                <Grid Grid.Row="1" Margin="0,4,0,10">
+                                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource GscSurface}" Padding="14" Margin="0,0,8,0">
+                                        <StackPanel><TextBlock Text="Worker" Opacity="0.56"/><TextBlock Text="{Binding Snapshot.WorkerVersion}" FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0"/><TextBlock Text="{Binding EffectiveSettings.DataDirectory}" TextTrimming="CharacterEllipsis" ToolTip="{Binding EffectiveSettings.DataDirectory}" Opacity="0.55" Margin="0,4,0,0"/></StackPanel>
+                                    </Border>
+                                    <Border Grid.Column="1" Style="{StaticResource GscSurface}" Padding="14" Margin="0,0,8,0">
+                                        <StackPanel><TextBlock Text="Ludusavi" Opacity="0.56"/><TextBlock Text="{Binding Snapshot.LudusaviVersion}" FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0"/><TextBlock Text="{Binding EffectiveSettings.LudusaviExecutable}" TextTrimming="CharacterEllipsis" ToolTip="{Binding EffectiveSettings.LudusaviExecutable}" Opacity="0.55" Margin="0,4,0,0"/></StackPanel>
+                                    </Border>
+                                    <Border Grid.Column="2" Style="{StaticResource GscSurface}" Padding="14">
+                                        <StackPanel><TextBlock Text="版本策略" Opacity="0.56"/><TextBlock FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0"><Run Text="{Binding EffectiveSettings.BackupFormat}"/><Run Text=" · "/><Run Text="{Binding EffectiveSettings.Compression}"/></TextBlock><TextBlock Opacity="0.55" Margin="0,4,0,0"><Run Text="完整 "/><Run Text="{Binding EffectiveSettings.FullBackupLimit}"/><Run Text=" · 差异 "/><Run Text="{Binding EffectiveSettings.DifferentialBackupLimit}"/></TextBlock></StackPanel>
+                                    </Border>
+                                </Grid>
+                                <Border Grid.Row="2" Style="{StaticResource GscSurface}" CornerRadius="12" Padding="12">
+                                    <TextBox Style="{StaticResource GscTextBox}" Text="{Binding DiagnosticSummary, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="Consolas"/>
+                                </Border>
+                            </Grid>
                         </TabItem>
 
                         <TabItem Header="异常与日志">
@@ -609,8 +654,21 @@
                 <TextBlock Text="{Binding Snapshot.LudusaviVersion}" Opacity="0.58" ToolTip="{Binding Snapshot.LudusaviExecutable}"/>
                 <TextBlock Text="  ·  " Opacity="0.35"/>
                 <TextBlock Text="{Binding Snapshot.BackupFormat, StringFormat=备份格式：{0}}" Opacity="0.58" ToolTip="{Binding Snapshot.LudusaviBackupDirectory}"/>
+                <TextBlock Text="  ·  " Opacity="0.35"/>
+                <TextBlock Text="{Binding Snapshot.GeneratedLocal, StringFormat=更新 {0:HH:mm:ss}}" Opacity="0.5"/>
             </StackPanel>
-            <ProgressBar Grid.Column="1" Width="120" Height="4" IsIndeterminate="{Binding IsBusy}"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="自动更新" Opacity="0.45" Margin="0,0,8,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+                            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers><DataTrigger Binding="{Binding IsBackgroundRefreshing}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <ProgressBar Width="120" Height="4" IsIndeterminate="{Binding IsBusy}"/>
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

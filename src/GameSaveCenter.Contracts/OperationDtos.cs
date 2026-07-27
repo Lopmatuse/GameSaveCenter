@@ -86,6 +86,22 @@ namespace GameSaveCenter.Contracts
         public string DetailMessage => State == TaskState.Failed && !string.IsNullOrWhiteSpace(ErrorMessage)
             ? $"{ErrorCode}: {ErrorMessage}"
             : Message;
+        public bool CanCancel => State == TaskState.Queued || State == TaskState.Running;
+        public DateTime? StartedLocal => StartedUtc?.ToLocalTime();
+        public DateTime? FinishedLocal => FinishedUtc?.ToLocalTime();
+        public string DurationDisplay
+        {
+            get
+            {
+                var start = StartedUtc ?? CreatedUtc;
+                var end = FinishedUtc ?? DateTime.UtcNow;
+                var duration = end - start;
+                if (duration.TotalSeconds < 1) return "< 1 秒";
+                if (duration.TotalMinutes < 1) return $"{duration.TotalSeconds:0} 秒";
+                if (duration.TotalHours < 1) return $"{duration.TotalMinutes:0.#} 分钟";
+                return $"{duration.TotalHours:0.#} 小时";
+            }
+        }
     }
 
     /// <summary>One validation result displayed to the user.</summary>
@@ -149,7 +165,32 @@ namespace GameSaveCenter.Contracts
         public string TaskId { get; set; } = string.Empty;
     }
 
+    /// <summary>Result returned after requesting task cancellation.</summary>
+    public sealed class CancelTaskResultDto
+    {
+        public bool Cancelled { get; set; }
+    }
 
+    /// <summary>Effective non-secret Worker settings used by diagnostics UI.</summary>
+    public sealed class WorkerSettingsSnapshotDto
+    {
+        public string DataDirectory { get; set; } = string.Empty;
+        public string LudusaviExecutable { get; set; } = string.Empty;
+        public string LudusaviBackupDirectory { get; set; } = string.Empty;
+        public string RcloneExecutable { get; set; } = string.Empty;
+        public bool RcloneDestinationConfigured { get; set; }
+        public string MediaArchiveDirectory { get; set; } = string.Empty;
+        public int ProcessPollingSeconds { get; set; } = 5;
+        public int DefaultBackupIntervalMinutes { get; set; } = 30;
+        public bool EnableProcessDetection { get; set; } = true;
+        public bool EnableMediaSync { get; set; } = true;
+        public bool EnableCloudUpload { get; set; }
+        public BackupStorageFormat BackupFormat { get; set; } = BackupStorageFormat.Zip;
+        public string Compression { get; set; } = "zstd";
+        public int CompressionLevel { get; set; } = 3;
+        public int FullBackupLimit { get; set; } = 3;
+        public int DifferentialBackupLimit { get; set; } = 5;
+    }
 
     /// <summary>Moves an indexed media item to another game without touching the original capture.</summary>
     public sealed class ReassignMediaRequestDto

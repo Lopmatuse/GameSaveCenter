@@ -92,13 +92,17 @@
                     <CheckBox Content="检测从 Steam、Xbox、启动器和 MOD 管理器外部启动的游戏" IsChecked="{Binding EnableProcessDetection}" Margin="0,5"/>
                     <CheckBox Content="同步新增截图和录像（源文件删除不会删除归档）" IsChecked="{Binding EnableMediaSync}" Margin="0,5"/>
                     <CheckBox Content="完成本地任务后允许单向云端复制" IsChecked="{Binding EnableCloudUpload}" Margin="0,5"/>
+                    <CheckBox Content="管理面板打开时自动刷新任务与状态" IsChecked="{Binding EnableDashboardAutoRefresh}" Margin="0,5"/>
+                    <CheckBox Content="任务完成或失败时显示 Playnite 通知" IsChecked="{Binding EnableTaskNotifications}" Margin="0,5"/>
                     <Grid Margin="0,10,0,0">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="190"/><ColumnDefinition Width="120"/></Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="210"/><ColumnDefinition Width="120"/></Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                         <TextBlock Text="默认游玩中备份间隔（分钟）" VerticalAlignment="Center" Margin="0,6"/>
                         <TextBox Grid.Column="1" Text="{Binding DefaultBackupIntervalMinutes, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
                         <TextBlock Grid.Row="1" Text="进程检测间隔（秒）" VerticalAlignment="Center" Margin="0,6"/>
                         <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ProcessPollingSeconds, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                        <TextBlock Grid.Row="2" Text="管理面板刷新间隔（秒）" VerticalAlignment="Center" Margin="0,6"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding DashboardRefreshSeconds, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
                     </Grid>
                     <Border Background="#14FF9F0A" BorderBrush="#38FF9F0A" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,13,0,0">
                         <TextBlock Text="自动恢复始终关闭。恢复必须经过当前快照、游戏关闭确认、预览、恢复后校验和可撤销快照。" TextWrapping="Wrap"/>

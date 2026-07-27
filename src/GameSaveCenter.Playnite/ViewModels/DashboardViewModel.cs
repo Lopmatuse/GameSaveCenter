@@ -1,6 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -13,7 +17,12 @@ namespace GameSaveCenter.Playnite.ViewModels
     public sealed class DashboardViewModel : ObservableObject
     {
         private readonly GameSaveCenterPlugin plugin;
+        private readonly Dictionary<string, TaskState> knownTaskStates = new Dictionary<string, TaskState>(StringComparer.OrdinalIgnoreCase);
+        private readonly DateTime dashboardOpenedUtc = DateTime.UtcNow;
         private bool isBusy;
+        private bool isBackgroundRefreshing;
+        private bool isCancellingTask;
+        private bool taskSnapshotInitialized;
         private string statusMessage = "准备就绪";
         private GameStatusDto selectedGame = null!;
         private BackupVersionDto selectedBackup = null!;
@@ -26,6 +35,9 @@ namespace GameSaveCenter.Playnite.ViewModels
         private bool customMediaShared;
         private MediaItemDto selectedMedia = null!;
         private GameStatusDto mediaTargetGame = null!;
+        private TaskStatusDto selectedTask = null!;
+        private WorkerSettingsSnapshotDto effectiveSettings = new WorkerSettingsSnapshotDto();
+        private string diagnosticSummary = "诊断信息尚未加载。";
         private string diffSummary = string.Empty;
         private string retentionSummary = string.Empty;
         private bool suppressSelectionLoad;
@@ -49,6 +61,13 @@ namespace GameSaveCenter.Playnite.ViewModels
             AddMediaSourceCommand = new RelayCommand(_ => Run(AddMediaSourceAsync), _ => !IsBusy && SelectedGame != null);
             AcceptCandidateCommand = new RelayCommand(_ => Run(AcceptCandidateAsync), _ => !IsBusy && SelectedGame != null && SelectedCandidate != null);
             ReassignMediaCommand = new RelayCommand(_ => Run(ReassignMediaAsync), _ => !IsBusy && SelectedMedia != null && MediaTargetGame != null);
+            CancelTaskCommand = new RelayCommand(_ => CancelSelectedTask(), _ => SelectedTask != null && SelectedTask.CanCancel && !IsCancellingTask);
+            RefreshDiagnosticsCommand = new RelayCommand(_ => Run(RefreshDiagnosticsAsync), _ => !IsBusy);
+            CopyDiagnosticsCommand = new RelayCommand(_ => RunLocal(CopyDiagnostics), _ => !string.IsNullOrWhiteSpace(DiagnosticSummary));
+            OpenDataDirectoryCommand = new RelayCommand(_ => RunLocal(() => OpenPath(EffectiveSettings.DataDirectory)), _ => !string.IsNullOrWhiteSpace(EffectiveSettings.DataDirectory));
+            OpenBackupDirectoryCommand = new RelayCommand(_ => RunLocal(() => OpenPath(EffectiveSettings.LudusaviBackupDirectory)), _ => !string.IsNullOrWhiteSpace(EffectiveSettings.LudusaviBackupDirectory));
+            OpenMediaDirectoryCommand = new RelayCommand(_ => RunLocal(() => OpenPath(EffectiveSettings.MediaArchiveDirectory)), _ => !string.IsNullOrWhiteSpace(EffectiveSettings.MediaArchiveDirectory));
+            OpenWorkerLogCommand = new RelayCommand(_ => RunLocal(OpenWorkerLog));
             Run(RefreshAsync);
         }
 
@@ -62,6 +81,15 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ObservableCollection<MediaSourceRuleDto> MediaSources { get; } = new ObservableCollection<MediaSourceRuleDto>();
 
         public DashboardSnapshotDto Snapshot { get => snapshot; private set => SetValue(ref snapshot, value); }
+        public WorkerSettingsSnapshotDto EffectiveSettings
+        {
+            get => effectiveSettings;
+            private set
+            {
+                SetValue(ref effectiveSettings, value);
+                RaiseCommandStates();
+            }
+        }
         public bool IsBusy
         {
             get => isBusy;
@@ -71,7 +99,18 @@ namespace GameSaveCenter.Playnite.ViewModels
                 RaiseCommandStates();
             }
         }
+        public bool IsBackgroundRefreshing { get => isBackgroundRefreshing; private set => SetValue(ref isBackgroundRefreshing, value); }
+        public bool IsCancellingTask
+        {
+            get => isCancellingTask;
+            private set
+            {
+                SetValue(ref isCancellingTask, value);
+                RaiseCommandStates();
+            }
+        }
         public string StatusMessage { get => statusMessage; private set => SetValue(ref statusMessage, value); }
+        public string DiagnosticSummary { get => diagnosticSummary; private set => SetValue(ref diagnosticSummary, value); }
         public GameStatusDto SelectedGame
         {
             get => selectedGame;
@@ -108,11 +147,20 @@ namespace GameSaveCenter.Playnite.ViewModels
                 RaiseCommandStates();
             }
         }
-        public string BackupComment { get => backupComment; set => SetValue(ref backupComment,value); }
-        public bool LockSelectedBackup { get => lockSelectedBackup; set => SetValue(ref lockSelectedBackup,value); }
-        public string CustomMediaSourcePath { get => customMediaSourcePath; set => SetValue(ref customMediaSourcePath,value); }
-        public string CustomMediaPattern { get => customMediaPattern; set => SetValue(ref customMediaPattern,value); }
-        public bool CustomMediaShared { get => customMediaShared; set => SetValue(ref customMediaShared,value); }
+        public TaskStatusDto SelectedTask
+        {
+            get => selectedTask;
+            set
+            {
+                SetValue(ref selectedTask, value);
+                RaiseCommandStates();
+            }
+        }
+        public string BackupComment { get => backupComment; set => SetValue(ref backupComment, value); }
+        public bool LockSelectedBackup { get => lockSelectedBackup; set => SetValue(ref lockSelectedBackup, value); }
+        public string CustomMediaSourcePath { get => customMediaSourcePath; set => SetValue(ref customMediaSourcePath, value); }
+        public string CustomMediaPattern { get => customMediaPattern; set => SetValue(ref customMediaPattern, value); }
+        public bool CustomMediaShared { get => customMediaShared; set => SetValue(ref customMediaShared, value); }
         public MediaItemDto SelectedMedia
         {
             get => selectedMedia;
@@ -131,8 +179,8 @@ namespace GameSaveCenter.Playnite.ViewModels
                 RaiseCommandStates();
             }
         }
-        public string DiffSummary { get => diffSummary; private set => SetValue(ref diffSummary,value); }
-        public string RetentionSummary { get => retentionSummary; private set => SetValue(ref retentionSummary,value); }
+        public string DiffSummary { get => diffSummary; private set => SetValue(ref diffSummary, value); }
+        public string RetentionSummary { get => retentionSummary; private set => SetValue(ref retentionSummary, value); }
 
         public ICommand RefreshCommand { get; }
         public ICommand BackupSelectedCommand { get; }
@@ -150,17 +198,72 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand AddMediaSourceCommand { get; }
         public ICommand AcceptCandidateCommand { get; }
         public ICommand ReassignMediaCommand { get; }
+        public ICommand CancelTaskCommand { get; }
+        public ICommand RefreshDiagnosticsCommand { get; }
+        public ICommand CopyDiagnosticsCommand { get; }
+        public ICommand OpenDataDirectoryCommand { get; }
+        public ICommand OpenBackupDirectoryCommand { get; }
+        public ICommand OpenMediaDirectoryCommand { get; }
+        public ICommand OpenWorkerLogCommand { get; }
 
         public Task RefreshAsync() => RefreshCoreAsync(true);
+
+        /// <summary>Lightweight polling entry used by the view timer. It remains active while a manual task is running.</summary>
+        public async void RequestBackgroundRefresh()
+        {
+            if (!plugin.Settings.EnableDashboardAutoRefresh || IsBackgroundRefreshing) return;
+            IsBackgroundRefreshing = true;
+            try
+            {
+                await plugin.EnsureWorkerAsync();
+                var refreshDetails = await RefreshDashboardAsync(false, true);
+                if (refreshDetails && !IsBusy && SelectedGame != null) await LoadDetailsAsync();
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "自动刷新暂不可用：" + ex.Message;
+            }
+            finally
+            {
+                IsBackgroundRefreshing = false;
+            }
+        }
 
         private async Task RefreshCoreAsync(bool synchronize)
         {
             StatusMessage = synchronize ? "正在同步设置、游戏库与存档状态…" : "正在刷新状态…";
+            await RefreshDashboardAsync(synchronize, false);
+            await LoadDiagnosticsAsync();
+            if (SelectedGame != null) await LoadDetailsAsync();
+            else ClearSelectedGameDetails();
+        }
+
+        private async Task<bool> RefreshDashboardAsync(bool synchronize, bool notifyTaskChanges)
+        {
             if (synchronize) await plugin.SynchronizeAsync();
             var data = await plugin.RequestAsync<DashboardSnapshotDto>(MessageTypes.GetDashboard, new { });
+            var notifications = new List<TaskStatusDto>();
+            var selectedTaskCompleted = false;
             ApplyOnUi(() =>
             {
                 var selectedGameId = SelectedGame?.PlayniteId;
+                var selectedTaskId = SelectedTask?.TaskId;
+                if (taskSnapshotInitialized)
+                {
+                    foreach (var task in data.RecentTasks)
+                    {
+                        var changed = !knownTaskStates.TryGetValue(task.TaskId, out var oldState) || oldState != task.State;
+                        var terminal = task.State == TaskState.Succeeded || task.State == TaskState.Failed || task.State == TaskState.Cancelled;
+                        if (notifyTaskChanges && !IsBusy && changed && terminal && task.CreatedUtc >= dashboardOpenedUtc.AddSeconds(-5))
+                            notifications.Add(task);
+                        if (changed && terminal && !string.IsNullOrWhiteSpace(selectedGameId) && string.Equals(task.GameId, selectedGameId, StringComparison.OrdinalIgnoreCase))
+                            selectedTaskCompleted = true;
+                    }
+                }
+                knownTaskStates.Clear();
+                foreach (var task in data.RecentTasks) knownTaskStates[task.TaskId] = task.State;
+                taskSnapshotInitialized = true;
+
                 Snapshot = data;
                 suppressSelectionLoad = true;
                 try
@@ -170,14 +273,32 @@ namespace GameSaveCenter.Playnite.ViewModels
                 }
                 finally { suppressSelectionLoad = false; }
                 Replace(Tasks, data.RecentTasks);
+                SelectedTask = Tasks.FirstOrDefault(x => x.TaskId == selectedTaskId) ?? Tasks.FirstOrDefault();
                 Replace(Findings, data.Findings);
                 Replace(Audit, data.RecentAudit);
                 StatusMessage = data.WorkerHealthy
                     ? data.LudusaviAvailable ? "Worker 与 Ludusavi 均正常" : "Worker 正常，Ludusavi 尚未配置"
                     : "Worker 不可用";
             });
-            if (SelectedGame != null) await LoadDetailsAsync();
-            else ClearSelectedGameDetails();
+            foreach (var task in notifications) plugin.ShowTaskNotification(task);
+            return selectedTaskCompleted;
+        }
+
+        private async Task LoadDiagnosticsAsync()
+        {
+            var settings = await plugin.RequestAsync<WorkerSettingsSnapshotDto>(MessageTypes.GetSettings, new { });
+            ApplyOnUi(() =>
+            {
+                EffectiveSettings = settings;
+                DiagnosticSummary = BuildDiagnosticSummary(settings);
+            });
+        }
+
+        private async Task RefreshDiagnosticsAsync()
+        {
+            await RefreshDashboardAsync(false, false);
+            await LoadDiagnosticsAsync();
+            StatusMessage = "诊断信息已更新";
         }
 
         private async Task LoadDetailsAsync()
@@ -203,14 +324,16 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             var tasks = await plugin.RequestAsync<TaskStatusDto[]>(MessageTypes.BackupGame, new BackupRequestDto { PlayniteIds = { SelectedGame.PlayniteId }, Force = true, Reason = "Manual" }, TimeSpan.FromMinutes(15));
             await RefreshCoreAsync(false);
-            ThrowIfFailed(tasks);
+            ThrowIfUnsuccessful(tasks);
+            if (plugin.Settings.EnableTaskNotifications) plugin.ShowInfo($"{SelectedGame.Name} 的存档备份已完成");
         }
 
         private async Task BackupAllAsync()
         {
             var tasks = await plugin.RequestAsync<TaskStatusDto[]>(MessageTypes.BackupAll, new BackupRequestDto { Force = true, Reason = "ManualAll" }, TimeSpan.FromMinutes(45));
             await RefreshCoreAsync(false);
-            ThrowIfFailed(tasks);
+            ThrowIfUnsuccessful(tasks);
+            if (plugin.Settings.EnableTaskNotifications) plugin.ShowInfo("全部匹配游戏的备份任务已完成");
         }
 
         private async Task SyncMediaAsync()
@@ -220,7 +343,9 @@ namespace GameSaveCenter.Playnite.ViewModels
             foreach (var id in ids) request.PlayniteIds.Add(id);
             var tasks = await plugin.RequestAsync<TaskStatusDto[]>(MessageTypes.SyncMedia, request, TimeSpan.FromMinutes(60));
             await RefreshCoreAsync(false);
-            ThrowIfFailed(tasks);
+            ThrowIfUnsuccessful(tasks);
+            if (plugin.Settings.EnableTaskNotifications)
+                plugin.ShowInfo(SelectedGame == null ? "媒体同步已完成" : $"{SelectedGame.Name} 的媒体同步已完成");
         }
 
         private async Task DetectPathsAsync()
@@ -237,48 +362,49 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         private async Task SavePolicyAsync()
         {
-            await plugin.RequestAsync<object>(MessageTypes.UpdateGamePolicy,new GamePolicyUpdateDto{PlayniteId=SelectedGame.PlayniteId,Policy=SelectedGame.Policy});
-            StatusMessage="游戏策略已保存";
+            await plugin.RequestAsync<object>(MessageTypes.UpdateGamePolicy, new GamePolicyUpdateDto { PlayniteId = SelectedGame.PlayniteId, Policy = SelectedGame.Policy });
+            StatusMessage = "游戏策略已保存";
         }
 
         private async Task UpdateBackupMetadataAsync()
         {
-            await plugin.RequestAsync<object>(MessageTypes.UpdateBackupMetadata,new BackupMetadataUpdateDto{PlayniteId=SelectedGame.PlayniteId,BackupId=SelectedBackup.BackupId,Comment=BackupComment,Locked=LockSelectedBackup});
+            await plugin.RequestAsync<object>(MessageTypes.UpdateBackupMetadata, new BackupMetadataUpdateDto { PlayniteId = SelectedGame.PlayniteId, BackupId = SelectedBackup.BackupId, Comment = BackupComment, Locked = LockSelectedBackup });
             await LoadDetailsAsync();
         }
 
         private async Task CompareBackupAsync()
         {
-            var index=Backups.IndexOf(SelectedBackup);
-            if(index<0||index+1>=Backups.Count){DiffSummary="没有可比较的上一个版本。";return;}
-            var diff=await plugin.RequestAsync<BackupDiffDto>(MessageTypes.CompareBackups,new BackupCompareRequestDto{PlayniteId=SelectedGame.PlayniteId,LeftBackupId=Backups[index+1].BackupId,RightBackupId=SelectedBackup.BackupId});
-            DiffSummary=diff.Summary;
+            var index = Backups.IndexOf(SelectedBackup);
+            if (index < 0 || index + 1 >= Backups.Count) { DiffSummary = "没有可比较的上一个版本。"; return; }
+            var diff = await plugin.RequestAsync<BackupDiffDto>(MessageTypes.CompareBackups, new BackupCompareRequestDto { PlayniteId = SelectedGame.PlayniteId, LeftBackupId = Backups[index + 1].BackupId, RightBackupId = SelectedBackup.BackupId });
+            DiffSummary = diff.Summary;
         }
 
         private async Task PreviewRetentionAsync()
         {
-            var preview=await plugin.RequestAsync<RetentionPreviewDto>(MessageTypes.PreviewRetention,new GameQueryDto{PlayniteId=SelectedGame.PlayniteId});
-            RetentionSummary=preview.Summary;
+            var preview = await plugin.RequestAsync<RetentionPreviewDto>(MessageTypes.PreviewRetention, new GameQueryDto { PlayniteId = SelectedGame.PlayniteId });
+            RetentionSummary = preview.Summary;
         }
 
         private async Task AddMediaSourceAsync()
         {
-            if(string.IsNullOrWhiteSpace(CustomMediaSourcePath))throw new InvalidOperationException("请输入截图或录像目录。");
-            await plugin.RequestAsync<MediaSourceRuleDto>(MessageTypes.AddMediaSource,new MediaSourceRuleDto{PlayniteId=SelectedGame.PlayniteId,RootPath=CustomMediaSourcePath,IncludePattern=string.IsNullOrWhiteSpace(CustomMediaPattern)?"*":CustomMediaPattern,SharedDirectory=CustomMediaShared,SourceKind=MediaSourceKind.Custom});
-            StatusMessage="自定义媒体来源已添加";
+            if (string.IsNullOrWhiteSpace(CustomMediaSourcePath)) throw new InvalidOperationException("请输入截图或录像目录。");
+            await plugin.RequestAsync<MediaSourceRuleDto>(MessageTypes.AddMediaSource, new MediaSourceRuleDto { PlayniteId = SelectedGame.PlayniteId, RootPath = CustomMediaSourcePath, IncludePattern = string.IsNullOrWhiteSpace(CustomMediaPattern) ? "*" : CustomMediaPattern, SharedDirectory = CustomMediaShared, SourceKind = MediaSourceKind.Custom });
+            StatusMessage = "自定义媒体来源已添加";
             await LoadDetailsAsync();
         }
 
         private async Task AcceptCandidateAsync()
         {
-            await plugin.RequestAsync<object>(MessageTypes.AcceptSavePath,new AcceptSavePathRequestDto{PlayniteId=SelectedGame.PlayniteId,Path=SelectedCandidate.Path,IncludeSubdirectories=true});
-            SelectedCandidate.Status="Accepted";StatusMessage="已生成 Ludusavi 自定义规则草案";
+            await plugin.RequestAsync<object>(MessageTypes.AcceptSavePath, new AcceptSavePathRequestDto { PlayniteId = SelectedGame.PlayniteId, Path = SelectedCandidate.Path, IncludeSubdirectories = true });
+            SelectedCandidate.Status = "Accepted";
+            StatusMessage = "已生成 Ludusavi 自定义规则草案";
         }
 
         private async Task ReassignMediaAsync()
         {
-            await plugin.RequestAsync<object>(MessageTypes.ReassignMedia,new ReassignMediaRequestDto{MediaId=SelectedMedia.MediaId,TargetPlayniteId=MediaTargetGame.PlayniteId});
-            StatusMessage=$"媒体已重新归类到 {MediaTargetGame.Name}";
+            await plugin.RequestAsync<object>(MessageTypes.ReassignMedia, new ReassignMediaRequestDto { MediaId = SelectedMedia.MediaId, TargetPlayniteId = MediaTargetGame.PlayniteId });
+            StatusMessage = $"媒体已重新归类到 {MediaTargetGame.Name}";
             await LoadDetailsAsync();
         }
 
@@ -288,35 +414,158 @@ namespace GameSaveCenter.Playnite.ViewModels
                 "恢复前会先创建并锁定当前存档的 PreRestore 快照。请确认游戏、启动器和 MOD 管理器均已关闭。\n\n继续恢复选中的历史版本？",
                 "GameSaveCenter 安全恢复", MessageBoxButton.YesNo);
             if (result != MessageBoxResult.Yes) return;
-            await plugin.RequestAsync<TaskStatusDto>(MessageTypes.RestoreExecute, new RestoreRequestDto
+            var task = await plugin.RequestAsync<TaskStatusDto>(MessageTypes.RestoreExecute, new RestoreRequestDto
             {
-                PlayniteId = SelectedGame.PlayniteId, BackupId = SelectedBackup.BackupId,
-                ConfirmedCurrentSnapshot = true, ConfirmedGameClosed = true, UserComment = "Playnite restore wizard"
+                PlayniteId = SelectedGame.PlayniteId,
+                BackupId = SelectedBackup.BackupId,
+                ConfirmedCurrentSnapshot = true,
+                ConfirmedGameClosed = true,
+                UserComment = "Playnite restore wizard"
             }, TimeSpan.FromMinutes(30));
             await RefreshCoreAsync(false);
+            ThrowIfUnsuccessful(new[] { task });
         }
 
         private async Task UndoRestoreAsync()
         {
             var result = plugin.PlayniteApi.Dialogs.ShowMessage("撤销将恢复最近的 PreRestore 快照，仍会先保存当前状态。继续？", "撤销恢复", MessageBoxButton.YesNo);
             if (result != MessageBoxResult.Yes) return;
-            await plugin.RequestAsync<TaskStatusDto>(MessageTypes.UndoRestore, new GameQueryDto { PlayniteId = SelectedGame.PlayniteId }, TimeSpan.FromMinutes(30));
+            var task = await plugin.RequestAsync<TaskStatusDto>(MessageTypes.UndoRestore, new GameQueryDto { PlayniteId = SelectedGame.PlayniteId }, TimeSpan.FromMinutes(30));
             await RefreshCoreAsync(false);
+            ThrowIfUnsuccessful(new[] { task });
+        }
+
+        private async void CancelSelectedTask()
+        {
+            if (SelectedTask == null || !SelectedTask.CanCancel || IsCancellingTask) return;
+            var taskId = SelectedTask.TaskId;
+            var result = plugin.PlayniteApi.Dialogs.ShowMessage(
+                $"取消“{SelectedTask.GameName} · {SelectedTask.TaskType}”任务？\n\n取消请求会在当前文件操作的安全边界生效。",
+                "取消后台任务", MessageBoxButton.YesNo);
+            if (result != MessageBoxResult.Yes) return;
+            IsCancellingTask = true;
+            try
+            {
+                await plugin.EnsureWorkerAsync();
+                var response = await plugin.RequestAsync<CancelTaskResultDto>(MessageTypes.CancelTask, new CancelTaskRequestDto { TaskId = taskId });
+                StatusMessage = response.Cancelled ? "已发送取消请求" : "任务已经结束或无法取消";
+                await RefreshDashboardAsync(false, false);
+            }
+            catch (OperationCanceledException)
+            {
+                StatusMessage = "操作已取消";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ex.Message;
+                plugin.ShowError(ex.Message);
+            }
+            finally
+            {
+                IsCancellingTask = false;
+            }
+        }
+
+        private void CopyDiagnostics()
+        {
+            Clipboard.SetText(DiagnosticSummary ?? string.Empty);
+            StatusMessage = "诊断信息已复制到剪贴板";
+            plugin.ShowInfo("GameSaveCenter 诊断信息已复制");
+        }
+
+        private string BuildDiagnosticSummary(WorkerSettingsSnapshotDto settings)
+        {
+            var builder = new StringBuilder();
+            builder.AppendLine("GameSaveCenter 诊断摘要");
+            builder.AppendLine("生成时间：" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss zzz"));
+            builder.AppendLine("插件版本：" + (typeof(DashboardViewModel).Assembly.GetName().Version?.ToString() ?? "dev"));
+            builder.AppendLine("Worker：" + (Snapshot.WorkerHealthy ? "正常" : "不可用") + " / " + Snapshot.WorkerVersion);
+            builder.AppendLine("Ludusavi：" + (Snapshot.LudusaviAvailable ? "可用" : "不可用") + " / " + Snapshot.LudusaviVersion);
+            builder.AppendLine("Ludusavi 路径：" + EmptyAsUnset(settings.LudusaviExecutable));
+            builder.AppendLine("存档目录：" + EmptyAsUnset(settings.LudusaviBackupDirectory));
+            builder.AppendLine("媒体目录：" + EmptyAsUnset(settings.MediaArchiveDirectory));
+            builder.AppendLine("数据目录：" + EmptyAsUnset(settings.DataDirectory));
+            builder.AppendLine($"备份策略：{settings.BackupFormat} / {settings.Compression} {settings.CompressionLevel} / 完整 {settings.FullBackupLimit} / 差异 {settings.DifferentialBackupLimit}");
+            builder.AppendLine("Rclone：" + (Snapshot.RcloneAvailable ? "可用" : "不可用") + " / 远端 " + (settings.RcloneDestinationConfigured ? "已配置" : "未配置"));
+            builder.AppendLine($"游戏：管理 {Snapshot.ManagedGames} / 匹配 {Snapshot.MatchedGames} / 运行 {Snapshot.RunningGames} / 警告 {Snapshot.WarningGames}");
+            builder.AppendLine();
+            builder.AppendLine("最近失败任务：");
+            var failed = Tasks.Where(x => x.State == TaskState.Failed).Take(10).ToList();
+            if (failed.Count == 0) builder.AppendLine("- 无");
+            foreach (var task in failed)
+                builder.AppendLine($"- {task.CreatedLocal:yyyy-MM-dd HH:mm:ss} | {task.TaskType} | {task.GameName} | {task.DetailMessage}");
+            return builder.ToString().TrimEnd();
+        }
+
+        private void OpenWorkerLog()
+        {
+            var log = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "GameSaveCenter", "Logs", "worker-launch.log");
+            OpenPath(log);
+        }
+
+        private static void OpenPath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path)) throw new InvalidOperationException("路径尚未配置。");
+            var expanded = Environment.ExpandEnvironmentVariables(path);
+            if (File.Exists(expanded))
+            {
+                Process.Start("explorer.exe", "/select,\"" + expanded + "\"");
+                return;
+            }
+            if (Directory.Exists(expanded))
+            {
+                Process.Start("explorer.exe", "\"" + expanded + "\"");
+                return;
+            }
+            var parent = Path.GetDirectoryName(expanded);
+            if (!string.IsNullOrWhiteSpace(parent) && Directory.Exists(parent))
+            {
+                Process.Start("explorer.exe", "\"" + parent + "\"");
+                return;
+            }
+            throw new DirectoryNotFoundException(expanded);
         }
 
         private async void Run(Func<Task> action)
         {
             if (IsBusy) return;
             IsBusy = true;
-            try { await plugin.EnsureWorkerAsync(); await action(); }
-            catch (Exception ex) { StatusMessage = ex.Message; plugin.ShowError(ex.Message); }
-            finally { IsBusy = false; }
+            try
+            {
+                await plugin.EnsureWorkerAsync();
+                await action();
+            }
+            catch (OperationCanceledException)
+            {
+                StatusMessage = "操作已取消";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = ex.Message;
+                plugin.ShowError(ex.Message);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
-        private static void ThrowIfFailed(System.Collections.Generic.IEnumerable<TaskStatusDto> tasks)
+        private void RunLocal(Action action)
+        {
+            try { action(); }
+            catch (Exception ex)
+            {
+                StatusMessage = ex.Message;
+                plugin.ShowError(ex.Message);
+            }
+        }
+
+        private static void ThrowIfUnsuccessful(IEnumerable<TaskStatusDto> tasks)
         {
             var failed = tasks?.FirstOrDefault(x => x.State == TaskState.Failed);
             if (failed != null) throw new InvalidOperationException(failed.DetailMessage);
+            var cancelled = tasks?.FirstOrDefault(x => x.State == TaskState.Cancelled);
+            if (cancelled != null) throw new TaskCanceledException(string.IsNullOrWhiteSpace(cancelled.Message) ? "任务已取消" : cancelled.Message);
         }
 
         private void ClearSelectedGameDetails()
@@ -341,7 +590,9 @@ namespace GameSaveCenter.Playnite.ViewModels
                 DetectPathsCommand, ValidateCommand, RestoreCommand,
                 UndoRestoreCommand, LoadDetailsCommand, SavePolicyCommand,
                 UpdateBackupMetadataCommand, CompareBackupCommand, PreviewRetentionCommand,
-                AddMediaSourceCommand, AcceptCandidateCommand, ReassignMediaCommand
+                AddMediaSourceCommand, AcceptCandidateCommand, ReassignMediaCommand,
+                CancelTaskCommand, RefreshDiagnosticsCommand, CopyDiagnosticsCommand,
+                OpenDataDirectoryCommand, OpenBackupDirectoryCommand, OpenMediaDirectoryCommand, OpenWorkerLogCommand
             }.OfType<RelayCommand>())
             {
                 command.RaiseCanExecuteChanged();
@@ -349,7 +600,11 @@ namespace GameSaveCenter.Playnite.ViewModels
         }
 
         private void ApplyOnUi(Action action) => plugin.PlayniteApi.MainView.UIDispatcher.Invoke(action);
-        private static void Replace<T>(ObservableCollection<T> target, System.Collections.Generic.IEnumerable<T> source)
-        { target.Clear(); foreach (var item in source ?? Enumerable.Empty<T>()) target.Add(item); }
+        private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> source)
+        {
+            target.Clear();
+            foreach (var item in source ?? Enumerable.Empty<T>()) target.Add(item);
+        }
+        private static string EmptyAsUnset(string value) => string.IsNullOrWhiteSpace(value) ? "（未配置）" : value;
     }
 }

@@ -35,6 +35,9 @@ namespace GameSaveCenter.Playnite.Settings
         public bool EnableProcessDetection { get; set; } = true;
         public bool EnableMediaSync { get; set; } = true;
         public bool EnableCloudUpload { get; set; }
+        public bool EnableDashboardAutoRefresh { get; set; } = true;
+        public bool EnableTaskNotifications { get; set; } = true;
+        public int DashboardRefreshSeconds { get; set; } = 10;
         public int ProcessPollingSeconds { get; set; } = 5;
         public int DefaultBackupIntervalMinutes { get; set; } = 30;
         public BackupStorageFormat BackupFormat { get; set; } = BackupStorageFormat.Zip;
@@ -70,6 +73,8 @@ namespace GameSaveCenter.Playnite.Settings
                 errors.Add("定时备份间隔必须为 5–1440 分钟。");
             if (ProcessPollingSeconds < 2 || ProcessPollingSeconds > 60)
                 errors.Add("进程检测间隔必须为 2–60 秒。");
+            if (DashboardRefreshSeconds < 5 || DashboardRefreshSeconds > 300)
+                errors.Add("管理面板自动刷新间隔必须为 5–300 秒。");
             if (FullBackupLimit < 1 || FullBackupLimit > 255)
                 errors.Add("完整备份保留数量必须为 1–255。");
             if (DifferentialBackupLimit < 0 || DifferentialBackupLimit > 255)
@@ -124,6 +129,9 @@ namespace GameSaveCenter.Playnite.Settings
             EnableProcessDetection = other.EnableProcessDetection;
             EnableMediaSync = other.EnableMediaSync;
             EnableCloudUpload = other.EnableCloudUpload;
+            EnableDashboardAutoRefresh = other.EnableDashboardAutoRefresh;
+            EnableTaskNotifications = other.EnableTaskNotifications;
+            DashboardRefreshSeconds = other.DashboardRefreshSeconds;
             ProcessPollingSeconds = other.ProcessPollingSeconds;
             DefaultBackupIntervalMinutes = other.DefaultBackupIntervalMinutes;
             BackupFormat = other.BackupFormat;

@@ -7,6 +7,7 @@ namespace GameSaveCenter.Contracts
     public sealed class DashboardSnapshotDto
     {
         public DateTime GeneratedUtc { get; set; } = DateTime.UtcNow;
+        public DateTime GeneratedLocal => GeneratedUtc.ToLocalTime();
         public bool WorkerHealthy { get; set; }
         public string WorkerVersion { get; set; } = string.Empty;
         public bool LudusaviAvailable { get; set; }

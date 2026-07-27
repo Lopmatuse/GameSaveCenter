@@ -66,7 +66,7 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.GetLogs=>await _store.GetAuditAsync(500,token).ConfigureAwait(false),
                 MessageTypes.GetSettings=>SanitizedSettings(),
                 MessageTypes.UpdateSettings=>await UpdateSettingsAsync(Read<WorkerSettingsDto>(request),token).ConfigureAwait(false),
-                MessageTypes.CancelTask=>new{cancelled=_tasks.Cancel(Read<CancelTaskRequestDto>(request).TaskId)},
+                MessageTypes.CancelTask=>new CancelTaskResultDto{Cancelled=_tasks.Cancel(Read<CancelTaskRequestDto>(request).TaskId)},
                 _=>throw new NotSupportedException($"Unknown IPC message type: {request.Type}")
             };
             return Success(request,payload);
@@ -171,13 +171,24 @@ public sealed class IpcRequestDispatcher
         return SanitizedSettings();
     }
 
-    private object SanitizedSettings()=>new
+    private WorkerSettingsSnapshotDto SanitizedSettings()=>new()
     {
-        _options.DataDirectory,_options.LudusaviExecutable,_options.LudusaviBackupDirectory,_options.RcloneExecutable,
-        RcloneDestination=string.IsNullOrWhiteSpace(_options.RcloneDestination)?string.Empty:"Configured",
-        _options.MediaArchiveDirectory,_options.ProcessPollingSeconds,_options.DefaultBackupIntervalMinutes,_options.EnableProcessDetection,
-        _options.EnableMediaSync,_options.EnableCloudUpload,_options.BackupFormat,_options.Compression,_options.CompressionLevel,
-        _options.FullBackupLimit,_options.DifferentialBackupLimit
+        DataDirectory=_options.DataDirectory,
+        LudusaviExecutable=_options.LudusaviExecutable,
+        LudusaviBackupDirectory=_options.LudusaviBackupDirectory,
+        RcloneExecutable=_options.RcloneExecutable,
+        RcloneDestinationConfigured=!string.IsNullOrWhiteSpace(_options.RcloneDestination),
+        MediaArchiveDirectory=_options.MediaArchiveDirectory,
+        ProcessPollingSeconds=_options.ProcessPollingSeconds,
+        DefaultBackupIntervalMinutes=_options.DefaultBackupIntervalMinutes,
+        EnableProcessDetection=_options.EnableProcessDetection,
+        EnableMediaSync=_options.EnableMediaSync,
+        EnableCloudUpload=_options.EnableCloudUpload,
+        BackupFormat=_options.BackupFormat,
+        Compression=_options.Compression,
+        CompressionLevel=_options.CompressionLevel,
+        FullBackupLimit=_options.FullBackupLimit,
+        DifferentialBackupLimit=_options.DifferentialBackupLimit
     };
 
     private T Read<T>(IpcEnvelope envelope)=>JsonSerializer.Deserialize<T>(envelope.PayloadJson,_json)??throw new InvalidOperationException($"Invalid payload for {envelope.Type}.");
