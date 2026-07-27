@@ -32,3 +32,10 @@
 - 未通过多版本与恢复回归前，不对重要存档执行恢复。
 - 云端仍只允许 `rclone copy/check`，不默认启用镜像删除。
 - 从 `0.1.x` 升级后，第一次刷新应自动迁移 SQLite 主键并重新同步设置。
+
+### GSC-020：Apple 风格按钮模板无法通过 XAML 编译
+
+- 状态：已修复，待 Windows 回归。
+- 现象：`DashboardView.xaml` 报 `MC4111`，模板触发器无法找到 `ButtonScale`。
+- 原因：触发器尝试跨模板名称作用域直接定位 `ScaleTransform`。
+- 修复：触发器改为定位模板根元素 `Chrome`，并整体替换其 `RenderTransform`；保留按下时 0.97 缩放效果。
