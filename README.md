@@ -39,6 +39,8 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 部分高级闭环仍需 Windows 真机和真实数据继续完善，详见进度表。
 
+当前源码与真机完成度的分层评估见 [`docs/FEATURE_COMPLETION_ASSESSMENT.md`](docs/FEATURE_COMPLETION_ASSESSMENT.md)。
+
 ## 仓库结构
 
 ```text
@@ -106,6 +108,7 @@ python scripts/validate-source.py
 6. [`docs/PUBLIC_REPOSITORY.md`](docs/PUBLIC_REPOSITORY.md)
 7. [`docs/design/APPLE_WPF_IMPLEMENTATION_PROMPT.md`](docs/design/APPLE_WPF_IMPLEMENTATION_PROMPT.md)
 8. [`docs/design/UI_CHANGE_GATE.md`](docs/design/UI_CHANGE_GATE.md)
+9. [`docs/FEATURE_COMPLETION_ASSESSMENT.md`](docs/FEATURE_COMPLETION_ASSESSMENT.md)
 
 公开仓库默认使用英文笔名维护者 **Sable Drift**；Git 提交说明统一使用中文。
 
