@@ -1,204 +1,558 @@
 <UserControl x:Class="GameSaveCenter.Playnite.Views.DashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:contracts="clr-namespace:GameSaveCenter.Contracts;assembly=GameSaveCenter.Contracts"
+             Foreground="{DynamicResource TextBrush}" Background="Transparent" TextElement.FontFamily="Segoe UI Variable Text, Segoe UI">
     <UserControl.Resources>
-        <SolidColorBrush x:Key="AccentBrush" Color="#0A84FF"/>
-        <SolidColorBrush x:Key="CardBrush" Color="#14FFFFFF"/>
-        <Style x:Key="AppleButton" TargetType="Button">
-            <Setter Property="Padding" Value="14,7"/><Setter Property="Margin" Value="0,0,8,8"/>
-            <Setter Property="MinHeight" Value="34"/><Setter Property="FontWeight" Value="SemiBold"/>
+        <!-- Accent colors remain stable, while text and surfaces inherit the active Playnite theme. -->
+        <SolidColorBrush x:Key="GscAccentBrush" Color="#7C5CFC"/>
+        <SolidColorBrush x:Key="GscAccentHoverBrush" Color="#6A49EE"/>
+        <SolidColorBrush x:Key="GscAccentPressedBrush" Color="#5B3EDB"/>
+        <SolidColorBrush x:Key="GscAccentTintBrush" Color="#247C5CFC"/>
+        <SolidColorBrush x:Key="GscAccentTintStrongBrush" Color="#387C5CFC"/>
+        <SolidColorBrush x:Key="GscDividerBrush" Color="#2B8E8E93"/>
+        <SolidColorBrush x:Key="GscSuccessBrush" Color="#30D158"/>
+        <SolidColorBrush x:Key="GscWarningBrush" Color="#FF9F0A"/>
+        <SolidColorBrush x:Key="GscErrorBrush" Color="#FF453A"/>
+        <SolidColorBrush x:Key="GscInfoBrush" Color="#0A84FF"/>
+
+        <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
         </Style>
-        <Style x:Key="MetricCard" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource CardBrush}"/><Setter Property="CornerRadius" Value="14"/>
-            <Setter Property="Padding" Value="14"/><Setter Property="Margin" Value="0,0,10,10"/>
+
+        <Style x:Key="GscSurface" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="BorderBrush" Value="{StaticResource GscDividerBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#22000000" BlurRadius="14" ShadowDepth="2" Opacity="0.32"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GscMetricCard" TargetType="Border" BasedOn="{StaticResource GscSurface}">
+            <Setter Property="Padding" Value="16,13"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="MinHeight" Value="80"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform"><Setter.Value><TranslateTransform Y="0"/></Setter.Value></Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource GscAccentTintStrongBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="GscButtonBase" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource GscDividerBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="MinHeight" Value="38"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome" CornerRadius="11" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}" RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform><ScaleTransform x:Name="ButtonScale" ScaleX="1" ScaleY="1"/></Border.RenderTransform>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonScale" Property="ScaleX" Value="0.97"/>
+                                <Setter TargetName="ButtonScale" Property="ScaleY" Value="0.97"/>
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.84"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GscPrimaryButton" TargetType="Button" BasedOn="{StaticResource GscButtonBase}">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#8B6BFF" Offset="0"/>
+                        <GradientStop Color="#6848EE" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="BorderBrush" Value="#8A72FF"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome" CornerRadius="12" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
+                                Padding="{TemplateBinding Padding}" RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform><ScaleTransform x:Name="ButtonScale" ScaleX="1" ScaleY="1"/></Border.RenderTransform>
+                            <Border.Effect><DropShadowEffect Color="#487C5CFC" BlurRadius="12" ShadowDepth="2" Opacity="0.38"/></Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Opacity" Value="0.9"/></Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="ButtonScale" Property="ScaleX" Value="0.97"/>
+                                <Setter TargetName="ButtonScale" Property="ScaleY" Value="0.97"/>
+                                <Setter TargetName="Chrome" Property="Opacity" Value="0.78"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.38"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GscTextBox" TargetType="TextBox">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource GscDividerBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="CaretBrush" Value="{StaticResource GscAccentBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="Chrome" CornerRadius="9" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.45"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="20"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Border x:Name="Box" Width="17" Height="17" CornerRadius="5" BorderThickness="1"
+                                    BorderBrush="{StaticResource GscDividerBrush}" Background="{DynamicResource ControlBackgroundBrush}" VerticalAlignment="Center">
+                                <TextBlock x:Name="Check" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="White"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+                            </Border>
+                            <ContentPresenter Grid.Column="1" Margin="7,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Box" Property="Background" Value="{StaticResource GscAccentBrush}"/>
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
+                                <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.42"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource ControlBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource GscDividerBrush}"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="MinHeight" Value="36"/>
+        </Style>
+
+        <Style x:Key="GscTabItem" TargetType="TabItem">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="Margin" Value="0,0,3,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Grid>
+                            <Border x:Name="TabBackground" Background="Transparent" CornerRadius="9"/>
+                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,5"/>
+                            <Border x:Name="Indicator" Height="2" Background="Transparent" VerticalAlignment="Bottom" CornerRadius="1"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabBackground" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                                <Setter TargetName="Indicator" Property="Background" Value="{StaticResource GscAccentBrush}"/>
+                                <Setter Property="Foreground" Value="{StaticResource GscAccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="TabBackground" Property="Background" Value="{StaticResource GscAccentTintBrush}"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GscDataGrid" TargetType="DataGrid">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource GscDividerBrush}"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="RowBackground" Value="Transparent"/>
+            <Setter Property="AlternatingRowBackground" Value="#087C5CFC"/>
+            <Setter Property="RowHeaderWidth" Value="0"/>
+            <Setter Property="SelectionUnit" Value="FullRow"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+        </Style>
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{StaticResource GscDividerBrush}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="10,9"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="Opacity" Value="0.65"/>
+        </Style>
+        <Style TargetType="DataGridCell">
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="9,8"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                    <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="DataGridRow">
+            <Setter Property="MinHeight" Value="38"/>
+            <Setter Property="Foreground" Value="{DynamicResource TextBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="{StaticResource GscAccentTintBrush}"/></Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="GscEmptyText" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Opacity" Value="0.52"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="22"/>
         </Style>
     </UserControl.Resources>
-    <Grid Margin="18">
+
+    <Grid Margin="22,18,22,16">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,14">
+        <Grid Grid.Row="0" Margin="4,0,0,16">
             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-            <StackPanel>
-                <TextBlock Text="GameSaveCenter" FontSize="28" FontWeight="SemiBold"/>
-                <TextBlock Text="存档历史、媒体同步、MOD/外部启动识别与安全恢复" Opacity="0.62" Margin="0,3,0,0"/>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock Text="GameSaveCenter" FontSize="25" FontWeight="SemiBold"/>
+                <TextBlock Text="概览 · 存档、截图与云同步中心" Opacity="0.58" Margin="0,4,0,0"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Style="{StaticResource AppleButton}" Command="{Binding RefreshCommand}" Content="刷新"/>
-                <Button Style="{StaticResource AppleButton}" Command="{Binding BackupAllCommand}" Content="全部备份"/>
-                <Button Style="{StaticResource AppleButton}" Command="{Binding SyncMediaCommand}" Content="同步媒体"/>
+                <Button Style="{StaticResource GscButtonBase}" Command="{Binding RefreshCommand}">
+                    <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72C;" Margin="0,0,8,0"/><TextBlock Text="刷新"/></StackPanel>
+                </Button>
+                <Button Style="{StaticResource GscButtonBase}" Command="{Binding BackupAllCommand}">
+                    <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Margin="0,0,8,0"/><TextBlock Text="全部备份"/></StackPanel>
+                </Button>
+                <Button Style="{StaticResource GscButtonBase}" Command="{Binding SyncMediaCommand}">
+                    <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" Margin="0,0,8,0"/><TextBlock Text="同步媒体"/></StackPanel>
+                </Button>
             </StackPanel>
         </Grid>
 
-        <UniformGrid Grid.Row="1" Columns="6" Margin="0,0,0,6">
-            <Border Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="管理游戏" Opacity="0.62"/><TextBlock Text="{Binding Snapshot.ManagedGames}" FontSize="24" FontWeight="SemiBold"/></StackPanel></Border>
-            <Border Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="已匹配存档" Opacity="0.62"/><TextBlock Text="{Binding Snapshot.MatchedGames}" FontSize="24" FontWeight="SemiBold"/></StackPanel></Border>
-            <Border Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="正在运行" Opacity="0.62"/><TextBlock Text="{Binding Snapshot.RunningGames}" FontSize="24" FontWeight="SemiBold"/></StackPanel></Border>
-            <Border Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="需要关注" Opacity="0.62"/><TextBlock Text="{Binding Snapshot.WarningGames}" FontSize="24" FontWeight="SemiBold"/></StackPanel></Border>
-            <Border Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="云端任务" Opacity="0.62"/><TextBlock Text="{Binding Snapshot.PendingCloudTasks}" FontSize="24" FontWeight="SemiBold"/></StackPanel></Border>
-            <Border Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="待归类媒体" Opacity="0.62"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount}" FontSize="24" FontWeight="SemiBold"/></StackPanel></Border>
+        <UniformGrid Grid.Row="1" Columns="6" Margin="0,0,0,18">
+            <Border Style="{StaticResource GscMetricCard}">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="#247C5CFC"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <StackPanel Grid.Column="1"><TextBlock Text="管理游戏" Opacity="0.62"/><TextBlock Text="{Binding Snapshot.ManagedGames}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
+                </Grid>
+            </Border>
+            <Border Style="{StaticResource GscMetricCard}">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="#220A84FF"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <StackPanel Grid.Column="1"><TextBlock Text="已匹配存档" Opacity="0.62"/><TextBlock Text="{Binding Snapshot.MatchedGames}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
+                </Grid>
+            </Border>
+            <Border Style="{StaticResource GscMetricCard}">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="#2030D158"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE768;" Foreground="{StaticResource GscSuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <StackPanel Grid.Column="1"><TextBlock Text="正在运行" Opacity="0.62"/><TextBlock Text="{Binding Snapshot.RunningGames}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
+                </Grid>
+            </Border>
+            <Border Style="{StaticResource GscMetricCard}">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="#20FF453A"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB52;" Foreground="{StaticResource GscErrorBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <StackPanel Grid.Column="1"><TextBlock Text="需要关注" Opacity="0.62"/><TextBlock Text="{Binding Snapshot.WarningGames}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
+                </Grid>
+            </Border>
+            <Border Style="{StaticResource GscMetricCard}">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="#220A84FF"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <StackPanel Grid.Column="1"><TextBlock Text="云端任务" Opacity="0.62"/><TextBlock Text="{Binding Snapshot.PendingCloudTasks}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
+                </Grid>
+            </Border>
+            <Border Style="{StaticResource GscMetricCard}" Margin="0">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="#20FF9F0A"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE91B;" Foreground="{StaticResource GscWarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <StackPanel Grid.Column="1"><TextBlock Text="待归类媒体" Opacity="0.62"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
+                </Grid>
+            </Border>
         </UniformGrid>
 
         <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="2*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="3*"/></Grid.ColumnDefinitions>
-            <Border Background="{StaticResource CardBrush}" CornerRadius="16" Padding="10">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="0.95*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="2.05*"/></Grid.ColumnDefinitions>
+
+            <Border Style="{StaticResource GscSurface}" Padding="16">
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                    <TextBlock Text="游戏与状态" FontSize="16" FontWeight="SemiBold" Margin="5,3,5,10"/>
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding Games}" SelectedItem="{Binding SelectedGame}" AutoGenerateColumns="False"
-                              IsReadOnly="True" HeadersVisibility="Column" CanUserAddRows="False" SelectionMode="Single" BorderThickness="0">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="游戏" Binding="{Binding Name}" Width="*"/>
-                            <DataGridTextColumn Header="平台" Binding="{Binding Platform}" Width="80"/>
-                            <DataGridTextColumn Header="状态" Binding="{Binding HealthState}" Width="86"/>
-                            <DataGridTextColumn Header="版本" Binding="{Binding BackupVersionCount}" Width="52"/>
-                            <DataGridTextColumn Header="媒体" Binding="{Binding MediaCount}" Width="52"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
+                    <TextBlock Text="游戏与状态" FontSize="16" FontWeight="SemiBold" Margin="2,0,0,13"/>
+                    <Grid Grid.Row="1">
+                    <ListBox ItemsSource="{Binding Games}" SelectedItem="{Binding SelectedGame}" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0,0,0,6"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border x:Name="Row" Background="{TemplateBinding Background}" CornerRadius="11" Padding="11,9">
+                                                <ContentPresenter/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True"><Setter TargetName="Row" Property="Background" Value="{StaticResource GscAccentTintBrush}"/></Trigger>
+                                                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Row" Property="Background" Value="#167C5CFC"/></Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <Border Width="34" Height="34" CornerRadius="10" Background="#247C5CFC" VerticalAlignment="Center">
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding PlatformDisplay}" Opacity="0.58" FontSize="11" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border x:Name="StateDot" Width="8" Height="8" CornerRadius="4" Background="{StaticResource GscWarningBrush}" Margin="0,0,7,0"/>
+                                        <TextBlock Text="{Binding HealthStateDisplay}" Opacity="0.78"/>
+                                    </StackPanel>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding HealthState}" Value="Ready"><Setter TargetName="StateDot" Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger>
+                                    <DataTrigger Binding="{Binding HealthState}" Value="Attention"><Setter TargetName="StateDot" Property="Background" Value="{StaticResource GscErrorBrush}"/></DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TextBlock Text="暂未发现游戏&#x0a;请刷新 Playnite 游戏库或检查 Worker 状态。" IsHitTestVisible="False">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource GscEmptyText}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers><DataTrigger Binding="{Binding Games.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    </Grid>
                 </Grid>
             </Border>
 
-            <Border Grid.Column="2" Background="{StaticResource CardBrush}" CornerRadius="16" Padding="12">
+            <Border Grid.Column="2" Style="{StaticResource GscSurface}" Padding="18">
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                         <StackPanel>
-                            <TextBlock Text="{Binding SelectedGame.Name, TargetNullValue=选择一个游戏}" FontSize="19" FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding SelectedGame.LudusaviName, StringFormat=Ludusavi：{0}}" Opacity="0.62" Margin="0,3"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding SelectedGame.Name, TargetNullValue=请选择游戏}" FontSize="19" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                <Border Background="{StaticResource GscAccentTintBrush}" CornerRadius="9" Padding="9,4" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Width="7" Height="7" CornerRadius="4" Margin="0,0,6,0" VerticalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{StaticResource GscWarningBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedGame.HealthState}" Value="Ready"><Setter Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger>
+                                                        <DataTrigger Binding="{Binding SelectedGame.HealthState}" Value="Attention"><Setter Property="Background" Value="{StaticResource GscErrorBrush}"/></DataTrigger>
+                                                        <DataTrigger Binding="{Binding SelectedGame.HealthState}" Value="LudusaviUnavailable"><Setter Property="Background" Value="{StaticResource GscErrorBrush}"/></DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+                                        <TextBlock Text="{Binding SelectedGame.HealthStateDisplay}" FontSize="11"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                            <TextBlock Text="{Binding SelectedGame.LudusaviName, StringFormat=Ludusavi：{0}, TargetNullValue=Ludusavi：未匹配}" Opacity="0.58" Margin="0,5,0,0"/>
                         </StackPanel>
                         <WrapPanel Grid.Column="1">
-                            <Button Style="{StaticResource AppleButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份"/>
-                            <Button Style="{StaticResource AppleButton}" Command="{Binding ValidateCommand}" Content="校验"/>
-                            <Button Style="{StaticResource AppleButton}" Command="{Binding DetectPathsCommand}" Content="侦测路径"/>
+                            <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份"/>
+                            <Button Style="{StaticResource GscButtonBase}" Command="{Binding ValidateCommand}" Content="校验"/>
+                            <Button Style="{StaticResource GscButtonBase}" Command="{Binding DetectPathsCommand}" Content="侦测路径"/>
                         </WrapPanel>
                     </Grid>
-                    <Border Grid.Row="1" Background="#120A84FF" CornerRadius="12" Padding="10" Margin="0,10,0,10">
-                        <TextBlock Text="自动恢复默认关闭。所有恢复都会先保存并锁定当前状态，再预览、恢复、校验；失败时尝试自动回滚。" TextWrapping="Wrap"/>
+
+                    <Border Grid.Row="1" Background="#140A84FF" BorderBrush="#330A84FF" BorderThickness="1" CornerRadius="11" Padding="12" Margin="0,14,0,12">
+                        <DockPanel>
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE946;" Foreground="{StaticResource GscInfoBrush}" FontSize="16" Margin="0,0,9,0" DockPanel.Dock="Left"/>
+                            <TextBlock Text="自动恢复默认关闭。恢复前会创建并锁定当前快照，恢复后校验，失败时尝试回滚。" TextWrapping="Wrap"/>
+                        </DockPanel>
                     </Border>
-                    <Border Grid.Row="2" Background="#0DFFFFFF" CornerRadius="12" Padding="10" Margin="0,0,0,10">
-                        <WrapPanel>
-                            <CheckBox Content="退出后备份" IsChecked="{Binding SelectedGame.Policy.BackupOnGameStop}" Margin="0,0,14,0"/>
-                            <CheckBox Content="游玩中备份" IsChecked="{Binding SelectedGame.Policy.BackupDuringPlay}" Margin="0,0,14,0"/>
+
+                    <Border Grid.Row="2" Background="{DynamicResource ControlBackgroundBrush}" BorderBrush="{StaticResource GscDividerBrush}" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,0,0,12">
+                        <WrapPanel VerticalAlignment="Center">
+                            <CheckBox Content="退出后备份" IsChecked="{Binding SelectedGame.Policy.BackupOnGameStop}" Margin="0,3,18,3"/>
+                            <CheckBox Content="游玩中备份" IsChecked="{Binding SelectedGame.Policy.BackupDuringPlay}" Margin="0,3,12,3"/>
                             <TextBlock Text="间隔" VerticalAlignment="Center"/>
-                            <TextBox Width="46" Text="{Binding SelectedGame.Policy.DuringPlayIntervalMinutes}" Margin="6,0,5,0"/>
-                            <TextBlock Text="分钟" VerticalAlignment="Center" Margin="0,0,14,0"/>
-                            <CheckBox Content="上传云端" IsChecked="{Binding SelectedGame.Policy.UploadAfterBackup}" Margin="0,0,14,0"/>
-                            <Button Style="{StaticResource AppleButton}" Command="{Binding SavePolicyCommand}" Content="保存策略"/>
+                            <TextBox Style="{StaticResource GscTextBox}" Width="58" Text="{Binding SelectedGame.Policy.DuringPlayIntervalMinutes}" Margin="7,0,7,0"/>
+                            <TextBlock Text="分钟" VerticalAlignment="Center" Margin="0,0,18,0"/>
+                            <CheckBox Content="上传云端" IsChecked="{Binding SelectedGame.Policy.UploadAfterBackup}" Margin="0,3,12,3"/>
+                            <Button Style="{StaticResource GscButtonBase}" Command="{Binding SavePolicyCommand}" Content="保存策略" Margin="0"/>
                         </WrapPanel>
                     </Border>
+
                     <TabControl Grid.Row="3" Background="Transparent" BorderThickness="0">
+                        <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource GscTabItem}"/></TabControl.Resources>
                         <TabItem Header="存档历史">
-                            <Grid Margin="0,10,0,0">
+                            <Grid Margin="0,12,0,0">
                                 <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                <DataGrid ItemsSource="{Binding Backups}" SelectedItem="{Binding SelectedBackup}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="时间" Binding="{Binding CreatedUtc, StringFormat={}{0:yyyy-MM-dd HH:mm}}" Width="145"/>
-                                        <DataGridTextColumn Header="文件" Binding="{Binding FileCount}" Width="55"/>
-                                        <DataGridTextColumn Header="大小" Binding="{Binding TotalBytes}" Width="90"/>
-                                        <DataGridCheckBoxColumn Header="锁定" Binding="{Binding IsLocked}" Width="55"/>
-                                        <DataGridTextColumn Header="备注" Binding="{Binding Comment}" Width="*"/>
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                                <StackPanel Grid.Row="1" Margin="0,10,0,0">
+                                <Border Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2">
+                                    <Grid>
+                                    <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Backups}" SelectedItem="{Binding SelectedBackup}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="本地时间" Binding="{Binding CreatedLocal, StringFormat={}{0:yyyy-MM-dd HH:mm}}" Width="150"/>
+                                            <DataGridTextColumn Header="文件" Binding="{Binding FileCount}" Width="65"/>
+                                            <DataGridTextColumn Header="大小" Binding="{Binding SizeDisplay}" Width="95"/>
+                                            <DataGridCheckBoxColumn Header="锁定" Binding="{Binding IsLocked}" Width="60"/>
+                                            <DataGridTextColumn Header="备注" Binding="{Binding Comment}" Width="*"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                    <TextBlock Text="尚无历史版本&#x0a;完成一次有效备份后会显示在这里。" IsHitTestVisible="False">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource GscEmptyText}">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers><DataTrigger Binding="{Binding Backups.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    </Grid>
+                                </Border>
+                                <StackPanel Grid.Row="1" Margin="0,12,0,0">
+                                    <Border Background="#14FF9F0A" BorderBrush="#38FF9F0A" BorderThickness="1" CornerRadius="9" Padding="10" Margin="0,0,0,10">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers><DataTrigger Binding="{Binding Snapshot.BackupFormat}" Value="{x:Static contracts:BackupStorageFormat.Simple}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="当前为 Simple 格式，只维护一个当前副本；需要多个恢复点请在设置中选择 ZIP。" TextWrapping="Wrap"/>
+                                    </Border>
                                     <WrapPanel>
-                                        <Button Style="{StaticResource AppleButton}" Command="{Binding RestoreCommand}" Content="安全恢复所选版本"/>
-                                        <Button Style="{StaticResource AppleButton}" Command="{Binding UndoRestoreCommand}" Content="撤销最近恢复"/>
-                                        <Button Style="{StaticResource AppleButton}" Command="{Binding CompareBackupCommand}" Content="与上一版本比较"/>
-                                        <Button Style="{StaticResource AppleButton}" Command="{Binding PreviewRetentionCommand}" Content="保留策略预览"/>
+                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding RestoreCommand}" Content="安全恢复所选版本"/>
+                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding UndoRestoreCommand}" Content="撤销最近恢复"/>
+                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding CompareBackupCommand}" Content="与上一版本比较"/>
+                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding PreviewRetentionCommand}" Content="保留策略预览"/>
                                     </WrapPanel>
                                     <WrapPanel>
-                                        <CheckBox Content="锁定版本" IsChecked="{Binding LockSelectedBackup}" VerticalAlignment="Center" Margin="0,0,10,8"/>
-                                        <TextBox Width="260" Text="{Binding BackupComment, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,8" ToolTip="版本备注"/>
-                                        <Button Style="{StaticResource AppleButton}" Command="{Binding UpdateBackupMetadataCommand}" Content="保存备注/锁定"/>
+                                        <CheckBox Content="锁定版本" IsChecked="{Binding LockSelectedBackup}" VerticalAlignment="Center" Margin="0,0,12,8"/>
+                                        <TextBox Style="{StaticResource GscTextBox}" Width="280" Text="{Binding BackupComment, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,8" ToolTip="版本备注"/>
+                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding UpdateBackupMetadataCommand}" Content="保存备注/锁定"/>
                                     </WrapPanel>
                                     <TextBlock Text="{Binding DiffSummary}" TextWrapping="Wrap" Opacity="0.72"/>
                                     <TextBlock Text="{Binding RetentionSummary}" TextWrapping="Wrap" Opacity="0.72"/>
                                 </StackPanel>
                             </Grid>
                         </TabItem>
+
                         <TabItem Header="截图与录像">
-                            <Grid Margin="0,10,0,0">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
+                            <Grid Margin="0,12,0,0">
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                 <WrapPanel>
-                                    <TextBox Width="315" Text="{Binding CustomMediaSourcePath, UpdateSourceTrigger=PropertyChanged}" ToolTip="Epic/Ubisoft/EA/GOG、MOD 或游戏自身截图目录" Margin="0,0,8,8"/>
-                                    <TextBox Width="90" Text="{Binding CustomMediaPattern, UpdateSourceTrigger=PropertyChanged}" ToolTip="文件匹配，例如 *.png；默认 *" Margin="0,0,8,8"/>
-                                    <CheckBox Content="共享目录" IsChecked="{Binding CustomMediaShared}" ToolTip="公共 Captures 目录：只有文件名匹配当前游戏时才归类" Margin="0,4,8,8"/>
-                                    <Button Style="{StaticResource AppleButton}" Command="{Binding AddMediaSourceCommand}" Content="添加来源"/>
+                                    <TextBox Style="{StaticResource GscTextBox}" Width="330" Text="{Binding CustomMediaSourcePath, UpdateSourceTrigger=PropertyChanged}" ToolTip="Epic/Ubisoft/EA/GOG、MOD 或游戏自身截图目录" Margin="0,0,8,8"/>
+                                    <TextBox Style="{StaticResource GscTextBox}" Width="90" Text="{Binding CustomMediaPattern, UpdateSourceTrigger=PropertyChanged}" ToolTip="文件匹配，例如 *.png" Margin="0,0,8,8"/>
+                                    <CheckBox Content="共享目录" IsChecked="{Binding CustomMediaShared}" Margin="0,8,10,8"/>
+                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding AddMediaSourceCommand}" Content="添加来源"/>
                                 </WrapPanel>
                                 <ItemsControl Grid.Row="1" ItemsSource="{Binding MediaSources}" Margin="0,0,0,8">
                                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Background="#0DFFFFFF" CornerRadius="9" Padding="8,5" Margin="0,0,6,4">
-                                                <TextBlock><Run Text="{Binding SourceKind}"/><Run Text=" · "/><Run Text="{Binding RootPath}"/></TextBlock>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
+                                    <ItemsControl.ItemTemplate><DataTemplate><Border Background="{StaticResource GscAccentTintBrush}" CornerRadius="9" Padding="9,5" Margin="0,0,6,4"><TextBlock><Run Text="{Binding SourceKind}"/><Run Text=" · "/><Run Text="{Binding RootPath}"/></TextBlock></Border></DataTemplate></ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                                <DataGrid Grid.Row="2" ItemsSource="{Binding Media}" SelectedItem="{Binding SelectedMedia}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="拍摄时间" Binding="{Binding CapturedUtc, StringFormat={}{0:yyyy-MM-dd HH:mm}}" Width="145"/>
-                                        <DataGridTextColumn Header="类型" Binding="{Binding Kind}" Width="75"/>
-                                        <DataGridTextColumn Header="来源" Binding="{Binding Source}" Width="110"/>
-                                        <DataGridTextColumn Header="云端" Binding="{Binding CloudState}" Width="80"/>
-                                        <DataGridTextColumn Header="归档路径" Binding="{Binding ArchivePath}" Width="*"/>
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                                <WrapPanel Grid.Row="3" Margin="0,10,0,0">
-                                    <TextBlock Text="错误归类：" VerticalAlignment="Center"/>
-                                    <ComboBox Width="240" ItemsSource="{Binding Games}" SelectedItem="{Binding MediaTargetGame}" DisplayMemberPath="Name" Margin="6,0,8,8"/>
-                                    <Button Style="{StaticResource AppleButton}" Command="{Binding ReassignMediaCommand}" Content="重新归类所选媒体"/>
-                                </WrapPanel>
+                                <Border Grid.Row="2" Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2">
+                                    <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Media}" SelectedItem="{Binding SelectedMedia}">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="拍摄时间" Binding="{Binding CapturedLocal, StringFormat={}{0:yyyy-MM-dd HH:mm}}" Width="150"/>
+                                            <DataGridTextColumn Header="类型" Binding="{Binding Kind}" Width="80"/>
+                                            <DataGridTextColumn Header="来源" Binding="{Binding Source}" Width="110"/>
+                                            <DataGridTextColumn Header="云端" Binding="{Binding CloudState}" Width="90"/>
+                                            <DataGridTextColumn Header="归档路径" Binding="{Binding ArchivePath}" Width="*"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Border>
+                                <WrapPanel Grid.Row="3" Margin="0,10,0,0"><TextBlock Text="错误归类到：" VerticalAlignment="Center"/><ComboBox Width="240" ItemsSource="{Binding Games}" SelectedItem="{Binding MediaTargetGame}" DisplayMemberPath="Name" Margin="7,0,8,8"/><Button Style="{StaticResource GscButtonBase}" Command="{Binding ReassignMediaCommand}" Content="重新归类"/></WrapPanel>
                             </Grid>
                         </TabItem>
+
                         <TabItem Header="候选存档路径">
-                            <Grid Margin="0,10,0,0">
-                                <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <DataGrid ItemsSource="{Binding SaveCandidates}" SelectedItem="{Binding SelectedCandidate}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="可信度" Binding="{Binding Score, StringFormat=P0}" Width="70"/>
-                                    <DataGridTextColumn Header="状态" Binding="{Binding Status}" Width="80"/>
-                                    <DataGridTextColumn Header="路径" Binding="{Binding Path}" Width="*"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
-                                <Button Grid.Row="1" HorizontalAlignment="Left" Style="{StaticResource AppleButton}" Command="{Binding AcceptCandidateCommand}" Content="接受并生成规则草案" Margin="0,10,0,0"/>
+                            <Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <Border Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2"><DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding SaveCandidates}" SelectedItem="{Binding SelectedCandidate}"><DataGrid.Columns><DataGridTextColumn Header="可信度" Binding="{Binding Score, StringFormat=P0}" Width="78"/><DataGridTextColumn Header="状态" Binding="{Binding Status}" Width="90"/><DataGridTextColumn Header="路径" Binding="{Binding Path}" Width="*"/></DataGrid.Columns></DataGrid></Border>
+                                <Button Grid.Row="1" HorizontalAlignment="Left" Style="{StaticResource GscButtonBase}" Command="{Binding AcceptCandidateCommand}" Content="接受并生成规则草案" Margin="0,10,0,0"/>
                             </Grid>
                         </TabItem>
+
                         <TabItem Header="任务">
-                            <DataGrid Margin="0,10,0,0" ItemsSource="{Binding Tasks}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="时间" Binding="{Binding CreatedUtc, StringFormat={}{0:MM-dd HH:mm}}" Width="95"/>
-                                    <DataGridTextColumn Header="任务" Binding="{Binding TaskType}" Width="90"/>
-                                    <DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="*"/>
-                                    <DataGridTextColumn Header="状态" Binding="{Binding State}" Width="85"/>
-                                    <DataGridTextColumn Header="说明" Binding="{Binding Message}" Width="*"/>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                            <Border Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2" Margin="0,12,0,0">
+                                <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Tasks}">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="本地时间" Binding="{Binding CreatedLocal, StringFormat={}{0:MM-dd HH:mm:ss}}" Width="120"/>
+                                        <DataGridTextColumn Header="任务" Binding="{Binding TaskType}" Width="90"/>
+                                        <DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="*"/>
+                                        <DataGridTemplateColumn Header="状态" Width="90"><DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel Orientation="Horizontal"><Border x:Name="TaskDot" Width="7" Height="7" CornerRadius="4" Background="{StaticResource GscWarningBrush}" Margin="0,0,7,0" VerticalAlignment="Center"/><TextBlock Text="{Binding StateDisplay}"/><DataTemplate.Triggers><DataTrigger Binding="{Binding State}" Value="Succeeded"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger><DataTrigger Binding="{Binding State}" Value="Failed"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscErrorBrush}"/></DataTrigger><DataTrigger Binding="{Binding State}" Value="Running"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscInfoBrush}"/></DataTrigger></DataTemplate.Triggers></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+                                        <DataGridTextColumn Header="详情" Binding="{Binding DetailMessage}" Width="2*">
+                                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource TextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding DetailMessage}"/></Style></DataGridTextColumn.ElementStyle>
+                                        </DataGridTextColumn>
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Border>
                         </TabItem>
+
                         <TabItem Header="异常与日志">
-                            <Grid Margin="0,10,0,0">
-                                <Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
-                                <DataGrid ItemsSource="{Binding Findings}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="等级" Binding="{Binding Severity}" Width="65"/>
-                                        <DataGridTextColumn Header="标题" Binding="{Binding Title}" Width="150"/>
-                                        <DataGridTextColumn Header="详情" Binding="{Binding Detail}" Width="*"/>
-                                    </DataGrid.Columns>
-                                </DataGrid>
-                                <DataGrid Grid.Row="1" Margin="0,8,0,0" ItemsSource="{Binding Audit}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
-                                    <DataGrid.Columns>
-                                        <DataGridTextColumn Header="时间" Binding="{Binding CreatedUtc, StringFormat={}{0:MM-dd HH:mm:ss}}" Width="115"/>
-                                        <DataGridTextColumn Header="分类" Binding="{Binding Category}" Width="90"/>
-                                        <DataGridTextColumn Header="消息" Binding="{Binding Message}" Width="*"/>
-                                    </DataGrid.Columns>
-                                </DataGrid>
+                            <Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                                <Border Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2"><DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Findings}"><DataGrid.Columns><DataGridTextColumn Header="等级" Binding="{Binding Severity}" Width="70"/><DataGridTextColumn Header="标题" Binding="{Binding Title}" Width="170"/><DataGridTextColumn Header="详情" Binding="{Binding Detail}" Width="*"/></DataGrid.Columns></DataGrid></Border>
+                                <Border Grid.Row="1" Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2" Margin="0,8,0,0"><DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Audit}"><DataGrid.Columns><DataGridTextColumn Header="本地时间" Binding="{Binding CreatedLocal, StringFormat={}{0:MM-dd HH:mm:ss}}" Width="120"/><DataGridTextColumn Header="分类" Binding="{Binding Category}" Width="100"/><DataGridTextColumn Header="消息" Binding="{Binding Message}" Width="*"/></DataGrid.Columns></DataGrid></Border>
                             </Grid>
                         </TabItem>
                     </TabControl>
@@ -206,11 +560,21 @@
             </Border>
         </Grid>
 
-        <Border Grid.Row="3" Background="#10000000" CornerRadius="10" Padding="10" Margin="0,12,0,0">
-            <DockPanel>
-                <ProgressBar Width="120" Height="5" IsIndeterminate="{Binding IsBusy}" DockPanel.Dock="Right"/>
+        <Grid Grid.Row="3" Margin="4,13,4,0">
+            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Border Width="8" Height="8" CornerRadius="4" Margin="0,0,7,0">
+                    <Border.Style>
+                        <Style TargetType="Border"><Setter Property="Background" Value="{StaticResource GscErrorBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Snapshot.WorkerHealthy}" Value="True"><Setter Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger></Style.Triggers></Style>
+                    </Border.Style>
+                </Border>
                 <TextBlock Text="{Binding StatusMessage}" Opacity="0.72"/>
-            </DockPanel>
-        </Border>
+                <TextBlock Text="  ·  " Opacity="0.35"/>
+                <TextBlock Text="{Binding Snapshot.LudusaviVersion}" Opacity="0.58" ToolTip="{Binding Snapshot.LudusaviExecutable}"/>
+                <TextBlock Text="  ·  " Opacity="0.35"/>
+                <TextBlock Text="{Binding Snapshot.BackupFormat, StringFormat=备份格式：{0}}" Opacity="0.58" ToolTip="{Binding Snapshot.LudusaviBackupDirectory}"/>
+            </StackPanel>
+            <ProgressBar Grid.Column="1" Width="120" Height="4" IsIndeterminate="{Binding IsBusy}"/>
+        </Grid>
     </Grid>
 </UserControl>
