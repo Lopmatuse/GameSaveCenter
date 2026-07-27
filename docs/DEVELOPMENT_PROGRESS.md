@@ -1,7 +1,7 @@
 # 开发实现进度
 
-更新时间：2026-07-26
-当前版本：`0.1.0-development-preview`
+更新时间：2026-07-27
+当前版本：`0.2.0-development-preview`
 
 状态定义：
 
@@ -10,7 +10,7 @@
 - 🚧 **部分实现**：核心算法或基础链路已完成，仍缺真实平台数据、远端摄取或完整 UI 闭环。
 - ⬜ **未开发**：没有可用实现。
 
-> 当前执行环境没有可用的 .NET SDK/MSBuild，并且临时 SDK 下载被环境策略拦截。因此没有生成可声明“编译通过”的 DLL/PEXT。仓库提供 Windows 一键构建、测试、打包和安装脚本，见 `INSTALLATION.md` 与 `WINDOWS_TEST_PLAN.md`。
+> Windows 真机已完成编译、单元测试、Worker 发布、PEXT 打包和 Playnite 加载。0.2.0 当前改动在本执行环境只完成静态校验，仍需在 Windows 重新 build/test/package 并按 `WINDOWS_TEST_PLAN.md` 回归。
 
 ## 工程与治理
 
@@ -24,19 +24,34 @@
 | 含 `.git` 的源码打包脚本 | ✅ | `scripts/package-source.ps1` 使用 ZipFile，包含隐藏目录 |
 | 跨平台源码结构校验 | ✅ | `scripts/validate-source.py` 已通过 |
 | Core 单元测试源码 | ✅ | 6 组 xUnit 测试；当前环境未执行 |
-| Windows 真机编译与 Playnite 加载 | 🚧 | 首次执行因 `global.json` 锁定 8.0.420 而失败；现已允许 .NET 9，并修复脚本假成功，等待重新构建 |
+| Windows 真机编译与 Playnite 加载 | ✅ | 0.1.1 已在 .NET 9.0.302 构建、测试、打包并加载；0.2.0 待重新回归 |
+
+## 0.2.0 本轮修复状态
+
+| 项目 | 状态 | 说明 |
+|---|---|---|
+| Worker 设置持久化 | 🧪 | `%LOCALAPPDATA%\GameSaveCenter\worker-settings.json` 原子写入，重启恢复 |
+| 刷新完整同步 | 🧪 | 发送设置、导出全部 Playnite 游戏、重匹配、加载仪表盘与当前游戏详情 |
+| Worker 生命周期 | 🧪 | 30 秒等待、启动日志、同路径失效进程重启 |
+| ZIP 多版本策略 | 🧪 | 默认完整 3、差异 5、zstd 3；设置页可调整 |
+| 历史数据库迁移 | 🧪 | 主键迁移为 `(playnite_id, backup_id)`，同 ID 更新时间可刷新 |
+| 任务真实错误 | 🧪 | 稳定错误码、退出码、stdout/stderr 诊断进入任务详情 |
+| 本地时间显示 | 🧪 | 历史、任务、媒体、审计 DTO 提供 Local 属性 |
+| UI 主题重构 | 🧪 | 内嵌页面，无伪 macOS 窗口按钮；跟随 Playnite 主题资源 |
+
+完整缺陷编号和回归门禁见 `KNOWN_ISSUES.md`。
 
 ## 第一阶段：最小可用版本
 
 | 功能 | 状态 | 备注 |
 |---|---|---|
 | Playnite 插件骨架 | 🧪 | PlayniteSDK 6.16.0 / net462 / GenericPlugin |
-| Apple HIG 启发 UI | 🧪 | 总览、游戏、策略、历史、媒体、候选路径、任务、异常日志 |
+| Apple HIG 启发 UI | 🧪 | 0.2.0 重构主题资源、圆角卡片、弱边框、状态点、空状态与浅色/深色兼容；待视觉回归 |
 | Worker 与命名管道 IPC | 🧪 | 当前用户管道、协议版本、消息上限、超时和错误返回 |
 | SQLite 状态存储与升级补列 | 🧪 | WAL；保存游戏、策略、会话、任务、历史、媒体、来源、候选与审计 |
-| Ludusavi 路径配置/健康检查 | 🧪 | `backup/backups/restore/find/api` 适配 |
+| Ludusavi 路径配置/健康检查 | 🧪 | 运行设置持久化；启动/刷新重发；显示实际路径与版本，待重启回归 |
 | 游戏列表与 Ludusavi 匹配状态 | 🧪 | Steam/GOG ID 优先，名称匹配兜底 |
-| 手动备份单个游戏 | 🧪 | Playnite UI → Worker → Ludusavi |
+| 手动备份单个游戏 | 🧪 | 首个 Simple 备份已真机成功；0.2.0 改为 ZIP 多版本并增强诊断，待连续版本回归 |
 | 一键备份全部匹配游戏 | 🧪 | 长超时命令与逐游戏任务记录 |
 | 退出后自动备份 | 🧪 | Playnite 事件与进程侦测会话均可触发 |
 | 默认 30 分钟定时备份 | 🧪 | 每游戏可配置，最低 5 分钟 |
@@ -66,7 +81,7 @@
 
 | 功能 | 状态 | 备注 |
 |---|---|---|
-| 历史版本浏览 | 🧪 | Ludusavi 版本索引和时间线表格 |
+| 历史版本浏览 | 🧪 | 复合主键、更新时间和刷新重载已修复；ZIP 多版本待真机验证 |
 | 文件差异展示 | 🧪 | 对已索引 manifest 比较新增/删除/修改；旧版本无 manifest 时结果有限 |
 | PreRestore 自动快照 | 🧪 | 恢复前强制创建、备注并锁定 |
 | 恢复预览与确认 | 🧪 | UI 二次确认；自动恢复默认关闭 |
