@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-27
-当前版本：`0.3.4-development-preview`
+当前版本：`0.3.5-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
@@ -214,3 +214,12 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 - Windows `cmd.exe` 不能可靠解析无 BOM UTF-8 且包含中文的批处理正文；即使脚本第一行执行 `chcp 65001`，解析阶段仍可能已经发生乱码和命令截断。
 - 根目录双击入口必须保持 ASCII-only 和 CRLF；所有中文提示放到带 UTF-8 BOM 的 PowerShell 脚本中。
 - 一键流程失败时优先读取 `artifacts/one-click-install.log`，成功版本核验读取 `artifacts/last-dev-install.txt`。
+
+## 2026-07-27 0.3.5 真机反馈记忆
+
+- 用户库约 965 款游戏，游戏列表必须具备搜索、状态筛选和排序，不能依赖长列表滚动。
+- Wo Long 备份任务已真机成功，磁盘确认存在 ZIP 和 `mapping.yaml`；“历史为空”属于索引/刷新链路问题，不是备份引擎失败。
+- 底部错误明确指出 `TaskStatusDto.DurationDisplay` 被错误地以可回写模式绑定，并导致自动刷新停用。
+- Playnite 社区主题不止浅色/深色两类。后续 UI 禁止依据单个文字色简单二分主题，必须验证宿主背景与文字对比度并派生控件色板。
+- 用户认为文字模糊主要是 WPF 渲染/DPI 问题。避免整体文字 Opacity 和悬停缩放，保持整数像素位移、布局取整和 ClearType。
+- 空闲状态不得保留无内容的进度条轨道；状态消息与任务进度必须分区并留出间距。

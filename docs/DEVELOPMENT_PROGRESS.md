@@ -1,7 +1,7 @@
 # 开发实现进度
 
 更新时间：2026-07-27
-当前版本：`0.3.4-development-preview`
+当前版本：`0.3.5-development-preview`
 
 状态定义：
 
@@ -200,3 +200,14 @@
 - `dev-install-run.ps1` 改为 UTF-8 BOM，并自动生成 `artifacts/one-click-install.log`。
 - 源码校验增加批处理编码、换行和 PowerShell BOM 门禁。
 - Windows 回归目标：双击后必须进入 PowerShell 构建流程，安装报告显示清单与 DLL 均为 0.3.4。
+
+## 2026-07-27 0.3.5 历史同步、大型库检索与主题适配
+
+- 修复 `DurationDisplay` 只读属性绑定方向，自动刷新不再因 WPF 绑定异常停用。
+- `backup.list` 改为先与 Ludusavi 历史对账再返回 SQLite 索引；任务成功且磁盘已有 ZIP 时，历史页可自愈。
+- 保护历史缓存：Ludusavi 报告存在版本但解析为零时，不再删除现有索引。
+- 965 款游戏场景增加即时搜索、状态筛选、排序和结果数量。
+- 任务页重排进度列，百分比不再覆盖进度轨道；空闲时彻底隐藏底部进度组件。
+- 新增基于宿主实际背景和 Playnite 文字资源的自适应色板，覆盖第三方主题，不再仅按黑白模式判断。
+- 全局启用像素对齐、Display/ClearType/Fixed hinting；移除正文控件透明度和按钮悬停缩放，改善 DPI 下文字锐度。
+- 设置页同步使用派生输入框、文字、边框和玻璃表面色板。

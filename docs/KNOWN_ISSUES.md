@@ -1,7 +1,7 @@
 # 已知缺陷与回归状态
 
 更新时间：2026-07-27
-目标版本：`0.3.4-development-preview`
+目标版本：`0.3.5-development-preview`
 
 本文档是持续缺陷台账。任何修复必须同步更新 `DEVELOPMENT_PROGRESS.md` 与 `PROJECT_MEMORY.md`。
 
@@ -110,3 +110,40 @@
 - **根因**：入口 `.cmd` 使用无 BOM UTF-8 中文内容和 LF 换行；传统 `cmd.exe` 在解析批处理文件时受系统代码页和换行格式影响，导致字节被误解析。
 - **修复**：新增纯 ASCII、CRLF 的 `GameSaveCenter-Run.cmd`；中文文件名入口只调用该脚本；PowerShell 主脚本使用 UTF-8 BOM 并记录 `artifacts/one-click-install.log`。
 - **门禁**：源码检查强制所有 `.cmd` 入口仅含 ASCII 且使用 CRLF，`dev-install-run.ps1` 必须带 UTF-8 BOM。
+
+## GSC-031：只读 DurationDisplay 被 TwoWay 绑定导致自动刷新停用
+
+- **状态**：已修复，待 Windows 回归。
+- **现象**：底部持续提示无法对 `TaskStatusDto.DurationDisplay` 进行 TwoWay/OneWayToSource 绑定，后台自动刷新被异常中断。
+- **根因**：任务详情中的 `Run.Text` 未显式声明绑定方向，WPF 按目标属性元数据尝试回写只读计算属性。
+- **修复**：`DurationDisplay` 与任务 ID 明确使用 `Mode=OneWay`；源码门禁阻止该绑定再次退化。
+
+## GSC-032：备份任务成功且 ZIP 已生成，但历史面板为空
+
+- **状态**：已修复，待 Windows 回归。
+- **证据**：任务显示“已创建新的历史版本”，磁盘存在 `backup-*.zip` 和 `mapping.yaml`，但 `Backups` 集合仍为空。
+- **根因**：`backup.list` 只读取 SQLite 缓存，不会在历史面板打开时主动与 Ludusavi `backups --api` 对账；一次索引失败会长期表现为无历史。
+- **修复**：每次读取历史时先尝试与 Ludusavi 对账，再返回 SQLite 索引；对账失败保留旧索引并写入诊断。官方输出报告存在版本但解析结果为零时，禁止清空缓存并返回稳定错误码。
+
+## GSC-033：第三方 Playnite 主题下文字和输入区域对比失效
+
+- **状态**：已重构，待多主题视觉回归。
+- **现象**：浅色主题出现黑色输入块，深色主题出现近黑文字，单纯按“浅色/深色”切换无法覆盖社区主题。
+- **修复**：从宿主背景、`TextBrush`、`TextBrushDark` 等资源推导局部高对比色板；文字、输入框、边框、卡片和侧栏统一使用派生资源，不再直接复用不确定的 `ControlBackgroundBrush`。
+
+## GSC-034：文字在 DPI 与动画环境下发虚
+
+- **状态**：已改善，待 100%/125%/150% DPI 回归。
+- **原因**：正文大量使用控件整体 `Opacity`，按钮悬停缩放文字，同时缺少统一像素对齐和 ClearType 提示。
+- **修复**：文字透明度改为带 Alpha 的专用前景色；启用 `UseLayoutRounding`、`SnapsToDevicePixels`、Display/ClearType/Fixed hinting；按钮悬停改为整数像素位移，不再缩放正文。
+
+## GSC-035：大型游戏库缺少搜索、筛选和排序
+
+- **状态**：已开发，待 Windows 回归。
+- **修复**：增加按游戏名、Ludusavi 名称、平台和状态搜索；增加已就绪、未匹配、运行中、需关注、有历史筛选；增加名称、运行优先、匹配优先和最近备份排序，并显示过滤结果数量。
+
+## GSC-036：任务表格和底部进度条布局失控
+
+- **状态**：已重构，待视觉回归。
+- **现象**：任务行拥挤、百分比压在进度条上；底部空进度框在空闲时仍显示并贴住状态提示。
+- **修复**：任务进度使用固定宽度轨道与独立百分比列，详情限制并省略；底部空闲进度框移除，只有实际忙碌或后台刷新时显示独立进度胶囊。
