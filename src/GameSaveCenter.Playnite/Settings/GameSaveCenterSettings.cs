@@ -37,6 +37,11 @@ namespace GameSaveCenter.Playnite.Settings
         public bool EnableCloudUpload { get; set; }
         public int ProcessPollingSeconds { get; set; } = 5;
         public int DefaultBackupIntervalMinutes { get; set; } = 30;
+        public BackupStorageFormat BackupFormat { get; set; } = BackupStorageFormat.Zip;
+        public string Compression { get; set; } = "zstd";
+        public int CompressionLevel { get; set; } = 3;
+        public int FullBackupLimit { get; set; } = 3;
+        public int DifferentialBackupLimit { get; set; } = 5;
 
         public void BeginEdit() => editingClone = Clone();
 
@@ -65,6 +70,12 @@ namespace GameSaveCenter.Playnite.Settings
                 errors.Add("定时备份间隔必须为 5–1440 分钟。");
             if (ProcessPollingSeconds < 2 || ProcessPollingSeconds > 60)
                 errors.Add("进程检测间隔必须为 2–60 秒。");
+            if (FullBackupLimit < 1 || FullBackupLimit > 255)
+                errors.Add("完整备份保留数量必须为 1–255。");
+            if (DifferentialBackupLimit < 0 || DifferentialBackupLimit > 255)
+                errors.Add("差异备份保留数量必须为 0–255。");
+            if (CompressionLevel < -7 || CompressionLevel > 22)
+                errors.Add("压缩等级必须为 -7–22；zstd 建议使用 3。");
             return errors.Count == 0;
         }
 
@@ -79,7 +90,12 @@ namespace GameSaveCenter.Playnite.Settings
             DefaultBackupIntervalMinutes = DefaultBackupIntervalMinutes,
             EnableProcessDetection = EnableProcessDetection,
             EnableMediaSync = EnableMediaSync,
-            EnableCloudUpload = EnableCloudUpload
+            EnableCloudUpload = EnableCloudUpload,
+            BackupFormat = BackupFormat,
+            Compression = Compression,
+            CompressionLevel = CompressionLevel,
+            FullBackupLimit = FullBackupLimit,
+            DifferentialBackupLimit = DifferentialBackupLimit
         };
 
         private void EnsureDefaults(string pluginInstallPath)
@@ -110,6 +126,11 @@ namespace GameSaveCenter.Playnite.Settings
             EnableCloudUpload = other.EnableCloudUpload;
             ProcessPollingSeconds = other.ProcessPollingSeconds;
             DefaultBackupIntervalMinutes = other.DefaultBackupIntervalMinutes;
+            BackupFormat = other.BackupFormat;
+            Compression = other.Compression;
+            CompressionLevel = other.CompressionLevel;
+            FullBackupLimit = other.FullBackupLimit;
+            DifferentialBackupLimit = other.DifferentialBackupLimit;
         }
 
         private static string Expand(string value) => string.IsNullOrWhiteSpace(value) ? string.Empty : Environment.ExpandEnvironmentVariables(value);

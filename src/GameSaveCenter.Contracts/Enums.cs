@@ -67,6 +67,14 @@ namespace GameSaveCenter.Contracts
         Unknown = 99
     }
 
+
+    /// <summary>Storage format requested from Ludusavi for new backups.</summary>
+    public enum BackupStorageFormat
+    {
+        Simple = 0,
+        Zip = 1
+    }
+
     /// <summary>Restore workflow state.</summary>
     public enum RestoreState
     {

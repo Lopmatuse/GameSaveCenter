@@ -72,6 +72,20 @@ namespace GameSaveCenter.Contracts
         public DateTime? FinishedUtc { get; set; }
         public string ErrorCode { get; set; } = string.Empty;
         public string ErrorMessage { get; set; } = string.Empty;
+        public DateTime CreatedLocal => CreatedUtc.ToLocalTime();
+        public string StateDisplay => State switch
+        {
+            TaskState.Queued => "等待中",
+            TaskState.Running => "执行中",
+            TaskState.Succeeded => "成功",
+            TaskState.Failed => "失败",
+            TaskState.Cancelled => "已取消",
+            TaskState.WaitingForUser => "等待确认",
+            _ => State.ToString()
+        };
+        public string DetailMessage => State == TaskState.Failed && !string.IsNullOrWhiteSpace(ErrorMessage)
+            ? $"{ErrorCode}: {ErrorMessage}"
+            : Message;
     }
 
     /// <summary>One validation result displayed to the user.</summary>
@@ -171,6 +185,11 @@ namespace GameSaveCenter.Contracts
         public bool EnableProcessDetection { get; set; } = true;
         public bool EnableMediaSync { get; set; } = true;
         public bool EnableCloudUpload { get; set; }
+        public BackupStorageFormat BackupFormat { get; set; } = BackupStorageFormat.Zip;
+        public string Compression { get; set; } = "zstd";
+        public int CompressionLevel { get; set; } = 3;
+        public int FullBackupLimit { get; set; } = 3;
+        public int DifferentialBackupLimit { get; set; } = 5;
     }
 
 }

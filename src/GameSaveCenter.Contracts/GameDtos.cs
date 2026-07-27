@@ -63,5 +63,28 @@ namespace GameSaveCenter.Contracts
         public string CloudState { get; set; } = "Disabled";
         public string HealthState { get; set; } = "Unknown";
         public BackupPolicyDto Policy { get; set; } = new BackupPolicyDto();
+        public string PlatformDisplay => Platform switch
+        {
+            GamePlatformKind.Steam => "Steam",
+            GamePlatformKind.Xbox => "Xbox",
+            GamePlatformKind.Epic => "Epic",
+            GamePlatformKind.Ubisoft => "Ubisoft",
+            GamePlatformKind.Ea => "EA",
+            GamePlatformKind.Gog => "GOG",
+            GamePlatformKind.Other => "其他",
+            _ => "未知"
+        };
+        public string HealthStateDisplay => HealthState switch
+        {
+            "Ready" => "已就绪",
+            "Unmatched" => "未匹配",
+            "Running" => "运行中",
+            "Warning" => "需关注",
+            "Attention" => "需关注",
+            "LudusaviUnavailable" => "Ludusavi 未配置",
+            _ => HealthState
+        };
+        public DateTime? LastBackupLocal => LastBackupUtc?.ToLocalTime();
+        public DateTime? LastMediaSyncLocal => LastMediaSyncUtc?.ToLocalTime();
     }
 }

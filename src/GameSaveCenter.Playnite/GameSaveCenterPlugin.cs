@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using GameSaveCenter.Contracts;
@@ -24,6 +25,7 @@ namespace GameSaveCenter.Playnite
         private readonly WorkerIpcClient client;
         private readonly WorkerLauncher launcher;
         private readonly PlayniteGameAdapter adapter;
+        private readonly SemaphoreSlim synchronizationGate = new SemaphoreSlim(1, 1);
 
         public GameSaveCenterPlugin(IPlayniteAPI api) : base(api)
         {
@@ -40,18 +42,19 @@ namespace GameSaveCenter.Playnite
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
-            if (Settings.AutoStartWorker) FireAndForget(async () => { await EnsureWorkerAsync(); await ApplySettingsCoreAsync(); await ExportLibraryAsync(); });
+            if (Settings.AutoStartWorker) FireAndForget(SynchronizeAsync);
         }
 
-        public override void OnLibraryUpdated(OnLibraryUpdatedEventArgs args) => FireAndForget(ExportLibraryAsync);
-        public override void OnGameInstalled(OnGameInstalledEventArgs args) => FireAndForget(ExportLibraryAsync);
-        public override void OnGameUninstalled(OnGameUninstalledEventArgs args) => FireAndForget(ExportLibraryAsync);
+        public override void OnLibraryUpdated(OnLibraryUpdatedEventArgs args) => FireAndForget(SynchronizeAsync);
+        public override void OnGameInstalled(OnGameInstalledEventArgs args) => FireAndForget(SynchronizeAsync);
+        public override void OnGameUninstalled(OnGameUninstalledEventArgs args) => FireAndForget(SynchronizeAsync);
 
         public override void OnGameStarted(OnGameStartedEventArgs args)
         {
             FireAndForget(async () =>
             {
                 await EnsureWorkerAsync();
+                await ApplySettingsCoreAsync();
                 var descriptor = adapter.Convert(args.Game);
                 await RequestAsync<object>(MessageTypes.UpsertGames, new[] { descriptor });
                 var action = args.SourceAction == null ? null : adapter.ConvertSourceAction(args.Game, args.SourceAction);
@@ -68,6 +71,8 @@ namespace GameSaveCenter.Playnite
         {
             FireAndForget(async () =>
             {
+                await EnsureWorkerAsync();
+                await ApplySettingsCoreAsync();
                 var descriptor = adapter.Convert(args.Game);
                 await RequestAsync<object>(MessageTypes.GameSessionStopped, new GameSessionEventDto
                 {
@@ -98,7 +103,7 @@ namespace GameSaveCenter.Playnite
 
         public async void ApplySettingsAsync()
         {
-            try { await EnsureWorkerAsync(); await ApplySettingsCoreAsync(); }
+            try { await SynchronizeAsync(); }
             catch (Exception ex) { ShowError(ex.Message); }
         }
 
@@ -112,11 +117,21 @@ namespace GameSaveCenter.Playnite
 
         private async Task ApplySettingsCoreAsync() => await RequestAsync<object>(MessageTypes.UpdateSettings, Settings.ToWorkerSettings());
 
-        private async Task ExportLibraryAsync()
+        public async Task SynchronizeAsync()
         {
-            await EnsureWorkerAsync();
+            // Playnite's database is captured before asynchronous continuations leave the UI context.
             var games = PlayniteApi.Database.Games.Select(adapter.Convert).ToList();
-            await RequestAsync<object>(MessageTypes.UpsertGames, games, TimeSpan.FromMinutes(5));
+            await synchronizationGate.WaitAsync().ConfigureAwait(false);
+            try
+            {
+                await EnsureWorkerAsync().ConfigureAwait(false);
+                await ApplySettingsCoreAsync().ConfigureAwait(false);
+                await RequestAsync<object>(MessageTypes.UpsertGames, games, TimeSpan.FromMinutes(5)).ConfigureAwait(false);
+            }
+            finally
+            {
+                synchronizationGate.Release();
+            }
         }
 
         private async void FireAndForget(Func<Task> operation)
