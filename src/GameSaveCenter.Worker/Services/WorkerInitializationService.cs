@@ -16,7 +16,8 @@ public sealed class WorkerInitializationService : IHostedService
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         await _store.InitializeAsync(cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("GameSaveCenter Worker storage initialized");
+        await _store.MarkInterruptedTasksAsync(cancellationToken).ConfigureAwait(false);
+        _logger.LogInformation("GameSaveCenter Worker storage initialized and stale tasks reconciled");
     }
 
     public Task StopAsync(CancellationToken cancellationToken)=>Task.CompletedTask;

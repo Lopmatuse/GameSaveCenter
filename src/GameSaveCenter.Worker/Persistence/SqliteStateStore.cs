@@ -223,6 +223,22 @@ ON CONFLICT(session_id) DO UPDATE SET stopped_utc=excluded.stopped_utc,elapsed_s
         return result;
     }
 
+    public Task MarkInterruptedTasksAsync(CancellationToken token) => ExecuteAsync(@"
+UPDATE tasks
+SET state=$failed, progress=CASE WHEN progress>99 THEN 99 ELSE progress END, message=$message,
+    finished_utc=$finished, error_code=$errorCode, error_message=$errorMessage
+WHERE state IN ($queued,$running);",
+        new Dictionary<string, object?>
+        {
+            ["$failed"]=(int)TaskState.Failed,
+            ["$queued"]=(int)TaskState.Queued,
+            ["$running"]=(int)TaskState.Running,
+            ["$message"]="Worker 重启前任务未完成",
+            ["$finished"]=DateTime.UtcNow.ToString("O"),
+            ["$errorCode"]="WORKER_RESTARTED",
+            ["$errorMessage"]="Worker 在任务完成前退出或重启；请确认目标文件状态后重新执行。"
+        },token);
+
     public Task AddOrUpdateTaskAsync(TaskStatusDto task, CancellationToken token) => ExecuteAsync(@"
 INSERT INTO tasks(task_id,task_type,game_id,game_name,state,progress,message,created_utc,started_utc,finished_utc,error_code,error_message)
 VALUES($id,$type,$game,$name,$state,$progress,$message,$created,$started,$finished,$errorCode,$errorMessage)
