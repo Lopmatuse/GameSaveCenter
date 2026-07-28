@@ -35,6 +35,20 @@ public sealed class SqliteStateStore
         command.CommandText = Schema;
         await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
         await EnsureColumnAsync(connection, "media_sources", "shared_directory", "INTEGER NOT NULL DEFAULT 0", token).ConfigureAwait(false);
+        await EnsureColumnAsync(connection, "media", "classification_state", "TEXT NOT NULL DEFAULT 'Assigned'", token).ConfigureAwait(false);
+        await EnsureColumnAsync(connection, "media", "classification_reason", "TEXT", token).ConfigureAwait(false);
+        var normalizeMedia = connection.CreateCommand();
+        normalizeMedia.CommandText = @"
+UPDATE media
+SET classification_state=CASE
+    WHEN COALESCE(playnite_id,'')='' THEN 'Inbox'
+    ELSE 'Assigned'
+END
+WHERE COALESCE(classification_state,'')='' OR classification_state='Assigned';";
+        await normalizeMedia.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+        var mediaClassificationIndex = connection.CreateCommand();
+        mediaClassificationIndex.CommandText = "CREATE INDEX IF NOT EXISTS ix_media_classification ON media(classification_state,captured_utc DESC);";
+        await mediaClassificationIndex.ExecuteNonQueryAsync(token).ConfigureAwait(false);
         await EnsureBackupVersionSchemaAsync(connection, token).ConfigureAwait(false);
     }
 
@@ -406,22 +420,56 @@ ON CONFLICT(playnite_id,backup_id) DO UPDATE SET ludusavi_name=excluded.ludusavi
     }
 
     public Task AddMediaAsync(MediaItemDto item, CancellationToken token) => ExecuteAsync(@"
-INSERT OR IGNORE INTO media(media_id,playnite_id,kind,source,archive_path,original_path,captured_utc,size_bytes,sha256,is_favorite,comment,cloud_state)
-VALUES($id,$game,$kind,$source,$archive,$original,$captured,$size,$hash,$favorite,$comment,$cloud);",
+INSERT OR IGNORE INTO media(media_id,playnite_id,kind,source,archive_path,original_path,captured_utc,size_bytes,sha256,is_favorite,comment,cloud_state,classification_state,classification_reason)
+VALUES($id,$game,$kind,$source,$archive,$original,$captured,$size,$hash,$favorite,$comment,$cloud,$classification,$reason);",
         new Dictionary<string, object?> { ["$id"]=item.MediaId,["$game"]=item.PlayniteId,["$kind"]=(int)item.Kind,["$source"]=(int)item.Source,["$archive"]=item.ArchivePath,
-            ["$original"]=item.OriginalPath,["$captured"]=item.CapturedUtc.ToString("O"),["$size"]=item.SizeBytes,["$hash"]=item.Sha256,["$favorite"]=item.IsFavorite?1:0,["$comment"]=item.Comment,["$cloud"]=item.CloudState }, token);
+            ["$original"]=item.OriginalPath,["$captured"]=item.CapturedUtc.ToString("O"),["$size"]=item.SizeBytes,["$hash"]=item.Sha256,["$favorite"]=item.IsFavorite?1:0,["$comment"]=item.Comment,["$cloud"]=item.CloudState,
+            ["$classification"]=string.IsNullOrWhiteSpace(item.ClassificationState)?"Assigned":item.ClassificationState,["$reason"]=item.ClassificationReason }, token);
 
     public async Task<List<MediaItemDto>> GetMediaAsync(string playniteId, int limit, CancellationToken token)
     {
         var result=new List<MediaItemDto>(); await using var connection=Open(); await connection.OpenAsync(token).ConfigureAwait(false);
-        var command=connection.CreateCommand(); command.CommandText="SELECT media_id,kind,source,archive_path,original_path,captured_utc,size_bytes,sha256,is_favorite,comment,cloud_state FROM media WHERE playnite_id=$id ORDER BY captured_utc DESC LIMIT $limit;";
+        var command=connection.CreateCommand(); command.CommandText="SELECT media_id,kind,source,archive_path,original_path,captured_utc,size_bytes,sha256,is_favorite,comment,cloud_state,classification_state,classification_reason FROM media WHERE playnite_id=$id AND classification_state='Assigned' ORDER BY captured_utc DESC LIMIT $limit;";
         command.Parameters.AddWithValue("$id",playniteId);command.Parameters.AddWithValue("$limit",Math.Clamp(limit,1,5000));
         await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);
         while(await reader.ReadAsync(token).ConfigureAwait(false)) result.Add(new MediaItemDto
         { MediaId=reader.GetString(0),PlayniteId=playniteId,Kind=(MediaKind)reader.GetInt32(1),Source=(MediaSourceKind)reader.GetInt32(2),ArchivePath=reader.GetString(3),OriginalPath=reader.GetString(4),
-          CapturedUtc=DateTime.Parse(reader.GetString(5)).ToUniversalTime(),SizeBytes=reader.GetInt64(6),Sha256=reader.GetString(7),IsFavorite=reader.GetInt32(8)==1,Comment=reader.IsDBNull(9)?string.Empty:reader.GetString(9),CloudState=reader.IsDBNull(10)?string.Empty:reader.GetString(10)});
+          CapturedUtc=DateTime.Parse(reader.GetString(5)).ToUniversalTime(),SizeBytes=reader.GetInt64(6),Sha256=reader.GetString(7),IsFavorite=reader.GetInt32(8)==1,Comment=reader.IsDBNull(9)?string.Empty:reader.GetString(9),CloudState=reader.IsDBNull(10)?string.Empty:reader.GetString(10),
+          ClassificationState=reader.IsDBNull(11)?"Assigned":reader.GetString(11),ClassificationReason=reader.IsDBNull(12)?string.Empty:reader.GetString(12)});
         return result;
     }
+
+    public async Task<List<MediaItemDto>> GetUnassignedMediaAsync(int limit, CancellationToken token)
+    {
+        var result=new List<MediaItemDto>(); await using var connection=Open(); await connection.OpenAsync(token).ConfigureAwait(false);
+        var command=connection.CreateCommand(); command.CommandText=@"SELECT media_id,playnite_id,kind,source,archive_path,original_path,captured_utc,size_bytes,sha256,is_favorite,comment,cloud_state,classification_state,classification_reason
+FROM media
+WHERE classification_state='Inbox'
+ORDER BY captured_utc DESC
+LIMIT $limit;";
+        command.Parameters.AddWithValue("$limit",Math.Clamp(limit,1,5000));
+        await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        while(await reader.ReadAsync(token).ConfigureAwait(false)) result.Add(ReadMedia(reader));
+        return result;
+    }
+
+    public async Task<MediaItemDto?> GetMediaByIdAsync(string mediaId,CancellationToken token)
+    {
+        await using var connection=Open(); await connection.OpenAsync(token).ConfigureAwait(false);
+        var command=connection.CreateCommand();command.CommandText=@"SELECT media_id,playnite_id,kind,source,archive_path,original_path,captured_utc,size_bytes,sha256,is_favorite,comment,cloud_state,classification_state,classification_reason
+FROM media WHERE media_id=$id LIMIT 1;";
+        command.Parameters.AddWithValue("$id",mediaId);
+        await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        return await reader.ReadAsync(token).ConfigureAwait(false)?ReadMedia(reader):null;
+    }
+
+    private static MediaItemDto ReadMedia(SqliteDataReader reader)=>new()
+    {
+        MediaId=reader.GetString(0),PlayniteId=reader.IsDBNull(1)?string.Empty:reader.GetString(1),Kind=(MediaKind)reader.GetInt32(2),Source=(MediaSourceKind)reader.GetInt32(3),
+        ArchivePath=reader.GetString(4),OriginalPath=reader.GetString(5),CapturedUtc=DateTime.Parse(reader.GetString(6)).ToUniversalTime(),SizeBytes=reader.GetInt64(7),Sha256=reader.GetString(8),
+        IsFavorite=reader.GetInt32(9)==1,Comment=reader.IsDBNull(10)?string.Empty:reader.GetString(10),CloudState=reader.IsDBNull(11)?string.Empty:reader.GetString(11),
+        ClassificationState=reader.IsDBNull(12)?"Assigned":reader.GetString(12),ClassificationReason=reader.IsDBNull(13)?string.Empty:reader.GetString(13)
+    };
 
     public Task AddMediaSourceAsync(MediaSourceRuleDto source,CancellationToken token) => ExecuteAsync(@"
 INSERT INTO media_sources(source_id,playnite_id,source_kind,root_path,include_pattern,enabled,shared_directory) VALUES($id,$game,$kind,$root,$pattern,$enabled,$shared)
@@ -434,6 +482,17 @@ ON CONFLICT(source_id) DO UPDATE SET playnite_id=excluded.playnite_id,source_kin
         await using var connection=Open();await connection.OpenAsync(token).ConfigureAwait(false);
         var command=connection.CreateCommand();command.CommandText="SELECT source_id,playnite_id,source_kind,root_path,include_pattern,enabled,shared_directory FROM media_sources WHERE playnite_id=$game OR COALESCE(playnite_id,'')='';";
         command.Parameters.AddWithValue("$game",playniteId);
+        await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        while(await reader.ReadAsync(token).ConfigureAwait(false))result.Add(new MediaSourceRuleDto
+        {SourceId=reader.GetString(0),PlayniteId=reader.IsDBNull(1)?string.Empty:reader.GetString(1),SourceKind=(MediaSourceKind)reader.GetInt32(2),RootPath=reader.GetString(3),IncludePattern=reader.IsDBNull(4)?"*":reader.GetString(4),Enabled=reader.GetInt32(5)==1,SharedDirectory=!reader.IsDBNull(6)&&reader.GetInt32(6)==1});
+        return result;
+    }
+
+    public async Task<List<MediaSourceRuleDto>> GetSharedMediaSourcesAsync(CancellationToken token)
+    {
+        var result=new List<MediaSourceRuleDto>();
+        await using var connection=Open();await connection.OpenAsync(token).ConfigureAwait(false);
+        var command=connection.CreateCommand();command.CommandText="SELECT source_id,playnite_id,source_kind,root_path,include_pattern,enabled,shared_directory FROM media_sources WHERE enabled=1 AND shared_directory=1;";
         await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);
         while(await reader.ReadAsync(token).ConfigureAwait(false))result.Add(new MediaSourceRuleDto
         {SourceId=reader.GetString(0),PlayniteId=reader.IsDBNull(1)?string.Empty:reader.GetString(1),SourceKind=(MediaSourceKind)reader.GetInt32(2),RootPath=reader.GetString(3),IncludePattern=reader.IsDBNull(4)?"*":reader.GetString(4),Enabled=reader.GetInt32(5)==1,SharedDirectory=!reader.IsDBNull(6)&&reader.GetInt32(6)==1});
@@ -457,9 +516,17 @@ WHERE changes()=0
   );",
         new Dictionary<string, object?> { ["$id"]=Guid.NewGuid().ToString("N"),["$game"]=playniteId,["$path"]=path,["$score"]=score,["$reasons"]=reasonsJson,["$utc"]=DateTime.UtcNow.ToString("O")},token);
 
-    public Task ReassignMediaAsync(string mediaId, string targetPlayniteId, CancellationToken token) => ExecuteAsync(
-        "UPDATE media SET playnite_id=$game WHERE media_id=$id;",
-        new Dictionary<string, object?> { ["$id"]=mediaId, ["$game"]=targetPlayniteId }, token);
+    public Task AssignMediaAsync(string mediaId,string targetPlayniteId,string archivePath,CancellationToken token)=>ExecuteAsync(@"
+UPDATE media
+SET playnite_id=$game,archive_path=$archive,classification_state='Assigned',classification_reason='',cloud_state='Pending'
+WHERE media_id=$id;",
+        new Dictionary<string,object?>{["$id"]=mediaId,["$game"]=targetPlayniteId,["$archive"]=archivePath},token);
+
+    public Task IgnoreMediaAsync(string mediaId,string archivePath,CancellationToken token)=>ExecuteAsync(@"
+UPDATE media
+SET playnite_id='',archive_path=$archive,classification_state='Ignored',classification_reason='用户已忽略',cloud_state='NotApplicable'
+WHERE media_id=$id AND classification_state='Inbox';",
+        new Dictionary<string,object?>{["$id"]=mediaId,["$archive"]=archivePath},token);
 
     public Task UpdateMediaCloudStateAsync(string playniteId, string state, CancellationToken token) => ExecuteAsync(
         "UPDATE media SET cloud_state=$state WHERE playnite_id=$game;",
@@ -502,7 +569,7 @@ LIMIT 100;";
     {
         await using var connection=Open(); await connection.OpenAsync(token).ConfigureAwait(false);
         async Task<int> Scalar(string sql){var c=connection.CreateCommand();c.CommandText=sql;return Convert.ToInt32(await c.ExecuteScalarAsync(token).ConfigureAwait(false));}
-        return (await Scalar("SELECT COUNT(*) FROM games;"),await Scalar("SELECT COUNT(*) FROM games WHERE COALESCE(ludusavi_name,'')<>'';"),await Scalar("SELECT COUNT(*) FROM media;"),await Scalar("SELECT COUNT(*) FROM media WHERE COALESCE(playnite_id,'')='';"));
+        return (await Scalar("SELECT COUNT(*) FROM games;"),await Scalar("SELECT COUNT(*) FROM games WHERE COALESCE(ludusavi_name,'')<>'';"),await Scalar("SELECT COUNT(*) FROM media WHERE classification_state='Assigned';"),await Scalar("SELECT COUNT(*) FROM media WHERE classification_state='Inbox';"));
     }
 
     public Task AppendAuditAsync(string category, string message, string detailJson, CancellationToken token) => ExecuteAsync(
@@ -549,7 +616,7 @@ CREATE TABLE IF NOT EXISTS sessions(session_id TEXT PRIMARY KEY,playnite_id TEXT
 CREATE TABLE IF NOT EXISTS tasks(task_id TEXT PRIMARY KEY,task_type TEXT NOT NULL,game_id TEXT,game_name TEXT,state INTEGER NOT NULL,progress INTEGER NOT NULL,message TEXT,created_utc TEXT NOT NULL,started_utc TEXT,finished_utc TEXT,error_code TEXT,error_message TEXT);
 CREATE TABLE IF NOT EXISTS findings(finding_id TEXT PRIMARY KEY,playnite_id TEXT,severity INTEGER NOT NULL,code TEXT NOT NULL,title TEXT NOT NULL,detail TEXT,suggested_action TEXT,created_utc TEXT NOT NULL,resolved INTEGER NOT NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS backup_versions(backup_id TEXT NOT NULL,playnite_id TEXT NOT NULL,ludusavi_name TEXT NOT NULL,created_utc TEXT NOT NULL,total_bytes INTEGER NOT NULL,file_count INTEGER NOT NULL,is_locked INTEGER NOT NULL DEFAULT 0,comment TEXT,source_device TEXT,operating_system TEXT,is_pre_restore INTEGER NOT NULL DEFAULT 0,manifest_json TEXT,PRIMARY KEY(playnite_id,backup_id));
-CREATE TABLE IF NOT EXISTS media(media_id TEXT PRIMARY KEY,playnite_id TEXT,kind INTEGER NOT NULL,source INTEGER NOT NULL,archive_path TEXT NOT NULL,original_path TEXT NOT NULL,captured_utc TEXT NOT NULL,size_bytes INTEGER NOT NULL,sha256 TEXT NOT NULL UNIQUE,is_favorite INTEGER NOT NULL DEFAULT 0,comment TEXT,cloud_state TEXT NOT NULL DEFAULT 'Pending');
+CREATE TABLE IF NOT EXISTS media(media_id TEXT PRIMARY KEY,playnite_id TEXT,kind INTEGER NOT NULL,source INTEGER NOT NULL,archive_path TEXT NOT NULL,original_path TEXT NOT NULL,captured_utc TEXT NOT NULL,size_bytes INTEGER NOT NULL,sha256 TEXT NOT NULL UNIQUE,is_favorite INTEGER NOT NULL DEFAULT 0,comment TEXT,cloud_state TEXT NOT NULL DEFAULT 'Pending',classification_state TEXT NOT NULL DEFAULT 'Assigned',classification_reason TEXT);
 CREATE TABLE IF NOT EXISTS media_sources(source_id TEXT PRIMARY KEY,playnite_id TEXT,source_kind INTEGER NOT NULL,root_path TEXT NOT NULL,include_pattern TEXT,enabled INTEGER NOT NULL DEFAULT 1,shared_directory INTEGER NOT NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS save_candidates(candidate_id TEXT PRIMARY KEY,playnite_id TEXT NOT NULL,path TEXT NOT NULL,score REAL NOT NULL,reasons_json TEXT,status TEXT NOT NULL,created_utc TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS audit_log(audit_id TEXT PRIMARY KEY,category TEXT NOT NULL,message TEXT NOT NULL,detail_json TEXT,created_utc TEXT NOT NULL);

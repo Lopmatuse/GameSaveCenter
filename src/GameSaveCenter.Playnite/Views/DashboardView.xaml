@@ -335,7 +335,7 @@
                             </Border>
                             <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.4.0" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.4.1" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -652,29 +652,95 @@
 
                         <TabItem Header="截图与录像">
                             <Grid Margin="0,12,0,0">
-                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                <WrapPanel>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="2*"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="3*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Border Background="{DynamicResource GscAccentTintBrush}" BorderBrush="{DynamicResource GscHairlineBrush}" BorderThickness="1" CornerRadius="12" Padding="14,11" Margin="0,0,0,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="待归类媒体收件箱" FontWeight="SemiBold"/>
+                                            <TextBlock Text="公共截图无法通过文件名或无重叠会话唯一判断时，会保留副本并等待你选择游戏；不会静默猜测。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,12,0"/>
+                                        </StackPanel>
+                                        <Border Grid.Column="1" Style="{StaticResource GscStatusPill}" Background="{DynamicResource GscCardBrush}" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}" FontSize="18" FontWeight="SemiBold"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+                                <Border Grid.Row="1" Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2" MinHeight="130">
+                                    <Grid>
+                                        <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding UnassignedMedia}" SelectedItem="{Binding SelectedInboxMedia}" RowHeight="42">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="拍摄时间" Binding="{Binding CapturedLocal, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd HH:mm}}" Width="145"/>
+                                                <DataGridTextColumn Header="类型" Binding="{Binding Kind, Mode=OneWay}" Width="72"/>
+                                                <DataGridTextColumn Header="来源" Binding="{Binding Source, Mode=OneWay}" Width="105"/>
+                                                <DataGridTextColumn Header="文件" Binding="{Binding FileName, Mode=OneWay}" Width="1.1*">
+                                                    <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding OriginalPath}"/></Style></DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                                <DataGridTextColumn Header="大小" Binding="{Binding SizeDisplay, Mode=OneWay}" Width="82"/>
+                                                <DataGridTextColumn Header="未归类原因" Binding="{Binding ClassificationReason, Mode=OneWay}" Width="1.25*">
+                                                    <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource GscSecondaryTextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding ClassificationReason}"/></Style></DataGridTextColumn.ElementStyle>
+                                                </DataGridTextColumn>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                        <TextBlock Text="公共目录暂无待归类媒体。执行媒体同步后，只有无法唯一判断所属游戏的文件才会出现在这里。" TextWrapping="Wrap" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="520" Foreground="{DynamicResource GscSecondaryTextBrush}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers><DataTrigger Binding="{Binding UnassignedMedia.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Border>
+
+                                <WrapPanel Grid.Row="2" Margin="0,10,0,14">
+                                    <TextBlock Text="归类到：" VerticalAlignment="Center"/>
+                                    <ComboBox Width="260" ItemsSource="{Binding Games}" SelectedItem="{Binding InboxTargetGame}" DisplayMemberPath="Name" Margin="7,0,8,8"/>
+                                    <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding AssignInboxMediaCommand}" Content="确认归类"/>
+                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding IgnoreInboxMediaCommand}" Content="忽略并保留副本" ToolTip="从待处理列表移除，但不会删除归档文件"/>
+                                </WrapPanel>
+
+                                <StackPanel Grid.Row="3" Margin="0,0,0,9">
+                                    <TextBlock Text="当前游戏媒体" FontWeight="SemiBold"/>
+                                    <TextBlock Text="下方只显示当前选中游戏已经确认归类的截图与录像。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,3,0,0"/>
+                                </StackPanel>
+
+                                <WrapPanel Grid.Row="4">
                                     <TextBox Style="{StaticResource GscTextBox}" Width="330" Text="{Binding CustomMediaSourcePath, UpdateSourceTrigger=PropertyChanged}" ToolTip="Epic/Ubisoft/EA/GOG、MOD 或游戏自身截图目录" Margin="0,0,8,8"/>
                                     <TextBox Style="{StaticResource GscTextBox}" Width="90" Text="{Binding CustomMediaPattern, UpdateSourceTrigger=PropertyChanged}" ToolTip="文件匹配，例如 *.png" Margin="0,0,8,8"/>
-                                    <CheckBox Content="共享目录" IsChecked="{Binding CustomMediaShared}" Margin="0,8,10,8"/>
+                                    <CheckBox Content="共享目录" IsChecked="{Binding CustomMediaShared}" Margin="0,8,10,8" ToolTip="共享目录无法唯一判断时会进入上方收件箱"/>
                                     <Button Style="{StaticResource GscButtonBase}" Command="{Binding AddMediaSourceCommand}" Content="添加来源"/>
                                 </WrapPanel>
-                                <ItemsControl Grid.Row="1" ItemsSource="{Binding MediaSources}" Margin="0,0,0,8">
+                                <ItemsControl Grid.Row="5" ItemsSource="{Binding MediaSources}" Margin="0,0,0,8">
                                     <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate><DataTemplate><Border Background="{StaticResource GscAccentTintBrush}" CornerRadius="9" Padding="9,5" Margin="0,0,6,4"><TextBlock><Run Text="{Binding SourceKind}"/><Run Text=" · "/><Run Text="{Binding RootPath}"/></TextBlock></Border></DataTemplate></ItemsControl.ItemTemplate>
                                 </ItemsControl>
-                                <Border Grid.Row="2" Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2">
+                                <Border Grid.Row="6" Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2" MinHeight="150">
                                     <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Media}" SelectedItem="{Binding SelectedMedia}">
                                         <DataGrid.Columns>
-                                            <DataGridTextColumn Header="拍摄时间" Binding="{Binding CapturedLocal, StringFormat={}{0:yyyy-MM-dd HH:mm}}" Width="150"/>
-                                            <DataGridTextColumn Header="类型" Binding="{Binding Kind}" Width="80"/>
-                                            <DataGridTextColumn Header="来源" Binding="{Binding Source}" Width="110"/>
-                                            <DataGridTextColumn Header="云端" Binding="{Binding CloudState}" Width="90"/>
-                                            <DataGridTextColumn Header="归档路径" Binding="{Binding ArchivePath}" Width="*"/>
+                                            <DataGridTextColumn Header="拍摄时间" Binding="{Binding CapturedLocal, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd HH:mm}}" Width="150"/>
+                                            <DataGridTextColumn Header="类型" Binding="{Binding Kind, Mode=OneWay}" Width="80"/>
+                                            <DataGridTextColumn Header="来源" Binding="{Binding Source, Mode=OneWay}" Width="110"/>
+                                            <DataGridTextColumn Header="云端" Binding="{Binding CloudState, Mode=OneWay}" Width="90"/>
+                                            <DataGridTextColumn Header="归档路径" Binding="{Binding ArchivePath, Mode=OneWay}" Width="*"/>
                                         </DataGrid.Columns>
                                     </DataGrid>
                                 </Border>
-                                <WrapPanel Grid.Row="3" Margin="0,10,0,0"><TextBlock Text="错误归类到：" VerticalAlignment="Center"/><ComboBox Width="240" ItemsSource="{Binding GamesView}" SelectedItem="{Binding MediaTargetGame}" DisplayMemberPath="Name" Margin="7,0,8,8"/><Button Style="{StaticResource GscButtonBase}" Command="{Binding ReassignMediaCommand}" Content="重新归类"/></WrapPanel>
+                                <WrapPanel Grid.Row="7" Margin="0,10,0,0">
+                                    <TextBlock Text="重新归类到：" VerticalAlignment="Center"/>
+                                    <ComboBox Width="240" ItemsSource="{Binding Games}" SelectedItem="{Binding MediaTargetGame}" DisplayMemberPath="Name" Margin="7,0,8,8"/>
+                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding ReassignMediaCommand}" Content="移动并重新归类"/>
+                                </WrapPanel>
                             </Grid>
                         </TabItem>
 

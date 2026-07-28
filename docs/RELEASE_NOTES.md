@@ -1,3 +1,14 @@
+# 0.4.1 Development Preview
+
+- 公共 Game Bar、Windows Screenshots 与共享自定义目录改为全局 `MediaInbox` 任务单次扫描。
+- 仅文件名唯一匹配或明确且无重叠的会话时间窗口自动归类；多游戏歧义和无法确认项进入 `_Inbox/Pending`。
+- SQLite 新增媒体 `Assigned/Inbox/Ignored` 状态与可解释原因，旧库按“先补列、后建索引”的顺序安全升级。
+- Playnite 媒体页新增全局待归类列表、目标游戏选择、确认归类和“忽略并保留副本”。
+- `media.reassign` 从只改数据库升级为真实移动归档、目标哈希校验与审计；归档缺失时只从原文件重建副本，不移动或删除源文件。
+- 首轮每次最多导入 200 个歧义历史媒体，依靠 SHA-256 在后续扫描中分批补齐。
+- `MediaInbox` 失败或取消任务支持只重试共享目录；静态校验新增媒体收件箱迁移与源文件安全门禁。
+- 本版本未在当前环境执行 Windows build/test/package 或 Playnite 真机加载。
+
 # 0.4.0 Development Preview
 
 - 将用户提供的完整 Apple-inspired WPF/Codex 设计规范保存到仓库，并新增强制 UI 变更门禁。

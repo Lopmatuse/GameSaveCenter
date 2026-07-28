@@ -35,6 +35,7 @@ namespace GameSaveCenter.Contracts
         public List<string> PlayniteIds { get; set; } = new List<string>();
         public string SessionId { get; set; } = string.Empty;
         public bool IncludeUnassignedInbox { get; set; } = true;
+        public bool SharedOnly { get; set; }
         public bool UploadAfterSync { get; set; }
     }
 
@@ -198,6 +199,12 @@ namespace GameSaveCenter.Contracts
     {
         public string MediaId { get; set; } = string.Empty;
         public string TargetPlayniteId { get; set; } = string.Empty;
+    }
+
+    /// <summary>Removes an unassigned media item from the inbox without deleting its archive copy.</summary>
+    public sealed class IgnoreMediaRequestDto
+    {
+        public string MediaId { get; set; } = string.Empty;
     }
 
     /// <summary>Accepts a detected save directory and creates a custom Ludusavi rule draft.</summary>

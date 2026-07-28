@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.4.0-development-preview`。** Windows 真机已确认项目能够编译、测试、打包并加载到 Playnite；游戏库、运行状态、Ludusavi 匹配和 ZIP 本地备份已跑通。本版本把用户提供的 Apple-inspired WPF 规范正式纳入 UI 门禁，新增“跟随 Playnite / 浅色 / 深色”主题模式、任务错误复制与安全重试，并接入未匹配游戏的启动前/退出后文件差分快照，自动沉淀可解释的存档路径候选。仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 完成连续多版本、安全恢复、自动候选、截图来源和云端回归后，才能用于重要存档。
+> **当前状态：`0.4.1-development-preview`。** Windows 真机已确认早期基线能够编译、测试、打包并加载到 Playnite；游戏库、运行状态、Ludusavi 匹配和 ZIP 本地备份已跑通。0.4.1 在 0.4.0 的主题模式、会话候选与安全重试基础上，补齐公共截图/录像的全局待归类收件箱：共享目录只扫描一次，只有唯一文件名匹配或无重叠会话窗口才自动归类，其他文件保留副本等待人工分配或忽略。0.4.1 尚未在 Windows 编译和 Playnite 真机回归，仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 验证数据库升级、媒体归类、源文件保留、连续多版本、安全恢复和云端链路后，才能用于重要存档。
 
 ## 核心原则
 
@@ -29,6 +29,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 - Ludusavi 单游戏/全部/定时/退出备份、历史索引、备注、锁定、恢复与回滚编排；
 - 外部进程与多进程 MOD 启动链识别基础；
 - Steam、Xbox/Game Bar、Windows 公共目录和自定义来源的截图/录像增量同步；
+- 公共媒体共享目录单次扫描、保守自动归类、待归类收件箱、人工移动归类与“忽略但保留副本”；
 - 文件数量、大小、零字节、异常下降、长时间无变化等校验；
 - 分层历史保留预览、候选存档路径评分、Xbox WGS 辅助扫描；
 - Rclone 单向复制与校验适配；

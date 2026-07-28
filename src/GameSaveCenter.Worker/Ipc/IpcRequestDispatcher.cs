@@ -54,7 +54,9 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.UndoRestore=>await _restore.UndoAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
                 MessageTypes.SyncMedia=>await _media.SyncAsync(Read<MediaSyncRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ListMedia=>await ListMediaAsync(Read<GameQueryDto>(request),token).ConfigureAwait(false),
-                MessageTypes.ReassignMedia=>await ReassignMediaAsync(Read<ReassignMediaRequestDto>(request),token).ConfigureAwait(false),
+                MessageTypes.ListUnassignedMedia=>await _store.GetUnassignedMediaAsync(Read<GameQueryDto>(request).Limit,token).ConfigureAwait(false),
+                MessageTypes.ReassignMedia=>await _media.ReassignAsync(Read<ReassignMediaRequestDto>(request),token).ConfigureAwait(false),
+                MessageTypes.IgnoreMedia=>await _media.IgnoreAsync(Read<IgnoreMediaRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.AddMediaSource=>await AddMediaSourceAsync(Read<MediaSourceRuleDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ListMediaSources=>await _store.GetMediaSourcesAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
                 MessageTypes.DetectSavePaths=>await _detection.DetectAsync(Read<DetectionRequestDto>(request),token).ConfigureAwait(false),
@@ -165,14 +167,6 @@ public sealed class IpcRequestDispatcher
         var snapshots=versions.Select(x=>new BackupSnapshot{BackupId=x.BackupId,CreatedUtc=x.CreatedUtc,TotalBytes=x.TotalBytes,FileCount=x.FileCount,IsLocked=x.IsLocked,IsPreRestore=x.IsPreRestore,Comment=x.Comment,SourceDevice=x.SourceDevice}).ToList();
         var plan=new RetentionPlanner().CreatePlan(snapshots,new RetentionPolicy{KeepAllFor=TimeSpan.FromHours(policy.KeepRecentAllHours),KeepDailyDays=policy.KeepDailyDays,KeepWeeklyWeeks=policy.KeepWeeklyWeeks,KeepMonthlyMonths=policy.KeepMonthlyMonths},DateTime.UtcNow);
         return new RetentionPreviewDto{KeepBackupIds=plan.Keep.Select(x=>x.BackupId).ToList(),DeleteCandidateIds=plan.DeleteCandidates.Select(x=>x.BackupId).ToList(),Summary=$"建议保留 {plan.Keep.Count} 个版本；{plan.DeleteCandidates.Count} 个版本可由用户审核后清理。自动删除未启用。"};
-    }
-
-    private async Task<object> ReassignMediaAsync(ReassignMediaRequestDto request,CancellationToken token)
-    {
-        if(string.IsNullOrWhiteSpace(request.MediaId)||string.IsNullOrWhiteSpace(request.TargetPlayniteId))throw new InvalidOperationException("Media and target game are required.");
-        await _store.ReassignMediaAsync(request.MediaId,request.TargetPlayniteId,token).ConfigureAwait(false);
-        await _store.AppendAuditAsync("Media","Reassigned media",JsonSerializer.Serialize(request),token).ConfigureAwait(false);
-        return new{updated=true};
     }
 
     private async Task<object> ValidateAsync(ValidateGameRequestDto request,CancellationToken token)

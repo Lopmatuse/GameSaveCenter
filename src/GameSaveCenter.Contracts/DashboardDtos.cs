@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace GameSaveCenter.Contracts
 {
@@ -111,6 +112,23 @@ namespace GameSaveCenter.Contracts
         public bool IsFavorite { get; set; }
         public string Comment { get; set; } = string.Empty;
         public string CloudState { get; set; } = "Pending";
+        public string ClassificationState { get; set; } = "Assigned";
+        public string ClassificationReason { get; set; } = string.Empty;
         public DateTime CapturedLocal => CapturedUtc.ToLocalTime();
+        public string FileName => Path.GetFileName(string.IsNullOrWhiteSpace(OriginalPath) ? ArchivePath ?? string.Empty : OriginalPath);
+        public string SizeDisplay => FormatBytes(SizeBytes);
+        public string ClassificationStateDisplay => string.Equals(ClassificationState, "Inbox", StringComparison.OrdinalIgnoreCase)
+            ? "待归类"
+            : string.Equals(ClassificationState, "Ignored", StringComparison.OrdinalIgnoreCase)
+                ? "已忽略"
+                : "已归类";
+
+        private static string FormatBytes(long bytes)
+        {
+            if (bytes < 1024) return $"{bytes} B";
+            if (bytes < 1024L * 1024) return $"{bytes / 1024d:0.##} KiB";
+            if (bytes < 1024L * 1024 * 1024) return $"{bytes / 1024d / 1024d:0.##} MiB";
+            return $"{bytes / 1024d / 1024d / 1024d:0.##} GiB";
+        }
     }
 }

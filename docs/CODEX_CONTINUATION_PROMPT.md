@@ -33,9 +33,9 @@
 
 当前优先级：
 
-P0：在 Windows 运行 scripts/build.ps1，修复所有真实编译错误；加载到 Playnite 10；跑通 Steam 低风险游戏的备份、媒体和安全恢复测试。
+P0：在 Windows 运行 scripts/build.ps1，修复 0.4.1 所有真实编译错误；加载到 Playnite 10；先回归旧库迁移、媒体收件箱、源文件保留，再跑通 Steam 低风险游戏的备份和安全恢复测试。
 P1：实现 Worker → Playnite 持续任务事件推送与后台成功/失败通知。
-P1：为公共 Captures/Screenshots 加入会话时间窗口归类和未识别收件箱。
+P1：在 Windows 使用真实 Captures/Screenshots 调优已实现的会话窗口与全局收件箱，包括文件时间语义、大目录性能、200 项分批导入和多主题/DPI。
 P1：在 Windows 用未匹配测试游戏验证“启动前快照/退出后差异”候选闭环，并根据真实数据调优根目录、深度、扩展名和评分阈值。
 P2：生成设备状态 sidecar，并通过 Rclone 读取其他设备摘要，完成多设备冲突 UI。
 P2：增加未知进程/MOD 启动链的人工学习和持久化界面。
