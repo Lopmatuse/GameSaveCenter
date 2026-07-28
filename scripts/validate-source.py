@@ -275,10 +275,22 @@ def check_dashboard_regressions() -> None:
     dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
     if 'SelectedTask.DurationDisplay, Mode=OneWay' not in dashboard:
         fail("DurationDisplay must use OneWay binding because it is read-only")
+    for path in ROOT.joinpath("src/GameSaveCenter.Playnite").rglob("*.xaml"):
+        if any(part in {"bin", "obj"} for part in path.parts):
+            continue
+        text = path.read_text(encoding="utf-8")
+        for binding in re.findall(r'<Run\\b[^>]*\\bText="\\{Binding ([^}]*)\\}"', text):
+            if "Mode=OneWay" not in binding:
+                fail(f"Run.Text binding must explicitly use Mode=OneWay: {path.relative_to(ROOT)}: {binding}")
     if 'ItemsSource="{Binding GamesView}"' not in dashboard or 'GameSearchText' not in dashboard:
         fail("Dashboard large-library search/filter view is missing")
     if 'ProgressBar Width="120" Height="4" IsIndeterminate="{Binding IsBusy}"' in dashboard:
         fail("Dashboard still contains the always-visible idle progress frame")
+    coordinator = (ROOT / "src/GameSaveCenter.Worker/Services/GameSessionCoordinator.cs").read_text(encoding="utf-8")
+    if "Math.Max(1, policy.DuringPlayIntervalMinutes)" not in coordinator:
+        fail("During-play backup must honor the documented one-minute minimum")
+    if "TimeSpan.FromSeconds(5)" not in coordinator:
+        fail("During-play backup scheduler must check frequently enough for one-minute policies")
     if 'TextOptions.TextRenderingMode="ClearType"' not in dashboard:
         fail("Dashboard ClearType rendering guard is missing")
 

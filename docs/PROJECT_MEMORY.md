@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-28
-当前版本：`0.5.3-development-preview`
+当前版本：`0.5.4-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
@@ -24,6 +24,13 @@
 - 用户提供的 `docs/design/APPLE_WPF_IMPLEMENTATION_PROMPT.md` 是后续 UI 设计与实现的长期基准；所有新增控件和改版必须同时通过 `docs/design/UI_CHANGE_GATE.md`。
 
 ## 当前已经进入仓库的实现
+
+### 0.5.4 崩溃防护与游玩中备份
+
+- WPF `Run.Text` 绑定必须显式为 OneWay，绝不能让只读 DTO 显示属性落入默认 TwoWay；否则虚拟化列表创建时会抛出 `XamlParseException` 并可能带崩 Playnite。
+- 每游戏 `DuringPlayIntervalMinutes` 的产品约定是 1–1440 分钟，UI、IPC 持久化、Worker 配置和会话调度必须完全一致。
+- 只有 Ludusavi 报告 `New` 或 `Different` 时才应新增历史；`Same` 是成功的无变化备份，不得伪造新版本。
+- Backup 任务必须携带用户可见的触发来源（手动、游玩中定时、退出后），否则用户无法区分“未触发”和“成功但无变化”。
 
 ### 0.5.3 紧凑布局与表格可用性修复
 

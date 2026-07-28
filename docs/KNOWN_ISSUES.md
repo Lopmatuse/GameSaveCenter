@@ -1,7 +1,7 @@
 # 已知缺陷与回归状态
 
 更新时间：2026-07-28
-目标版本：`0.5.3-development-preview`
+目标版本：`0.5.4-development-preview`
 
 本文档是持续缺陷台账。任何修复必须同步更新 `DEVELOPMENT_PROGRESS.md` 与 `PROJECT_MEMORY.md`。
 
@@ -37,6 +37,8 @@
 | GSC-050 | 自定义横向滚动条 Thumb 显示为错误的小方块 | 已修复待 Playnite 回归 | `PART_Track` 绑定视口和范围；水平/垂直方向使用独立尺寸与翻页命令 |
 | GSC-051 | 媒体页的自动行挤压两个 DataGrid，导致仅显示一行或底边裁切 | 已修复待 Playnite 回归 | 局部纵向滚动；两个表格各保留约四行高度 |
 | GSC-052 | FLiNG 搜索结果与可下载版本列表未自动联动 | 已修复待 Playnite 回归 | 搜索完成和选中目录项后自动请求版本列表 |
+| GSC-053 | 点击修改器已安装列表触发只读属性 TwoWay 绑定闪退 | 已修复待 Playnite 回归 | `Run.Text` 全部显式 OneWay；点击已安装、FLiNG 搜索和版本列表均无 `XamlParseException` |
+| GSC-054 | 游玩中备份输入 1 分钟却被 Worker 静默延长为 5 分钟 | 已修复待真机回归 | 1 分钟策略在游戏持续运行约 60–65 秒后创建或报告 Same；Worker 日志记录调度 |
 
 ## 当前安全边界
 

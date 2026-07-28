@@ -46,6 +46,7 @@ public sealed class BackupOrchestrator
         }
 
         var results = new List<TaskStatusDto>();
+        var requestLabel = GetRequestLabel(request.Reason);
         foreach (var game in games)
         {
             if (!_ludusavi.IsAvailable)
@@ -85,7 +86,7 @@ public sealed class BackupOrchestrator
                 game.Name,
                 async (progress, ct) =>
                 {
-                    await progress.ReportAsync(10, "正在扫描存档").ConfigureAwait(false);
+                    await progress.ReportAsync(10, $"{requestLabel}：正在扫描存档").ConfigureAwait(false);
                     var operation = await _ludusavi
                         .BackupAsync(new[] { match.Name }, request.Force, false, ct)
                         .ConfigureAwait(false);
@@ -129,7 +130,7 @@ public sealed class BackupOrchestrator
                         }),
                         ct).ConfigureAwait(false);
 
-                    await progress.ReportAsync(55, "正在校验备份摘要").ConfigureAwait(false);
+                    await progress.ReportAsync(55, $"{requestLabel}：正在校验备份摘要").ConfigureAwait(false);
                     var now = DateTime.UtcNow;
                     var snapshot = LudusaviResultParser.ParseOperationSnapshot(
                         operation.Json.Value,
@@ -164,7 +165,7 @@ public sealed class BackupOrchestrator
                             ct).ConfigureAwait(false);
                     }
 
-                    await progress.ReportAsync(70, "正在索引历史版本").ConfigureAwait(false);
+                    await progress.ReportAsync(70, $"{requestLabel}：正在索引历史版本").ConfigureAwait(false);
                     await RefreshBackupHistoryAsync(game.PlayniteId, match.Name, ct).ConfigureAwait(false);
 
                     var indexed = (await _store.GetBackupVersionsAsync(game.PlayniteId, ct).ConfigureAwait(false))
@@ -186,7 +187,7 @@ public sealed class BackupOrchestrator
                     var policy = await _store.GetPolicyAsync(game.PlayniteId, ct).ConfigureAwait(false);
                     if (_options.EnableCloudUpload && policy.UploadAfterBackup && _rclone.IsConfigured)
                     {
-                        await progress.ReportAsync(82, "正在复制到云端").ConfigureAwait(false);
+                        await progress.ReportAsync(82, $"{requestLabel}：正在复制到云端").ConfigureAwait(false);
                         var cloud = await _rclone
                             .CopyAsync(_options.LudusaviBackupDirectory, Path.Combine(Environment.MachineName, "Saves"), ct)
                             .ConfigureAwait(false);
@@ -208,7 +209,7 @@ public sealed class BackupOrchestrator
                         "Same" => "存档无变化，历史未新增",
                         _ => "备份完成"
                     };
-                    await progress.ReportAsync(100, completion).ConfigureAwait(false);
+                    await progress.ReportAsync(100, $"{requestLabel}：{completion}").ConfigureAwait(false);
                 },
                 token).ConfigureAwait(false));
         }
@@ -279,4 +280,13 @@ public sealed class BackupOrchestrator
             result.RawOutput
         });
     }
+
+    private static string GetRequestLabel(string? reason) => reason switch
+    {
+        "DuringPlay" => "游玩中定时备份",
+        "GameStopped" => "退出后自动备份",
+        "ManualAll" => "全部手动备份",
+        "Manual" => "手动备份",
+        _ => "备份"
+    };
 }

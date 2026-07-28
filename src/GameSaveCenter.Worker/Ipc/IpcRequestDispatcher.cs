@@ -145,6 +145,8 @@ public sealed class IpcRequestDispatcher
 
     private async Task<object> UpdatePolicyAsync(GamePolicyUpdateDto update,CancellationToken token)
     {
+        update.Policy ??= new BackupPolicyDto();
+        update.Policy.DuringPlayIntervalMinutes = Math.Clamp(update.Policy.DuringPlayIntervalMinutes, 1, 1440);
         await _store.SetPolicyAsync(update.PlayniteId,update.Policy,token).ConfigureAwait(false);
         await _store.AppendAuditAsync("Policy","Updated game policy",JsonSerializer.Serialize(new{update.PlayniteId,update.Policy}),token).ConfigureAwait(false);
         return new{updated=true};

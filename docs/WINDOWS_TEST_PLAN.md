@@ -11,6 +11,13 @@
 - [ ] `scripts/package.ps1` 生成 Worker 与扩展目录。
 - [ ] Playnite 启动后插件无加载错误。
 
+## 0.5.4 崩溃与游玩中备份回归
+
+- [ ] 安装后确认扩展管理器和 `extension.yaml` 为 `0.5.4`，主 DLL 为 `0.5.4.0`。
+- [ ] 下载或导入修改器后点击“已安装”、切换 FLiNG 搜索结果和可下载版本；`extensions.log` 不得出现 `GameToolDto.TypeDisplay` 或只读属性的 TwoWay `XamlParseException`。
+- [ ] 为一个可测试且已匹配 Ludusavi 的游戏启用“游玩中备份”，间隔设为 1 分钟并保存；保持游戏会话至少 70 秒。Worker 日志应先记录 1 分钟计划，再记录 timed backup；无变化时任务应成功显示“游玩中定时备份：存档无变化，历史未新增”。
+- [ ] 关闭游戏后确认退出后备份仍独立执行；不要将 Playnite 对极短进程的 0 秒停止事件误判为一分钟定时备份失败。
+
 ## 0.5.3 紧凑模式、滚动条与媒体/FLiNG 回归
 
 - [x] Release 构建、12 项 Core 测试及源码门禁通过；开发安装目录已核验 `extension.yaml 0.5.3`、DLL `0.5.3.0`。

@@ -78,8 +78,8 @@ namespace GameSaveCenter.Playnite.Settings
                 errors.Add("Ludusavi 路径不存在。");
             if (!string.IsNullOrWhiteSpace(RcloneExecutable) && !File.Exists(Environment.ExpandEnvironmentVariables(RcloneExecutable)))
                 errors.Add("Rclone 路径不存在。");
-            if (DefaultBackupIntervalMinutes < 5 || DefaultBackupIntervalMinutes > 1440)
-                errors.Add("定时备份间隔必须为 5–1440 分钟。");
+            if (DefaultBackupIntervalMinutes < 1 || DefaultBackupIntervalMinutes > 1440)
+                errors.Add("定时备份间隔必须为 1–1440 分钟。");
             if (ProcessPollingSeconds < 2 || ProcessPollingSeconds > 60)
                 errors.Add("进程检测间隔必须为 2–60 秒。");
             if (DashboardRefreshSeconds < 5 || DashboardRefreshSeconds > 300)

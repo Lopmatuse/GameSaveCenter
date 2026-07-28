@@ -36,11 +36,12 @@ public sealed class GameSessionCoordinator : BackgroundService
         incoming.SessionId=string.IsNullOrWhiteSpace(incoming.SessionId)?Guid.NewGuid().ToString("N"):incoming.SessionId;
         incoming.StartedUtc=incoming.StartedUtc==default?DateTime.UtcNow:incoming.StartedUtc.ToUniversalTime();
         var policy=await _store.GetPolicyAsync(incoming.PlayniteId,token).ConfigureAwait(false);
-        var active=new ActiveSession(incoming,DateTime.UtcNow.AddMinutes(Math.Max(5,policy.DuringPlayIntervalMinutes)));
+        var intervalMinutes = Math.Max(1, policy.DuringPlayIntervalMinutes);
+        var active=new ActiveSession(incoming,DateTime.UtcNow.AddMinutes(intervalMinutes));
         _active[incoming.PlayniteId]=active;await _store.AddSessionAsync(incoming,token).ConfigureAwait(false);
         _detection.BeginSessionCapture(incoming);
         _=RunSafeAsync(()=>_gameTools.StartAutomaticAsync(incoming,CancellationToken.None),"automatic game tools",incoming.GameName);
-        _logger.LogInformation("Session started for {Game} from {Source}",incoming.GameName,incoming.Source);return incoming;
+        _logger.LogInformation("Session started for {Game} from {Source}; timed backup is scheduled every {IntervalMinutes} minute(s)",incoming.GameName,incoming.Source,intervalMinutes);return incoming;
     }
 
     public async Task StopAsync(GameSessionEventDto incoming,CancellationToken token)
@@ -67,12 +68,15 @@ public sealed class GameSessionCoordinator : BackgroundService
             {
                 var policy=await _store.GetPolicyAsync(pair.Key,stoppingToken).ConfigureAwait(false);
                 if(!policy.Enabled||!policy.BackupDuringPlay||DateTime.UtcNow<pair.Value.NextBackupUtc)continue;
-                pair.Value.NextBackupUtc=DateTime.UtcNow.AddMinutes(Math.Max(5,policy.DuringPlayIntervalMinutes));
+                var intervalMinutes = Math.Max(1, policy.DuringPlayIntervalMinutes);
+                pair.Value.NextBackupUtc=DateTime.UtcNow.AddMinutes(intervalMinutes);
+                _logger.LogInformation("Starting timed backup for {Game}; next timed backup is scheduled in {IntervalMinutes} minute(s)", pair.Value.Event.GameName, intervalMinutes);
                 _=RunSafeAsync(()=>_backup.BackupAsync(new BackupRequestDto{PlayniteIds=new(){pair.Key},Force=true,Reason="DuringPlay",SessionId=pair.Value.Event.SessionId},CancellationToken.None),"timed backup",pair.Value.Event.GameName);
                 if(policy.SyncMediaDuringPlay)
                     _=RunSafeAsync(()=>_media.SyncAsync(new MediaSyncRequestDto{PlayniteIds=new(){pair.Key},SessionId=pair.Value.Event.SessionId,UploadAfterSync=false},CancellationToken.None),"timed media sync",pair.Value.Event.GameName);
             }
-            await Task.Delay(TimeSpan.FromSeconds(20),stoppingToken).ConfigureAwait(false);
+            // Keep a one-minute policy reasonably precise without running any file work on this loop.
+            await Task.Delay(TimeSpan.FromSeconds(5),stoppingToken).ConfigureAwait(false);
         }
     }
 

@@ -55,7 +55,7 @@ public sealed class WorkerOptions
         RcloneDestination = settings.RcloneDestination ?? string.Empty;
         MediaArchiveDirectory = Expand(settings.MediaArchiveDirectory);
         ProcessPollingSeconds = Math.Clamp(settings.ProcessPollingSeconds, 2, 60);
-        DefaultBackupIntervalMinutes = Math.Clamp(settings.DefaultBackupIntervalMinutes, 5, 1440);
+        DefaultBackupIntervalMinutes = Math.Clamp(settings.DefaultBackupIntervalMinutes, 1, 1440);
         EnableProcessDetection = settings.EnableProcessDetection;
         EnableSessionSavePathDetection = settings.EnableSessionSavePathDetection;
         EnableMediaSync = settings.EnableMediaSync;
@@ -98,7 +98,7 @@ public sealed class WorkerOptions
         RcloneDestination = Environment.ExpandEnvironmentVariables(RcloneDestination ?? string.Empty);
         MediaArchiveDirectory = Expand(MediaArchiveDirectory);
         ProcessPollingSeconds = Math.Clamp(ProcessPollingSeconds, 2, 60);
-        DefaultBackupIntervalMinutes = Math.Clamp(DefaultBackupIntervalMinutes, 5, 1440);
+        DefaultBackupIntervalMinutes = Math.Clamp(DefaultBackupIntervalMinutes, 1, 1440);
         Compression = NormalizeCompression(Compression);
         CompressionLevel = Math.Clamp(CompressionLevel, -7, 22);
         FullBackupLimit = Math.Clamp(FullBackupLimit, 1, 255);
