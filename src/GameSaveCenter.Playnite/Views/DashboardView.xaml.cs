@@ -162,6 +162,7 @@ namespace GameSaveCenter.Playnite.Views
             }
             UpdateWorkspacePresentation();
             ApplyResponsiveLayout(ActualWidth, ActualHeight);
+            viewModel.RequestWorkspaceLoad();
             AnimateElement(DetailsTabControl, 10, 0, 0.2);
         }
 

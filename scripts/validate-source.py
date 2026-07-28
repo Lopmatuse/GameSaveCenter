@@ -473,6 +473,29 @@ def check_windows_launchers() -> None:
     elif not runner.read_bytes().startswith(b"\xef\xbb\xbf"):
         fail("scripts/dev-install-run.ps1 must include a UTF-8 BOM for Windows PowerShell 5.1")
 
+def check_large_library_performance_guards() -> None:
+    plugin = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenterPlugin.cs").read_text(encoding="utf-8")
+    view_model = (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8")
+    catalog = (ROOT / "src/GameSaveCenter.Worker/Services/GameCatalogService.cs").read_text(encoding="utf-8")
+    dashboard = (ROOT / "src/GameSaveCenter.Worker/Services/DashboardService.cs").read_text(encoding="utf-8")
+    dispatcher = (ROOT / "src/GameSaveCenter.Worker/Ipc/IpcRequestDispatcher.cs").read_text(encoding="utf-8")
+    store = (ROOT / "src/GameSaveCenter.Worker/Persistence/SqliteStateStore.cs").read_text(encoding="utf-8")
+
+    for token in ("lastSynchronizedLibraryFingerprint", "CreateLibraryFingerprint", "TimeSpan.FromMinutes(5)"):
+        if token not in plugin:
+            fail(f"Library synchronization de-duplication guard missing: {token}")
+    for token in ("GetGameMatchCacheAsync", "GameMatchInput.CreateHash", "retryBefore"):
+        if token not in catalog:
+            fail(f"Incremental Ludusavi matching guard missing: {token}")
+    if "_store.GetBackupVersionsAsync" in dashboard or "_store.GetMediaAsync" in dashboard or "_store.GetPolicyAsync" in dashboard:
+        fail("DashboardService must use aggregate records instead of per-game N+1 queries")
+    if "GetDashboardGameRecordsAsync" not in dashboard or "GROUP BY playnite_id" not in store:
+        fail("Dashboard aggregate query guard is missing")
+    if "RefreshCoreAsync(false)" not in view_model or "IsGameScopedWorkspace" not in view_model:
+        fail("Dashboard must render cached state first and lazy-load the active workspace")
+    if "(query.ForceRefresh || cached.Count == 0)" not in dispatcher:
+        fail("Backup history must remain cache-first unless explicitly refreshed")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -487,12 +510,13 @@ def main() -> int:
     check_media_sql_migration()
     check_game_tools_guards()
     check_windows_launchers()
+    check_large_library_performance_guards()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:
             print(f" - {item}")
         return 1
-    print("Source validation passed: JSON/XML/YAML, XAML semantics/resources, C# delimiters, solution, IPC constants, version consistency, delivery guards, media/game-tool SQLite guards and Windows launchers.")
+    print("Source validation passed: JSON/XML/YAML, XAML semantics/resources, C# delimiters, solution, IPC constants, version consistency, delivery guards, media/game-tool SQLite guards, large-library performance guards and Windows launchers.")
     print("Note: this does not replace dotnet build/test on Windows with Playnite installed.")
     return 0
 

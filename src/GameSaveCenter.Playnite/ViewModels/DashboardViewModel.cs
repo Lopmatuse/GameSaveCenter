@@ -77,7 +77,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             ValidateCommand = new RelayCommand(_ => Run(ValidateAsync), _ => !IsBusy && SelectedGame != null && SelectedGame.LudusaviMatched);
             RestoreCommand = new RelayCommand(_ => Run(RestoreAsync), _ => !IsBusy && SelectedGame != null && SelectedBackup != null && Snapshot.LudusaviAvailable);
             UndoRestoreCommand = new RelayCommand(_ => Run(UndoRestoreAsync), _ => !IsBusy && SelectedGame != null && Backups.Any(x => x.IsPreRestore));
-            LoadDetailsCommand = new RelayCommand(_ => Run(LoadDetailsAsync), _ => !IsBusy && SelectedGame != null);
+            LoadDetailsCommand = new RelayCommand(_ => Run(() => LoadDetailsAsync(true)), _ => !IsBusy && SelectedGame != null);
             SavePolicyCommand = new RelayCommand(_ => Run(SavePolicyAsync), _ => !IsBusy && SelectedGame != null);
             UpdateBackupMetadataCommand = new RelayCommand(_ => Run(UpdateBackupMetadataAsync), _ => !IsBusy && SelectedGame != null && SelectedBackup != null);
             CompareBackupCommand = new RelayCommand(_ => Run(CompareBackupAsync), _ => !IsBusy && SelectedGame != null && SelectedBackup != null && Backups.IndexOf(SelectedBackup) >= 0 && Backups.IndexOf(SelectedBackup) + 1 < Backups.Count);
@@ -108,7 +108,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             SearchTrainerCatalogCommand = new RelayCommand(_ => Run(SearchTrainerCatalogAsync), _ => !IsBusy);
             LoadTrainerReleasesCommand = new RelayCommand(_ => Run(LoadTrainerReleasesAsync), _ => !IsBusy && SelectedTrainerCatalogItem != null);
             DownloadTrainerCommand = new RelayCommand(_ => Run(DownloadTrainerAsync), _ => !IsBusy && SelectedGame != null && SelectedTrainerRelease != null);
-            Run(RefreshAsync);
+            Run(InitializeAsync);
         }
 
         public ObservableCollection<GameStatusDto> Games { get; } = new ObservableCollection<GameStatusDto>();
@@ -247,8 +247,8 @@ namespace GameSaveCenter.Playnite.ViewModels
                 SetValue(ref selectedGame, value);
                 RaiseCommandStates();
                 if (suppressSelectionLoad) return;
-                if (value != null) Run(LoadDetailsAsync);
-                else ClearSelectedGameDetails();
+                ClearSelectedGameDetails();
+                if (value != null && IsGameScopedWorkspace(CurrentWorkspace)) Run(() => LoadDetailsAsync());
             }
         }
         public BackupVersionDto SelectedBackup
@@ -369,6 +369,27 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         public Task RefreshAsync() => RefreshCoreAsync(true);
 
+        private async Task InitializeAsync()
+        {
+            // Render durable SQLite state first. The library synchronization runs separately, so
+            // opening the panel never waits for a large Playnite library to be rematched.
+            await RefreshCoreAsync(false);
+            RefreshAfterSynchronization();
+        }
+
+        private async void RefreshAfterSynchronization()
+        {
+            try
+            {
+                await plugin.SynchronizeAsync();
+                await RefreshDashboardAsync(false, false);
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "已显示本地缓存；后台同步暂不可用：" + ex.Message;
+            }
+        }
+
         /// <summary>Lightweight polling entry used by the view timer. It remains active while a manual task is running.</summary>
         public async void RequestBackgroundRefresh()
         {
@@ -378,7 +399,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             {
                 await plugin.EnsureWorkerAsync();
                 var refreshDetails = await RefreshDashboardAsync(false, true);
-                await LoadInboxAsync();
+                if (CurrentWorkspace == WorkspaceKind.Media) await LoadInboxAsync();
                 if (refreshDetails && !IsBusy && SelectedGame != null) await LoadDetailsAsync();
             }
             catch (Exception ex)
@@ -393,11 +414,11 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         private async Task RefreshCoreAsync(bool synchronize)
         {
-            StatusMessage = synchronize ? "正在同步设置、游戏库与存档状态…" : "正在刷新状态…";
+            StatusMessage = synchronize ? "正在同步设置与游戏库…" : "正在读取本地状态…";
             await RefreshDashboardAsync(synchronize, false);
-            await LoadInboxAsync();
-            await LoadDiagnosticsAsync();
-            if (SelectedGame != null) await LoadDetailsAsync();
+            if (CurrentWorkspace == WorkspaceKind.Media) await LoadInboxAsync();
+            if (CurrentWorkspace == WorkspaceKind.Maintenance) await LoadDiagnosticsAsync();
+            if (SelectedGame != null && IsGameScopedWorkspace(CurrentWorkspace)) await LoadDetailsAsync();
             else ClearSelectedGameDetails();
         }
 
@@ -472,35 +493,81 @@ namespace GameSaveCenter.Playnite.ViewModels
             StatusMessage = "诊断信息已更新";
         }
 
-        private async Task LoadDetailsAsync()
+        private async Task LoadDetailsAsync(bool forceBackupHistory = false)
         {
             if (SelectedGame == null) return;
             var id = SelectedGame.PlayniteId;
-            var backups = await plugin.RequestAsync<BackupVersionDto[]>(MessageTypes.ListBackups, new GameQueryDto { PlayniteId = id, Limit = 500 });
-            var media = await plugin.RequestAsync<MediaItemDto[]>(MessageTypes.ListMedia, new GameQueryDto { PlayniteId = id, Limit = 1000 });
-            var mediaSources = await plugin.RequestAsync<MediaSourceRuleDto[]>(MessageTypes.ListMediaSources, new GameQueryDto { PlayniteId = id });
-            var saveCandidates = await plugin.RequestAsync<SavePathCandidateDto[]>(MessageTypes.ListSaveCandidates, new GameQueryDto { PlayniteId = id });
-            var gameTools = await plugin.RequestAsync<GameToolDto[]>(MessageTypes.ListGameTools, new GameQueryDto { PlayniteId = id });
-            ApplyOnUi(() =>
+            switch (CurrentWorkspace)
             {
-                if (SelectedGame == null || !string.Equals(SelectedGame.PlayniteId, id, StringComparison.OrdinalIgnoreCase)) return;
-                Replace(Backups, backups);
-                Replace(Media, media);
-                Replace(MediaSources, mediaSources);
-                Replace(SaveCandidates, saveCandidates);
-                var selectedToolId=SelectedGameTool?.ToolId;
-                Replace(GameTools,gameTools);
-                SelectedGameTool=GameTools.FirstOrDefault(x=>string.Equals(x.ToolId,selectedToolId,StringComparison.OrdinalIgnoreCase))
-                                 ??GameTools.FirstOrDefault();
-                SelectedBackup = Backups.FirstOrDefault();
-                SelectedCandidate = SaveCandidates.FirstOrDefault(x => string.Equals(x.Status, "Pending", StringComparison.OrdinalIgnoreCase))
-                                    ?? SaveCandidates.FirstOrDefault();
-                MediaTargetGame = Games.FirstOrDefault(x => string.Equals(x.PlayniteId, MediaTargetGame?.PlayniteId, StringComparison.OrdinalIgnoreCase))
-                                  ?? SelectedGame
-                                  ?? Games.FirstOrDefault();
-                RaiseCommandStates();
-            });
+                case WorkspaceKind.Saves:
+                {
+                    var backupsTask = plugin.RequestAsync<BackupVersionDto[]>(MessageTypes.ListBackups, new GameQueryDto { PlayniteId = id, Limit = 500, ForceRefresh = forceBackupHistory });
+                    var candidatesTask = plugin.RequestAsync<SavePathCandidateDto[]>(MessageTypes.ListSaveCandidates, new GameQueryDto { PlayniteId = id });
+                    await Task.WhenAll(backupsTask, candidatesTask);
+                    ApplyOnUi(() =>
+                    {
+                        if (!IsSelectedGame(id)) return;
+                        Replace(Backups, backupsTask.Result);
+                        Replace(SaveCandidates, candidatesTask.Result);
+                        SelectedBackup = Backups.FirstOrDefault();
+                        SelectedCandidate = SaveCandidates.FirstOrDefault(x => string.Equals(x.Status, "Pending", StringComparison.OrdinalIgnoreCase))
+                                            ?? SaveCandidates.FirstOrDefault();
+                        RaiseCommandStates();
+                    });
+                    break;
+                }
+                case WorkspaceKind.Media:
+                {
+                    var mediaTask = plugin.RequestAsync<MediaItemDto[]>(MessageTypes.ListMedia, new GameQueryDto { PlayniteId = id, Limit = 1000 });
+                    var sourcesTask = plugin.RequestAsync<MediaSourceRuleDto[]>(MessageTypes.ListMediaSources, new GameQueryDto { PlayniteId = id });
+                    await Task.WhenAll(mediaTask, sourcesTask);
+                    ApplyOnUi(() =>
+                    {
+                        if (!IsSelectedGame(id)) return;
+                        Replace(Media, mediaTask.Result);
+                        Replace(MediaSources, sourcesTask.Result);
+                        MediaTargetGame = Games.FirstOrDefault(x => string.Equals(x.PlayniteId, MediaTargetGame?.PlayniteId, StringComparison.OrdinalIgnoreCase))
+                                          ?? SelectedGame
+                                          ?? Games.FirstOrDefault();
+                        RaiseCommandStates();
+                    });
+                    break;
+                }
+                case WorkspaceKind.Trainers:
+                {
+                    var gameTools = await plugin.RequestAsync<GameToolDto[]>(MessageTypes.ListGameTools, new GameQueryDto { PlayniteId = id });
+                    ApplyOnUi(() =>
+                    {
+                        if (!IsSelectedGame(id)) return;
+                        var selectedToolId = SelectedGameTool?.ToolId;
+                        Replace(GameTools, gameTools);
+                        SelectedGameTool = GameTools.FirstOrDefault(x => string.Equals(x.ToolId, selectedToolId, StringComparison.OrdinalIgnoreCase))
+                                           ?? GameTools.FirstOrDefault();
+                        RaiseCommandStates();
+                    });
+                    break;
+                }
+            }
         }
+
+        public void RequestWorkspaceLoad()
+        {
+            if (CurrentWorkspace == WorkspaceKind.Media) Run(LoadMediaWorkspaceAsync);
+            else if (CurrentWorkspace == WorkspaceKind.Maintenance) Run(LoadDiagnosticsAsync);
+            else if (IsGameScopedWorkspace(CurrentWorkspace)) Run(() => LoadDetailsAsync());
+        }
+
+        private async Task LoadMediaWorkspaceAsync()
+        {
+            await LoadInboxAsync();
+            if (SelectedGame != null) await LoadDetailsAsync();
+        }
+
+        private bool IsSelectedGame(string playniteId)
+            => SelectedGame != null && string.Equals(SelectedGame.PlayniteId, playniteId, StringComparison.OrdinalIgnoreCase);
+
+        private static bool IsGameScopedWorkspace(WorkspaceKind workspace)
+            => workspace == WorkspaceKind.Saves || workspace == WorkspaceKind.Trainers || workspace == WorkspaceKind.Media;
 
         private async Task LoadInboxAsync()
         {
@@ -1063,7 +1130,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             suppressSelectionLoad = true;
             try { SelectedGame = GamesView.Cast<GameStatusDto>().FirstOrDefault(); }
             finally { suppressSelectionLoad = false; }
-            if (SelectedGame != null) Run(LoadDetailsAsync);
+            if (SelectedGame != null) Run(() => LoadDetailsAsync());
             else ClearSelectedGameDetails();
         }
 

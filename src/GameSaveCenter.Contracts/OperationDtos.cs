@@ -185,6 +185,7 @@ namespace GameSaveCenter.Contracts
     {
         public string PlayniteId { get; set; } = string.Empty;
         public int Limit { get; set; } = 200;
+        public bool ForceRefresh { get; set; }
     }
 
     /// <summary>Request to cancel a background task.</summary>

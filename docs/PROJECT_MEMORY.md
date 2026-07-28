@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-28
-当前版本：`0.5.6-development-preview`
+当前版本：`0.5.7-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
@@ -24,6 +24,14 @@
 - 用户提供的 `docs/design/APPLE_WPF_IMPLEMENTATION_PROMPT.md` 是后续 UI 设计与实现的长期基准；所有新增控件和改版必须同时通过 `docs/design/UI_CHANGE_GATE.md`。
 
 ## 当前已经进入仓库的实现
+
+### 0.5.7 大型游戏库缓存优先
+
+- Dashboard 打开时必须先展示 SQLite 持久化快照，不得等待 Playnite 全库同步或 Ludusavi 逐游戏匹配完成。
+- 相同游戏库同步请求按指纹合并；Worker 只对新增、匹配输入变化或超过七天冷却期的未匹配游戏调用 Ludusavi。
+- Dashboard 游戏摘要必须使用批量聚合 SQL，禁止为每款游戏分别读取完整备份、媒体和策略。
+- 备份历史默认读取 SQLite 索引；缓存为空、用户显式刷新或真实备份/恢复完成时才与 Ludusavi 校准。
+- 详情按当前一级工作区懒加载，Ludusavi 版本在 Worker 内缓存六小时。
 
 ### 0.5.6 UI 设计系统收口
 

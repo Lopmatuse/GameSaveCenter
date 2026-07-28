@@ -19,27 +19,56 @@ public sealed class GameCatalogService
     public async Task UpsertAndMatchAsync(IEnumerable<GameDescriptorDto> games,CancellationToken token)
     {
         var list=games.Where(x=>!string.IsNullOrWhiteSpace(x.PlayniteId)).ToList();
-        await _store.UpsertGamesAsync(list,token).ConfigureAwait(false);
-        if(!_ludusavi.IsAvailable) return;
+        var cached=await _store.GetGameMatchCacheAsync(token).ConfigureAwait(false);
+        var now=DateTime.UtcNow;
+        var retryBefore=now.AddDays(-7);
+        var pending=new List<(GameDescriptorDto Game,string InputHash)>();
         foreach(var game in list)
         {
+            var inputHash=GameMatchInput.CreateHash(game);
+            if(!cached.TryGetValue(game.PlayniteId,out var previous))
+            {
+                pending.Add((game,inputHash));
+                continue;
+            }
+
+            var previousHash=string.IsNullOrWhiteSpace(previous.MatchInputHash)
+                ? GameMatchInput.CreateHash(previous.Descriptor)
+                : previous.MatchInputHash;
+            var inputChanged=!string.Equals(previousHash,inputHash,StringComparison.Ordinal);
+            var unmatchedRetryDue=string.IsNullOrWhiteSpace(previous.LudusaviName)
+                                  && previous.LastMatchAttemptUtc.HasValue
+                                  && previous.LastMatchAttemptUtc.Value<=retryBefore;
+            if(inputChanged||unmatchedRetryDue) pending.Add((game,inputHash));
+        }
+
+        await _store.UpsertGamesAsync(list,token).ConfigureAwait(false);
+        if(!_ludusavi.IsAvailable||pending.Count==0) return;
+        _logger.LogInformation(
+            "Ludusavi matching {PendingCount} changed or new games; {CachedCount} cached descriptors were reused.",
+            pending.Count,
+            list.Count-pending.Count);
+        foreach(var item in pending)
+        {
+            var game=item.Game;
             try
             {
                 var result=await _ludusavi.FindAsync(game.Name,game.PlatformGameId,game.Platform==GamePlatformKind.Steam,game.Platform==GamePlatformKind.Gog,token).ConfigureAwait(false);
                 if(!result.Success)
                 {
-                    await _store.SetGameMatchAsync(game.PlayniteId,string.Empty,0,token).ConfigureAwait(false);
+                    await _store.SetGameMatchAsync(game.PlayniteId,string.Empty,0,item.InputHash,token).ConfigureAwait(false);
                     await _store.AppendAuditAsync("LudusaviMatch",$"匹配失败：{game.Name}",JsonSerializer.Serialize(new{result.ErrorCode,result.ErrorMessage,result.ExitCode,result.RawOutput}),token).ConfigureAwait(false);
                     continue;
                 }
                 var match=ExtractBestFindMatch(result.Json);
-                await _store.SetGameMatchAsync(game.PlayniteId,match.Name,match.Score,token).ConfigureAwait(false);
+                await _store.SetGameMatchAsync(game.PlayniteId,match.Name,match.Score,item.InputHash,token).ConfigureAwait(false);
                 if(match.Name.Length==0)
                     await _store.AppendAuditAsync("LudusaviMatch",$"未找到匹配：{game.Name}",result.Json?.GetRawText()??"{}",token).ConfigureAwait(false);
             }
             catch(Exception ex)
             {
                 _logger.LogWarning(ex,"Could not match {Game}",game.Name);
+                await _store.SetGameMatchAsync(game.PlayniteId,string.Empty,0,item.InputHash,token).ConfigureAwait(false);
                 await _store.AppendAuditAsync("LudusaviMatch",$"匹配异常：{game.Name}",JsonSerializer.Serialize(new{error=ex.Message}),token).ConfigureAwait(false);
             }
         }

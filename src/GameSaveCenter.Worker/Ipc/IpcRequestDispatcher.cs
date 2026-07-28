@@ -106,10 +106,12 @@ public sealed class IpcRequestDispatcher
     {
         if (string.IsNullOrWhiteSpace(query.PlayniteId)) return new List<BackupVersionDto>();
 
-        // The database is only an index. Reconcile it with Ludusavi whenever the UI opens a
-        // game's history so a completed backup can never remain invisible because of stale state.
+        var cached = await _store.GetBackupVersionsAsync(query.PlayniteId, token).ConfigureAwait(false);
+
+        // Cached history is the normal read path. Reconcile only when the cache is empty or the
+        // caller explicitly asks for disk refresh; successful backup/restore tasks already update it.
         Exception? reconcileError = null;
-        if (_ludusavi.IsAvailable)
+        if (_ludusavi.IsAvailable && (query.ForceRefresh || cached.Count == 0))
         {
             try
             {
@@ -131,7 +133,8 @@ public sealed class IpcRequestDispatcher
             }
         }
 
-        var cached = await _store.GetBackupVersionsAsync(query.PlayniteId, token).ConfigureAwait(false);
+        if (query.ForceRefresh || cached.Count == 0)
+            cached = await _store.GetBackupVersionsAsync(query.PlayniteId, token).ConfigureAwait(false);
         if (cached.Count == 0 && reconcileError != null)
         {
             throw new WorkerOperationException(

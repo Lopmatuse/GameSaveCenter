@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.5.1-development-preview`。** 0.5.1 修复跨机器源码包使用旧 NuGet assets 时一键构建在 clean 阶段报 `NETSDK1064` 的问题；修改器中心仍包含每游戏多修改器/多 CT、本地导入、独立自动启动策略和应用内 FLiNG 目录。Release 编译与 Core 测试已通过；Playnite 真机导入、FLiNG 实际下载、杀毒软件行为和游戏生命周期仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 回归。
+> **当前状态：`0.5.7-development-preview`。** 管理面板采用 SQLite 缓存优先、增量 Ludusavi 匹配、聚合摘要查询和按工作区懒加载，重点改善约 1000 款游戏库的首次打开与重复刷新。Release 编译与 Core 测试需持续通过；大型游戏库耗时、Playnite 交互、真实备份恢复与 FLiNG 下载仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 回归。
 
 ## 核心原则
 

@@ -4,6 +4,8 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Controls;
@@ -32,6 +34,8 @@ namespace GameSaveCenter.Playnite
         private Timer? taskNotificationTimer;
         private DateTime taskNotificationMonitorStartedUtc;
         private bool taskNotificationSnapshotInitialized;
+        private string lastSynchronizedLibraryFingerprint = string.Empty;
+        private DateTime lastLibrarySynchronizationUtc = DateTime.MinValue;
 
         public GameSaveCenterPlugin(IPlayniteAPI api) : base(api)
         {
@@ -208,16 +212,42 @@ namespace GameSaveCenter.Playnite
         {
             // Playnite's database is captured before asynchronous continuations leave the UI context.
             var games = PlayniteApi.Database.Games.Select(adapter.Convert).ToList();
+            var fingerprint = CreateLibraryFingerprint(games);
             await synchronizationGate.WaitAsync().ConfigureAwait(false);
             try
             {
                 await EnsureWorkerAsync().ConfigureAwait(false);
                 await ApplySettingsCoreAsync().ConfigureAwait(false);
+                if (string.Equals(fingerprint, lastSynchronizedLibraryFingerprint, StringComparison.Ordinal)
+                    && DateTime.UtcNow - lastLibrarySynchronizationUtc < TimeSpan.FromMinutes(5))
+                {
+                    return;
+                }
                 await RequestAsync<object>(MessageTypes.UpsertGames, games, TimeSpan.FromMinutes(5)).ConfigureAwait(false);
+                lastSynchronizedLibraryFingerprint = fingerprint;
+                lastLibrarySynchronizationUtc = DateTime.UtcNow;
             }
             finally
             {
                 synchronizationGate.Release();
+            }
+        }
+
+        private static string CreateLibraryFingerprint(IEnumerable<GameDescriptorDto> games)
+        {
+            var builder = new StringBuilder();
+            foreach (var game in games.OrderBy(x => x.PlayniteId, StringComparer.OrdinalIgnoreCase))
+            {
+                builder.Append(game.PlayniteId).Append('\u001f')
+                    .Append(game.Name).Append('\u001f')
+                    .Append((int)game.Platform).Append('\u001f')
+                    .Append(game.PlatformGameId).Append('\u001f')
+                    .Append(game.InstallDirectory).Append('\u001f')
+                    .Append(game.IsInstalled ? '1' : '0').Append('\n');
+            }
+            using (var sha = SHA256.Create())
+            {
+                return BitConverter.ToString(sha.ComputeHash(Encoding.UTF8.GetBytes(builder.ToString()))).Replace("-", string.Empty);
             }
         }
 

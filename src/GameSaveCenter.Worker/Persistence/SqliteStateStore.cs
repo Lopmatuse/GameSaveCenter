@@ -1,6 +1,7 @@
 using System.Text.Json;
 using GameSaveCenter.Contracts;
 using GameSaveCenter.Worker.Configuration;
+using GameSaveCenter.Worker.Services;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
@@ -39,6 +40,8 @@ public sealed class SqliteStateStore
         await EnsureColumnAsync(connection, "media_sources", "shared_directory", "INTEGER NOT NULL DEFAULT 0", token).ConfigureAwait(false);
         await EnsureColumnAsync(connection, "media", "classification_state", "TEXT NOT NULL DEFAULT 'Assigned'", token).ConfigureAwait(false);
         await EnsureColumnAsync(connection, "media", "classification_reason", "TEXT", token).ConfigureAwait(false);
+        await EnsureColumnAsync(connection, "games", "match_input_hash", "TEXT", token).ConfigureAwait(false);
+        await EnsureColumnAsync(connection, "games", "last_match_attempt_utc", "TEXT", token).ConfigureAwait(false);
         var normalizeMedia = connection.CreateCommand();
         normalizeMedia.CommandText = @"
 UPDATE media
@@ -342,17 +345,21 @@ CREATE INDEX IF NOT EXISTS ix_backup_versions_game_time ON backup_versions(playn
                 var command = connection.CreateCommand();
                 command.Transaction = (SqliteTransaction)transaction;
                 command.CommandText = @"
-INSERT INTO games(playnite_id, name, platform, platform_game_id, install_directory, descriptor_json, updated_utc)
-VALUES($id,$name,$platform,$platformId,$install,$json,$utc)
+INSERT INTO games(playnite_id, name, platform, platform_game_id, install_directory, descriptor_json, match_input_hash, last_match_attempt_utc, updated_utc)
+VALUES($id,$name,$platform,$platformId,$install,$json,$matchHash,$utc,$utc)
 ON CONFLICT(playnite_id) DO UPDATE SET
  name=excluded.name, platform=excluded.platform, platform_game_id=excluded.platform_game_id,
- install_directory=excluded.install_directory, descriptor_json=excluded.descriptor_json, updated_utc=excluded.updated_utc;";
+ install_directory=excluded.install_directory, descriptor_json=excluded.descriptor_json,
+ match_input_hash=CASE WHEN COALESCE(games.match_input_hash,'')='' THEN excluded.match_input_hash ELSE games.match_input_hash END,
+ last_match_attempt_utc=CASE WHEN games.last_match_attempt_utc IS NULL THEN excluded.last_match_attempt_utc ELSE games.last_match_attempt_utc END,
+ updated_utc=excluded.updated_utc;";
                 command.Parameters.AddWithValue("$id", game.PlayniteId);
                 command.Parameters.AddWithValue("$name", game.Name);
                 command.Parameters.AddWithValue("$platform", (int)game.Platform);
                 command.Parameters.AddWithValue("$platformId", game.PlatformGameId ?? string.Empty);
                 command.Parameters.AddWithValue("$install", game.InstallDirectory ?? string.Empty);
                 command.Parameters.AddWithValue("$json", JsonSerializer.Serialize(game, _json));
+                command.Parameters.AddWithValue("$matchHash", GameMatchInput.CreateHash(game));
                 command.Parameters.AddWithValue("$utc", DateTime.UtcNow.ToString("O"));
                 await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
             }
@@ -388,10 +395,37 @@ ON CONFLICT(playnite_id) DO UPDATE SET
         return value == null ? null : JsonSerializer.Deserialize<GameDescriptorDto>(value, _json);
     }
 
-    public async Task SetGameMatchAsync(string playniteId, string ludusaviName, double confidence, CancellationToken token)
+    public async Task<Dictionary<string, GameMatchCacheEntry>> GetGameMatchCacheAsync(CancellationToken token)
     {
-        await ExecuteAsync(@"UPDATE games SET ludusavi_name=$name, match_confidence=$confidence, updated_utc=$utc WHERE playnite_id=$id;",
-            new Dictionary<string, object?> { ["$id"] = playniteId, ["$name"] = ludusaviName, ["$confidence"] = confidence, ["$utc"] = DateTime.UtcNow.ToString("O") }, token).ConfigureAwait(false);
+        var result = new Dictionary<string, GameMatchCacheEntry>(StringComparer.OrdinalIgnoreCase);
+        await using var connection = Open();
+        await connection.OpenAsync(token).ConfigureAwait(false);
+        var command = connection.CreateCommand();
+        command.CommandText = @"SELECT playnite_id,descriptor_json,ludusavi_name,match_confidence,match_input_hash,last_match_attempt_utc
+FROM games;";
+        await using var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        while (await reader.ReadAsync(token).ConfigureAwait(false))
+        {
+            var descriptor = JsonSerializer.Deserialize<GameDescriptorDto>(reader.GetString(1), _json);
+            if (descriptor == null) continue;
+            result[reader.GetString(0)] = new GameMatchCacheEntry
+            {
+                Descriptor = descriptor,
+                LudusaviName = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                Confidence = reader.IsDBNull(3) ? 0 : reader.GetDouble(3),
+                MatchInputHash = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
+                LastMatchAttemptUtc = reader.IsDBNull(5) ? null : DateTime.Parse(reader.GetString(5)).ToUniversalTime()
+            };
+        }
+        return result;
+    }
+
+    public async Task SetGameMatchAsync(string playniteId, string ludusaviName, double confidence, string matchInputHash, CancellationToken token)
+    {
+        await ExecuteAsync(@"UPDATE games
+SET ludusavi_name=$name,match_confidence=$confidence,match_input_hash=$hash,last_match_attempt_utc=$utc,updated_utc=$utc
+WHERE playnite_id=$id;",
+            new Dictionary<string, object?> { ["$id"] = playniteId, ["$name"] = ludusaviName, ["$confidence"] = confidence, ["$hash"] = matchInputHash, ["$utc"] = DateTime.UtcNow.ToString("O") }, token).ConfigureAwait(false);
     }
 
     public async Task<Dictionary<string, (string Name, double Confidence)>> GetGameMatchesAsync(CancellationToken token)
@@ -416,6 +450,49 @@ ON CONFLICT(playnite_id) DO UPDATE SET
         command.Parameters.AddWithValue("$id", playniteId);
         var value = await command.ExecuteScalarAsync(token).ConfigureAwait(false) as string;
         return string.IsNullOrWhiteSpace(value) ? new BackupPolicyDto() : JsonSerializer.Deserialize<BackupPolicyDto>(value, _json) ?? new BackupPolicyDto();
+    }
+
+    public async Task<List<DashboardGameRecord>> GetDashboardGameRecordsAsync(CancellationToken token)
+    {
+        var result = new List<DashboardGameRecord>();
+        await using var connection = Open();
+        await connection.OpenAsync(token).ConfigureAwait(false);
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+SELECT g.descriptor_json,g.ludusavi_name,g.match_confidence,
+       COALESCE(b.version_count,0),b.last_backup_utc,
+       COALESCE(m.media_count,0),m.last_media_utc,p.policy_json
+FROM games g
+LEFT JOIN (
+    SELECT playnite_id,COUNT(*) AS version_count,MAX(created_utc) AS last_backup_utc
+    FROM backup_versions GROUP BY playnite_id
+) b ON b.playnite_id=g.playnite_id
+LEFT JOIN (
+    SELECT playnite_id,COUNT(*) AS media_count,MAX(captured_utc) AS last_media_utc
+    FROM media WHERE classification_state='Assigned' GROUP BY playnite_id
+) m ON m.playnite_id=g.playnite_id
+LEFT JOIN game_policies p ON p.playnite_id=g.playnite_id
+ORDER BY g.name COLLATE NOCASE;";
+        await using var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        while (await reader.ReadAsync(token).ConfigureAwait(false))
+        {
+            var descriptor = JsonSerializer.Deserialize<GameDescriptorDto>(reader.GetString(0), _json);
+            if (descriptor == null) continue;
+            result.Add(new DashboardGameRecord
+            {
+                Descriptor = descriptor,
+                LudusaviName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                MatchConfidence = reader.IsDBNull(2) ? 0 : reader.GetDouble(2),
+                BackupVersionCount = reader.GetInt32(3),
+                LastBackupUtc = reader.IsDBNull(4) ? null : DateTime.Parse(reader.GetString(4)).ToUniversalTime(),
+                MediaCount = reader.GetInt32(5),
+                LastMediaUtc = reader.IsDBNull(6) ? null : DateTime.Parse(reader.GetString(6)).ToUniversalTime(),
+                Policy = reader.IsDBNull(7)
+                    ? new BackupPolicyDto()
+                    : JsonSerializer.Deserialize<BackupPolicyDto>(reader.GetString(7), _json) ?? new BackupPolicyDto()
+            });
+        }
+        return result;
     }
 
     public Task SetPolicyAsync(string playniteId, BackupPolicyDto policy, CancellationToken token) => ExecuteAsync(@"
@@ -828,7 +905,7 @@ LIMIT 100;";
 
     private const string Schema = @"
 PRAGMA journal_mode=WAL;
-CREATE TABLE IF NOT EXISTS games(playnite_id TEXT PRIMARY KEY,name TEXT NOT NULL,platform INTEGER NOT NULL,platform_game_id TEXT,install_directory TEXT,descriptor_json TEXT NOT NULL,ludusavi_name TEXT,match_confidence REAL DEFAULT 0,last_backup_utc TEXT,last_media_sync_utc TEXT,health_state TEXT DEFAULT 'Unknown',cloud_state TEXT DEFAULT 'Disabled',updated_utc TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS games(playnite_id TEXT PRIMARY KEY,name TEXT NOT NULL,platform INTEGER NOT NULL,platform_game_id TEXT,install_directory TEXT,descriptor_json TEXT NOT NULL,ludusavi_name TEXT,match_confidence REAL DEFAULT 0,match_input_hash TEXT,last_match_attempt_utc TEXT,last_backup_utc TEXT,last_media_sync_utc TEXT,health_state TEXT DEFAULT 'Unknown',cloud_state TEXT DEFAULT 'Disabled',updated_utc TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS game_policies(playnite_id TEXT PRIMARY KEY,policy_json TEXT NOT NULL,updated_utc TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS sessions(session_id TEXT PRIMARY KEY,playnite_id TEXT NOT NULL,source INTEGER NOT NULL,process_id INTEGER,process_name TEXT,launch_profile TEXT,started_utc TEXT NOT NULL,stopped_utc TEXT,elapsed_seconds INTEGER DEFAULT 0);
 CREATE TABLE IF NOT EXISTS tasks(task_id TEXT PRIMARY KEY,task_type TEXT NOT NULL,game_id TEXT,game_name TEXT,state INTEGER NOT NULL,progress INTEGER NOT NULL,message TEXT,created_utc TEXT NOT NULL,started_utc TEXT,finished_utc TEXT,error_code TEXT,error_message TEXT);
@@ -851,4 +928,25 @@ CREATE INDEX IF NOT EXISTS ix_game_tools_game ON game_tools(playnite_id,tool_typ
 CREATE INDEX IF NOT EXISTS ix_game_tool_versions_tool ON game_tool_versions(tool_id,created_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_trainer_catalog_title ON trainer_catalog(normalized_title);
 ";
+}
+
+public sealed class GameMatchCacheEntry
+{
+    public GameDescriptorDto Descriptor { get; set; } = new();
+    public string LudusaviName { get; set; } = string.Empty;
+    public double Confidence { get; set; }
+    public string MatchInputHash { get; set; } = string.Empty;
+    public DateTime? LastMatchAttemptUtc { get; set; }
+}
+
+public sealed class DashboardGameRecord
+{
+    public GameDescriptorDto Descriptor { get; set; } = new();
+    public string LudusaviName { get; set; } = string.Empty;
+    public double MatchConfidence { get; set; }
+    public int BackupVersionCount { get; set; }
+    public DateTime? LastBackupUtc { get; set; }
+    public int MediaCount { get; set; }
+    public DateTime? LastMediaUtc { get; set; }
+    public BackupPolicyDto Policy { get; set; } = new();
 }
