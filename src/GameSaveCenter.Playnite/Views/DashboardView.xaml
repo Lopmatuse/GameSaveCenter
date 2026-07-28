@@ -307,6 +307,16 @@
             <Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="Margin" Value="22"/>
         </Style>
+
+        <Style x:Key="GscStatusPill" TargetType="Border">
+            <Setter Property="MinWidth" Value="48"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="{DynamicResource GscGlassStrongBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+        </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -337,7 +347,7 @@
                             </Border>
                             <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.4.1" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.4.2" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -665,14 +675,14 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <Border Background="{DynamicResource GscAccentTintBrush}" BorderBrush="{DynamicResource GscHairlineBrush}" BorderThickness="1" CornerRadius="12" Padding="14,11" Margin="0,0,0,10">
+                                <Border Background="{DynamicResource GscAccentTintBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}" BorderThickness="1" CornerRadius="12" Padding="14,11" Margin="0,0,0,10">
                                     <Grid>
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                         <StackPanel>
                                             <TextBlock Text="待归类媒体收件箱" FontWeight="SemiBold"/>
                                             <TextBlock Text="公共截图无法通过文件名或无重叠会话唯一判断时，会保留副本并等待你选择游戏；不会静默猜测。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,12,0"/>
                                         </StackPanel>
-                                        <Border Grid.Column="1" Style="{StaticResource GscStatusPill}" Background="{DynamicResource GscCardBrush}" VerticalAlignment="Center">
+                                        <Border Grid.Column="1" Style="{StaticResource GscStatusPill}" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}" FontSize="18" FontWeight="SemiBold"/>
                                         </Border>
                                     </Grid>

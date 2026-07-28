@@ -1,7 +1,7 @@
 # 开发实现进度
 
 更新时间：2026-07-28
-当前版本：`0.4.1-development-preview`
+当前版本：`0.4.2-development-preview`
 
 状态定义：
 
@@ -10,7 +10,7 @@
 - 🚧 **部分实现**：核心算法或基础链路已完成，仍缺真实平台数据、远端摄取或完整 UI 闭环。
 - ⬜ **未开发**：没有可用实现。
 
-> Windows 真机已完成早期基线的编译、单元测试、Worker 发布、PEXT 打包和 Playnite 加载。0.4.1 新增代码在本执行环境只完成静态校验，仍需在 Windows 重新 build/test/package 并按 `WINDOWS_TEST_PLAN.md` 回归。
+> Windows 真机已确认 0.4.1 可以编译、安装并由 Playnite 10.56 加载，但打开 GameSaveCenter 侧栏时因缺失 `GscStatusPill` 静态资源崩溃。0.4.2 已修复该资源错误并增加资源引用门禁，仍需在 Windows 重新 build/test/package 并按 `WINDOWS_TEST_PLAN.md` 回归。
 
 ## 工程与治理
 
@@ -24,7 +24,7 @@
 | 含 `.git` 的源码打包脚本 | ✅ | `scripts/package-source.ps1` 使用 ZipFile，包含隐藏目录 |
 | 跨平台源码结构校验 | ✅ | `scripts/validate-source.py` 已通过 |
 | Core 单元测试源码 | ✅ | 6 组 xUnit 测试；当前环境未执行 |
-| Windows 真机编译与 Playnite 加载 | 🧪 | 早期基线已在 .NET 9.0.302 构建、测试、打包并加载；最新 0.4.1 待重新回归 |
+| Windows 真机编译与 Playnite 加载 | 🧪 | 0.4.1 已真实编译、安装并加载，但侧栏打开时资源解析崩溃；0.4.2 待重新回归 |
 
 
 ## 0.4.1 全局媒体收件箱闭环
@@ -265,3 +265,11 @@
 - `validate-source.py` 新增资源字典父级门禁，后续出现同类结构会在交付前直接失败。
 - 统一 Git 文本换行为 LF，`.cmd` 继续按二进制保留 CRLF；修复 Windows 编辑器按旧 `.editorconfig` 自动改写 Markdown/Python 文件导致工作区反复变脏的问题。
 - 待 Windows 重新执行 `GameSaveCenter-Run.cmd`，确认 Playnite 工程继续进入下一编译阶段。
+## 2026-07-28 0.4.2 Playnite 侧栏崩溃热修复
+
+- 用户真机日志确认 Playnite 10.56 成功加载 GameSaveCenter 0.4.1，点击侧栏时在 `DashboardView.InitializeComponent()` 抛出 `XamlParseException`。
+- 根因是媒体收件箱计数使用 `{StaticResource GscStatusPill}`，但资源字典中没有对应样式；静态资源区分大小写且加载时必须存在。
+- 新增 `GscStatusPill` Border 样式，并将不存在的 `GscCardBrush`、`GscHairlineBrush` 替换为已有 `GscGlassStrongBrush`、`GscGlassStrokeBrush`。
+- `validate-source.py` 新增所有 `Gsc*` StaticResource/DynamicResource 引用解析门禁，防止自有资源名缺失再次进入交付包。
+- 版本提升为 0.4.2，便于在 Playnite 附加组件页区分崩溃版 0.4.1 与修复版。
+- 当前环境仍无 Windows/.NET/WPF/Playnite，必须由真机重新执行一键构建安装并打开侧栏验证。

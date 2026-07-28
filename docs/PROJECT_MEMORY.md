@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-28
-当前版本：`0.4.1-development-preview`
+当前版本：`0.4.2-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
@@ -253,3 +253,10 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 - 人工归类移动归档副本到目标游戏目录；若归档副本意外缺失，只从原文件重新复制，永不移动或删除原始媒体。忽略操作移动到 `_Inbox/Ignored`，仍保留副本与审计。
 - 新增 `media.inbox.list`、`media.inbox.ignore` IPC；原 `media.reassign` 从数据库字段更新升级为真实文件移动与校验。
 - 0.4.1 已通过跨平台结构、XAML、IPC、媒体收件箱门禁、Git diff 和对象完整性检查，但尚未执行 Windows `dotnet build/test/package` 与 Playnite 真机加载。
+## 2026-07-28 0.4.2 侧栏资源崩溃记忆
+
+- Windows 真机已确认 0.4.1 能编译、安装并被 Playnite 10.56 识别；失败点不是插件发现或 Worker 启动，而是点击侧栏后创建 `DashboardView`。
+- 崩溃堆栈：`DashboardView.InitializeComponent()` -> `XamlParseException` -> 找不到区分大小写的静态资源 `GscStatusPill`。
+- `StaticResource` 在 XAML 加载时必须解析成功；不存在会使整个侧栏构造失败。`DynamicResource` 名称缺失通常不会立即抛同类异常，但会造成样式丢失，也必须纳入门禁。
+- 0.4.2 新增 `GscStatusPill`，并去除不存在的 `GscCardBrush/GscHairlineBrush` 引用。
+- 后续任何 UI 改动除结构和 TargetName 检查外，还必须验证全部 `Gsc*` 资源引用能够在当前 XAML或共享 Themes 字典中解析。

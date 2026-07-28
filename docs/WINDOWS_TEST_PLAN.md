@@ -256,7 +256,7 @@
 
 ### A. 构建、安装与旧库升级
 
-1. 双击 `GameSaveCenter-Run.cmd`，安装报告必须显示清单 `0.4.1`、DLL `0.4.1.0`。
+1. 双击 `GameSaveCenter-Run.cmd`，安装报告必须显示清单 `0.4.2`、DLL `0.4.2.0`。
 2. 使用保留 0.4.0 `state.db` 的环境启动 Worker；不得出现 `classification_state`、`classification_reason` 或 `ix_media_classification` 迁移错误。
 3. 重启 Worker 两次，迁移必须幂等，既有已归类媒体仍显示在原游戏下。
 4. `python scripts/validate-source.py`、真实 `dotnet build/test`、PEXT 打包与 Playnite 加载全部通过。
@@ -290,3 +290,12 @@
 2. 在约 965 款游戏库中打开截图与录像页，目标游戏下拉可用，切换筛选不影响全局收件箱选择和计数。
 3. 默认深色、默认浅色、至少两个第三方主题以及 100%、125%、150%、200% DPI 下，表格、长文件名、空状态和按钮无裁剪、黑块或低对比。
 4. 使用大目录观察 CPU、磁盘和 UI 响应；扫描运行在 Worker，Playnite UI 不得卡死，取消与真实任务状态应保持可用。
+## 0.4.2 Playnite 侧栏崩溃热修复回归
+
+1. 关闭 Playnite，使用全新 0.4.2 源码执行 `GameSaveCenter-Run.cmd`，构建、测试、打包和安装必须全部成功。
+2. 在附加组件页确认 GameSaveCenter 显示 `0.4.2`，不要继续测试仍显示 `0.4.1` 的安装。
+3. 点击 GameSaveCenter 侧栏，必须成功创建 Dashboard；不得出现扩展崩溃窗口、`XamlParseException` 或找不到 `GscStatusPill`。
+4. 连续关闭并重新打开侧栏至少 5 次，依次切换概览、游戏、备份、任务、截图与录像、诊断和异常日志标签。
+5. 打开截图与录像页，待归类数量胶囊应具有玻璃背景和细边框；不存在透明空块、缺失边框或资源警告。
+6. 分别切换跟随 Playnite、固定浅色、固定深色；关闭并重开侧栏后资源仍能解析。
+7. 检查 `playnite.log` 与 `extensions.log`，本轮不得新增 GameSaveCenter XAML 资源解析异常。

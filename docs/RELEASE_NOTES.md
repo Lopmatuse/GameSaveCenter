@@ -1,3 +1,11 @@
+# 0.4.2 Development Preview
+
+- 修复 Playnite 10.56 中点击 GameSaveCenter 侧栏时因缺失 `GscStatusPill` 静态资源导致的 `XamlParseException` 崩溃。
+- 新增媒体收件箱数量胶囊样式，继续使用共享玻璃表面、细描边和克制圆角设计令牌。
+- 移除不存在的 `GscCardBrush`、`GscHairlineBrush` 引用，改用已有 `GscGlassStrongBrush`、`GscGlassStrokeBrush`。
+- 静态校验新增全部 `Gsc*` StaticResource/DynamicResource 可解析性检查。
+- 0.4.1 已由 Windows 真机确认可编译、安装和被 Playnite 加载；0.4.2 仍需重新打开侧栏并完成主题、标签与媒体页回归。
+
 # 0.4.1 Development Preview
 
 - 公共 Game Bar、Windows Screenshots 与共享自定义目录改为全局 `MediaInbox` 任务单次扫描。

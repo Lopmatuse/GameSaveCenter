@@ -184,6 +184,23 @@ def check_xaml_semantics() -> None:
                 if not re.search(rf"\b{re.escape(handler)}\s*\(", code):
                     fail(f"XAML event handler missing: {path.relative_to(ROOT)} -> {handler}")
 
+def check_gsc_resource_references() -> None:
+    """Ensure plugin-owned XAML resource names resolve within the view or shared theme dictionaries."""
+    plugin_root = ROOT / "src/GameSaveCenter.Playnite"
+    theme_keys: set[str] = set()
+    for path in (plugin_root / "Themes").rglob("*.xaml"):
+        theme_text = path.read_text(encoding="utf-8")
+        theme_keys.update(re.findall(r'x:Key\s*=\s*"(Gsc[A-Za-z0-9_]+)"', theme_text))
+
+    resource_pattern = re.compile(r'\{(?:Static|Dynamic)Resource\s+(Gsc[A-Za-z0-9_]+)')
+    for path in plugin_root.rglob("*.xaml"):
+        xaml = path.read_text(encoding="utf-8")
+        local_keys = set(re.findall(r'x:Key\s*=\s*"(Gsc[A-Za-z0-9_]+)"', xaml))
+        missing = sorted(set(resource_pattern.findall(xaml)) - local_keys - theme_keys)
+        for key in missing:
+            fail(f"XAML GameSaveCenter resource missing: {path.relative_to(ROOT)} -> {key}")
+
+
 def check_solution() -> None:
     solution = (ROOT / "GameSaveCenter.sln").read_text(encoding="utf-8")
     project_lines = re.findall(r'^Project\([^\n]+?\) = "([^"]+)", "([^"]+)"', solution, re.M)
@@ -211,6 +228,32 @@ def check_ipc_constants() -> None:
         for name in re.findall(r'MessageTypes\.(\w+)', path.read_text(encoding="utf-8")):
             if name not in declared:
                 fail(f"Unknown MessageTypes.{name} in {path.relative_to(ROOT)}")
+
+
+def check_version_consistency() -> None:
+    manifest = (ROOT / "src/GameSaveCenter.Playnite/extension.yaml").read_text(encoding="utf-8")
+    props = (ROOT / "Directory.Build.props").read_text(encoding="utf-8")
+    dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+
+    manifest_match = re.search(r"^Version:\s*([0-9]+\.[0-9]+\.[0-9]+)\s*$", manifest, re.M)
+    prefix_match = re.search(r"<VersionPrefix>([^<]+)</VersionPrefix>", props)
+    assembly_match = re.search(r"<AssemblyVersion>([^<]+)</AssemblyVersion>", props)
+    sidebar_match = re.search(r'x:Name="SidebarVersionText"\s+Text="v([^"]+)"', dashboard)
+    if not all((manifest_match, prefix_match, assembly_match, sidebar_match)):
+        fail("Version metadata could not be parsed")
+        return
+
+    manifest_version = manifest_match.group(1)
+    prefix_version = prefix_match.group(1)
+    assembly_version = assembly_match.group(1)
+    sidebar_version = sidebar_match.group(1)
+    if not (manifest_version == prefix_version == sidebar_version):
+        fail(
+            "Version mismatch: "
+            f"manifest={manifest_version}, VersionPrefix={prefix_version}, sidebar={sidebar_version}"
+        )
+    if assembly_version != f"{prefix_version}.0":
+        fail(f"AssemblyVersion mismatch: expected {prefix_version}.0, got {assembly_version}")
 
 
 def check_delivery_guards() -> None:
@@ -349,8 +392,10 @@ def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
     check_xaml_semantics()
+    check_gsc_resource_references()
     check_solution()
     check_ipc_constants()
+    check_version_consistency()
     check_delivery_guards()
     check_dashboard_regressions()
     check_media_inbox_guards()
@@ -361,7 +406,7 @@ def main() -> int:
         for item in ERRORS:
             print(f" - {item}")
         return 1
-    print("Source validation passed: JSON/XML/YAML, XAML semantics, C# delimiters, solution, IPC constants, delivery guards, media inbox/SQLite migration guards and Windows launchers.")
+    print("Source validation passed: JSON/XML/YAML, XAML semantics/resources, C# delimiters, solution, IPC constants, version consistency, delivery guards, media inbox/SQLite migration guards and Windows launchers.")
     print("Note: this does not replace dotnet build/test on Windows with Playnite installed.")
     return 0
 

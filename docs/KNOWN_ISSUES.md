@@ -1,7 +1,7 @@
 # 已知缺陷与回归状态
 
 更新时间：2026-07-27
-目标版本：`0.4.1-development-preview`
+目标版本：`0.4.2-development-preview`
 
 本文档是持续缺陷台账。任何修复必须同步更新 `DEVELOPMENT_PROGRESS.md` 与 `PROJECT_MEMORY.md`。
 
@@ -202,3 +202,11 @@
 - **根因**：`MergedDictionaries` 是 `ResourceDictionary` 的属性元素，不能直接作为 `UserControl.Resources` 的资源条目；同时存在合并字典和本地样式时必须显式创建 `ResourceDictionary`。
 - **修复**：在两处 `UserControl.Resources` 内增加显式 `<ResourceDictionary>`，并新增跨平台 XAML 语义门禁。
 - **伴随修复**：仓库统一普通文本使用 LF，避免 Windows 上 `APPLE_UI_GUIDE.md`、`validate-source.py` 因编辑器 CRLF 自动转换持续显示为修改；`.cmd` 仍保留 CRLF。
+## GSC-045：0.4.1 打开 Playnite 侧栏时因缺失静态资源崩溃
+
+- **状态**：已修复为 0.4.2，待 Windows 真机回归。
+- **真机证据**：Playnite 10.56 日志先记录 `Loaded plugin: GameSaveCenter, version 0.4.1`，随后点击侧栏时出现未处理的 `System.Windows.Markup.XamlParseException`。
+- **异常**：`无法找到名为“GscStatusPill”的资源。资源名称区分大小写。`
+- **根因**：0.4.1 媒体收件箱计数 Border 引用了未定义的 `{StaticResource GscStatusPill}`。此前门禁只检查 XML 结构、MergedDictionaries、Trigger 和 TargetName，未校验项目自有资源键是否真实存在。
+- **修复**：新增 `GscStatusPill` 样式；将不存在的 `GscCardBrush`、`GscHairlineBrush` 替换为已存在的玻璃表面和描边令牌；新增全部 `Gsc*` 静态/动态资源引用门禁。
+- **回归**：安装 0.4.2 后确认附加组件页版本、连续打开/关闭侧栏、切换全部标签与三种主题，不得再出现扩展崩溃窗口或资源解析异常。
