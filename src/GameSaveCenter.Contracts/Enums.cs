@@ -90,4 +90,24 @@ namespace GameSaveCenter.Contracts
         RolledBack = 9,
         ManualInterventionRequired = 10
     }
+
+    public enum GameToolType
+    {
+        Trainer = 0,
+        CheatTable = 1,
+        CustomExecutable = 2
+    }
+
+    public enum GameToolSourceType
+    {
+        Manual = 0,
+        Fling = 1,
+        Other = 99
+    }
+
+    public enum GameToolLaunchTiming
+    {
+        AfterGameStarted = 0,
+        Delayed = 1
+    }
 }

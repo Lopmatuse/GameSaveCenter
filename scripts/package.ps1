@@ -49,6 +49,9 @@ $publishArgs = @(
     '-o', $workerStage,
     '--self-contained', $(if ($SelfContainedWorker) { 'true' } else { 'false' })
 )
+if ($SkipBuild) {
+    $publishArgs += '--no-restore'
+}
 Invoke-DotNet -StepName "发布 Worker（$Runtime）" -Arguments $publishArgs
 
 $pluginOutput = Join-Path $root "src\GameSaveCenter.Playnite\bin\$Configuration\net462"

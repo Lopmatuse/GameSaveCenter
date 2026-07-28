@@ -25,12 +25,14 @@ public sealed class IpcRequestDispatcher
     private readonly TaskCoordinator _tasks;
     private readonly LudusaviClient _ludusavi;
     private readonly WorkerOptions _options;
+    private readonly GameToolService _gameTools;
+    private readonly ITrainerCatalogSource _trainerCatalog;
     private readonly ILogger<IpcRequestDispatcher> _logger;
 
     public IpcRequestDispatcher(GameCatalogService catalog,GameSessionCoordinator sessions,BackupOrchestrator backup,RestoreOrchestrator restore,
         MediaSyncService media,SavePathDetectionService detection,DashboardService dashboard,SqliteStateStore store,TaskCoordinator tasks,
-        LudusaviClient ludusavi,WorkerOptions options,ILogger<IpcRequestDispatcher> logger)
-    { _catalog=catalog;_sessions=sessions;_backup=backup;_restore=restore;_media=media;_detection=detection;_dashboard=dashboard;_store=store;_tasks=tasks;_ludusavi=ludusavi;_options=options;_logger=logger; }
+        LudusaviClient ludusavi,WorkerOptions options,GameToolService gameTools,ITrainerCatalogSource trainerCatalog,ILogger<IpcRequestDispatcher> logger)
+    { _catalog=catalog;_sessions=sessions;_backup=backup;_restore=restore;_media=media;_detection=detection;_dashboard=dashboard;_store=store;_tasks=tasks;_ludusavi=ludusavi;_options=options;_gameTools=gameTools;_trainerCatalog=trainerCatalog;_logger=logger; }
 
     public async Task<IpcEnvelope> DispatchAsync(IpcEnvelope request,CancellationToken token)
     {
@@ -71,6 +73,16 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.GetSettings=>SanitizedSettings(),
                 MessageTypes.UpdateSettings=>await UpdateSettingsAsync(Read<WorkerSettingsDto>(request),token).ConfigureAwait(false),
                 MessageTypes.CancelTask=>new CancelTaskResultDto{Cancelled=_tasks.Cancel(Read<CancelTaskRequestDto>(request).TaskId)},
+                MessageTypes.ListGameTools=>await _gameTools.ListAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
+                MessageTypes.ImportGameTool=>await _gameTools.ImportAsync(Read<ImportGameToolRequestDto>(request),token).ConfigureAwait(false),
+                MessageTypes.UpdateGameTool=>await _gameTools.UpdateAsync(Read<UpdateGameToolRequestDto>(request),token).ConfigureAwait(false),
+                MessageTypes.DeleteGameTool=>await _gameTools.DeleteAsync(Read<GameToolCommandRequestDto>(request).ToolId,token).ConfigureAwait(false),
+                MessageTypes.LaunchGameTool=>await _gameTools.LaunchAsync(Read<GameToolCommandRequestDto>(request).ToolId,token).ConfigureAwait(false),
+                MessageTypes.OpenGameToolDirectory=>await _gameTools.OpenDirectoryAsync(Read<GameToolCommandRequestDto>(request).ToolId,token).ConfigureAwait(false),
+                MessageTypes.SyncTrainerCatalog=>await _trainerCatalog.SyncCatalogAsync(token).ConfigureAwait(false),
+                MessageTypes.SearchTrainerCatalog=>await SearchTrainerCatalogAsync(Read<TrainerCatalogQueryDto>(request),token).ConfigureAwait(false),
+                MessageTypes.GetTrainerReleases=>await _trainerCatalog.GetReleasesAsync(Read<TrainerCatalogQueryDto>(request).CatalogId,token).ConfigureAwait(false),
+                MessageTypes.DownloadTrainer=>await _gameTools.DownloadAsync(Read<DownloadTrainerRequestDto>(request),token).ConfigureAwait(false),
                 _=>throw new NotSupportedException($"Unknown IPC message type: {request.Type}")
             };
             return Success(request,payload);
@@ -203,6 +215,26 @@ public sealed class IpcRequestDispatcher
             _options.LudusaviExecutable,_options.LudusaviBackupDirectory,_options.BackupFormat,_options.FullBackupLimit,_options.DifferentialBackupLimit
         }),token).ConfigureAwait(false);
         return SanitizedSettings();
+    }
+
+    private async Task<List<TrainerCatalogItemDto>> SearchTrainerCatalogAsync(TrainerCatalogQueryDto query,CancellationToken token)
+    {
+        var result=await _trainerCatalog.SearchAsync(query.Query,query.Limit,token).ConfigureAwait(false);
+        if(result.Count==0)
+        {
+            try
+            {
+                await _trainerCatalog.SyncCatalogAsync(token).ConfigureAwait(false);
+                result=await _trainerCatalog.SearchAsync(query.Query,query.Limit,token).ConfigureAwait(false);
+            }
+            catch(Exception ex)
+            {
+                _logger.LogWarning(ex,"FLiNG catalog refresh failed; returning cached search results");
+                throw new WorkerOperationException("FLING_CATALOG_UNAVAILABLE",
+                    "FLiNG 目录暂不可用，且本地缓存中没有匹配结果。请稍后重试；已安装的本地工具不受影响。",ex.Message);
+            }
+        }
+        return result;
     }
 
     private WorkerSettingsSnapshotDto SanitizedSettings()=>new()

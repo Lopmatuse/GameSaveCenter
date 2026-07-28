@@ -29,6 +29,8 @@ public sealed class SqliteStateStore
         Directory.CreateDirectory(_options.LogDirectory);
         Directory.CreateDirectory(_options.MediaArchiveDirectory);
         Directory.CreateDirectory(_options.LudusaviBackupDirectory);
+        Directory.CreateDirectory(_options.GameToolsDirectory);
+        Directory.CreateDirectory(_options.DownloadDirectory);
         await using var connection = Open();
         await connection.OpenAsync(token).ConfigureAwait(false);
         var command = connection.CreateCommand();
@@ -51,6 +53,222 @@ WHERE COALESCE(classification_state,'')='' OR classification_state='Assigned';";
         await mediaClassificationIndex.ExecuteNonQueryAsync(token).ConfigureAwait(false);
         await EnsureBackupVersionSchemaAsync(connection, token).ConfigureAwait(false);
     }
+
+    public async Task<List<GameToolDto>> GetGameToolsAsync(string playniteId, CancellationToken token)
+    {
+        var tools = new List<GameToolDto>();
+        await using var connection = Open();
+        await connection.OpenAsync(token).ConfigureAwait(false);
+        var command = connection.CreateCommand();
+        command.CommandText = @"SELECT tool_id,playnite_id,tool_type,source_type,display_name,enabled,auto_start,
+launch_timing,launch_delay_seconds,close_on_game_exit,requires_admin,active_version_id,created_utc,updated_utc
+FROM game_tools WHERE playnite_id=$game ORDER BY tool_type,display_name COLLATE NOCASE;";
+        command.Parameters.AddWithValue("$game", playniteId);
+        await using (var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false))
+        {
+            while (await reader.ReadAsync(token).ConfigureAwait(false))
+            {
+                tools.Add(new GameToolDto
+                {
+                    ToolId=reader.GetString(0),PlayniteId=reader.GetString(1),ToolType=(GameToolType)reader.GetInt32(2),
+                    SourceType=(GameToolSourceType)reader.GetInt32(3),DisplayName=reader.GetString(4),
+                    Enabled=reader.GetInt32(5)==1,AutoStart=reader.GetInt32(6)==1,
+                    LaunchTiming=(GameToolLaunchTiming)reader.GetInt32(7),LaunchDelaySeconds=reader.GetInt32(8),
+                    CloseOnGameExit=reader.GetInt32(9)==1,RequiresAdmin=reader.GetInt32(10)==1,
+                    ActiveVersionId=reader.IsDBNull(11)?string.Empty:reader.GetString(11),
+                    CreatedUtc=DateTime.Parse(reader.GetString(12)).ToUniversalTime(),
+                    UpdatedUtc=DateTime.Parse(reader.GetString(13)).ToUniversalTime()
+                });
+            }
+        }
+        foreach (var tool in tools)
+        {
+            var versions = connection.CreateCommand();
+            versions.CommandText = @"SELECT version_id,version_name,entry_path,working_directory,arguments,source_url,
+file_sha256,download_utc,created_utc FROM game_tool_versions WHERE tool_id=$tool ORDER BY created_utc DESC;";
+            versions.Parameters.AddWithValue("$tool", tool.ToolId);
+            await using var reader = await versions.ExecuteReaderAsync(token).ConfigureAwait(false);
+            while (await reader.ReadAsync(token).ConfigureAwait(false))
+            {
+                var path = reader.GetString(2);
+                tool.Versions.Add(new GameToolVersionDto
+                {
+                    VersionId=reader.GetString(0),ToolId=tool.ToolId,VersionName=reader.IsDBNull(1)?"":reader.GetString(1),
+                    EntryPath=path,WorkingDirectory=reader.IsDBNull(3)?Path.GetDirectoryName(path)??"":reader.GetString(3),
+                    Arguments=reader.IsDBNull(4)?"":reader.GetString(4),SourceUrl=reader.IsDBNull(5)?"":reader.GetString(5),
+                    FileSha256=reader.IsDBNull(6)?"":reader.GetString(6),
+                    DownloadUtc=reader.IsDBNull(7)?null:DateTime.Parse(reader.GetString(7)).ToUniversalTime(),
+                    CreatedUtc=DateTime.Parse(reader.GetString(8)).ToUniversalTime(),IsAvailable=File.Exists(path)
+                });
+            }
+        }
+        return tools;
+    }
+
+    public async Task<GameToolDto?> GetGameToolAsync(string toolId, CancellationToken token)
+    {
+        await using var connection = Open();
+        await connection.OpenAsync(token).ConfigureAwait(false);
+        var find = connection.CreateCommand();
+        find.CommandText = "SELECT playnite_id FROM game_tools WHERE tool_id=$id;";
+        find.Parameters.AddWithValue("$id", toolId);
+        var gameId = await find.ExecuteScalarAsync(token).ConfigureAwait(false) as string;
+        if (gameId == null) return null;
+        return (await GetGameToolsAsync(gameId, token).ConfigureAwait(false)).FirstOrDefault(x => x.ToolId == toolId);
+    }
+
+    public Task UpsertGameToolAsync(GameToolDto tool, GameToolVersionDto version, CancellationToken token) => ExecuteAsync(@"
+INSERT INTO game_tools(tool_id,playnite_id,tool_type,source_type,display_name,enabled,auto_start,launch_timing,
+launch_delay_seconds,close_on_game_exit,requires_admin,active_version_id,created_utc,updated_utc)
+VALUES($id,$game,$type,$source,$name,$enabled,$auto,$timing,$delay,$close,$admin,$version,$created,$updated)
+ON CONFLICT(tool_id) DO UPDATE SET display_name=excluded.display_name,active_version_id=excluded.active_version_id,updated_utc=excluded.updated_utc;
+INSERT INTO game_tool_versions(version_id,tool_id,version_name,entry_path,working_directory,arguments,source_url,file_sha256,download_utc,created_utc)
+VALUES($version,$id,$versionName,$path,$working,$arguments,$url,$hash,$download,$created)
+ON CONFLICT(version_id) DO UPDATE SET entry_path=excluded.entry_path,file_sha256=excluded.file_sha256;",
+        new Dictionary<string,object?>
+        {
+            ["$id"]=tool.ToolId,["$game"]=tool.PlayniteId,["$type"]=(int)tool.ToolType,["$source"]=(int)tool.SourceType,
+            ["$name"]=tool.DisplayName,["$enabled"]=tool.Enabled?1:0,["$auto"]=tool.AutoStart?1:0,["$timing"]=(int)tool.LaunchTiming,
+            ["$delay"]=tool.LaunchDelaySeconds,["$close"]=tool.CloseOnGameExit?1:0,["$admin"]=tool.RequiresAdmin?1:0,
+            ["$version"]=version.VersionId,["$versionName"]=version.VersionName,["$path"]=version.EntryPath,
+            ["$working"]=version.WorkingDirectory,["$arguments"]=version.Arguments,["$url"]=version.SourceUrl,
+            ["$hash"]=version.FileSha256,["$download"]=version.DownloadUtc?.ToString("O"),["$created"]=tool.CreatedUtc.ToString("O"),
+            ["$updated"]=tool.UpdatedUtc.ToString("O")
+        }, token);
+
+    public Task UpdateGameToolAsync(UpdateGameToolRequestDto update, CancellationToken token) => ExecuteAsync(@"
+UPDATE game_tools SET enabled=$enabled,auto_start=$auto,launch_timing=$timing,launch_delay_seconds=$delay,
+close_on_game_exit=$close,requires_admin=$admin,
+active_version_id=CASE WHEN COALESCE($version,'')='' THEN active_version_id ELSE $version END,updated_utc=$utc
+WHERE tool_id=$id;",
+        new Dictionary<string,object?>
+        {
+            ["$id"]=update.ToolId,["$enabled"]=update.Enabled?1:0,["$auto"]=update.AutoStart?1:0,
+            ["$timing"]=(int)update.LaunchTiming,["$delay"]=Math.Clamp(update.LaunchDelaySeconds,0,300),
+            ["$close"]=update.CloseOnGameExit?1:0,["$admin"]=update.RequiresAdmin?1:0,
+            ["$version"]=update.ActiveVersionId,["$utc"]=DateTime.UtcNow.ToString("O")
+        }, token);
+
+    public Task DeleteGameToolAsync(string toolId, CancellationToken token) => ExecuteAsync(
+        "DELETE FROM game_tools WHERE tool_id=$id;",
+        new Dictionary<string,object?> { ["$id"]=toolId }, token);
+
+    public Task ReplaceTrainerCatalogAsync(IEnumerable<TrainerCatalogItemDto> items, CancellationToken token)
+        => ExecuteCatalogReplaceAsync(items, token);
+
+    private async Task ExecuteCatalogReplaceAsync(IEnumerable<TrainerCatalogItemDto> items, CancellationToken token)
+    {
+        await _writeGate.WaitAsync(token).ConfigureAwait(false);
+        try
+        {
+            await using var connection = Open();
+            await connection.OpenAsync(token).ConfigureAwait(false);
+            await using var transaction = await connection.BeginTransactionAsync(token).ConfigureAwait(false);
+            foreach (var item in items)
+            {
+                var command = connection.CreateCommand();
+                command.Transaction = (SqliteTransaction)transaction;
+                command.CommandText = @"INSERT INTO trainer_catalog(catalog_id,title,normalized_title,page_url,game_version,option_count,last_updated_utc,last_synced_utc)
+VALUES($id,$title,$normalized,$url,$version,$options,$updated,$synced)
+ON CONFLICT(catalog_id) DO UPDATE SET title=excluded.title,normalized_title=excluded.normalized_title,page_url=excluded.page_url,last_synced_utc=excluded.last_synced_utc;";
+                command.Parameters.AddWithValue("$id",item.CatalogId);command.Parameters.AddWithValue("$title",item.Title);
+                command.Parameters.AddWithValue("$normalized",item.NormalizedTitle);command.Parameters.AddWithValue("$url",item.PageUrl);
+                command.Parameters.AddWithValue("$version",item.GameVersion);command.Parameters.AddWithValue("$options",item.OptionCount);
+                command.Parameters.AddWithValue("$updated",(object?)item.LastUpdatedUtc?.ToString("O")??DBNull.Value);
+                command.Parameters.AddWithValue("$synced",item.LastSyncedUtc.ToString("O"));
+                await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+            }
+            await transaction.CommitAsync(token).ConfigureAwait(false);
+        }
+        finally { _writeGate.Release(); }
+    }
+
+    public async Task<List<TrainerCatalogItemDto>> SearchTrainerCatalogAsync(string query, int limit, CancellationToken token)
+    {
+        var result = new List<TrainerCatalogItemDto>();
+        await using var connection=Open(); await connection.OpenAsync(token).ConfigureAwait(false);
+        var command=connection.CreateCommand();
+        command.CommandText=@"SELECT catalog_id,title,normalized_title,page_url,game_version,option_count,last_updated_utc,last_synced_utc
+FROM trainer_catalog WHERE normalized_title LIKE $query OR title LIKE $query
+ORDER BY CASE WHEN normalized_title=$exact THEN 0 WHEN normalized_title LIKE $prefix THEN 1 ELSE 2 END,title LIMIT $limit;";
+        var normalized = NormalizeSearch(query);
+        command.Parameters.AddWithValue("$query","%"+normalized+"%");command.Parameters.AddWithValue("$exact",normalized);
+        command.Parameters.AddWithValue("$prefix",normalized+"%");command.Parameters.AddWithValue("$limit",Math.Clamp(limit,1,200));
+        await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        while(await reader.ReadAsync(token).ConfigureAwait(false))result.Add(new TrainerCatalogItemDto
+        {
+            CatalogId=reader.GetString(0),Title=reader.GetString(1),NormalizedTitle=reader.GetString(2),PageUrl=reader.GetString(3),
+            GameVersion=reader.IsDBNull(4)?"":reader.GetString(4),OptionCount=reader.IsDBNull(5)?0:reader.GetInt32(5),
+            LastUpdatedUtc=reader.IsDBNull(6)?null:DateTime.Parse(reader.GetString(6)).ToUniversalTime(),
+            LastSyncedUtc=DateTime.Parse(reader.GetString(7)).ToUniversalTime()
+        });
+        return result;
+    }
+
+    public Task ReplaceTrainerReleasesAsync(string catalogId, IEnumerable<TrainerReleaseDto> releases, CancellationToken token)
+        => ExecuteReleaseReplaceAsync(catalogId,releases,token);
+
+    private async Task ExecuteReleaseReplaceAsync(string catalogId,IEnumerable<TrainerReleaseDto> releases,CancellationToken token)
+    {
+        await _writeGate.WaitAsync(token).ConfigureAwait(false);
+        try
+        {
+            await using var connection=Open();await connection.OpenAsync(token).ConfigureAwait(false);
+            await using var transaction=await connection.BeginTransactionAsync(token).ConfigureAwait(false);
+            var delete=connection.CreateCommand();delete.Transaction=(SqliteTransaction)transaction;
+            delete.CommandText="DELETE FROM trainer_releases WHERE catalog_id=$id;";delete.Parameters.AddWithValue("$id",catalogId);
+            await delete.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+            foreach(var release in releases)
+            {
+                var command=connection.CreateCommand();command.Transaction=(SqliteTransaction)transaction;
+                command.CommandText=@"INSERT INTO trainer_releases(release_id,catalog_id,display_name,download_url,size_bytes,published_utc,last_synced_utc)
+VALUES($id,$catalog,$name,$url,$size,$published,$synced);";
+                command.Parameters.AddWithValue("$id",release.ReleaseId);command.Parameters.AddWithValue("$catalog",catalogId);
+                command.Parameters.AddWithValue("$name",release.DisplayName);command.Parameters.AddWithValue("$url",release.DownloadUrl);
+                command.Parameters.AddWithValue("$size",release.SizeBytes);command.Parameters.AddWithValue("$published",(object?)release.PublishedUtc?.ToString("O")??DBNull.Value);
+                command.Parameters.AddWithValue("$synced",DateTime.UtcNow.ToString("O"));
+                await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+            }
+            await transaction.CommitAsync(token).ConfigureAwait(false);
+        }
+        finally{_writeGate.Release();}
+    }
+
+    public async Task<List<TrainerReleaseDto>> GetTrainerReleasesAsync(string catalogId,CancellationToken token)
+    {
+        var result=new List<TrainerReleaseDto>();await using var connection=Open();await connection.OpenAsync(token).ConfigureAwait(false);
+        var command=connection.CreateCommand();command.CommandText=@"SELECT release_id,catalog_id,display_name,download_url,size_bytes,published_utc
+FROM trainer_releases WHERE catalog_id=$id ORDER BY COALESCE(published_utc,'') DESC;";command.Parameters.AddWithValue("$id",catalogId);
+        await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        while(await reader.ReadAsync(token).ConfigureAwait(false))result.Add(new TrainerReleaseDto
+        {ReleaseId=reader.GetString(0),CatalogId=reader.GetString(1),DisplayName=reader.GetString(2),DownloadUrl=reader.GetString(3),
+         SizeBytes=reader.GetInt64(4),PublishedUtc=reader.IsDBNull(5)?null:DateTime.Parse(reader.GetString(5)).ToUniversalTime()});
+        return result;
+    }
+
+    public async Task<TrainerCatalogItemDto?> GetTrainerCatalogItemAsync(string catalogId,CancellationToken token)
+    {
+        await using var connection=Open();await connection.OpenAsync(token).ConfigureAwait(false);
+        var command=connection.CreateCommand();command.CommandText=@"SELECT catalog_id,title,normalized_title,page_url,game_version,option_count,last_updated_utc,last_synced_utc
+FROM trainer_catalog WHERE catalog_id=$id;";command.Parameters.AddWithValue("$id",catalogId);
+        await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);if(!await reader.ReadAsync(token).ConfigureAwait(false))return null;
+        return new TrainerCatalogItemDto{CatalogId=reader.GetString(0),Title=reader.GetString(1),NormalizedTitle=reader.GetString(2),PageUrl=reader.GetString(3),
+            GameVersion=reader.IsDBNull(4)?"":reader.GetString(4),OptionCount=reader.IsDBNull(5)?0:reader.GetInt32(5),
+            LastUpdatedUtc=reader.IsDBNull(6)?null:DateTime.Parse(reader.GetString(6)).ToUniversalTime(),LastSyncedUtc=DateTime.Parse(reader.GetString(7)).ToUniversalTime()};
+    }
+
+    public async Task<TrainerReleaseDto?> GetTrainerReleaseAsync(string releaseId,CancellationToken token)
+    {
+        await using var connection=Open();await connection.OpenAsync(token).ConfigureAwait(false);
+        var command=connection.CreateCommand();command.CommandText=@"SELECT release_id,catalog_id,display_name,download_url,size_bytes,published_utc
+FROM trainer_releases WHERE release_id=$id;";command.Parameters.AddWithValue("$id",releaseId);
+        await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);if(!await reader.ReadAsync(token).ConfigureAwait(false))return null;
+        return new TrainerReleaseDto{ReleaseId=reader.GetString(0),CatalogId=reader.GetString(1),DisplayName=reader.GetString(2),
+            DownloadUrl=reader.GetString(3),SizeBytes=reader.GetInt64(4),PublishedUtc=reader.IsDBNull(5)?null:DateTime.Parse(reader.GetString(5)).ToUniversalTime()};
+    }
+
+    private static string NormalizeSearch(string value)
+        => new string((value??string.Empty).ToLowerInvariant().Where(char.IsLetterOrDigit).ToArray());
 
     private static async Task EnsureColumnAsync(SqliteConnection connection, string table, string column, string definition, CancellationToken token)
     {
@@ -620,10 +838,17 @@ CREATE TABLE IF NOT EXISTS media(media_id TEXT PRIMARY KEY,playnite_id TEXT,kind
 CREATE TABLE IF NOT EXISTS media_sources(source_id TEXT PRIMARY KEY,playnite_id TEXT,source_kind INTEGER NOT NULL,root_path TEXT NOT NULL,include_pattern TEXT,enabled INTEGER NOT NULL DEFAULT 1,shared_directory INTEGER NOT NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS save_candidates(candidate_id TEXT PRIMARY KEY,playnite_id TEXT NOT NULL,path TEXT NOT NULL,score REAL NOT NULL,reasons_json TEXT,status TEXT NOT NULL,created_utc TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS audit_log(audit_id TEXT PRIMARY KEY,category TEXT NOT NULL,message TEXT NOT NULL,detail_json TEXT,created_utc TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS game_tools(tool_id TEXT PRIMARY KEY,playnite_id TEXT NOT NULL,tool_type INTEGER NOT NULL,source_type INTEGER NOT NULL,display_name TEXT NOT NULL,enabled INTEGER NOT NULL DEFAULT 1,auto_start INTEGER NOT NULL DEFAULT 0,launch_timing INTEGER NOT NULL DEFAULT 1,launch_delay_seconds INTEGER NOT NULL DEFAULT 8,close_on_game_exit INTEGER NOT NULL DEFAULT 0,requires_admin INTEGER NOT NULL DEFAULT 0,active_version_id TEXT,created_utc TEXT NOT NULL,updated_utc TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS game_tool_versions(version_id TEXT PRIMARY KEY,tool_id TEXT NOT NULL REFERENCES game_tools(tool_id) ON DELETE CASCADE,version_name TEXT,entry_path TEXT NOT NULL,working_directory TEXT,arguments TEXT,source_url TEXT,file_sha256 TEXT,download_utc TEXT,created_utc TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS trainer_catalog(catalog_id TEXT PRIMARY KEY,title TEXT NOT NULL,normalized_title TEXT NOT NULL,page_url TEXT NOT NULL,game_version TEXT,option_count INTEGER NOT NULL DEFAULT 0,last_updated_utc TEXT,last_synced_utc TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS trainer_releases(release_id TEXT PRIMARY KEY,catalog_id TEXT NOT NULL REFERENCES trainer_catalog(catalog_id) ON DELETE CASCADE,display_name TEXT NOT NULL,download_url TEXT NOT NULL,size_bytes INTEGER NOT NULL DEFAULT 0,published_utc TEXT,last_synced_utc TEXT NOT NULL);
 CREATE INDEX IF NOT EXISTS ix_tasks_created ON tasks(created_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_backup_versions_game_time ON backup_versions(playnite_id,created_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_media_game ON media(playnite_id,captured_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_sessions_open ON sessions(stopped_utc);
 CREATE INDEX IF NOT EXISTS ix_save_candidates_game_path ON save_candidates(playnite_id,path,created_utc DESC);
+CREATE INDEX IF NOT EXISTS ix_game_tools_game ON game_tools(playnite_id,tool_type);
+CREATE INDEX IF NOT EXISTS ix_game_tool_versions_tool ON game_tool_versions(tool_id,created_utc DESC);
+CREATE INDEX IF NOT EXISTS ix_trainer_catalog_title ON trainer_catalog(normalized_title);
 ";
 }

@@ -84,7 +84,7 @@ namespace GameSaveCenter.Playnite.Infrastructure
         private static void AddProcessName(GameDescriptorDto descriptor, string? path)
         {
             if (string.IsNullOrWhiteSpace(path)) return;
-            var name = Path.GetFileNameWithoutExtension(path.Trim('"'));
+            var name = Path.GetFileNameWithoutExtension(path!.Trim('"'));
             if (!string.IsNullOrWhiteSpace(name) && !descriptor.KnownProcessNames.Contains(name, StringComparer.OrdinalIgnoreCase))
                 descriptor.KnownProcessNames.Add(name);
         }

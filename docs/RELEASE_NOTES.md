@@ -1,3 +1,11 @@
+# 0.5.0 Development Preview
+
+- 新增原生 WPF 修改器中心：每游戏多个修改器、多个 CT、独立启用与自动启动策略。
+- 支持本地 EXE、ZIP、目录和 `.ct` 导入，保存版本、哈希、入口与工作目录。
+- 新增应用内 FLiNG 目录搜索、版本列表、下载任务、安全解压和自动绑定，全程不打开网页或 WebView。
+- 新增游戏会话 PID 跟踪和可选退出关闭；检测常见反作弊线索时默认阻止自动启动。
+- 新增 SQLite 增量表、Zip Slip 单元测试和一级工作区导航。
+
 # 0.4.3 Development Preview
 
 - 修复 0.4.2 配置可能把 `ludusavi.exe` 误存为 Worker 路径，导致刷新时反复打开 Ludusavi 窗口的问题。

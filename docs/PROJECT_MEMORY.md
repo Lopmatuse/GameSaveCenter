@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-28
-当前版本：`0.4.3-development-preview`
+当前版本：`0.5.0-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
@@ -24,6 +24,15 @@
 - 用户提供的 `docs/design/APPLE_WPF_IMPLEMENTATION_PROMPT.md` 是后续 UI 设计与实现的长期基准；所有新增控件和改版必须同时通过 `docs/design/UI_CHANGE_GATE.md`。
 
 ## 当前已经进入仓库的实现
+
+### 0.5.0 修改器中心
+
+- 修改器与 CT 以 Playnite GameId 绑定，不依赖会变化的游戏名。
+- FLiNG 只是一种在线来源；本地导入、启动和生命周期不依赖在线目录是否可用。
+- 目录适配器只访问 `https://flingtrainer.com`，搜索使用 SQLite 缓存，UI 不打开浏览器或 WebView。
+- 所有新工具默认 `AutoStart=false`。自动启动失败不阻断游戏，常见反作弊线索默认阻止自动启动。
+- ZIP 解压路径必须经过 `ArchivePathGuard`，越界条目整体拒绝。
+- 删除 UI 操作为解除绑定并保留文件；避免在尚未完成回收站设计前静默删除用户修改器。
 
 ### 0.4.3 启动与响应式界面修复
 

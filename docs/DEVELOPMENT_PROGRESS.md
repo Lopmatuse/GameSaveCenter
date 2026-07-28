@@ -1,7 +1,7 @@
 # 开发实现进度
 
 更新时间：2026-07-28
-当前版本：`0.4.3-development-preview`
+当前版本：`0.5.0-development-preview`
 
 状态定义：
 
@@ -11,6 +11,18 @@
 - ⬜ **未开发**：没有可用实现。
 
 > Windows 真机已确认 0.4.2 可以编译、安装并打开侧栏。0.4.3 修复 Worker/Ludusavi 路径混淆、重复启动和缩放布局问题；Release 编译与隔离 Worker 冒烟测试已通过，仍需完成 Playnite 交互与真实 Ludusavi 回归。
+
+## 2026-07-28 0.5.0 修改器中心
+
+- 新增 `game_tools`、`game_tool_versions`、`trainer_catalog` 和 `trainer_releases`，旧数据库可幂等增量升级。
+- 一个 Playnite GameId 可绑定多个修改器、多个 Cheat Table 和多个工具版本。
+- Worker 支持 EXE、ZIP、目录和 CT 导入、SHA-256、Zip Slip 防护、文件缺失检测、启动、提权和工作目录。
+- 每项工具独立保存启用、随游戏启动、延迟、退出关闭和管理员权限；新导入和下载默认不自动启动。
+- 只追踪当前游戏会话实际启动的 PID；退出时不会按进程名误杀其他程序。
+- 检测到 Easy Anti-Cheat、BattlEye、Ricochet 或 Vanguard 线索时默认阻止自动启动并记录审计。
+- 新增隔离的 FLiNG 目录适配器、SQLite 本地搜索、版本展开、后台下载、安全解压和自动绑定。
+- 左侧导航调整为首页、存档中心、修改器中心、媒体中心、任务中心和维护中心；右侧内部标签不再反向改变一级导航。
+- Release 全解决方案编译通过，Core 测试 12/12 通过；Playnite 真机和 FLiNG 实际下载仍待回归。
 
 ## 2026-07-28 0.4.3 Worker 与响应式界面热修复
 

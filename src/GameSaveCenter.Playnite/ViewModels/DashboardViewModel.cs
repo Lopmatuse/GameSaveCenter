@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Data;
+using Microsoft.Win32;
 using GameSaveCenter.Contracts;
 using Playnite.SDK;
 
@@ -49,6 +50,13 @@ namespace GameSaveCenter.Playnite.ViewModels
         private string gameStatusFilter = "全部";
         private string gameSortMode = "名称";
         private int filteredGameCount;
+        private WorkspaceKind currentWorkspace = WorkspaceKind.Overview;
+        private LayoutMode layoutMode = LayoutMode.Standard;
+        private GameToolDto selectedGameTool = null!;
+        private TrainerCatalogItemDto selectedTrainerCatalogItem = null!;
+        private TrainerReleaseDto selectedTrainerRelease = null!;
+        private string trainerSearchText = string.Empty;
+        private bool showTrainerLibrary;
 
         public DashboardViewModel(GameSaveCenterPlugin plugin)
         {
@@ -84,6 +92,17 @@ namespace GameSaveCenter.Playnite.ViewModels
             OpenBackupDirectoryCommand = new RelayCommand(_ => RunLocal(() => OpenPath(EffectiveSettings.LudusaviBackupDirectory)), _ => !string.IsNullOrWhiteSpace(EffectiveSettings.LudusaviBackupDirectory));
             OpenMediaDirectoryCommand = new RelayCommand(_ => RunLocal(() => OpenPath(EffectiveSettings.MediaArchiveDirectory)), _ => !string.IsNullOrWhiteSpace(EffectiveSettings.MediaArchiveDirectory));
             OpenWorkerLogCommand = new RelayCommand(_ => RunLocal(OpenWorkerLog));
+            ImportTrainerCommand = new RelayCommand(_ => Run(() => ImportGameToolAsync(GameToolType.Trainer)), _ => !IsBusy && SelectedGame != null);
+            ImportCheatTableCommand = new RelayCommand(_ => Run(() => ImportGameToolAsync(GameToolType.CheatTable)), _ => !IsBusy && SelectedGame != null);
+            ImportToolFolderCommand = new RelayCommand(_ => Run(ImportGameToolFolderAsync), _ => !IsBusy && SelectedGame != null);
+            SaveGameToolCommand = new RelayCommand(_ => Run(SaveSelectedGameToolAsync), _ => !IsBusy && SelectedGameTool != null);
+            LaunchGameToolCommand = new RelayCommand(_ => Run(LaunchSelectedGameToolAsync), _ => !IsBusy && SelectedGameTool != null && SelectedGameTool.ActiveVersion.IsAvailable);
+            OpenGameToolDirectoryCommand = new RelayCommand(_ => Run(OpenSelectedGameToolDirectoryAsync), _ => !IsBusy && SelectedGameTool != null);
+            DeleteGameToolCommand = new RelayCommand(_ => Run(DeleteSelectedGameToolAsync), _ => !IsBusy && SelectedGameTool != null);
+            SyncTrainerCatalogCommand = new RelayCommand(_ => Run(SyncTrainerCatalogAsync), _ => !IsBusy);
+            SearchTrainerCatalogCommand = new RelayCommand(_ => Run(SearchTrainerCatalogAsync), _ => !IsBusy);
+            LoadTrainerReleasesCommand = new RelayCommand(_ => Run(LoadTrainerReleasesAsync), _ => !IsBusy && SelectedTrainerCatalogItem != null);
+            DownloadTrainerCommand = new RelayCommand(_ => Run(DownloadTrainerAsync), _ => !IsBusy && SelectedGame != null && SelectedTrainerRelease != null);
             Run(RefreshAsync);
         }
 
@@ -96,6 +115,9 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ObservableCollection<AuditLogEntryDto> Audit { get; } = new ObservableCollection<AuditLogEntryDto>();
         public ObservableCollection<SavePathCandidateDto> SaveCandidates { get; } = new ObservableCollection<SavePathCandidateDto>();
         public ObservableCollection<MediaSourceRuleDto> MediaSources { get; } = new ObservableCollection<MediaSourceRuleDto>();
+        public ObservableCollection<GameToolDto> GameTools { get; } = new ObservableCollection<GameToolDto>();
+        public ObservableCollection<TrainerCatalogItemDto> TrainerCatalogResults { get; } = new ObservableCollection<TrainerCatalogItemDto>();
+        public ObservableCollection<TrainerReleaseDto> TrainerReleases { get; } = new ObservableCollection<TrainerReleaseDto>();
         public ICollectionView GamesView { get; }
         public IReadOnlyList<string> GameStatusFilterOptions { get; } = new[] { "全部", "已就绪", "未匹配", "运行中", "需关注", "有历史" };
         public IReadOnlyList<string> GameSortOptions { get; } = new[] { "名称", "运行优先", "匹配优先", "最近备份" };
@@ -160,6 +182,25 @@ namespace GameSaveCenter.Playnite.ViewModels
             }
         }
         public int FilteredGameCount { get => filteredGameCount; private set => SetValue(ref filteredGameCount, value); }
+        public WorkspaceKind CurrentWorkspace { get => currentWorkspace; set => SetValue(ref currentWorkspace, value); }
+        public LayoutMode LayoutMode { get => layoutMode; set => SetValue(ref layoutMode, value); }
+        public bool ShowTrainerLibrary { get => showTrainerLibrary; set => SetValue(ref showTrainerLibrary, value); }
+        public string TrainerSearchText { get => trainerSearchText; set => SetValue(ref trainerSearchText, value ?? string.Empty); }
+        public GameToolDto SelectedGameTool
+        {
+            get => selectedGameTool;
+            set { SetValue(ref selectedGameTool,value); RaiseCommandStates(); }
+        }
+        public TrainerCatalogItemDto SelectedTrainerCatalogItem
+        {
+            get => selectedTrainerCatalogItem;
+            set { SetValue(ref selectedTrainerCatalogItem,value); TrainerReleases.Clear(); SelectedTrainerRelease=null!; RaiseCommandStates(); }
+        }
+        public TrainerReleaseDto SelectedTrainerRelease
+        {
+            get => selectedTrainerRelease;
+            set { SetValue(ref selectedTrainerRelease,value); RaiseCommandStates(); }
+        }
         public GameStatusDto SelectedGame
         {
             get => selectedGame;
@@ -277,6 +318,17 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand OpenBackupDirectoryCommand { get; }
         public ICommand OpenMediaDirectoryCommand { get; }
         public ICommand OpenWorkerLogCommand { get; }
+        public ICommand ImportTrainerCommand { get; }
+        public ICommand ImportCheatTableCommand { get; }
+        public ICommand ImportToolFolderCommand { get; }
+        public ICommand SaveGameToolCommand { get; }
+        public ICommand LaunchGameToolCommand { get; }
+        public ICommand OpenGameToolDirectoryCommand { get; }
+        public ICommand DeleteGameToolCommand { get; }
+        public ICommand SyncTrainerCatalogCommand { get; }
+        public ICommand SearchTrainerCatalogCommand { get; }
+        public ICommand LoadTrainerReleasesCommand { get; }
+        public ICommand DownloadTrainerCommand { get; }
 
         public Task RefreshAsync() => RefreshCoreAsync(true);
 
@@ -389,6 +441,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             var media = await plugin.RequestAsync<MediaItemDto[]>(MessageTypes.ListMedia, new GameQueryDto { PlayniteId = id, Limit = 1000 });
             var mediaSources = await plugin.RequestAsync<MediaSourceRuleDto[]>(MessageTypes.ListMediaSources, new GameQueryDto { PlayniteId = id });
             var saveCandidates = await plugin.RequestAsync<SavePathCandidateDto[]>(MessageTypes.ListSaveCandidates, new GameQueryDto { PlayniteId = id });
+            var gameTools = await plugin.RequestAsync<GameToolDto[]>(MessageTypes.ListGameTools, new GameQueryDto { PlayniteId = id });
             ApplyOnUi(() =>
             {
                 if (SelectedGame == null || !string.Equals(SelectedGame.PlayniteId, id, StringComparison.OrdinalIgnoreCase)) return;
@@ -396,6 +449,10 @@ namespace GameSaveCenter.Playnite.ViewModels
                 Replace(Media, media);
                 Replace(MediaSources, mediaSources);
                 Replace(SaveCandidates, saveCandidates);
+                var selectedToolId=SelectedGameTool?.ToolId;
+                Replace(GameTools,gameTools);
+                SelectedGameTool=GameTools.FirstOrDefault(x=>string.Equals(x.ToolId,selectedToolId,StringComparison.OrdinalIgnoreCase))
+                                 ??GameTools.FirstOrDefault();
                 SelectedBackup = Backups.FirstOrDefault();
                 SelectedCandidate = SaveCandidates.FirstOrDefault(x => string.Equals(x.Status, "Pending", StringComparison.OrdinalIgnoreCase))
                                     ?? SaveCandidates.FirstOrDefault();
@@ -433,6 +490,104 @@ namespace GameSaveCenter.Playnite.ViewModels
                 ? $"备份完成，已读取 {Backups.Count} 个历史版本"
                 : "备份完成，但历史索引仍为空；请打开诊断页查看 Ludusavi 输出。";
             if (plugin.Settings.EnableTaskNotifications) plugin.ShowInfo($"{SelectedGame.Name} 的存档备份已完成");
+        }
+
+        private async Task ImportGameToolAsync(GameToolType type)
+        {
+            var dialog=new OpenFileDialog
+            {
+                Title=type==GameToolType.CheatTable?"导入 Cheat Table":"导入修改器（EXE 或 ZIP）",
+                Filter=type==GameToolType.CheatTable?"Cheat Engine Table (*.ct)|*.ct|所有文件 (*.*)|*.*":"修改器 (*.exe;*.zip)|*.exe;*.zip|所有文件 (*.*)|*.*",
+                Multiselect=false,CheckFileExists=true
+            };
+            if(dialog.ShowDialog()!=true)return;
+            var imported=await plugin.RequestAsync<GameToolDto>(MessageTypes.ImportGameTool,new ImportGameToolRequestDto
+            {
+                PlayniteId=SelectedGame.PlayniteId,ToolType=type,SourcePath=dialog.FileName,CopyIntoLibrary=true
+            },TimeSpan.FromMinutes(5));
+            await LoadDetailsAsync();
+            SelectedGameTool=GameTools.FirstOrDefault(x=>x.ToolId==imported.ToolId)??GameTools.FirstOrDefault();
+            StatusMessage=type==GameToolType.CheatTable?"Cheat Table 已导入，自动启动保持关闭":"修改器已导入，自动启动保持关闭";
+        }
+
+        private async Task ImportGameToolFolderAsync()
+        {
+            var folder=plugin.PlayniteApi.Dialogs.SelectFolder();
+            if(string.IsNullOrWhiteSpace(folder))return;
+            var imported=await plugin.RequestAsync<GameToolDto>(MessageTypes.ImportGameTool,new ImportGameToolRequestDto
+            {
+                PlayniteId=SelectedGame.PlayniteId,ToolType=GameToolType.Trainer,SourcePath=folder,CopyIntoLibrary=true
+            },TimeSpan.FromMinutes(5));
+            await LoadDetailsAsync();SelectedGameTool=GameTools.FirstOrDefault(x=>x.ToolId==imported.ToolId)??GameTools.FirstOrDefault();
+            StatusMessage="修改器目录已导入，自动启动保持关闭";
+        }
+
+        private async Task SaveSelectedGameToolAsync()
+        {
+            var tool=SelectedGameTool;
+            await plugin.RequestAsync<object>(MessageTypes.UpdateGameTool,new UpdateGameToolRequestDto
+            {
+                ToolId=tool.ToolId,Enabled=tool.Enabled,AutoStart=tool.AutoStart,LaunchTiming=tool.LaunchTiming,
+                LaunchDelaySeconds=Math.Max(0,Math.Min(300,tool.LaunchDelaySeconds)),CloseOnGameExit=tool.CloseOnGameExit,
+                RequiresAdmin=tool.RequiresAdmin,ActiveVersionId=tool.ActiveVersionId
+            });
+            await LoadDetailsAsync();StatusMessage="游戏工具设置已保存";
+        }
+
+        private async Task LaunchSelectedGameToolAsync()
+        {
+            await plugin.RequestAsync<object>(MessageTypes.LaunchGameTool,new GameToolCommandRequestDto{ToolId=SelectedGameTool.ToolId});
+            StatusMessage="已启动 "+SelectedGameTool.DisplayName;
+        }
+
+        private async Task OpenSelectedGameToolDirectoryAsync()
+        {
+            await plugin.RequestAsync<object>(MessageTypes.OpenGameToolDirectory,new GameToolCommandRequestDto{ToolId=SelectedGameTool.ToolId});
+        }
+
+        private async Task DeleteSelectedGameToolAsync()
+        {
+            var name=SelectedGameTool.DisplayName;
+            await plugin.RequestAsync<object>(MessageTypes.DeleteGameTool,new GameToolCommandRequestDto{ToolId=SelectedGameTool.ToolId});
+            await LoadDetailsAsync();StatusMessage="已解除绑定并保留文件："+name;
+        }
+
+        private async Task SyncTrainerCatalogAsync()
+        {
+            var result=await plugin.RequestAsync<TrainerCatalogSyncResultDto>(MessageTypes.SyncTrainerCatalog,new{},TimeSpan.FromMinutes(2));
+            StatusMessage=result.Message;
+            if(!string.IsNullOrWhiteSpace(TrainerSearchText))await SearchTrainerCatalogAsync();
+        }
+
+        private async Task SearchTrainerCatalogAsync()
+        {
+            var query=string.IsNullOrWhiteSpace(TrainerSearchText)?SelectedGame?.Name??string.Empty:TrainerSearchText.Trim();
+            var results=await plugin.RequestAsync<TrainerCatalogItemDto[]>(MessageTypes.SearchTrainerCatalog,new TrainerCatalogQueryDto{Query=query,Limit=60},TimeSpan.FromMinutes(2));
+            ApplyOnUi(()=>
+            {
+                Replace(TrainerCatalogResults,results);
+                SelectedTrainerCatalogItem=TrainerCatalogResults.FirstOrDefault();
+                StatusMessage=results.Length==0?"没有找到匹配的 FLiNG 修改器":"找到 "+results.Length+" 个 FLiNG 结果";
+            });
+        }
+
+        private async Task LoadTrainerReleasesAsync()
+        {
+            var releases=await plugin.RequestAsync<TrainerReleaseDto[]>(MessageTypes.GetTrainerReleases,
+                new TrainerCatalogQueryDto{CatalogId=SelectedTrainerCatalogItem.CatalogId},TimeSpan.FromMinutes(2));
+            ApplyOnUi(()=>
+            {
+                Replace(TrainerReleases,releases);SelectedTrainerRelease=TrainerReleases.FirstOrDefault();
+                StatusMessage=releases.Length==0?"没有可下载版本":"已加载 "+releases.Length+" 个版本";
+            });
+        }
+
+        private async Task DownloadTrainerAsync()
+        {
+            var task=await plugin.RequestAsync<TaskStatusDto>(MessageTypes.DownloadTrainer,new DownloadTrainerRequestDto
+            {PlayniteId=SelectedGame.PlayniteId,CatalogId=SelectedTrainerCatalogItem.CatalogId,ReleaseId=SelectedTrainerRelease.ReleaseId},TimeSpan.FromMinutes(10));
+            ThrowIfUnsuccessful(new[]{task});await LoadDetailsAsync();ShowTrainerLibrary=false;
+            StatusMessage="FLiNG 修改器已下载并绑定，自动启动保持关闭";
         }
 
         private async Task BackupAllAsync()
@@ -841,6 +996,8 @@ namespace GameSaveCenter.Playnite.ViewModels
                 Media.Clear();
                 MediaSources.Clear();
                 SaveCandidates.Clear();
+                GameTools.Clear();
+                SelectedGameTool = null!;
                 SelectedBackup = null!;
                 SelectedCandidate = null!;
                 SelectedMedia = null!;
@@ -859,6 +1016,9 @@ namespace GameSaveCenter.Playnite.ViewModels
                 AssignInboxMediaCommand, IgnoreInboxMediaCommand,
                 CancelTaskCommand, RetryTaskCommand, CopyTaskErrorCommand, RefreshDiagnosticsCommand, CopyDiagnosticsCommand,
                 OpenDataDirectoryCommand, OpenBackupDirectoryCommand, OpenMediaDirectoryCommand, OpenWorkerLogCommand
+                ,ImportTrainerCommand,ImportCheatTableCommand,ImportToolFolderCommand,SaveGameToolCommand,LaunchGameToolCommand,
+                OpenGameToolDirectoryCommand,DeleteGameToolCommand,SyncTrainerCatalogCommand,SearchTrainerCatalogCommand,
+                LoadTrainerReleasesCommand,DownloadTrainerCommand
             }.OfType<RelayCommand>())
             {
                 command.RaiseCanExecuteChanged();

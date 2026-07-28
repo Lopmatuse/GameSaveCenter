@@ -35,6 +35,8 @@ internal static class Program
         builder.Services.AddSingleton<MediaSyncService>();
         builder.Services.AddSingleton<SavePathDetectionService>();
         builder.Services.AddSingleton<DashboardService>();
+        builder.Services.AddSingleton<ITrainerCatalogSource,FlingTrainerCatalogSource>();
+        builder.Services.AddSingleton<GameToolService>();
         builder.Services.AddSingleton<IpcRequestDispatcher>();
         builder.Services.AddHostedService<WorkerInitializationService>();
         builder.Services.AddHostedService<NamedPipeServerService>();

@@ -39,7 +39,7 @@ namespace GameSaveCenter.Playnite.Ipc
                     await writer.WriteLineAsync(line).ConfigureAwait(false);
                     var responseLine = await ReadLineWithCancellationAsync(reader, cancellation.Token).ConfigureAwait(false);
                     if (string.IsNullOrWhiteSpace(responseLine)) throw new IOException("Worker closed the pipe without a response.");
-                    var response = JsonConvert.DeserializeObject<IpcEnvelope>(responseLine, jsonSettings);
+                    var response = JsonConvert.DeserializeObject<IpcEnvelope>(responseLine!, jsonSettings);
                     if (response == null) throw new IOException("Worker returned an invalid response.");
                     if (!response.Success) throw new WorkerRequestException(response.ErrorCode, response.ErrorMessage);
                     var payloadResult = JsonConvert.DeserializeObject<TResponse>(response.PayloadJson, jsonSettings);

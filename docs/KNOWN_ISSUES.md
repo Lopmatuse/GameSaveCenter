@@ -1,7 +1,7 @@
 # 已知缺陷与回归状态
 
 更新时间：2026-07-27
-目标版本：`0.4.3-development-preview`
+目标版本：`0.5.0-development-preview`
 
 本文档是持续缺陷台账。任何修复必须同步更新 `DEVELOPMENT_PROGRESS.md` 与 `PROJECT_MEMORY.md`。
 
@@ -214,3 +214,9 @@
 - **根因**：0.4.1 媒体收件箱计数 Border 引用了未定义的 `{StaticResource GscStatusPill}`。此前门禁只检查 XML 结构、MergedDictionaries、Trigger 和 TargetName，未校验项目自有资源键是否真实存在。
 - **修复**：新增 `GscStatusPill` 样式；将不存在的 `GscCardBrush`、`GscHairlineBrush` 替换为已存在的玻璃表面和描边令牌；新增全部 `Gsc*` 静态/动态资源引用门禁。
 - **回归**：安装 0.4.2 后确认附加组件页版本、连续打开/关闭侧栏、切换全部标签与三种主题，不得再出现扩展崩溃窗口或资源解析异常。
+## 0.5.0 修改器中心
+
+- **待验证**：FLiNG 是未提供稳定公开 API 的网页来源。当前解析器已隔离并带最小目录数量保护，但官网结构变化仍可能使目录或版本解析失败。
+- **待验证**：修改器容易触发安全软件告警或隔离。GameSaveCenter 不会关闭 Defender、建立白名单或自动重试被拦截的文件。
+- **待完善**：ZIP 或目录含多个可执行文件时，当前使用排除卸载器/更新器后体积最大的 EXE；后续需要在 Playnite 中增加显式主程序选择器。
+- **待验证**：提权修改器的 PID 生命周期、CT 文件关联、多 CT 同时启动以及游戏退出关闭行为需要 Windows 真机回归。

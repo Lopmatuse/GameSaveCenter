@@ -39,6 +39,16 @@ namespace GameSaveCenter.Contracts
         public const string UpdateSettings = "settings.update";
         public const string GetSettings = "settings.get";
         public const string CancelTask = "task.cancel";
+        public const string ListGameTools = "tools.list";
+        public const string ImportGameTool = "tools.import";
+        public const string UpdateGameTool = "tools.update";
+        public const string DeleteGameTool = "tools.delete";
+        public const string LaunchGameTool = "tools.launch";
+        public const string OpenGameToolDirectory = "tools.directory.open";
+        public const string SyncTrainerCatalog = "trainers.catalog.sync";
+        public const string SearchTrainerCatalog = "trainers.catalog.search";
+        public const string GetTrainerReleases = "trainers.catalog.releases";
+        public const string DownloadTrainer = "trainers.download";
         public const string TaskEvent = "event.task";
         public const string NotificationEvent = "event.notification";
         public const string WorkerStateEvent = "event.workerState";

@@ -157,7 +157,7 @@ namespace GameSaveCenter.Playnite.Infrastructure
 
         private static Color? ResolveHostBackground(FrameworkElement host)
         {
-            DependencyObject current = host;
+            DependencyObject? current = host;
             while (current != null)
             {
                 var brush = current switch
@@ -189,7 +189,7 @@ namespace GameSaveCenter.Playnite.Infrastructure
         private static Color? ResolveResourceColor(FrameworkElement host, string key)
             => ExtractUsableColor(host.TryFindResource(key) as Brush);
 
-        private static Color? ExtractUsableColor(Brush brush)
+        private static Color? ExtractUsableColor(Brush? brush)
         {
             if (brush == null || brush.Opacity <= 0.08) return null;
             if (brush is SolidColorBrush solid && solid.Color.A > 24)

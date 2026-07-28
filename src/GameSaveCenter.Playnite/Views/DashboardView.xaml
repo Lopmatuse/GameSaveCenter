@@ -453,29 +453,29 @@
                             </Border>
                             <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.4.3" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.5.0" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
                     <Border Grid.Row="1" Height="1" Background="{DynamicResource GscDividerBrush}" Margin="0,0,0,15"/>
                     <StackPanel Grid.Row="2">
-                        <RadioButton x:Name="NavOverview" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" IsChecked="True" Tag="0" Checked="OnNavigationChecked">
-                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE80F;" Width="27" FontSize="16"/><TextBlock Text="概览" FontWeight="SemiBold"/></StackPanel>
+                        <RadioButton x:Name="NavOverview" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" IsChecked="True" Tag="Overview" Checked="OnNavigationChecked">
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE80F;" Width="27" FontSize="16"/><TextBlock Text="首页" FontWeight="SemiBold"/></StackPanel>
                         </RadioButton>
-                        <RadioButton x:Name="NavMedia" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="1" Checked="OnNavigationChecked">
-                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB9F;" Width="27" FontSize="16"/><TextBlock Text="截图与录像"/></StackPanel>
+                        <RadioButton x:Name="NavSaves" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="Saves" Checked="OnNavigationChecked">
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE74E;" Width="27" FontSize="16"/><TextBlock Text="存档中心"/></StackPanel>
                         </RadioButton>
-                        <RadioButton x:Name="NavPaths" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="2" Checked="OnNavigationChecked">
-                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Width="27" FontSize="16"/><TextBlock Text="候选路径"/></StackPanel>
+                        <RadioButton x:Name="NavTrainers" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="Trainers" Checked="OnNavigationChecked">
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Width="27" FontSize="16"/><TextBlock Text="修改器中心"/></StackPanel>
                         </RadioButton>
-                        <RadioButton x:Name="NavTasks" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="3" Checked="OnNavigationChecked">
-                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D5;" Width="27" FontSize="16"/><TextBlock Text="备份任务"/></StackPanel>
+                        <RadioButton x:Name="NavMedia" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="Media" Checked="OnNavigationChecked">
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB9F;" Width="27" FontSize="16"/><TextBlock Text="媒体中心"/></StackPanel>
                         </RadioButton>
-                        <RadioButton x:Name="NavDiagnostics" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="4" Checked="OnNavigationChecked">
-                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D9;" Width="27" FontSize="16"/><TextBlock Text="诊断中心"/></StackPanel>
+                        <RadioButton x:Name="NavTasks" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="Tasks" Checked="OnNavigationChecked">
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D5;" Width="27" FontSize="16"/><TextBlock Text="任务中心"/></StackPanel>
                         </RadioButton>
-                        <RadioButton x:Name="NavLogs" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="5" Checked="OnNavigationChecked">
-                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D2;" Width="27" FontSize="16"/><TextBlock Text="异常与日志"/></StackPanel>
+                        <RadioButton x:Name="NavMaintenance" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="Maintenance" Checked="OnNavigationChecked">
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D9;" Width="27" FontSize="16"/><TextBlock Text="维护中心"/></StackPanel>
                         </RadioButton>
                     </StackPanel>
                     <StackPanel Grid.Row="3" Margin="4,12,4,2">
@@ -503,8 +503,8 @@
         <Grid Grid.Row="0" Margin="4,0,0,16">
             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
             <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="概览" FontSize="25" FontWeight="SemiBold"/>
-                <TextBlock Text="存档、截图、任务与云同步中心" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0"/>
+                <TextBlock x:Name="PageTitleText" Text="首页" FontSize="25" FontWeight="SemiBold"/>
+                <TextBlock x:Name="PageSubtitleText" Text="存档、修改器、媒体与任务的一体化工作台" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0"/>
             </StackPanel>
             <WrapPanel x:Name="TopActionsPanel" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
                 <Border Background="{StaticResource GscAccentTintBrush}" BorderBrush="{StaticResource GscAccentTintStrongBrush}" BorderThickness="1" CornerRadius="12" Padding="11,7" Margin="0,0,8,8">
@@ -775,6 +775,154 @@
                                     <TextBlock Text="{Binding RetentionSummary}" TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                                 </StackPanel>
                             </Grid>
+                        </TabItem>
+
+                        <TabItem Header="修改器">
+                            <TabControl Margin="0,12,0,0" Background="Transparent" BorderThickness="0"
+                                        HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource GscTabItem}"/></TabControl.Resources>
+                                <TabItem Header="已安装">
+                                    <Grid Margin="0,12,0,0">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="当前游戏工具" FontSize="16" FontWeight="SemiBold"/>
+                                                <TextBlock Text="每个工具独立决定是否随游戏启动；新导入项目默认关闭自动启动。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,3,0,0"/>
+                                            </StackPanel>
+                                            <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
+                                                <Button Style="{StaticResource GscButtonBase}" Command="{Binding ImportTrainerCommand}" Content="导入修改器"/>
+                                                <Button Style="{StaticResource GscButtonBase}" Command="{Binding ImportToolFolderCommand}" Content="导入目录"/>
+                                                <Button Style="{StaticResource GscButtonBase}" Command="{Binding ImportCheatTableCommand}" Content="导入 CT" Margin="0"/>
+                                            </WrapPanel>
+                                        </Grid>
+                                        <Grid Grid.Row="1" Margin="0,12,0,10">
+                                            <ListBox ItemsSource="{Binding GameTools}" SelectedItem="{Binding SelectedGameTool}" BorderThickness="0"
+                                                     Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                                <ListBox.ItemContainerStyle>
+                                                    <Style TargetType="ListBoxItem">
+                                                        <Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0,0,0,8"/>
+                                                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Background" Value="Transparent"/>
+                                                        <Setter Property="Template">
+                                                            <Setter.Value><ControlTemplate TargetType="ListBoxItem">
+                                                                <Border x:Name="ToolCard" Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}"
+                                                                        BorderThickness="1" CornerRadius="14" Padding="14">
+                                                                    <ContentPresenter/>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsSelected" Value="True"><Setter TargetName="ToolCard" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/><Setter TargetName="ToolCard" Property="Background" Value="{StaticResource GscAccentTintBrush}"/></Trigger>
+                                                                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ToolCard" Property="BorderBrush" Value="{StaticResource GscAccentTintStrongBrush}"/></Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate></Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </ListBox.ItemContainerStyle>
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                                            <Border Width="36" Height="36" CornerRadius="11" Background="{StaticResource GscAccentTintStrongBrush}">
+                                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Foreground="{StaticResource GscAccentBrush}" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            </Border>
+                                                            <StackPanel Grid.Column="1" Margin="10,0,12,0">
+                                                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding DisplayName}"/>
+                                                                <TextBlock Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11" Margin="0,3,0,0">
+                                                                    <Run Text="{Binding TypeDisplay}"/><Run Text=" · "/><Run Text="{Binding SourceDisplay}"/><Run Text=" · "/><Run Text="{Binding ActiveVersion.VersionName}"/>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding FileStateDisplay}" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                                                                <TextBlock FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}" HorizontalAlignment="Right" Margin="0,3,0,0">
+                                                                    <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+                                                                        <Setter Property="Text" Value="仅手动启动"/>
+                                                                        <Style.Triggers><DataTrigger Binding="{Binding AutoStart}" Value="True"><Setter Property="Text" Value="随游戏启动"/></DataTrigger></Style.Triggers>
+                                                                    </Style></TextBlock.Style>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                            <StackPanel IsHitTestVisible="False" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <StackPanel.Style><Style TargetType="StackPanel"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding GameTools.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></StackPanel.Style>
+                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" FontSize="28" Foreground="{DynamicResource GscMutedTextBrush}" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="尚未绑定修改器或 Cheat Table" FontWeight="SemiBold" Margin="0,10,0,0" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="可以导入本地文件，或在 FLiNG 在线库中搜索并下载。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0" TextWrapping="Wrap" TextAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+                                        <Border Grid.Row="2" Background="{DynamicResource GscGlassStrongBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="14" Padding="14">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding SelectedGameTool.DisplayName, TargetNullValue=选择一个工具以调整启动设置}" FontWeight="SemiBold"/>
+                                                    <WrapPanel Margin="0,10,0,0">
+                                                        <CheckBox Content="启用" IsChecked="{Binding SelectedGameTool.Enabled}" Margin="0,3,18,3"/>
+                                                        <CheckBox Content="随游戏启动" IsChecked="{Binding SelectedGameTool.AutoStart}" Margin="0,3,18,3"/>
+                                                        <TextBlock Text="延迟" VerticalAlignment="Center"/>
+                                                        <TextBox Style="{StaticResource GscTextBox}" Width="54" Text="{Binding SelectedGameTool.LaunchDelaySeconds}" Margin="7,0"/>
+                                                        <TextBlock Text="秒" VerticalAlignment="Center" Margin="0,0,18,0"/>
+                                                        <CheckBox Content="游戏退出后关闭" IsChecked="{Binding SelectedGameTool.CloseOnGameExit}" Margin="0,3,18,3"/>
+                                                        <CheckBox Content="管理员权限" IsChecked="{Binding SelectedGameTool.RequiresAdmin}" Margin="0,3,0,3"/>
+                                                    </WrapPanel>
+                                                </StackPanel>
+                                                <WrapPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,0,0,0">
+                                                    <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding LaunchGameToolCommand}" Content="启动"/>
+                                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding SaveGameToolCommand}" Content="保存设置"/>
+                                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding OpenGameToolDirectoryCommand}" Content="打开目录"/>
+                                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding DeleteGameToolCommand}" Content="解除绑定" Margin="0"/>
+                                                </WrapPanel>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </TabItem>
+                                <TabItem Header="FLiNG 在线库">
+                                    <Grid Margin="0,12,0,0">
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                        <Border Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="14" Padding="14">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                                <TextBox Style="{StaticResource GscTextBox}" Text="{Binding TrainerSearchText, UpdateSourceTrigger=PropertyChanged}" ToolTip="输入英文游戏名；留空时使用当前 Playnite 游戏名"/>
+                                                <Button Grid.Column="1" Style="{StaticResource GscPrimaryButton}" Command="{Binding SearchTrainerCatalogCommand}" Content="搜索" Margin="10,0"/>
+                                                <Button Grid.Column="2" Style="{StaticResource GscButtonBase}" Command="{Binding SyncTrainerCatalogCommand}" Content="刷新目录" Margin="0"/>
+                                            </Grid>
+                                        </Border>
+                                        <Grid Grid.Row="1" Margin="0,12,0,0">
+                                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="14"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                            <Border Style="{StaticResource GscSurface}" CornerRadius="14" Padding="12">
+                                                <Grid>
+                                                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                                    <TextBlock Text="搜索结果" FontWeight="SemiBold" Margin="2,0,0,9"/>
+                                                    <ListBox Grid.Row="1" ItemsSource="{Binding TrainerCatalogResults}" SelectedItem="{Binding SelectedTrainerCatalogItem}" Background="Transparent" BorderThickness="0">
+                                                        <ListBox.ItemTemplate><DataTemplate>
+                                                            <StackPanel Margin="5,6">
+                                                                <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding Title}"/>
+                                                                <TextBlock Text="{Binding GameVersion, StringFormat=支持版本：{0}}" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11" Margin="0,3,0,0"/>
+                                                            </StackPanel>
+                                                        </DataTemplate></ListBox.ItemTemplate>
+                                                    </ListBox>
+                                                    <Button Grid.Row="2" Style="{StaticResource GscButtonBase}" Command="{Binding LoadTrainerReleasesCommand}" Content="查看可下载版本" Margin="0,10,0,0"/>
+                                                </Grid>
+                                            </Border>
+                                            <Border Grid.Column="2" Style="{StaticResource GscSurface}" CornerRadius="14" Padding="12">
+                                                <Grid>
+                                                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                                    <TextBlock Text="可下载版本" FontWeight="SemiBold" Margin="2,0,0,9"/>
+                                                    <ListBox Grid.Row="1" ItemsSource="{Binding TrainerReleases}" SelectedItem="{Binding SelectedTrainerRelease}" Background="Transparent" BorderThickness="0">
+                                                        <ListBox.ItemTemplate><DataTemplate>
+                                                            <Grid Margin="5,7">
+                                                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding DisplayName}"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding SizeDisplay}" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="10,0,0,0"/>
+                                                            </Grid>
+                                                        </DataTemplate></ListBox.ItemTemplate>
+                                                    </ListBox>
+                                                    <Button Grid.Row="2" Style="{StaticResource GscPrimaryButton}" Command="{Binding DownloadTrainerCommand}" Content="下载并绑定到当前游戏" Margin="0,10,0,0" HorizontalAlignment="Right"/>
+                                                </Grid>
+                                            </Border>
+                                        </Grid>
+                                    </Grid>
+                                </TabItem>
+                            </TabControl>
                         </TabItem>
 
                         <TabItem Header="截图与录像">

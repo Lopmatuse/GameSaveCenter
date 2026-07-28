@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,9 +14,7 @@ namespace GameSaveCenter.Playnite.Views
     {
         private readonly GameSaveCenterPlugin plugin;
         private readonly DispatcherTimer refreshTimer;
-        private readonly Dictionary<int, RadioButton> navigationItems = new Dictionary<int, RadioButton>();
         private DashboardViewModel viewModel;
-        private bool syncingNavigation;
         private bool hasPlayedEntrance;
         private bool visualSettingsSubscribed;
 
@@ -29,13 +26,6 @@ namespace GameSaveCenter.Playnite.Views
             viewModel = new DashboardViewModel(plugin);
             viewModel.PropertyChanged += OnViewModelPropertyChanged;
             DataContext = viewModel;
-
-            navigationItems[0] = NavOverview;
-            navigationItems[1] = NavMedia;
-            navigationItems[2] = NavPaths;
-            navigationItems[3] = NavTasks;
-            navigationItems[4] = NavDiagnostics;
-            navigationItems[5] = NavLogs;
 
             refreshTimer = new DispatcherTimer(DispatcherPriority.Background);
             refreshTimer.Tick += OnRefreshTimerTick;
@@ -108,14 +98,19 @@ namespace GameSaveCenter.Playnite.Views
         {
             if (SidebarColumn == null || MetricsPanel == null || GameListColumn == null) return;
 
-            var compactWidth = width < 1100;
-            SidebarColumn.Width = new GridLength(compactWidth ? 172 : 194);
-            SidebarGutterColumn.Width = new GridLength(compactWidth ? 12 : 18);
-            WorkspaceGutterColumn.Width = new GridLength(compactWidth ? 12 : 16);
+            var mode = width >= 1260 ? LayoutMode.Expanded
+                : width >= 980 ? LayoutMode.Standard
+                : width >= 760 ? LayoutMode.Compact
+                : LayoutMode.Narrow;
+            viewModel.LayoutMode = mode;
+            var compactWidth = mode == LayoutMode.Compact || mode == LayoutMode.Narrow;
+            SidebarColumn.Width = new GridLength(mode == LayoutMode.Expanded ? 220 : mode == LayoutMode.Standard ? 194 : 158);
+            SidebarGutterColumn.Width = new GridLength(compactWidth ? 10 : 18);
+            WorkspaceGutterColumn.Width = new GridLength(compactWidth ? 10 : 16);
 
             if (compactWidth)
             {
-                GameListColumn.Width = new GridLength(width < 920 ? 250 : 285);
+                GameListColumn.Width = new GridLength(mode == LayoutMode.Narrow ? 220 : 250);
                 GameDetailColumn.Width = new GridLength(1, GridUnitType.Star);
             }
             else
@@ -136,28 +131,39 @@ namespace GameSaveCenter.Playnite.Views
 
         private void OnNavigationChecked(object sender, RoutedEventArgs e)
         {
-            if (syncingNavigation || DetailsTabControl == null) return;
+            if (DetailsTabControl == null) return;
             var item = sender as RadioButton;
             if (item == null || item.Tag == null) return;
-            if (!int.TryParse(item.Tag.ToString(), out var index)) return;
-            if (index < 0 || index >= DetailsTabControl.Items.Count) return;
+            if (!Enum.TryParse(item.Tag.ToString(), out WorkspaceKind workspace)) return;
+            viewModel.CurrentWorkspace = workspace;
+            var index = workspace == WorkspaceKind.Trainers ? 1
+                : workspace == WorkspaceKind.Media ? 2
+                : workspace == WorkspaceKind.Tasks ? 4
+                : workspace == WorkspaceKind.Maintenance ? 5
+                : 0;
             DetailsTabControl.SelectedIndex = index;
+            switch (workspace)
+            {
+                case WorkspaceKind.Saves:
+                    PageTitleText.Text = "存档中心"; PageSubtitleText.Text = "历史版本、备份策略与安全恢复"; break;
+                case WorkspaceKind.Trainers:
+                    PageTitleText.Text = "修改器中心"; PageSubtitleText.Text = "管理本地修改器、Cheat Table 与 FLiNG 在线目录"; break;
+                case WorkspaceKind.Media:
+                    PageTitleText.Text = "媒体中心"; PageSubtitleText.Text = "截图、录像与待归类媒体"; break;
+                case WorkspaceKind.Tasks:
+                    PageTitleText.Text = "任务中心"; PageSubtitleText.Text = "查看后台任务、进度与失败详情"; break;
+                case WorkspaceKind.Maintenance:
+                    PageTitleText.Text = "维护中心"; PageSubtitleText.Text = "Worker、Ludusavi、目录与诊断"; break;
+                default:
+                    PageTitleText.Text = "首页"; PageSubtitleText.Text = "存档、修改器、媒体与任务的一体化工作台"; break;
+            }
+            AnimateElement(DetailsTabControl, 10, 0, 0.2);
         }
 
         private void OnDetailsTabSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (!ReferenceEquals(e.Source, DetailsTabControl)) return;
-            SyncNavigationFromTab();
             AnimateElement(DetailsTabControl, 10, 0, 0.2);
-        }
-
-        private void SyncNavigationFromTab()
-        {
-            if (DetailsTabControl == null) return;
-            if (!navigationItems.TryGetValue(DetailsTabControl.SelectedIndex, out var item)) return;
-            syncingNavigation = true;
-            try { item.IsChecked = true; }
-            finally { syncingNavigation = false; }
         }
 
         private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -195,7 +201,7 @@ namespace GameSaveCenter.Playnite.Views
         private void OnButtonMouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
             => AnimateTranslate(sender as FrameworkElement, 0, 0, 150);
 
-        private void AnimateTranslate(FrameworkElement element, double x, double y, int milliseconds)
+        private void AnimateTranslate(FrameworkElement? element, double x, double y, int milliseconds)
         {
             if (element == null || !MotionEnabled) return;
             var translate = GetMutableTranslateTransform(element);
@@ -204,7 +210,7 @@ namespace GameSaveCenter.Playnite.Views
             translate.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(y, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
         }
 
-        private void AnimateScale(FrameworkElement element, double scaleValue, int milliseconds)
+        private void AnimateScale(FrameworkElement? element, double scaleValue, int milliseconds)
         {
             if (element == null || !MotionEnabled) return;
             var scale = GetMutableScaleTransform(element);

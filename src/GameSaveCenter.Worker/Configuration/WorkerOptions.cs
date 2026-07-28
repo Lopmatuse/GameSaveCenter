@@ -35,6 +35,8 @@ public sealed class WorkerOptions
     public string DatabasePath => Path.Combine(DataDirectory, "gamesavecenter.db");
     public string LogDirectory => Path.Combine(DataDirectory, "Logs");
     public string DetectionSnapshotDirectory => Path.Combine(DataDirectory, "DetectionSnapshots");
+    public string GameToolsDirectory => Path.Combine(DataDirectory, "GameTools");
+    public string DownloadDirectory => Path.Combine(DataDirectory, "Downloads");
     public string RuntimeSettingsPath => Path.Combine(DataDirectory, "worker-settings.json");
 
     public static WorkerOptions Load(IConfiguration configuration)
@@ -102,6 +104,8 @@ public sealed class WorkerOptions
         FullBackupLimit = Math.Clamp(FullBackupLimit, 1, 255);
         DifferentialBackupLimit = Math.Clamp(DifferentialBackupLimit, 0, 255);
         Directory.CreateDirectory(DataDirectory);
+        Directory.CreateDirectory(GameToolsDirectory);
+        Directory.CreateDirectory(DownloadDirectory);
         if (!string.IsNullOrWhiteSpace(LudusaviBackupDirectory)) Directory.CreateDirectory(LudusaviBackupDirectory);
         if (!string.IsNullOrWhiteSpace(MediaArchiveDirectory)) Directory.CreateDirectory(MediaArchiveDirectory);
     }

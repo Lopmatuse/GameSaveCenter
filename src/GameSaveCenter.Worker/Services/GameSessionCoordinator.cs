@@ -13,11 +13,12 @@ public sealed class GameSessionCoordinator : BackgroundService
     private readonly BackupOrchestrator _backup;
     private readonly MediaSyncService _media;
     private readonly SavePathDetectionService _detection;
+    private readonly GameToolService _gameTools;
     private readonly ILogger<GameSessionCoordinator> _logger;
     private readonly ConcurrentDictionary<string,ActiveSession> _active=new(StringComparer.OrdinalIgnoreCase);
 
-    public GameSessionCoordinator(SqliteStateStore store,BackupOrchestrator backup,MediaSyncService media,SavePathDetectionService detection,ILogger<GameSessionCoordinator> logger)
-    { _store=store;_backup=backup;_media=media;_detection=detection;_logger=logger; }
+    public GameSessionCoordinator(SqliteStateStore store,BackupOrchestrator backup,MediaSyncService media,SavePathDetectionService detection,GameToolService gameTools,ILogger<GameSessionCoordinator> logger)
+    { _store=store;_backup=backup;_media=media;_detection=detection;_gameTools=gameTools;_logger=logger; }
 
     public IReadOnlyCollection<GameSessionEventDto> ActiveSessions=>_active.Values.Select(x=>x.Event).ToList();
 
@@ -38,6 +39,7 @@ public sealed class GameSessionCoordinator : BackgroundService
         var active=new ActiveSession(incoming,DateTime.UtcNow.AddMinutes(Math.Max(5,policy.DuringPlayIntervalMinutes)));
         _active[incoming.PlayniteId]=active;await _store.AddSessionAsync(incoming,token).ConfigureAwait(false);
         _detection.BeginSessionCapture(incoming);
+        _=RunSafeAsync(()=>_gameTools.StartAutomaticAsync(incoming,CancellationToken.None),"automatic game tools",incoming.GameName);
         _logger.LogInformation("Session started for {Game} from {Source}",incoming.GameName,incoming.Source);return incoming;
     }
 
@@ -47,6 +49,7 @@ public sealed class GameSessionCoordinator : BackgroundService
         active.Event.StoppedUtc=incoming.StoppedUtc??DateTime.UtcNow;
         active.Event.ElapsedSeconds=incoming.ElapsedSeconds>0?incoming.ElapsedSeconds:(long)(active.Event.StoppedUtc.Value-active.Event.StartedUtc).TotalSeconds;
         await _store.AddSessionAsync(active.Event,token).ConfigureAwait(false);
+        await _gameTools.StopAutomaticAsync(active.Event.SessionId,token).ConfigureAwait(false);
         var policy=await _store.GetPolicyAsync(active.Event.PlayniteId,token).ConfigureAwait(false);
         if(policy.Enabled&&policy.BackupOnGameStop)
             _=RunSafeAsync(()=>_backup.BackupAsync(new BackupRequestDto{PlayniteIds=new(){active.Event.PlayniteId},Force=true,Reason="GameStopped",SessionId=active.Event.SessionId},CancellationToken.None),"exit backup",active.Event.GameName);

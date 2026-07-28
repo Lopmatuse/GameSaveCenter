@@ -366,6 +366,45 @@ def check_media_sql_migration() -> None:
     finally:
         connection.close()
 
+
+def check_game_tools_guards() -> None:
+    """Protect the trainer schema, IPC surface and navigation separation."""
+    store = (ROOT / "src/GameSaveCenter.Worker/Persistence/SqliteStateStore.cs").read_text(encoding="utf-8")
+    service = (ROOT / "src/GameSaveCenter.Worker/Services/GameToolService.cs").read_text(encoding="utf-8")
+    source = (ROOT / "src/GameSaveCenter.Worker/Services/FlingTrainerCatalogSource.cs").read_text(encoding="utf-8")
+    dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    code_behind = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml.cs").read_text(encoding="utf-8")
+    schema_match = re.search(r'private const string Schema = @"(.*?)";\s*\}', store, re.S)
+    if not schema_match:
+        return
+    connection = sqlite3.connect(":memory:")
+    try:
+        connection.executescript(
+            "CREATE TABLE games(playnite_id TEXT PRIMARY KEY,name TEXT NOT NULL,platform INTEGER NOT NULL,"
+            "descriptor_json TEXT NOT NULL,updated_utc TEXT NOT NULL);"
+        )
+        connection.executescript(schema_match.group(1))
+        tables = {row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        expected = {"game_tools", "game_tool_versions", "trainer_catalog", "trainer_releases"}
+        if not expected.issubset(tables):
+            fail(f"Game tool migration tables missing: {sorted(expected - tables)}")
+        connection.executescript(schema_match.group(1))
+    except Exception as exc:
+        fail(f"Game tool schema is not idempotent: {exc}")
+    finally:
+        connection.close()
+    for token in ("ArchivePathGuard.ResolveEntryPath", "AutoStart", "CloseOnGameExit", "HasAntiCheat"):
+        if token not in service:
+            fail(f"Game tool safety guard missing: {token}")
+    for token in ("flingtrainer.com", "EnsureFlingUri", "FLING_CATALOG_PARSE_FAILED"):
+        if token not in source:
+            fail(f"FLiNG source boundary missing: {token}")
+    for token in ("修改器中心", "ImportTrainerCommand", "DownloadTrainerCommand", "TrainerCatalogResults"):
+        if token not in dashboard:
+            fail(f"Trainer center UI binding missing: {token}")
+    if "SyncNavigationFromTab" in code_behind:
+        fail("Primary workspace navigation must not be synchronized back from internal tabs")
+
 def check_windows_launchers() -> None:
     """Keep the double-click bootstrap safe for legacy cmd.exe and Windows PowerShell 5.1."""
     launchers = [
@@ -400,13 +439,14 @@ def main() -> int:
     check_dashboard_regressions()
     check_media_inbox_guards()
     check_media_sql_migration()
+    check_game_tools_guards()
     check_windows_launchers()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:
             print(f" - {item}")
         return 1
-    print("Source validation passed: JSON/XML/YAML, XAML semantics/resources, C# delimiters, solution, IPC constants, version consistency, delivery guards, media inbox/SQLite migration guards and Windows launchers.")
+    print("Source validation passed: JSON/XML/YAML, XAML semantics/resources, C# delimiters, solution, IPC constants, version consistency, delivery guards, media/game-tool SQLite guards and Windows launchers.")
     print("Note: this does not replace dotnet build/test on Windows with Playnite installed.")
     return 0
 
