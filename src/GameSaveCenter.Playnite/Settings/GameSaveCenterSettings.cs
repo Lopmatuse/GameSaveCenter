@@ -22,7 +22,8 @@ namespace GameSaveCenter.Playnite.Settings
             var saved = plugin.LoadPluginSettings<GameSaveCenterSettings>();
             if (saved != null) CopyFrom(saved);
             var pluginInstallPath = Path.GetDirectoryName(typeof(GameSaveCenterPlugin).Assembly.Location) ?? plugin.GetPluginUserDataPath();
-            EnsureDefaults(pluginInstallPath);
+            if (EnsureDefaults(pluginInstallPath))
+                plugin.SavePluginSettings(this);
         }
 
         public string WorkerExecutable { get; set; } = string.Empty;
@@ -71,6 +72,8 @@ namespace GameSaveCenter.Playnite.Settings
             errors = new List<string>();
             if (string.IsNullOrWhiteSpace(WorkerExecutable) || !File.Exists(Environment.ExpandEnvironmentVariables(WorkerExecutable)))
                 errors.Add("未找到 GameSaveCenter Worker。请先运行打包脚本，或选择正确的 Worker 可执行文件。");
+            else if (!IsWorkerExecutable(WorkerExecutable))
+                errors.Add("Worker 路径必须指向 GameSaveCenter.Worker.exe，不能选择 Ludusavi 或其他程序。");
             if (!string.IsNullOrWhiteSpace(LudusaviExecutable) && !File.Exists(Environment.ExpandEnvironmentVariables(LudusaviExecutable)))
                 errors.Add("Ludusavi 路径不存在。");
             if (!string.IsNullOrWhiteSpace(RcloneExecutable) && !File.Exists(Environment.ExpandEnvironmentVariables(RcloneExecutable)))
@@ -112,16 +115,38 @@ namespace GameSaveCenter.Playnite.Settings
             DifferentialBackupLimit = DifferentialBackupLimit
         };
 
-        private void EnsureDefaults(string pluginInstallPath)
+        private bool EnsureDefaults(string pluginInstallPath)
         {
+            var changed = false;
             var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             var pictures = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
-            if (string.IsNullOrWhiteSpace(WorkerExecutable))
-                WorkerExecutable = Path.Combine(pluginInstallPath, "Worker", "GameSaveCenter.Worker.exe");
+            var packagedWorker = Path.Combine(pluginInstallPath, "Worker", "GameSaveCenter.Worker.exe");
+            if (!string.IsNullOrWhiteSpace(WorkerExecutable) &&
+                !IsWorkerExecutable(WorkerExecutable) &&
+                string.IsNullOrWhiteSpace(LudusaviExecutable) &&
+                IsLudusaviExecutable(WorkerExecutable) &&
+                File.Exists(Expand(WorkerExecutable)))
+            {
+                // Repair the 0.4.2 settings mix-up without losing the user's valid Ludusavi path.
+                LudusaviExecutable = WorkerExecutable;
+                changed = true;
+            }
+            if (string.IsNullOrWhiteSpace(WorkerExecutable) || !IsWorkerExecutable(WorkerExecutable))
+            {
+                WorkerExecutable = packagedWorker;
+                changed = true;
+            }
             if (string.IsNullOrWhiteSpace(LudusaviBackupDirectory))
+            {
                 LudusaviBackupDirectory = Path.Combine(documents, "GameSaveCenter", "Saves");
+                changed = true;
+            }
             if (string.IsNullOrWhiteSpace(MediaArchiveDirectory))
+            {
                 MediaArchiveDirectory = Path.Combine(pictures, "GameSaveCenter");
+                changed = true;
+            }
+            return changed;
         }
 
         private GameSaveCenterSettings Clone() => JsonConvert.DeserializeObject<GameSaveCenterSettings>(JsonConvert.SerializeObject(this)) ?? new GameSaveCenterSettings();
@@ -156,5 +181,11 @@ namespace GameSaveCenter.Playnite.Settings
         }
 
         private static string Expand(string value) => string.IsNullOrWhiteSpace(value) ? string.Empty : Environment.ExpandEnvironmentVariables(value);
+
+        internal static bool IsWorkerExecutable(string value)
+            => string.Equals(Path.GetFileName(Expand(value)), "GameSaveCenter.Worker.exe", StringComparison.OrdinalIgnoreCase);
+
+        private static bool IsLudusaviExecutable(string value)
+            => string.Equals(Path.GetFileName(Expand(value)), "ludusavi.exe", StringComparison.OrdinalIgnoreCase);
     }
 }

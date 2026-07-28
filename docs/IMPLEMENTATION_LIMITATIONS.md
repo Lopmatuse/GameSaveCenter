@@ -1,9 +1,9 @@
 # 已知限制与风险
 
-## 1. 最新 0.4.2 尚未完成 Windows 侧栏回归
+## 1. 最新 0.4.3 尚未完成全部 Windows 业务回归
 
 - 当前执行环境没有 Windows、Playnite、WPF 或可用 .NET SDK，因此不能执行真实编译、安装和侧栏加载。
-- 0.4.1 已在用户 Windows 真机完成编译、安装和插件发现，但点击侧栏时因缺失 `GscStatusPill` 静态资源崩溃；0.4.2 已源码修复，待重新验证。
+- 0.4.2 已在用户 Windows 真机完成编译、安装并打开侧栏；0.4.3 已通过 Release 编译和隔离 Worker 存活测试，仍需验证配置自动迁移、Playnite 内窗口缩放及真实 Ludusavi 调用。
 
 当前执行容器没有 .NET SDK、MSBuild、Playnite 和 Windows API。尝试下载临时 SDK 时被环境的网络/文件策略阻止。因此：
 

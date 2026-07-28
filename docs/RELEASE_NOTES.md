@@ -1,3 +1,14 @@
+# 0.4.3 Development Preview
+
+- 修复 0.4.2 配置可能把 `ludusavi.exe` 误存为 Worker 路径，导致刷新时反复打开 Ludusavi 窗口的问题。
+- 启动时自动迁移误填路径：恢复打包内 `GameSaveCenter.Worker.exe`，并在 Ludusavi 路径为空时保留用户原有的有效路径。
+- Worker 启动增加目标身份校验、并发启动锁、隐藏窗口和启动/退出日志；错误程序即使退出码为 0 也不会再被当作 Worker 启动。
+- 搜索框改为完整宽度独占行，状态和排序筛选放到第二行，解决高 DPI 下搜索框只剩图标的问题。
+- ComboBox 主体、箭头、Popup 和选项全部改为主题自适应的 Apple-inspired WPF 模板，深色主题不再出现系统白色下拉框。
+- Tab 内容改为双向拉伸；矮窗口自动收起统计卡片，将剩余高度优先交给存档历史和其他详情列表。
+- 主工作区按宽度调整侧栏、栏间距与游戏列表宽度，避免缩放时右侧详情被固定内容挤到不可见。
+- Windows Release 编译、源码/XAML 门禁和隔离 Worker 存活冒烟验证已通过；Playnite 真实交互回归记录在本版本交付说明中。
+
 # 0.4.2 Development Preview
 
 - 修复 Playnite 10.56 中点击 GameSaveCenter 侧栏时因缺失 `GscStatusPill` 静态资源导致的 `XamlParseException` 崩溃。

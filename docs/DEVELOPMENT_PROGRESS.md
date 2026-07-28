@@ -1,7 +1,7 @@
 # 开发实现进度
 
 更新时间：2026-07-28
-当前版本：`0.4.2-development-preview`
+当前版本：`0.4.3-development-preview`
 
 状态定义：
 
@@ -10,7 +10,16 @@
 - 🚧 **部分实现**：核心算法或基础链路已完成，仍缺真实平台数据、远端摄取或完整 UI 闭环。
 - ⬜ **未开发**：没有可用实现。
 
-> Windows 真机已确认 0.4.1 可以编译、安装并由 Playnite 10.56 加载，但打开 GameSaveCenter 侧栏时因缺失 `GscStatusPill` 静态资源崩溃。0.4.2 已修复该资源错误并增加资源引用门禁，仍需在 Windows 重新 build/test/package 并按 `WINDOWS_TEST_PLAN.md` 回归。
+> Windows 真机已确认 0.4.2 可以编译、安装并打开侧栏。0.4.3 修复 Worker/Ludusavi 路径混淆、重复启动和缩放布局问题；Release 编译与隔离 Worker 冒烟测试已通过，仍需完成 Playnite 交互与真实 Ludusavi 回归。
+
+## 2026-07-28 0.4.3 Worker 与响应式界面热修复
+
+- Windows `.NET SDK 9.0.302` 完成 Release restore/build/test/publish/package，Core 9 项测试全部通过。
+- 安装脚本确认 Playnite 扩展清单为 `0.4.3`、DLL 为 `0.4.3.0`。
+- 使用原 0.4.2 错误配置启动后，`WorkerExecutable` 已自动恢复为打包 Worker，原 `ludusavi.exe` 路径迁移到 `LudusaviExecutable`。
+- `worker-launch.log` 在进程启动前创建，记录了唯一 Worker 启动、SQLite 初始化和后续隐藏 CLI 调用。
+- Playnite 1366×768 真机确认侧栏打开、Worker/Ludusavi 正常、搜索输入/过滤正常、深色 ComboBox Popup 可读、存档历史区域保持可见。
+- 尚未对含真实历史数据的 DataGrid 滚动、125%/150%/200% DPI 和浅色主题逐项截图回归。
 
 ## 工程与治理
 
@@ -24,7 +33,7 @@
 | 含 `.git` 的源码打包脚本 | ✅ | `scripts/package-source.ps1` 使用 ZipFile，包含隐藏目录 |
 | 跨平台源码结构校验 | ✅ | `scripts/validate-source.py` 已通过 |
 | Core 单元测试源码 | ✅ | 6 组 xUnit 测试；当前环境未执行 |
-| Windows 真机编译与 Playnite 加载 | 🧪 | 0.4.1 已真实编译、安装并加载，但侧栏打开时资源解析崩溃；0.4.2 待重新回归 |
+| Windows 真机编译与 Playnite 加载 | 🧪 | 0.4.2 已真实编译、安装并打开侧栏；0.4.3 已 Release 编译，待安装后完成交互回归 |
 
 
 ## 0.4.1 全局媒体收件箱闭环

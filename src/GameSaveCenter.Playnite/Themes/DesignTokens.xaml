@@ -24,6 +24,7 @@
     <SolidColorBrush x:Key="GscControlFillBrush" Color="#CC171A25"/>
     <SolidColorBrush x:Key="GscControlStrokeBrush" Color="#30FFFFFF"/>
     <SolidColorBrush x:Key="GscDividerBrush" Color="#2B8E8E93"/>
+    <SolidColorBrush x:Key="GscPopupBrush" Color="#FA202330"/>
 
     <CornerRadius x:Key="GscCornerSmall">8</CornerRadius>
     <CornerRadius x:Key="GscCornerControl">11</CornerRadius>

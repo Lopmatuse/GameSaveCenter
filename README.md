@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.4.2-development-preview`。** Windows 真机已经确认 0.4.1 能够完成编译、安装并被 Playnite 10.56 识别，但首次打开侧栏时因缺失 `GscStatusPill` 静态资源而崩溃。0.4.2 补齐该样式，移除两个不存在的动态资源名，并新增 GameSaveCenter 自有 XAML 资源引用门禁。媒体收件箱、旧库迁移、源文件保护、连续多版本、安全恢复和云端链路仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 完成真机回归后，才能用于重要存档。
+> **当前状态：`0.4.3-development-preview`。** 0.4.2 已在 Windows 真机完成编译、安装并打开侧栏；0.4.3 进一步修复 Worker 路径误指向 Ludusavi、重复弹窗、深色下拉框和窗口缩放后历史列表消失的问题。媒体收件箱、旧库迁移、源文件保护、连续多版本、安全恢复和云端链路仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 完成真机回归后，才能用于重要存档。
 
 ## 核心原则
 

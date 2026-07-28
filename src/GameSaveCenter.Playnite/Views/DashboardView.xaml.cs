@@ -42,6 +42,7 @@ namespace GameSaveCenter.Playnite.Views
             Loaded += OnLoaded;
             Unloaded += OnUnloaded;
             IsVisibleChanged += OnIsVisibleChanged;
+            SizeChanged += OnSizeChanged;
         }
 
         private bool MotionEnabled => plugin.Settings.EnableUiAnimations && !SystemParameters.HighContrast && SystemParameters.ClientAreaAnimation;
@@ -56,6 +57,7 @@ namespace GameSaveCenter.Playnite.Views
             var version = typeof(DashboardView).Assembly.GetName().Version;
             SidebarVersionText.Text = version == null ? "开发预览" : "v" + version.ToString(3);
             ApplyAdaptiveTheme();
+            ApplyResponsiveLayout(ActualWidth, ActualHeight);
             refreshTimer.Interval = TimeSpan.FromSeconds(Math.Max(5, Math.Min(300, plugin.Settings.DashboardRefreshSeconds)));
             if (plugin.Settings.EnableDashboardAutoRefresh) refreshTimer.Start();
 
@@ -92,7 +94,42 @@ namespace GameSaveCenter.Playnite.Views
 
         private void OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (IsVisible) ApplyAdaptiveTheme();
+            if (IsVisible)
+            {
+                ApplyAdaptiveTheme();
+                ApplyResponsiveLayout(ActualWidth, ActualHeight);
+            }
+        }
+
+        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+            => ApplyResponsiveLayout(e.NewSize.Width, e.NewSize.Height);
+
+        private void ApplyResponsiveLayout(double width, double height)
+        {
+            if (SidebarColumn == null || MetricsPanel == null || GameListColumn == null) return;
+
+            var compactWidth = width < 1100;
+            SidebarColumn.Width = new GridLength(compactWidth ? 172 : 194);
+            SidebarGutterColumn.Width = new GridLength(compactWidth ? 12 : 18);
+            WorkspaceGutterColumn.Width = new GridLength(compactWidth ? 12 : 16);
+
+            if (compactWidth)
+            {
+                GameListColumn.Width = new GridLength(width < 920 ? 250 : 285);
+                GameDetailColumn.Width = new GridLength(1, GridUnitType.Star);
+            }
+            else
+            {
+                GameListColumn.Width = new GridLength(0.95, GridUnitType.Star);
+                GameDetailColumn.Width = new GridLength(2.05, GridUnitType.Star);
+            }
+
+            // At short Playnite client heights the metric strip previously consumed the space
+            // required by the detail tabs, reducing the history grid to zero pixels.
+            var showMetrics = height >= 800 && width >= 1180;
+            MetricsPanel.Visibility = showMetrics ? Visibility.Visible : Visibility.Collapsed;
+            MetricsPanel.Columns = width >= 1450 ? 6 : 3;
+            MetricsPanel.Margin = showMetrics ? new Thickness(0, 0, 0, 18) : new Thickness(0);
         }
 
         private void OnRefreshTimerTick(object sender, EventArgs e) => viewModel?.RequestBackgroundRefresh();
@@ -291,6 +328,8 @@ namespace GameSaveCenter.Playnite.Views
             Resources["GscControlFillBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlFill);
             Resources["GscControlStrokeBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlStroke);
             Resources["GscDividerBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Divider);
+            Resources["GscPopupBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
+                250, palette.StrongSurfaceTop.R, palette.StrongSurfaceTop.G, palette.StrongSurfaceTop.B));
             Resources["GscGlassFillBrush"] = AdaptiveThemePaletteFactory.Gradient(palette.SurfaceTop, palette.SurfaceBottom);
             Resources["GscGlassStrongBrush"] = AdaptiveThemePaletteFactory.Gradient(palette.StrongSurfaceTop, palette.StrongSurfaceBottom);
             Resources["GscSidebarBrush"] = AdaptiveThemePaletteFactory.Gradient(palette.SidebarTop, palette.SidebarBottom);

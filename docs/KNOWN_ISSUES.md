@@ -1,7 +1,7 @@
 # 已知缺陷与回归状态
 
 更新时间：2026-07-27
-目标版本：`0.4.2-development-preview`
+目标版本：`0.4.3-development-preview`
 
 本文档是持续缺陷台账。任何修复必须同步更新 `DEVELOPMENT_PROGRESS.md` 与 `PROJECT_MEMORY.md`。
 
@@ -26,6 +26,10 @@
 | GSC-017 | 备份保留策略依赖 Ludusavi 隐藏全局配置 | 已修复待验证 | 设置页显式控制格式、完整/差异数量和压缩 |
 | GSC-018 | Simple 备份 ID `.` 更新时间不刷新 | 已修复待验证 | UPSERT 更新 `created_utc`，历史显示最近时间 |
 | GSC-019 | Simple 模式无法提供多历史恢复点 | 已解决设计缺口待验证 | 默认 ZIP，完整 3、差异 5；Simple 明确提示单副本 |
+| GSC-024 | Worker 路径误指向 Ludusavi，刷新时反复打开窗口 | 已修复待 Playnite 回归 | 自动迁移错误配置；启动器拒绝非 Worker 文件并串行化并发启动 |
+| GSC-025 | 高 DPI 下搜索框被两个筛选框挤压 | 已修复待视觉回归 | 搜索独占一行，筛选在第二行等宽排列 |
+| GSC-026 | 深色主题 ComboBox/Popup 使用系统白色模板 | 已修复待视觉回归 | 主体、Chevron、Popup 和 ComboBoxItem 使用共享动态主题资源 |
+| GSC-027 | 窗口变矮后存档历史表格高度变为零 | 已修复待视觉回归 | Tab 内容拉伸；矮窗口收起统计卡片并优先保留详情列表空间 |
 
 ## 当前安全边界
 

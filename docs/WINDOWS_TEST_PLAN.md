@@ -294,8 +294,21 @@
 
 1. 关闭 Playnite，使用全新 0.4.2 源码执行 `GameSaveCenter-Run.cmd`，构建、测试、打包和安装必须全部成功。
 2. 在附加组件页确认 GameSaveCenter 显示 `0.4.2`，不要继续测试仍显示 `0.4.1` 的安装。
+
 3. 点击 GameSaveCenter 侧栏，必须成功创建 Dashboard；不得出现扩展崩溃窗口、`XamlParseException` 或找不到 `GscStatusPill`。
 4. 连续关闭并重新打开侧栏至少 5 次，依次切换概览、游戏、备份、任务、截图与录像、诊断和异常日志标签。
 5. 打开截图与录像页，待归类数量胶囊应具有玻璃背景和细边框；不存在透明空块、缺失边框或资源警告。
 6. 分别切换跟随 Playnite、固定浅色、固定深色；关闭并重开侧栏后资源仍能解析。
 7. 检查 `playnite.log` 与 `extensions.log`，本轮不得新增 GameSaveCenter XAML 资源解析异常。
+
+## 0.4.3 Worker 路径与响应式界面回归
+
+- [x] 使用错误的 `WorkerExecutable=ludusavi.exe` 旧配置启动，确认自动迁移为打包 Worker，并保留有效 Ludusavi 路径。
+- [x] 确认只存在一个 Worker，Ludusavi CLI 隐藏运行，不再连续打开 GUI 窗口。
+- [x] 确认 `worker-launch.log` 在启动前创建并包含启动目标、初始化和退出诊断。
+- [x] Windows Release build/test/publish/package/install 通过，清单 `0.4.3`、DLL `0.4.3.0`。
+- [x] 1366×768 深色主题下搜索框完整、输入过滤生效，两个筛选框及 Popup 不出现系统白色表面。
+- [x] 1366×768 下统计卡片自动收起，右侧存档历史表格仍可见且底部状态栏不重叠。
+- [ ] 在 1600×900、1280×720、1100×700 和允许的最小尺寸逐项拖动缩放。
+- [ ] 在 100%、125%、150%、200% DPI 与浅色/跟随 Playnite 主题复测 ComboBox、Tab 和 DataGrid。
+- [ ] 使用至少三个真实 ZIP 历史验证表格滚动、选择、恢复按钮区和备注区。

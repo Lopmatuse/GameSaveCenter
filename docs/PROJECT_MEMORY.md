@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-28
-当前版本：`0.4.2-development-preview`
+当前版本：`0.4.3-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
@@ -24,6 +24,14 @@
 - 用户提供的 `docs/design/APPLE_WPF_IMPLEMENTATION_PROMPT.md` 是后续 UI 设计与实现的长期基准；所有新增控件和改版必须同时通过 `docs/design/UI_CHANGE_GATE.md`。
 
 ## 当前已经进入仓库的实现
+
+### 0.4.3 启动与响应式界面修复
+
+- 0.4.2 的本机配置曾把 `WorkerExecutable` 写成 `ludusavi.exe`，导致每次健康检查都打开 Ludusavi GUI，随后以退出码 0 结束并触发下一次刷新重试。
+- 设置加载会识别这一特定混淆：把有效 Ludusavi 路径迁到 `LudusaviExecutable`，并恢复插件包内的 `Worker/GameSaveCenter.Worker.exe`。
+- Worker 启动器只接受正确文件名，使用进程内信号量合并并发启动，并在启动前就创建可诊断日志。
+- Dashboard 的搜索框独占筛选首行；ComboBox 使用完整深浅主题模板；Tab 内容明确 Stretch。
+- 高度不足 800 DIPs 时收起统计卡片，把垂直空间留给主工作区；紧凑宽度使用固定最小游戏列表宽度和更小栏间距。
 
 ### 工程与协议
 
