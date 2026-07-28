@@ -453,7 +453,7 @@
                             </Border>
                             <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.5.0" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.5.1" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>

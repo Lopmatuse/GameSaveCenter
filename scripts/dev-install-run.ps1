@@ -220,6 +220,15 @@ try {
 
     Stop-ProcessReliably -Names @('Playnite.DesktopApp', 'Playnite.FullscreenApp', 'GameSaveCenter.Worker')
 
+    # A source archive can contain obj/project.assets.json created on another machine.
+    # `dotnet clean` resolves package assets before deleting them, so clean must never
+    # run before restore has rewritten those machine-specific package paths.
+    Write-Host "`n==> 预先恢复 NuGet 依赖" -ForegroundColor Cyan
+    & dotnet restore '.\GameSaveCenter.sln' '--force-evaluate'
+    if ($LASTEXITCODE -ne 0) {
+        throw "NuGet 依赖恢复失败，dotnet 退出码：$LASTEXITCODE。请检查网络、NuGet 源和磁盘空间后重试。"
+    }
+
     if (-not $SkipClean) {
         Write-Host "`n==> 清理旧构建和旧打包产物" -ForegroundColor Cyan
         & dotnet clean '.\GameSaveCenter.sln' -c $Configuration

@@ -1,7 +1,7 @@
 # 开发实现进度
 
 更新时间：2026-07-28
-当前版本：`0.5.0-development-preview`
+当前版本：`0.5.1-development-preview`
 
 状态定义：
 
@@ -23,6 +23,11 @@
 - 新增隔离的 FLiNG 目录适配器、SQLite 本地搜索、版本展开、后台下载、安全解压和自动绑定。
 - 左侧导航调整为首页、存档中心、修改器中心、媒体中心、任务中心和维护中心；右侧内部标签不再反向改变一级导航。
 - Release 全解决方案编译通过，Core 测试 12/12 通过；Playnite 真机和 FLiNG 实际下载仍待回归。
+
+## 2026-07-28 0.5.1 构建恢复顺序热修复
+
+- 修复 `GameSaveCenter-Run.cmd` 间接调用的一键安装流程：在 `dotnet clean` 前先执行 NuGet restore，避免随源码包带来的其他机器 `project.assets.json` 指向不存在的包缓存而导致 `NETSDK1064`。
+- 发布 Worker 时恢复默认 restore 行为，确保 `win-x64` 发布能正确补齐 Runtime Identifier 资产。
 
 ## 2026-07-28 0.4.3 Worker 与响应式界面热修复
 

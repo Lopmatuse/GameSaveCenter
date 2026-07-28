@@ -1,3 +1,8 @@
+# 0.5.1 Development Preview
+
+- 修复一键构建在 NuGet 还原前执行 clean，遇到跨机器旧 `project.assets.json` 时可能报 `NETSDK1064` 缺包的问题。
+- 修复跳过构建时 Worker 发布可能缺少 `win-x64` Runtime Identifier 资产的问题。
+
 # 0.5.0 Development Preview
 
 - 新增原生 WPF 修改器中心：每游戏多个修改器、多个 CT、独立启用与自动启动策略。
