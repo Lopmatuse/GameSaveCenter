@@ -451,31 +451,31 @@
                             <Border Width="38" Height="38" CornerRadius="12" Background="{StaticResource GscAccentBrush}">
                                 <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18"/>
                             </Border>
-                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                            <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.5.1" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.5.2" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
                     <Border Grid.Row="1" Height="1" Background="{DynamicResource GscDividerBrush}" Margin="0,0,0,15"/>
                     <StackPanel Grid.Row="2">
                         <RadioButton x:Name="NavOverview" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" IsChecked="True" Tag="Overview" Checked="OnNavigationChecked">
-                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE80F;" Width="27" FontSize="16"/><TextBlock Text="首页" FontWeight="SemiBold"/></StackPanel>
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE80F;" Width="27" FontSize="16"/><TextBlock x:Name="NavOverviewLabel" Text="首页" FontWeight="SemiBold"/></StackPanel>
                         </RadioButton>
                         <RadioButton x:Name="NavSaves" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="Saves" Checked="OnNavigationChecked">
-                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE74E;" Width="27" FontSize="16"/><TextBlock Text="存档中心"/></StackPanel>
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE74E;" Width="27" FontSize="16"/><TextBlock x:Name="NavSavesLabel" Text="存档中心"/></StackPanel>
                         </RadioButton>
                         <RadioButton x:Name="NavTrainers" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="Trainers" Checked="OnNavigationChecked">
-                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Width="27" FontSize="16"/><TextBlock Text="修改器中心"/></StackPanel>
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Width="27" FontSize="16"/><TextBlock x:Name="NavTrainersLabel" Text="修改器中心"/></StackPanel>
                         </RadioButton>
                         <RadioButton x:Name="NavMedia" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="Media" Checked="OnNavigationChecked">
-                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB9F;" Width="27" FontSize="16"/><TextBlock Text="媒体中心"/></StackPanel>
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB9F;" Width="27" FontSize="16"/><TextBlock x:Name="NavMediaLabel" Text="媒体中心"/></StackPanel>
                         </RadioButton>
                         <RadioButton x:Name="NavTasks" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="Tasks" Checked="OnNavigationChecked">
-                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D5;" Width="27" FontSize="16"/><TextBlock Text="任务中心"/></StackPanel>
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D5;" Width="27" FontSize="16"/><TextBlock x:Name="NavTasksLabel" Text="任务中心"/></StackPanel>
                         </RadioButton>
                         <RadioButton x:Name="NavMaintenance" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" Tag="Maintenance" Checked="OnNavigationChecked">
-                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D9;" Width="27" FontSize="16"/><TextBlock Text="维护中心"/></StackPanel>
+                            <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D9;" Width="27" FontSize="16"/><TextBlock x:Name="NavMaintenanceLabel" Text="维护中心"/></StackPanel>
                         </RadioButton>
                     </StackPanel>
                     <StackPanel Grid.Row="3" Margin="4,12,4,2">
@@ -505,6 +505,9 @@
             <StackPanel VerticalAlignment="Center">
                 <TextBlock x:Name="PageTitleText" Text="首页" FontSize="25" FontWeight="SemiBold"/>
                 <TextBlock x:Name="PageSubtitleText" Text="存档、修改器、媒体与任务的一体化工作台" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0"/>
+                <ComboBox x:Name="CompactGameSelector" Visibility="Collapsed" Margin="0,8,0,0" Width="230"
+                          ItemsSource="{Binding GamesView}" SelectedItem="{Binding SelectedGame}" DisplayMemberPath="Name"
+                          ToolTip="在紧凑布局中切换当前游戏"/>
             </StackPanel>
             <WrapPanel x:Name="TopActionsPanel" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
                 <Border Background="{StaticResource GscAccentTintBrush}" BorderBrush="{StaticResource GscAccentTintStrongBrush}" BorderThickness="1" CornerRadius="12" Padding="11,7" Margin="0,0,8,8">
@@ -519,15 +522,18 @@
                         <TextBlock Text="正在处理" Foreground="{StaticResource GscAccentBrush}" FontWeight="SemiBold"/>
                     </StackPanel>
                 </Border>
-                <Button Style="{StaticResource GscButtonBase}" Command="{Binding RefreshCommand}">
+                <Button x:Name="TopRefreshButton" Style="{StaticResource GscButtonBase}" Command="{Binding RefreshCommand}">
                     <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72C;" Margin="0,0,8,0"/><TextBlock Text="刷新"/></StackPanel>
                 </Button>
-                <Button Style="{StaticResource GscButtonBase}" Command="{Binding BackupAllCommand}">
+                <Button x:Name="TopBackupAllButton" Style="{StaticResource GscButtonBase}" Command="{Binding BackupAllCommand}">
                     <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Margin="0,0,8,0"/><TextBlock Text="全部备份"/></StackPanel>
                 </Button>
-                <Button Style="{StaticResource GscButtonBase}" Command="{Binding SyncMediaCommand}">
+                <Button x:Name="TopMediaSyncButton" Style="{StaticResource GscButtonBase}" Command="{Binding SyncMediaCommand}">
                     <StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" Margin="0,0,8,0"/><TextBlock Text="同步媒体"/></StackPanel>
                 </Button>
+                <Button x:Name="TopTrainerImportButton" Style="{StaticResource GscButtonBase}" Command="{Binding ImportTrainerCommand}" Visibility="Collapsed" Content="导入修改器"/>
+                <Button x:Name="TopTrainerCatalogButton" Style="{StaticResource GscButtonBase}" Command="{Binding SyncTrainerCatalogCommand}" Visibility="Collapsed" Content="刷新目录"/>
+                <Button x:Name="TopDiagnosticsButton" Style="{StaticResource GscButtonBase}" Command="{Binding RefreshDiagnosticsCommand}" Visibility="Collapsed" Content="刷新诊断"/>
             </WrapPanel>
         </Grid>
 
@@ -577,7 +583,7 @@
                 <ColumnDefinition x:Name="GameDetailColumn" Width="2.05*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Style="{StaticResource GscSurface}" Padding="16">
+            <Border x:Name="GameBrowserPanel" Style="{StaticResource GscSurface}" Padding="16">
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                     <Grid Margin="2,0,0,10">
@@ -670,7 +676,7 @@
             <Border x:Name="GameDetailCard" Grid.Column="2" Style="{StaticResource GscSurface}" Padding="18">
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                    <Grid>
+                    <Grid x:Name="SelectedGameHeader">
                         <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
@@ -696,20 +702,21 @@
                             <TextBlock Text="{Binding SelectedGame.LudusaviName, StringFormat=Ludusavi：{0}, TargetNullValue=Ludusavi：未匹配}" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,5,0,0"/>
                         </StackPanel>
                         <WrapPanel Grid.Column="1">
-                            <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份"/>
-                            <Button Style="{StaticResource GscButtonBase}" Command="{Binding ValidateCommand}" Content="校验"/>
-                            <Button Style="{StaticResource GscButtonBase}" Command="{Binding DetectPathsCommand}" Content="侦测路径"/>
+                            <Button x:Name="BackupSelectedButton" Style="{StaticResource GscPrimaryButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份"/>
+                            <Button x:Name="ValidateButton" Style="{StaticResource GscButtonBase}" Command="{Binding ValidateCommand}" Content="校验"/>
+                            <Button x:Name="DetectPathsButton" Style="{StaticResource GscButtonBase}" Command="{Binding DetectPathsCommand}" Content="侦测路径"/>
+                            <Button x:Name="PolicyToggleButton" Style="{StaticResource GscButtonBase}" Click="OnTogglePolicy" Content="策略"/>
                         </WrapPanel>
                     </Grid>
 
-                    <Border Grid.Row="1" Background="#140A84FF" BorderBrush="#330A84FF" BorderThickness="1" CornerRadius="11" Padding="12" Margin="0,14,0,12">
+                    <Border x:Name="RestoreSafetyBanner" Grid.Row="1" Background="#140A84FF" BorderBrush="#330A84FF" BorderThickness="1" CornerRadius="11" Padding="12" Margin="0,14,0,12">
                         <DockPanel>
                             <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE946;" Foreground="{StaticResource GscInfoBrush}" FontSize="16" Margin="0,0,9,0" DockPanel.Dock="Left"/>
                             <TextBlock Text="自动恢复默认关闭。恢复前会创建并锁定当前快照，恢复后校验，失败时尝试回滚。" TextWrapping="Wrap"/>
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Row="2" Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,0,0,12">
+                    <Border x:Name="BackupPolicyPanel" Grid.Row="2" Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,0,0,12" Visibility="Collapsed">
                         <WrapPanel VerticalAlignment="Center">
                             <CheckBox Content="退出后备份" IsChecked="{Binding SelectedGame.Policy.BackupOnGameStop}" Margin="0,3,18,3"/>
                             <CheckBox Content="游玩中备份" IsChecked="{Binding SelectedGame.Policy.BackupDuringPlay}" Margin="0,3,12,3"/>
@@ -726,7 +733,24 @@
                                 HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch"
                                 SelectionChanged="OnDetailsTabSelectionChanged">
                         <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource GscTabItem}"/></TabControl.Resources>
-                        <TabItem Header="存档历史">
+                        <TabItem x:Name="OverviewTab" Header="概览">
+                            <Grid Margin="0,12,0,0">
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Border Style="{StaticResource GscSurface}" CornerRadius="12" Padding="16">
+                                    <WrapPanel>
+                                        <StackPanel Margin="0,0,28,8"><TextBlock Text="管理游戏" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.ManagedGames}" FontSize="26" FontWeight="SemiBold"/></StackPanel>
+                                        <StackPanel Margin="0,0,28,8"><TextBlock Text="需要关注" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.WarningGames}" FontSize="26" FontWeight="SemiBold"/></StackPanel>
+                                        <StackPanel Margin="0,0,28,8"><TextBlock Text="待归类媒体" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount}" FontSize="26" FontWeight="SemiBold"/></StackPanel>
+                                    </WrapPanel>
+                                </Border>
+                                <Border Grid.Row="1" Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2" Margin="0,12,0,0">
+                                    <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Tasks}" SelectedItem="{Binding SelectedTask}" IsReadOnly="True">
+                                        <DataGrid.Columns><DataGridTextColumn Header="最近任务" Binding="{Binding TaskType}" Width="120"/><DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="*"/><DataGridTextColumn Header="状态" Binding="{Binding StateDisplay}" Width="100"/></DataGrid.Columns>
+                                    </DataGrid>
+                                </Border>
+                            </Grid>
+                        </TabItem>
+                        <TabItem x:Name="SaveHistoryTab" Header="存档历史">
                             <Grid Margin="0,12,0,0">
                                 <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                 <Border Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2">
@@ -777,7 +801,7 @@
                             </Grid>
                         </TabItem>
 
-                        <TabItem Header="修改器">
+                        <TabItem x:Name="TrainerTab" Header="修改器">
                             <TabControl Margin="0,12,0,0" Background="Transparent" BorderThickness="0"
                                         HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
                                 <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource GscTabItem}"/></TabControl.Resources>
@@ -925,7 +949,7 @@
                             </TabControl>
                         </TabItem>
 
-                        <TabItem Header="截图与录像">
+                        <TabItem x:Name="MediaTab" Header="截图与录像">
                             <Grid Margin="0,12,0,0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -1019,7 +1043,7 @@
                             </Grid>
                         </TabItem>
 
-                        <TabItem Header="候选存档路径">
+                        <TabItem x:Name="CandidateTab" Header="候选存档路径">
                             <Grid Margin="0,12,0,0">
                                 <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                 <Border Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2">
@@ -1050,7 +1074,7 @@
                             </Grid>
                         </TabItem>
 
-                        <TabItem Header="任务">
+                        <TabItem x:Name="TaskTab" Header="任务">
                             <Grid Margin="0,12,0,0">
                                 <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                 <Border Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2">
@@ -1116,7 +1140,7 @@
 
 
 
-                        <TabItem Header="诊断">
+                        <TabItem x:Name="DiagnosticTab" Header="诊断">
                             <Grid Margin="0,12,0,0">
                                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                                 <WrapPanel>
@@ -1145,7 +1169,7 @@
                             </Grid>
                         </TabItem>
 
-                        <TabItem Header="异常与日志">
+                        <TabItem x:Name="LogsTab" Header="异常与日志">
                             <Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
                                 <Border Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2"><DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Findings}"><DataGrid.Columns><DataGridTextColumn Header="等级" Binding="{Binding Severity}" Width="70"/><DataGridTextColumn Header="标题" Binding="{Binding Title}" Width="170"/><DataGridTextColumn Header="详情" Binding="{Binding Detail}" Width="*"/></DataGrid.Columns></DataGrid></Border>
                                 <Border Grid.Row="1" Style="{StaticResource GscSurface}" CornerRadius="12" Padding="2" Margin="0,8,0,0"><DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Audit}"><DataGrid.Columns><DataGridTextColumn Header="本地时间" Binding="{Binding CreatedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm:ss}}" Width="128"/><DataGridTextColumn Header="分类" Binding="{Binding Category}" Width="100"/><DataGridTextColumn Header="消息" Binding="{Binding Message}" Width="*"/></DataGrid.Columns></DataGrid></Border>
@@ -1156,7 +1180,7 @@
             </Border>
         </Grid>
 
-        <Grid Grid.Row="3" Margin="4,13,4,0">
+        <Grid Grid.Row="3" Margin="0" Visibility="Collapsed">
             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
             <Border x:Name="StatusPill" Background="{DynamicResource GscGlassFillBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}"
                     BorderThickness="1" CornerRadius="12" Padding="10,6" HorizontalAlignment="Left" MaxWidth="980">

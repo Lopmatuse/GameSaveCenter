@@ -49,13 +49,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style TargetType="ComboBox">
-            <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
-            <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
-            <Setter Property="Padding" Value="9,6"/>
-            <Setter Property="MinHeight" Value="36"/>
-        </Style>
+        <Style TargetType="ComboBox" BasedOn="{StaticResource GscComboBox}"/>
+        <Style TargetType="ComboBoxItem" BasedOn="{StaticResource GscComboBoxItem}"/>
         <Style TargetType="CheckBox">
             <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>

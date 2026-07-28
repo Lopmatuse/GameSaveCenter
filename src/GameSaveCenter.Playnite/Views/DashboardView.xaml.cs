@@ -47,6 +47,7 @@ namespace GameSaveCenter.Playnite.Views
             var version = typeof(DashboardView).Assembly.GetName().Version;
             SidebarVersionText.Text = version == null ? "开发预览" : "v" + version.ToString(3);
             ApplyAdaptiveTheme();
+            UpdateWorkspacePresentation();
             ApplyResponsiveLayout(ActualWidth, ActualHeight);
             refreshTimer.Interval = TimeSpan.FromSeconds(Math.Max(5, Math.Min(300, plugin.Settings.DashboardRefreshSeconds)));
             if (plugin.Settings.EnableDashboardAutoRefresh) refreshTimer.Start();
@@ -98,50 +99,52 @@ namespace GameSaveCenter.Playnite.Views
         {
             if (SidebarColumn == null || MetricsPanel == null || GameListColumn == null) return;
 
-            var mode = width >= 1260 ? LayoutMode.Expanded
-                : width >= 980 ? LayoutMode.Standard
-                : width >= 760 ? LayoutMode.Compact
+            var mode = width >= 1320 ? LayoutMode.Expanded
+                : width >= 1050 ? LayoutMode.Standard
+                : width >= 880 ? LayoutMode.Compact
                 : LayoutMode.Narrow;
             viewModel.LayoutMode = mode;
-            var compactWidth = mode == LayoutMode.Compact || mode == LayoutMode.Narrow;
-            SidebarColumn.Width = new GridLength(mode == LayoutMode.Expanded ? 220 : mode == LayoutMode.Standard ? 194 : 158);
-            SidebarGutterColumn.Width = new GridLength(compactWidth ? 10 : 18);
-            WorkspaceGutterColumn.Width = new GridLength(compactWidth ? 10 : 16);
+            var iconSidebar = mode != LayoutMode.Expanded;
+            var gameScopedWorkspace = viewModel.CurrentWorkspace == WorkspaceKind.Saves
+                || viewModel.CurrentWorkspace == WorkspaceKind.Trainers
+                || viewModel.CurrentWorkspace == WorkspaceKind.Media;
+            var showGameBrowser = gameScopedWorkspace && (mode == LayoutMode.Expanded || mode == LayoutMode.Standard);
 
-            if (compactWidth)
-            {
-                GameListColumn.Width = new GridLength(mode == LayoutMode.Narrow ? 220 : 250);
-                GameDetailColumn.Width = new GridLength(1, GridUnitType.Star);
-            }
-            else
-            {
-                GameListColumn.Width = new GridLength(0.95, GridUnitType.Star);
-                GameDetailColumn.Width = new GridLength(2.05, GridUnitType.Star);
-            }
+            SidebarColumn.Width = new GridLength(iconSidebar ? 72 : 220);
+            SidebarGutterColumn.Width = new GridLength(iconSidebar ? 10 : 18);
+            SetSidebarLabelsVisible(!iconSidebar);
 
-            // At short Playnite client heights the metric strip previously consumed the space
-            // required by the detail tabs, reducing the history grid to zero pixels.
-            var showMetrics = height >= 800 && width >= 1180;
+            GameBrowserPanel.Visibility = showGameBrowser ? Visibility.Visible : Visibility.Collapsed;
+            WorkspaceGutterColumn.Width = new GridLength(showGameBrowser ? 14 : 0);
+            GameListColumn.Width = showGameBrowser
+                ? new GridLength(mode == LayoutMode.Expanded ? 340 : 290)
+                : new GridLength(0);
+            GameDetailColumn.Width = new GridLength(1, GridUnitType.Star);
+            CompactGameSelector.Visibility = gameScopedWorkspace && !showGameBrowser ? Visibility.Visible : Visibility.Collapsed;
+
+            PageSubtitleText.Visibility = height >= 760 ? Visibility.Visible : Visibility.Collapsed;
+            var showMetrics = viewModel.CurrentWorkspace == WorkspaceKind.Overview && height >= 760 && width >= 1180;
             MetricsPanel.Visibility = showMetrics ? Visibility.Visible : Visibility.Collapsed;
             MetricsPanel.Columns = width >= 1450 ? 6 : 3;
             MetricsPanel.Margin = showMetrics ? new Thickness(0, 0, 0, 18) : new Thickness(0);
+
+            RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves && height >= 700
+                ? Visibility.Visible : Visibility.Collapsed;
+            if (viewModel.CurrentWorkspace != WorkspaceKind.Saves)
+            {
+                BackupPolicyPanel.Visibility = Visibility.Collapsed;
+            }
         }
 
         private void OnRefreshTimerTick(object sender, EventArgs e) => viewModel?.RequestBackgroundRefresh();
 
         private void OnNavigationChecked(object sender, RoutedEventArgs e)
         {
-            if (DetailsTabControl == null) return;
+            if (viewModel == null || DetailsTabControl == null) return;
             var item = sender as RadioButton;
             if (item == null || item.Tag == null) return;
             if (!Enum.TryParse(item.Tag.ToString(), out WorkspaceKind workspace)) return;
             viewModel.CurrentWorkspace = workspace;
-            var index = workspace == WorkspaceKind.Trainers ? 1
-                : workspace == WorkspaceKind.Media ? 2
-                : workspace == WorkspaceKind.Tasks ? 4
-                : workspace == WorkspaceKind.Maintenance ? 5
-                : 0;
-            DetailsTabControl.SelectedIndex = index;
             switch (workspace)
             {
                 case WorkspaceKind.Saves:
@@ -157,8 +160,74 @@ namespace GameSaveCenter.Playnite.Views
                 default:
                     PageTitleText.Text = "首页"; PageSubtitleText.Text = "存档、修改器、媒体与任务的一体化工作台"; break;
             }
+            UpdateWorkspacePresentation();
+            ApplyResponsiveLayout(ActualWidth, ActualHeight);
             AnimateElement(DetailsTabControl, 10, 0, 0.2);
         }
+
+        private void UpdateWorkspacePresentation()
+        {
+            var workspace = viewModel.CurrentWorkspace;
+            SetVisibility(OverviewTab, workspace == WorkspaceKind.Overview);
+            SetVisibility(SaveHistoryTab, workspace == WorkspaceKind.Saves);
+            SetVisibility(CandidateTab, workspace == WorkspaceKind.Saves);
+            SetVisibility(TrainerTab, workspace == WorkspaceKind.Trainers);
+            SetVisibility(MediaTab, workspace == WorkspaceKind.Media);
+            SetVisibility(TaskTab, workspace == WorkspaceKind.Tasks);
+            SetVisibility(DiagnosticTab, workspace == WorkspaceKind.Maintenance);
+            SetVisibility(LogsTab, workspace == WorkspaceKind.Maintenance);
+
+            var saves = workspace == WorkspaceKind.Saves;
+            SetVisibility(SelectedGameHeader, workspace != WorkspaceKind.Tasks && workspace != WorkspaceKind.Maintenance && workspace != WorkspaceKind.Overview);
+            SetVisibility(BackupSelectedButton, saves);
+            SetVisibility(ValidateButton, saves);
+            SetVisibility(DetectPathsButton, saves);
+            SetVisibility(PolicyToggleButton, saves);
+            SetVisibility(RestoreSafetyBanner, saves);
+            if (!saves) BackupPolicyPanel.Visibility = Visibility.Collapsed;
+
+            SetVisibility(TopRefreshButton, workspace != WorkspaceKind.Trainers && workspace != WorkspaceKind.Maintenance);
+            SetVisibility(TopBackupAllButton, saves);
+            SetVisibility(TopMediaSyncButton, workspace == WorkspaceKind.Media);
+            SetVisibility(TopTrainerImportButton, workspace == WorkspaceKind.Trainers);
+            SetVisibility(TopTrainerCatalogButton, workspace == WorkspaceKind.Trainers);
+            SetVisibility(TopDiagnosticsButton, workspace == WorkspaceKind.Maintenance);
+
+            TabItem? firstVisible = null;
+            foreach (var item in DetailsTabControl.Items)
+            {
+                var tab = item as TabItem;
+                if (tab != null && tab.Visibility == Visibility.Visible)
+                {
+                    firstVisible = tab;
+                    break;
+                }
+            }
+            if (firstVisible != null) DetailsTabControl.SelectedItem = firstVisible;
+        }
+
+        private void OnTogglePolicy(object sender, RoutedEventArgs e)
+        {
+            if (viewModel.CurrentWorkspace != WorkspaceKind.Saves) return;
+            BackupPolicyPanel.Visibility = BackupPolicyPanel.Visibility == Visibility.Visible
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+        }
+
+        private void SetSidebarLabelsVisible(bool visible)
+        {
+            var visibility = visible ? Visibility.Visible : Visibility.Collapsed;
+            SidebarBrandText.Visibility = visibility;
+            NavOverviewLabel.Visibility = visibility;
+            NavSavesLabel.Visibility = visibility;
+            NavTrainersLabel.Visibility = visibility;
+            NavMediaLabel.Visibility = visibility;
+            NavTasksLabel.Visibility = visibility;
+            NavMaintenanceLabel.Visibility = visibility;
+        }
+
+        private static void SetVisibility(UIElement element, bool visible)
+            => element.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
 
         private void OnDetailsTabSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
