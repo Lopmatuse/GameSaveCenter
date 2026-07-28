@@ -194,3 +194,11 @@
 - **升级修复**：旧数据库先补 `classification_state/reason` 再创建索引，避免启动迁移报 `no such column`。
 - **源文件边界**：重新归类或忽略只移动 GameSaveCenter 归档副本；归档缺失时从原始文件重新复制，禁止删除或移动原始截图/录像。
 - **回归**：验证旧库升级、首轮 200 项保护、重启持久化、归类/忽略后的真实文件位置、SHA-256 去重、不同盘符移动以及多主题/DPI 布局。
+
+## GSC-044：0.4.1 Playnite 工程因资源字典结构错误无法编译
+
+- **状态**：已修复，待 Windows 重新构建。
+- **现象**：`DashboardView.xaml` 和 `GameSaveCenterSettingsView.xaml` 报 `MC3074`，提示 Presentation 命名空间中不存在 `ResourceDictionary.MergedDictionaries`。
+- **根因**：`MergedDictionaries` 是 `ResourceDictionary` 的属性元素，不能直接作为 `UserControl.Resources` 的资源条目；同时存在合并字典和本地样式时必须显式创建 `ResourceDictionary`。
+- **修复**：在两处 `UserControl.Resources` 内增加显式 `<ResourceDictionary>`，并新增跨平台 XAML 语义门禁。
+- **伴随修复**：仓库统一普通文本使用 LF，避免 Windows 上 `APPLE_UI_GUIDE.md`、`validate-source.py` 因编辑器 CRLF 自动转换持续显示为修改；`.cmd` 仍保留 CRLF。

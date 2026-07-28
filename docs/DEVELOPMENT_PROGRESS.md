@@ -257,3 +257,11 @@
 - 修复归档副本缺失时可能误移动原始截图的风险；现在只重建归档副本。
 - 增加静态媒体收件箱门禁，防止 IPC、迁移顺序、源文件保护和 UI 命令在后续重构中丢失。
 - 当前环境无 Windows/.NET/Playnite，未执行真实构建、安装或媒体目录端到端测试。
+
+## 2026-07-28 0.4.1 Windows 构建热修复
+
+- 修复 `DashboardView.xaml` 与 `GameSaveCenterSettingsView.xaml` 将 `ResourceDictionary.MergedDictionaries` 直接放在 `UserControl.Resources` 下导致的 `MC3074`。
+- 两个资源区现在使用显式 `<ResourceDictionary>` 包裹合并字典和本地样式，符合 WPF XAML 属性语法。
+- `validate-source.py` 新增资源字典父级门禁，后续出现同类结构会在交付前直接失败。
+- 统一 Git 文本换行为 LF，`.cmd` 继续按二进制保留 CRLF；修复 Windows 编辑器按旧 `.editorconfig` 自动改写 Markdown/Python 文件导致工作区反复变脏的问题。
+- 待 Windows 重新执行 `GameSaveCenter-Run.cmd`，确认 Playnite 工程继续进入下一编译阶段。

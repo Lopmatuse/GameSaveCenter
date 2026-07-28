@@ -128,3 +128,9 @@
 
 - 修复 Apple 风格按钮按压模板的 WPF 名称作用域错误（`MC4111`）。
 - 按压反馈仍保留 0.97 倍缩放和轻微透明度变化。
+
+## 0.4.1 Development Preview — Windows Build Hotfix
+
+- 修复管理面板和设置页资源字典的 WPF XAML 结构错误，解决 `MC3074` 编译失败。
+- 源码门禁新增 `UserControl.Resources` 下非法直挂 `ResourceDictionary.MergedDictionaries` 检测。
+- 对齐 `.editorconfig` 与 `.gitattributes`：普通文本固定 LF，Windows 批处理继续保留 CRLF，减少覆盖源码包后 Markdown/Python 文件反复显示修改的问题。

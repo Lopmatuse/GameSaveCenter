@@ -131,6 +131,15 @@ def check_xaml_semantics() -> None:
         }
         # ElementTree has no parent pointer. Build a parent map for the same check.
         parent_map = {child: parent for parent in root.iter() for child in parent}
+
+        for resources in [n for n in root.iter() if local_name(n.tag).endswith(".Resources")]:
+            for child in resources:
+                if local_name(child.tag) == "ResourceDictionary.MergedDictionaries":
+                    fail(
+                        f"XAML merged dictionaries require an explicit ResourceDictionary: "
+                        f"{path.relative_to(ROOT)}"
+                    )
+
         for node in root.iter():
             node_name = local_name(node.tag)
             expected = expected_parents.get(node_name)

@@ -8,9 +8,10 @@
              TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed" RenderOptions.ClearTypeHint="Enabled">
     <UserControl.Resources>
-        <ResourceDictionary.MergedDictionaries>
-            <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml"/>
-        </ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
         <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
             <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
             <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
@@ -59,6 +60,7 @@
             <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid Background="{DynamicResource GscBackdropBrush}" ClipToBounds="True">
