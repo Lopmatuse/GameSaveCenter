@@ -483,13 +483,12 @@ namespace GameSaveCenter.Playnite.ViewModels
         private async Task BackupSelectedAsync()
         {
             var tasks = await plugin.RequestAsync<TaskStatusDto[]>(MessageTypes.BackupGame, new BackupRequestDto { PlayniteIds = { SelectedGame.PlayniteId }, Force = true, Reason = "Manual" }, TimeSpan.FromMinutes(15));
-            ThrowIfUnsuccessful(tasks);
+            NotifyTaskResults(tasks);
             await RefreshCoreAsync(false);
             await LoadDetailsAsync();
             StatusMessage = Backups.Count > 0
                 ? $"备份完成，已读取 {Backups.Count} 个历史版本"
                 : "备份完成，但历史索引仍为空；请打开诊断页查看 Ludusavi 输出。";
-            if (plugin.Settings.EnableTaskNotifications) plugin.ShowInfo($"{SelectedGame.Name} 的存档备份已完成");
         }
 
         private async Task ImportGameToolAsync(GameToolType type)
@@ -507,7 +506,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             },TimeSpan.FromMinutes(5));
             await LoadDetailsAsync();
             SelectedGameTool=GameTools.FirstOrDefault(x=>x.ToolId==imported.ToolId)??GameTools.FirstOrDefault();
-            StatusMessage=type==GameToolType.CheatTable?"Cheat Table 已导入，自动启动保持关闭":"修改器已导入，自动启动保持关闭";
+            ConfirmSuccess(type==GameToolType.CheatTable?"Cheat Table 已导入，自动启动保持关闭":"修改器已导入，自动启动保持关闭");
         }
 
         private async Task ImportGameToolFolderAsync()
@@ -519,7 +518,7 @@ namespace GameSaveCenter.Playnite.ViewModels
                 PlayniteId=SelectedGame.PlayniteId,ToolType=GameToolType.Trainer,SourcePath=folder,CopyIntoLibrary=true
             },TimeSpan.FromMinutes(5));
             await LoadDetailsAsync();SelectedGameTool=GameTools.FirstOrDefault(x=>x.ToolId==imported.ToolId)??GameTools.FirstOrDefault();
-            StatusMessage="修改器目录已导入，自动启动保持关闭";
+            ConfirmSuccess("修改器目录已导入，自动启动保持关闭");
         }
 
         private async Task SaveSelectedGameToolAsync()
@@ -531,13 +530,13 @@ namespace GameSaveCenter.Playnite.ViewModels
                 LaunchDelaySeconds=Math.Max(0,Math.Min(300,tool.LaunchDelaySeconds)),CloseOnGameExit=tool.CloseOnGameExit,
                 RequiresAdmin=tool.RequiresAdmin,ActiveVersionId=tool.ActiveVersionId
             });
-            await LoadDetailsAsync();StatusMessage="游戏工具设置已保存";
+            await LoadDetailsAsync();ConfirmSuccess("游戏工具设置已保存");
         }
 
         private async Task LaunchSelectedGameToolAsync()
         {
             await plugin.RequestAsync<object>(MessageTypes.LaunchGameTool,new GameToolCommandRequestDto{ToolId=SelectedGameTool.ToolId});
-            StatusMessage="已启动 "+SelectedGameTool.DisplayName;
+            ConfirmSuccess("已启动 "+SelectedGameTool.DisplayName);
         }
 
         private async Task OpenSelectedGameToolDirectoryAsync()
@@ -549,13 +548,13 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             var name=SelectedGameTool.DisplayName;
             await plugin.RequestAsync<object>(MessageTypes.DeleteGameTool,new GameToolCommandRequestDto{ToolId=SelectedGameTool.ToolId});
-            await LoadDetailsAsync();StatusMessage="已解除绑定并保留文件："+name;
+            await LoadDetailsAsync();ConfirmSuccess("已解除绑定并保留文件："+name);
         }
 
         private async Task SyncTrainerCatalogAsync()
         {
             var result=await plugin.RequestAsync<TrainerCatalogSyncResultDto>(MessageTypes.SyncTrainerCatalog,new{},TimeSpan.FromMinutes(2));
-            StatusMessage=result.Message;
+            ConfirmSuccess(result.Message);
             if(!string.IsNullOrWhiteSpace(TrainerSearchText))await SearchTrainerCatalogAsync();
         }
 
@@ -590,7 +589,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             var task=await plugin.RequestAsync<TaskStatusDto>(MessageTypes.DownloadTrainer,new DownloadTrainerRequestDto
             {PlayniteId=SelectedGame.PlayniteId,CatalogId=SelectedTrainerCatalogItem.CatalogId,ReleaseId=SelectedTrainerRelease.ReleaseId},TimeSpan.FromMinutes(10));
-            ThrowIfUnsuccessful(new[]{task});await LoadDetailsAsync();ShowTrainerLibrary=false;
+            NotifyTaskResults(new[]{task});await LoadDetailsAsync();ShowTrainerLibrary=false;
             StatusMessage="FLiNG 修改器已下载并绑定，自动启动保持关闭";
         }
 
@@ -598,8 +597,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             var tasks = await plugin.RequestAsync<TaskStatusDto[]>(MessageTypes.BackupAll, new BackupRequestDto { Force = true, Reason = "ManualAll" }, TimeSpan.FromMinutes(45));
             await RefreshCoreAsync(false);
-            ThrowIfUnsuccessful(tasks);
-            if (plugin.Settings.EnableTaskNotifications) plugin.ShowInfo("全部匹配游戏的备份任务已完成");
+            NotifyTaskResults(tasks);
         }
 
         private async Task SyncMediaAsync()
@@ -609,15 +607,13 @@ namespace GameSaveCenter.Playnite.ViewModels
             foreach (var id in ids) request.PlayniteIds.Add(id);
             var tasks = await plugin.RequestAsync<TaskStatusDto[]>(MessageTypes.SyncMedia, request, TimeSpan.FromMinutes(60));
             await RefreshCoreAsync(false);
-            ThrowIfUnsuccessful(tasks);
-            if (plugin.Settings.EnableTaskNotifications)
-                plugin.ShowInfo(SelectedGame == null ? "媒体同步已完成" : $"{SelectedGame.Name} 的媒体同步已完成");
+            NotifyTaskResults(tasks);
         }
 
         private async Task DetectPathsAsync()
         {
             var candidates = await plugin.RequestAsync<SavePathCandidateDto[]>(MessageTypes.DetectSavePaths, new DetectionRequestDto { PlayniteId = SelectedGame.PlayniteId }, TimeSpan.FromMinutes(20));
-            StatusMessage = candidates.Length == 0 ? "未发现新的高可信存档路径候选" : $"发现 {candidates.Length} 个高可信存档路径候选";
+            ConfirmSuccess(candidates.Length == 0 ? "未发现新的高可信存档路径候选" : $"发现 {candidates.Length} 个高可信存档路径候选");
             await LoadDetailsAsync();
         }
 
@@ -625,18 +621,20 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             await plugin.RequestAsync<object>(MessageTypes.ValidateGame, new ValidateGameRequestDto { PlayniteId = SelectedGame.PlayniteId });
             await RefreshCoreAsync(false);
+            ConfirmSuccess($"{SelectedGame.Name} 的存档校验已完成");
         }
 
         private async Task SavePolicyAsync()
         {
             await plugin.RequestAsync<object>(MessageTypes.UpdateGamePolicy, new GamePolicyUpdateDto { PlayniteId = SelectedGame.PlayniteId, Policy = SelectedGame.Policy });
-            StatusMessage = "游戏策略已保存";
+            ConfirmSuccess($"已保存 {SelectedGame.Name} 的游戏策略");
         }
 
         private async Task UpdateBackupMetadataAsync()
         {
             await plugin.RequestAsync<object>(MessageTypes.UpdateBackupMetadata, new BackupMetadataUpdateDto { PlayniteId = SelectedGame.PlayniteId, BackupId = SelectedBackup.BackupId, Comment = BackupComment, Locked = LockSelectedBackup });
             await LoadDetailsAsync();
+            ConfirmSuccess("备份备注与锁定状态已保存");
         }
 
         private async Task CompareBackupAsync()
@@ -657,28 +655,28 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             if (string.IsNullOrWhiteSpace(CustomMediaSourcePath)) throw new InvalidOperationException("请输入截图或录像目录。");
             await plugin.RequestAsync<MediaSourceRuleDto>(MessageTypes.AddMediaSource, new MediaSourceRuleDto { PlayniteId = CustomMediaShared ? string.Empty : SelectedGame.PlayniteId, RootPath = CustomMediaSourcePath, IncludePattern = string.IsNullOrWhiteSpace(CustomMediaPattern) ? "*" : CustomMediaPattern, SharedDirectory = CustomMediaShared, SourceKind = MediaSourceKind.Custom });
-            StatusMessage = "自定义媒体来源已添加";
+            ConfirmSuccess("自定义媒体来源已添加");
             await LoadDetailsAsync();
         }
 
         private async Task AcceptCandidateAsync()
         {
             await plugin.RequestAsync<object>(MessageTypes.AcceptSavePath, new AcceptSavePathRequestDto { PlayniteId = SelectedGame.PlayniteId, Path = SelectedCandidate.Path, IncludeSubdirectories = true });
-            StatusMessage = "已生成 Ludusavi 自定义规则草案";
+            ConfirmSuccess("已生成 Ludusavi 自定义规则草案");
             await LoadDetailsAsync();
         }
 
         private async Task RejectCandidateAsync()
         {
             await plugin.RequestAsync<object>(MessageTypes.RejectSavePath, new AcceptSavePathRequestDto { PlayniteId = SelectedGame.PlayniteId, Path = SelectedCandidate.Path });
-            StatusMessage = "已忽略该存档路径候选";
+            ConfirmSuccess("已忽略该存档路径候选");
             await LoadDetailsAsync();
         }
 
         private async Task ReassignMediaAsync()
         {
             await plugin.RequestAsync<MediaItemDto>(MessageTypes.ReassignMedia, new ReassignMediaRequestDto { MediaId = SelectedMedia.MediaId, TargetPlayniteId = MediaTargetGame.PlayniteId });
-            StatusMessage = $"媒体已重新归类到 {MediaTargetGame.Name}";
+            ConfirmSuccess($"媒体已重新归类到 {MediaTargetGame.Name}");
             await LoadDetailsAsync();
             await LoadInboxAsync();
         }
@@ -688,7 +686,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             var media = SelectedInboxMedia ?? throw new InvalidOperationException("请先选择待归类媒体。");
             var target = InboxTargetGame ?? throw new InvalidOperationException("请选择目标游戏。");
             await plugin.RequestAsync<MediaItemDto>(MessageTypes.ReassignMedia, new ReassignMediaRequestDto { MediaId = media.MediaId, TargetPlayniteId = target.PlayniteId });
-            StatusMessage = $"已将 {media.FileName} 归类到 {target.Name}";
+            ConfirmSuccess($"已将 {media.FileName} 归类到 {target.Name}");
             await RefreshDashboardAsync(false, false);
             await LoadInboxAsync();
             if (SelectedGame != null && string.Equals(SelectedGame.PlayniteId, target.PlayniteId, StringComparison.OrdinalIgnoreCase))
@@ -699,7 +697,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             var media = SelectedInboxMedia ?? throw new InvalidOperationException("请先选择待归类媒体。");
             await plugin.RequestAsync<MediaItemDto>(MessageTypes.IgnoreMedia, new IgnoreMediaRequestDto { MediaId = media.MediaId });
-            StatusMessage = $"已忽略 {media.FileName}；归档副本仍保留在媒体目录";
+            ConfirmSuccess($"已忽略 {media.FileName}；归档副本仍保留在媒体目录");
             await RefreshDashboardAsync(false, false);
             await LoadInboxAsync();
         }
@@ -719,7 +717,7 @@ namespace GameSaveCenter.Playnite.ViewModels
                 UserComment = "Playnite restore wizard"
             }, TimeSpan.FromMinutes(30));
             await RefreshCoreAsync(false);
-            ThrowIfUnsuccessful(new[] { task });
+            NotifyTaskResults(new[] { task });
         }
 
         private async Task UndoRestoreAsync()
@@ -728,7 +726,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             if (result != MessageBoxResult.Yes) return;
             var task = await plugin.RequestAsync<TaskStatusDto>(MessageTypes.UndoRestore, new GameQueryDto { PlayniteId = SelectedGame.PlayniteId }, TimeSpan.FromMinutes(30));
             await RefreshCoreAsync(false);
-            ThrowIfUnsuccessful(new[] { task });
+            NotifyTaskResults(new[] { task });
         }
 
         private bool CanRetrySelectedTask()
@@ -750,14 +748,14 @@ namespace GameSaveCenter.Playnite.ViewModels
                     MessageTypes.BackupGame,
                     new BackupRequestDto { PlayniteIds = { task.GameId }, Force = true, Reason = "Retry" },
                     TimeSpan.FromMinutes(15));
-                ThrowIfUnsuccessful(result);
+                NotifyTaskResults(result);
             }
             else if (string.Equals(task.TaskType, "MediaSync", StringComparison.OrdinalIgnoreCase))
             {
                 var request = new MediaSyncRequestDto { UploadAfterSync = plugin.Settings.EnableCloudUpload };
                 request.PlayniteIds.Add(task.GameId);
                 var result = await plugin.RequestAsync<TaskStatusDto[]>(MessageTypes.SyncMedia, request, TimeSpan.FromMinutes(60));
-                ThrowIfUnsuccessful(result);
+                NotifyTaskResults(result);
             }
             else if (string.Equals(task.TaskType, "MediaInbox", StringComparison.OrdinalIgnoreCase))
             {
@@ -767,7 +765,7 @@ namespace GameSaveCenter.Playnite.ViewModels
                     SharedOnly = true,
                     UploadAfterSync = plugin.Settings.EnableCloudUpload
                 }, TimeSpan.FromMinutes(60));
-                ThrowIfUnsuccessful(result);
+                NotifyTaskResults(result);
             }
             else
             {
@@ -799,6 +797,7 @@ namespace GameSaveCenter.Playnite.ViewModels
                 await plugin.EnsureWorkerAsync();
                 var response = await plugin.RequestAsync<CancelTaskResultDto>(MessageTypes.CancelTask, new CancelTaskRequestDto { TaskId = taskId });
                 StatusMessage = response.Cancelled ? "已发送取消请求" : "任务已经结束或无法取消";
+                plugin.ShowInfo(StatusMessage);
                 await RefreshDashboardAsync(false, false);
             }
             catch (OperationCanceledException)
@@ -890,6 +889,11 @@ namespace GameSaveCenter.Playnite.ViewModels
             {
                 StatusMessage = "操作已取消";
             }
+            catch (NotifiedTaskException ex)
+            {
+                StatusMessage = ex.Message;
+                if (!plugin.Settings.EnableTaskNotifications) plugin.ShowError(ex.Message);
+            }
             catch (Exception ex)
             {
                 StatusMessage = ex.Message;
@@ -911,12 +915,25 @@ namespace GameSaveCenter.Playnite.ViewModels
             }
         }
 
-        private static void ThrowIfUnsuccessful(IEnumerable<TaskStatusDto> tasks)
+        private void NotifyTaskResults(IEnumerable<TaskStatusDto> tasks)
         {
-            var failed = tasks?.FirstOrDefault(x => x.State == TaskState.Failed);
-            if (failed != null) throw new InvalidOperationException(failed.DetailMessage);
-            var cancelled = tasks?.FirstOrDefault(x => x.State == TaskState.Cancelled);
-            if (cancelled != null) throw new TaskCanceledException(string.IsNullOrWhiteSpace(cancelled.Message) ? "任务已取消" : cancelled.Message);
+            var completed = tasks?.ToList() ?? new List<TaskStatusDto>();
+            foreach (var task in completed) plugin.ShowTaskNotification(task);
+            var failed = completed.FirstOrDefault(x => x.State == TaskState.Failed);
+            if (failed != null) throw new NotifiedTaskException(failed.DetailMessage);
+            var cancelled = completed.FirstOrDefault(x => x.State == TaskState.Cancelled);
+            if (cancelled != null) throw new NotifiedTaskException(string.IsNullOrWhiteSpace(cancelled.Message) ? "任务已取消" : cancelled.Message);
+        }
+
+        private void ConfirmSuccess(string message)
+        {
+            StatusMessage = message;
+            plugin.ShowInfo(message);
+        }
+
+        private sealed class NotifiedTaskException : InvalidOperationException
+        {
+            public NotifiedTaskException(string message) : base(message) { }
         }
 
         private bool FilterGame(object item)

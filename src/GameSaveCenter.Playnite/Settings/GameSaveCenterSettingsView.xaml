@@ -168,7 +168,7 @@
                     <CheckBox Content="同步新增截图和录像（源文件删除不会删除归档）" IsChecked="{Binding EnableMediaSync}" Margin="0,5"/>
                     <CheckBox Content="完成本地任务后允许单向云端复制" IsChecked="{Binding EnableCloudUpload}" Margin="0,5"/>
                     <CheckBox Content="管理面板打开时自动刷新任务与状态" IsChecked="{Binding EnableDashboardAutoRefresh}" Margin="0,5"/>
-                    <CheckBox Content="任务完成或失败时显示 Playnite 通知" IsChecked="{Binding EnableTaskNotifications}" Margin="0,5"/>
+                    <CheckBox Content="任务完成或失败时显示 Playnite 通知（管理面板关闭时也会监测）" IsChecked="{Binding EnableTaskNotifications}" Margin="0,5"/>
                     <Grid Margin="0,10,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="210"/><ColumnDefinition Width="120"/></Grid.ColumnDefinitions>
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>

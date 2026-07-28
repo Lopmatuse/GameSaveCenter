@@ -287,10 +287,23 @@ def check_dashboard_regressions() -> None:
     if 'ProgressBar Width="120" Height="4" IsIndeterminate="{Binding IsBusy}"' in dashboard:
         fail("Dashboard still contains the always-visible idle progress frame")
     coordinator = (ROOT / "src/GameSaveCenter.Worker/Services/GameSessionCoordinator.cs").read_text(encoding="utf-8")
+    plugin = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenterPlugin.cs").read_text(encoding="utf-8")
     if "Math.Max(1, policy.DuringPlayIntervalMinutes)" not in coordinator:
         fail("During-play backup must honor the documented one-minute minimum")
     if "TimeSpan.FromSeconds(5)" not in coordinator:
         fail("During-play backup scheduler must check frequently enough for one-minute policies")
+    if "NextBackupUtc.AddMinutes(intervalMinutes)" not in coordinator:
+        fail("During-play backup cadence must remain anchored instead of accumulating polling drift")
+    if "BackupPending" not in coordinator or "Interlocked.CompareExchange" not in coordinator:
+        fail("During-play backup scheduler must prevent overlapping backup requests")
+    if "TimedBackupEnabled" not in coordinator:
+        fail("During-play backup scheduler must re-anchor when the policy is enabled during a session")
+    if "taskNotificationTimer" not in plugin or "MessageTypes.GetTasks" not in plugin:
+        fail("Application-lifetime task notification monitor is missing")
+    if "notifiedTaskIds.TryAdd(task.TaskId" not in plugin:
+        fail("Task notifications must be de-duplicated by task ID")
+    if "LimitNotificationText(task.DetailMessage)" not in plugin:
+        fail("Successful task notifications must preserve exact worker result details")
     if 'TextOptions.TextRenderingMode="ClearType"' not in dashboard:
         fail("Dashboard ClearType rendering guard is missing")
 

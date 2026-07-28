@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.IO;
 using System.Reflection;
@@ -26,6 +27,11 @@ namespace GameSaveCenter.Playnite
         private readonly WorkerLauncher launcher;
         private readonly PlayniteGameAdapter adapter;
         private readonly SemaphoreSlim synchronizationGate = new SemaphoreSlim(1, 1);
+        private readonly SemaphoreSlim taskNotificationPollGate = new SemaphoreSlim(1, 1);
+        private readonly ConcurrentDictionary<string, byte> notifiedTaskIds = new ConcurrentDictionary<string, byte>(StringComparer.OrdinalIgnoreCase);
+        private Timer? taskNotificationTimer;
+        private DateTime taskNotificationMonitorStartedUtc;
+        private bool taskNotificationSnapshotInitialized;
 
         public GameSaveCenterPlugin(IPlayniteAPI api) : base(api)
         {
@@ -43,7 +49,14 @@ namespace GameSaveCenter.Playnite
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
+            StartTaskNotificationMonitor();
             if (Settings.AutoStartWorker) FireAndForget(SynchronizeAsync);
+        }
+
+        public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
+        {
+            taskNotificationTimer?.Dispose();
+            taskNotificationTimer = null;
         }
 
         public override void OnLibraryUpdated(OnLibraryUpdatedEventArgs args) => FireAndForget(SynchronizeAsync);
@@ -127,19 +140,59 @@ namespace GameSaveCenter.Playnite
         public void ShowTaskNotification(TaskStatusDto task)
         {
             if (!Settings.EnableTaskNotifications || task == null) return;
+            if (task.State != TaskState.Succeeded && task.State != TaskState.Failed && task.State != TaskState.Cancelled) return;
+            if (!notifiedTaskIds.TryAdd(task.TaskId, 0)) return;
             var game = string.IsNullOrWhiteSpace(task.GameName) ? "后台任务" : task.GameName;
             var text = task.State == TaskState.Failed
                 ? $"{game} · {task.TaskType} 失败：{LimitNotificationText(task.DetailMessage)}"
                 : task.State == TaskState.Cancelled
                     ? $"{game} · {task.TaskType} 已取消"
-                    : $"{game} · {task.TaskType} 已完成";
+                    : $"{game} · {LimitNotificationText(task.DetailMessage)}";
             AddNotification("Task." + task.TaskId, text, task.State == TaskState.Failed ? NotificationType.Error : NotificationType.Info);
         }
 
         private void AddNotification(string category, string message, NotificationType type)
         {
             PlayniteApi.MainView.UIDispatcher.Invoke(() =>
-                PlayniteApi.Notifications.Add($"GameSaveCenter.{category}.{Guid.NewGuid():N}", message, type));
+                PlayniteApi.Notifications.Add($"GameSaveCenter.{category}", message, type));
+        }
+
+        private void StartTaskNotificationMonitor()
+        {
+            taskNotificationMonitorStartedUtc = DateTime.UtcNow;
+            taskNotificationTimer = new Timer(_ => PollTaskNotifications(), null, TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(5));
+        }
+
+        private async void PollTaskNotifications()
+        {
+            if (!await taskNotificationPollGate.WaitAsync(0).ConfigureAwait(false)) return;
+            try
+            {
+                // Do not start a disabled Worker merely to poll notifications. Once any normal
+                // plugin action starts it, this lightweight IPC request begins observing tasks.
+                var tasks = await RequestAsync<TaskStatusDto[]>(MessageTypes.GetTasks, new GameQueryDto { Limit = 200 }, TimeSpan.FromSeconds(4)).ConfigureAwait(false);
+                foreach (var task in tasks)
+                {
+                    var terminal = task.State == TaskState.Succeeded || task.State == TaskState.Failed || task.State == TaskState.Cancelled;
+                    if (!terminal) continue;
+                    if (!taskNotificationSnapshotInitialized && task.CreatedUtc < taskNotificationMonitorStartedUtc.AddSeconds(-5))
+                    {
+                        notifiedTaskIds.TryAdd(task.TaskId, 0);
+                        continue;
+                    }
+                    if (Settings.EnableTaskNotifications) ShowTaskNotification(task);
+                    else notifiedTaskIds.TryAdd(task.TaskId, 0);
+                }
+                taskNotificationSnapshotInitialized = true;
+            }
+            catch (Exception ex)
+            {
+                logger.Debug(ex, "Task notification poll is temporarily unavailable.");
+            }
+            finally
+            {
+                taskNotificationPollGate.Release();
+            }
         }
 
         private static string LimitNotificationText(string text)
