@@ -569,6 +569,10 @@ namespace GameSaveCenter.Playnite.ViewModels
                 SelectedTrainerCatalogItem=TrainerCatalogResults.FirstOrDefault();
                 StatusMessage=results.Length==0?"没有找到匹配的 FLiNG 修改器":"找到 "+results.Length+" 个 FLiNG 结果";
             });
+            // A search result is only useful when its downloadable releases are immediately visible.
+            // Keep the explicit button for retrying a failed release lookup, but load the first result
+            // automatically and load again whenever the user selects another catalogue entry in the view.
+            if (results.Length > 0) await LoadTrainerReleasesAsync();
         }
 
         private async Task LoadTrainerReleasesAsync()

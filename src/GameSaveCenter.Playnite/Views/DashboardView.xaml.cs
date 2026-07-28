@@ -224,6 +224,17 @@ namespace GameSaveCenter.Playnite.Views
             NavMediaLabel.Visibility = visibility;
             NavTasksLabel.Visibility = visibility;
             NavMaintenanceLabel.Visibility = visibility;
+            SidebarWorkerStatusText.Visibility = visibility;
+            SidebarLudusaviStatusText.Visibility = visibility;
+            SidebarStatusPanel.HorizontalAlignment = visible ? HorizontalAlignment.Stretch : HorizontalAlignment.Center;
+
+            var navigationPadding = visible ? new Thickness(13, 10, 13, 10) : new Thickness(7, 10, 7, 10);
+            NavOverview.Padding = navigationPadding;
+            NavSaves.Padding = navigationPadding;
+            NavTrainers.Padding = navigationPadding;
+            NavMedia.Padding = navigationPadding;
+            NavTasks.Padding = navigationPadding;
+            NavMaintenance.Padding = navigationPadding;
         }
 
         private static void SetVisibility(UIElement element, bool visible)
@@ -235,14 +246,23 @@ namespace GameSaveCenter.Playnite.Views
             AnimateElement(DetailsTabControl, 10, 0, 0.2);
         }
 
+        private void OnTrainerCatalogSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count == 0 || viewModel == null) return;
+            if (viewModel.LoadTrainerReleasesCommand.CanExecute(null))
+            {
+                viewModel.LoadTrainerReleasesCommand.Execute(null);
+            }
+        }
+
         private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (!IsLoaded) return;
-            if (e.PropertyName == nameof(DashboardViewModel.SelectedGame))
+            if (e.PropertyName == nameof(DashboardViewModel.SelectedGame) && !viewModel.IsBackgroundRefreshing)
             {
                 Dispatcher.BeginInvoke(new Action(() => AnimateElement(GameDetailCard, 13, 0, 0.23)), DispatcherPriority.Background);
             }
-            else if (e.PropertyName == nameof(DashboardViewModel.SelectedTask))
+            else if (e.PropertyName == nameof(DashboardViewModel.SelectedTask) && !viewModel.IsBackgroundRefreshing)
             {
                 Dispatcher.BeginInvoke(new Action(() => AnimateElement(TaskDetailCard, 8, 0, 0.2)), DispatcherPriority.Background);
             }

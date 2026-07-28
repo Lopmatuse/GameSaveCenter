@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-28
-当前版本：`0.5.2-development-preview`
+当前版本：`0.5.3-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
@@ -24,6 +24,14 @@
 - 用户提供的 `docs/design/APPLE_WPF_IMPLEMENTATION_PROMPT.md` 是后续 UI 设计与实现的长期基准；所有新增控件和改版必须同时通过 `docs/design/UI_CHANGE_GATE.md`。
 
 ## 当前已经进入仓库的实现
+
+### 0.5.3 紧凑布局与表格可用性修复
+
+- Compact 导航只保留图标与 Worker 状态灯；不得保留会被裁切的状态文字。
+- 任何自定义 ScrollBar 模板必须将 `Minimum`、`Maximum`、`Value` 和 `ViewportSize` 绑定到 `PART_Track`，并按 `Orientation` 单独处理尺寸与页面命令。
+- 媒体中心是数据密集型页面：使用局部纵向 ScrollViewer，待归类和已归类表格均至少保留约四行的可见高度，不能由前置自动行挤成单行。
+- FLiNG 搜索结果和右侧版本必须联动：搜索完成及用户切换目录项后均自动加载版本。
+- 自动轮询禁止插入或移除布局元素，也不得触发选择动画；否则会造成可见抖动。
 
 ### 0.5.2 模块化自适应 UI
 
