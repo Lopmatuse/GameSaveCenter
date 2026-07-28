@@ -57,12 +57,17 @@ namespace GameSaveCenter.Playnite.ViewModels
         private TrainerReleaseDto selectedTrainerRelease = null!;
         private string trainerSearchText = string.Empty;
         private bool showTrainerLibrary;
+        private string taskStatusFilter = "全部";
+        private string taskGameFilter = "全部";
+        private string taskTypeFilter = "全部";
 
         public DashboardViewModel(GameSaveCenterPlugin plugin)
         {
             this.plugin = plugin;
             GamesView = CollectionViewSource.GetDefaultView(Games);
             GamesView.Filter = FilterGame;
+            TasksView = CollectionViewSource.GetDefaultView(Tasks);
+            TasksView.Filter = FilterTask;
             ApplyGameSort();
             RefreshCommand = new RelayCommand(_ => Run(RefreshAsync), _ => !IsBusy);
             BackupSelectedCommand = new RelayCommand(_ => Run(BackupSelectedAsync), _ => !IsBusy && SelectedGame != null && SelectedGame.LudusaviMatched && Snapshot.LudusaviAvailable);
@@ -108,6 +113,9 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         public ObservableCollection<GameStatusDto> Games { get; } = new ObservableCollection<GameStatusDto>();
         public ObservableCollection<TaskStatusDto> Tasks { get; } = new ObservableCollection<TaskStatusDto>();
+        public ObservableCollection<TaskStatusDto> OverviewTasks { get; } = new ObservableCollection<TaskStatusDto>();
+        public ObservableCollection<string> TaskGameFilterOptions { get; } = new ObservableCollection<string> { "全部" };
+        public ObservableCollection<string> TaskTypeFilterOptions { get; } = new ObservableCollection<string> { "全部" };
         public ObservableCollection<ValidationFindingDto> Findings { get; } = new ObservableCollection<ValidationFindingDto>();
         public ObservableCollection<BackupVersionDto> Backups { get; } = new ObservableCollection<BackupVersionDto>();
         public ObservableCollection<MediaItemDto> Media { get; } = new ObservableCollection<MediaItemDto>();
@@ -119,6 +127,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ObservableCollection<TrainerCatalogItemDto> TrainerCatalogResults { get; } = new ObservableCollection<TrainerCatalogItemDto>();
         public ObservableCollection<TrainerReleaseDto> TrainerReleases { get; } = new ObservableCollection<TrainerReleaseDto>();
         public ICollectionView GamesView { get; }
+        public ICollectionView TasksView { get; }
         public IReadOnlyList<string> GameStatusFilterOptions { get; } = new[] { "全部", "已就绪", "未匹配", "运行中", "需关注", "有历史" };
         public IReadOnlyList<string> GameSortOptions { get; } = new[] { "名称", "运行优先", "匹配优先", "最近备份" };
 
@@ -179,6 +188,34 @@ namespace GameSaveCenter.Playnite.ViewModels
                 SetValue(ref gameSortMode, string.IsNullOrWhiteSpace(value) ? "名称" : value);
                 ApplyGameSort();
                 RefreshGameView();
+            }
+        }
+        public IReadOnlyList<string> TaskStatusFilterOptions { get; } = new[] { "全部", "运行中", "等待中", "失败", "已完成" };
+        public string TaskStatusFilter
+        {
+            get => taskStatusFilter;
+            set
+            {
+                SetValue(ref taskStatusFilter, string.IsNullOrWhiteSpace(value) ? "全部" : value);
+                TasksView.Refresh();
+            }
+        }
+        public string TaskGameFilter
+        {
+            get => taskGameFilter;
+            set
+            {
+                SetValue(ref taskGameFilter, string.IsNullOrWhiteSpace(value) ? "全部" : value);
+                TasksView.Refresh();
+            }
+        }
+        public string TaskTypeFilter
+        {
+            get => taskTypeFilter;
+            set
+            {
+                SetValue(ref taskTypeFilter, string.IsNullOrWhiteSpace(value) ? "全部" : value);
+                TasksView.Refresh();
             }
         }
         public int FilteredGameCount { get => filteredGameCount; private set => SetValue(ref filteredGameCount, value); }
@@ -405,6 +442,8 @@ namespace GameSaveCenter.Playnite.ViewModels
                 }
                 finally { suppressSelectionLoad = false; }
                 Replace(Tasks, data.RecentTasks);
+                Replace(OverviewTasks, data.RecentTasks.Take(8));
+                RebuildTaskFilters();
                 SelectedTask = Tasks.FirstOrDefault(x => x.TaskId == selectedTaskId) ?? Tasks.FirstOrDefault();
                 Replace(Findings, data.Findings);
                 Replace(Audit, data.RecentAudit);
@@ -966,6 +1005,33 @@ namespace GameSaveCenter.Playnite.ViewModels
                 default:
                     return true;
             }
+        }
+
+        private bool FilterTask(object item)
+        {
+            var task = item as TaskStatusDto;
+            if (task == null) return false;
+            if (TaskGameFilter != "全部" && !string.Equals(task.GameName, TaskGameFilter, StringComparison.OrdinalIgnoreCase)) return false;
+            if (TaskTypeFilter != "全部" && !string.Equals(task.TaskTypeDisplay, TaskTypeFilter, StringComparison.OrdinalIgnoreCase)) return false;
+            return TaskStatusFilter switch
+            {
+                "运行中" => task.State == TaskState.Running,
+                "等待中" => task.State == TaskState.Queued || task.State == TaskState.WaitingForUser,
+                "失败" => task.State == TaskState.Failed,
+                "已完成" => task.State == TaskState.Succeeded || task.State == TaskState.Cancelled,
+                _ => true
+            };
+        }
+
+        private void RebuildTaskFilters()
+        {
+            var selectedGame = TaskGameFilter;
+            var selectedType = TaskTypeFilter;
+            Replace(TaskGameFilterOptions, new[] { "全部" }.Concat(Tasks.Select(x => x.GameName).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x)));
+            Replace(TaskTypeFilterOptions, new[] { "全部" }.Concat(Tasks.Select(x => x.TaskTypeDisplay).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x)));
+            TaskGameFilter = TaskGameFilterOptions.Contains(selectedGame) ? selectedGame : "全部";
+            TaskTypeFilter = TaskTypeFilterOptions.Contains(selectedType) ? selectedType : "全部";
+            TasksView.Refresh();
         }
 
         private void ApplyGameSort()

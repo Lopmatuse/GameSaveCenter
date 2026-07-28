@@ -99,8 +99,8 @@ namespace GameSaveCenter.Playnite.Views
         {
             if (SidebarColumn == null || MetricsPanel == null || GameListColumn == null) return;
 
-            var mode = width >= 1320 ? LayoutMode.Expanded
-                : width >= 1050 ? LayoutMode.Standard
+            var mode = width >= 1280 ? LayoutMode.Expanded
+                : width >= 980 ? LayoutMode.Standard
                 : width >= 880 ? LayoutMode.Compact
                 : LayoutMode.Narrow;
             viewModel.LayoutMode = mode;
@@ -110,14 +110,14 @@ namespace GameSaveCenter.Playnite.Views
                 || viewModel.CurrentWorkspace == WorkspaceKind.Media;
             var showGameBrowser = gameScopedWorkspace && (mode == LayoutMode.Expanded || mode == LayoutMode.Standard);
 
-            SidebarColumn.Width = new GridLength(iconSidebar ? 72 : 220);
+            SidebarColumn.Width = new GridLength(iconSidebar ? (mode == LayoutMode.Narrow ? 68 : 72) : 220);
             SidebarGutterColumn.Width = new GridLength(iconSidebar ? 10 : 18);
             SetSidebarLabelsVisible(!iconSidebar);
 
             GameBrowserPanel.Visibility = showGameBrowser ? Visibility.Visible : Visibility.Collapsed;
             WorkspaceGutterColumn.Width = new GridLength(showGameBrowser ? 14 : 0);
             GameListColumn.Width = showGameBrowser
-                ? new GridLength(mode == LayoutMode.Expanded ? 340 : 290)
+                ? new GridLength(mode == LayoutMode.Expanded ? 330 : 280)
                 : new GridLength(0);
             GameDetailColumn.Width = new GridLength(1, GridUnitType.Star);
             CompactGameSelector.Visibility = gameScopedWorkspace && !showGameBrowser ? Visibility.Visible : Visibility.Collapsed;

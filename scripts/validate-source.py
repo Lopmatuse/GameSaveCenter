@@ -286,6 +286,25 @@ def check_dashboard_regressions() -> None:
         fail("Dashboard large-library search/filter view is missing")
     if 'ProgressBar Width="120" Height="4" IsIndeterminate="{Binding IsBusy}"' in dashboard:
         fail("Dashboard still contains the always-visible idle progress frame")
+    for token in (
+        'x:Key="GscFocusVisual"',
+        'TextElement.Foreground="{DynamicResource GscPrimaryTextBrush}"',
+        'ItemsSource="{Binding TasksView}"',
+        'ItemsSource="{Binding TaskStatusFilterOptions}"',
+        'TaskTypeDisplay, Mode=OneWay',
+        'ItemsSource="{Binding OverviewTasks}"',
+        'Header="查看完整诊断信息"',
+    ):
+        if token not in dashboard:
+            fail(f"Dashboard design-system guard is missing: {token}")
+    responsive = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml.cs").read_text(encoding="utf-8")
+    for boundary in ("width >= 1280", "width >= 980", "width >= 880", "height >= 760"):
+        if boundary not in responsive:
+            fail(f"Unified responsive breakpoint is missing: {boundary}")
+    tokens = (ROOT / "src/GameSaveCenter.Playnite/Themes/DesignTokens.xaml").read_text(encoding="utf-8")
+    for token in ('x:Key="GscSharedFocusVisual"', 'x:Key="GscCheckBox"', 'x:Key="GscScrollThumb"'):
+        if token not in tokens:
+            fail(f"Shared control template guard is missing: {token}")
     coordinator = (ROOT / "src/GameSaveCenter.Worker/Services/GameSessionCoordinator.cs").read_text(encoding="utf-8")
     plugin = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenterPlugin.cs").read_text(encoding="utf-8")
     if "Math.Max(1, policy.DuringPlayIntervalMinutes)" not in coordinator:
@@ -341,9 +360,11 @@ def check_media_inbox_guards() -> None:
     for token in ("UnassignedMedia", "AssignInboxMediaCommand", "IgnoreInboxMediaCommand"):
         if token not in view_model or token not in dashboard:
             fail(f"Media inbox UI binding missing: {token}")
-    empty_copy = "下方只显示当前选中游戏已经确认归类的截图与录像。"
-    if dashboard.count(empty_copy) != 1:
-        fail("Current-game media helper text is duplicated or missing")
+    for header in ('Header="待归类"', 'Header="当前游戏媒体"', 'Header="来源与规则"'):
+        if dashboard.count(header) != 1:
+            fail(f"Media workspace sub-page is duplicated or missing: {header}")
+    if 'KindDisplay, Mode=OneWay' not in dashboard or 'SourceDisplay, Mode=OneWay' not in dashboard:
+        fail("Media workspace must show localized kind/source names instead of enum values")
 
 
 def check_media_sql_migration() -> None:

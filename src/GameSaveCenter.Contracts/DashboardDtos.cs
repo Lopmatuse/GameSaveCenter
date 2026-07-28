@@ -117,6 +117,30 @@ namespace GameSaveCenter.Contracts
         public DateTime CapturedLocal => CapturedUtc.ToLocalTime();
         public string FileName => Path.GetFileName(string.IsNullOrWhiteSpace(OriginalPath) ? ArchivePath ?? string.Empty : OriginalPath);
         public string SizeDisplay => FormatBytes(SizeBytes);
+        public string KindDisplay => Kind == MediaKind.VideoClip ? "录像" : Kind == MediaKind.Screenshot ? "截图" : "未知媒体";
+        public string SourceDisplay => Source switch
+        {
+            MediaSourceKind.Steam => "Steam",
+            MediaSourceKind.XboxGameBar => "Xbox Game Bar",
+            MediaSourceKind.WindowsScreenshot => "Windows 截图",
+            MediaSourceKind.Epic => "Epic",
+            MediaSourceKind.Ubisoft => "Ubisoft",
+            MediaSourceKind.Ea => "EA",
+            MediaSourceKind.Gog => "GOG",
+            MediaSourceKind.ReShade => "ReShade",
+            MediaSourceKind.Nvidia => "NVIDIA",
+            MediaSourceKind.Amd => "AMD",
+            MediaSourceKind.GameNative => "游戏内截图",
+            MediaSourceKind.Custom => "自定义来源",
+            _ => "其他来源"
+        };
+        public string CloudStateDisplay => CloudState switch
+        {
+            "Uploaded" => "已上传",
+            "Failed" => "失败",
+            "Pending" => "待上传",
+            _ => string.IsNullOrWhiteSpace(CloudState) ? "未启用" : CloudState
+        };
         public string ClassificationStateDisplay => string.Equals(ClassificationState, "Inbox", StringComparison.OrdinalIgnoreCase)
             ? "待归类"
             : string.Equals(ClassificationState, "Ignored", StringComparison.OrdinalIgnoreCase)

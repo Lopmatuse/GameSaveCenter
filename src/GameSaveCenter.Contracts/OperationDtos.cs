@@ -84,6 +84,17 @@ namespace GameSaveCenter.Contracts
             TaskState.WaitingForUser => "等待确认",
             _ => State.ToString()
         };
+        public string TaskTypeDisplay => TaskType switch
+        {
+            "Backup" => "存档备份",
+            "Restore" => "存档恢复",
+            "MediaSync" => "媒体同步",
+            "MediaInbox" => "媒体归类",
+            "TrainerDownload" => "修改器下载",
+            "CloudUpload" => "云端上传",
+            "Validation" => "存档校验",
+            _ => string.IsNullOrWhiteSpace(TaskType) ? "后台任务" : TaskType
+        };
         public string DetailMessage => State == TaskState.Failed && !string.IsNullOrWhiteSpace(ErrorMessage)
             ? $"{ErrorCode}: {ErrorMessage}"
             : Message;
@@ -142,6 +153,22 @@ namespace GameSaveCenter.Contracts
         public string IncludePattern { get; set; } = "*";
         public bool Enabled { get; set; } = true;
         public bool SharedDirectory { get; set; }
+        public string SourceKindDisplay => SourceKind switch
+        {
+            MediaSourceKind.Steam => "Steam",
+            MediaSourceKind.XboxGameBar => "Xbox Game Bar",
+            MediaSourceKind.WindowsScreenshot => "Windows 截图",
+            MediaSourceKind.Epic => "Epic",
+            MediaSourceKind.Ubisoft => "Ubisoft",
+            MediaSourceKind.Ea => "EA",
+            MediaSourceKind.Gog => "GOG",
+            MediaSourceKind.ReShade => "ReShade",
+            MediaSourceKind.Nvidia => "NVIDIA",
+            MediaSourceKind.Amd => "AMD",
+            MediaSourceKind.GameNative => "游戏内截图",
+            MediaSourceKind.Custom => "自定义来源",
+            _ => "其他来源"
+        };
     }
 
     /// <summary>Updates a Ludusavi backup comment and lock state.</summary>

@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.IO;
 
@@ -97,6 +98,23 @@ namespace GameSaveCenter.Contracts
         public string SizeDisplay => SizeBytes <= 0 ? "未知大小"
             : SizeBytes < 1024 * 1024 ? $"{SizeBytes / 1024d:0.#} KiB"
             : $"{SizeBytes / 1024d / 1024d:0.#} MiB";
+        public string VersionDisplay
+        {
+            get
+            {
+                var version = Regex.Match(DisplayName ?? string.Empty, @"(?i)\bv\d+(?:\.\d+)+(?:-\d+)?\b");
+                return version.Success ? version.Value : "可下载版本";
+            }
+        }
+        public string OptionCountDisplay
+        {
+            get
+            {
+                var options = Regex.Match(DisplayName ?? string.Empty, @"(?i)(?:plus|trainer)[\s._-]*(\d+)");
+                return options.Success ? $"+{options.Groups[1].Value} 项" : string.Empty;
+            }
+        }
+        public string PublishedDisplay => PublishedUtc.HasValue ? PublishedUtc.Value.ToLocalTime().ToString("yyyy-MM-dd") : "日期未知";
     }
 
     public sealed class TrainerCatalogQueryDto
