@@ -1,7 +1,7 @@
 # 开发实现进度
 
 更新时间：2026-07-29
-当前版本：`0.5.10-development-preview`
+当前版本：`0.5.11-development-preview`
 
 状态定义：
 

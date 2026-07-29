@@ -1,7 +1,7 @@
 # 功能完成度评估
 
 更新时间：2026-07-29
-评估版本：`0.5.10-development-preview`
+评估版本：`0.5.11-development-preview`
 
 本项目必须区分“源码已经实现”和“Windows/Playnite/真实游戏已经验证”。百分比是工程评估，不等于发布承诺。
 

@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.5.10-development-preview`。** 管理面板继续采用 SQLite 缓存优先和按工作区懒加载，并在保留统一滚动条、DataGrid 复选框与可清除搜索框的基础上，修复 0.5.9 页签内容居中和页签底部裁切回归。Release 编译与 Core 测试需持续通过；Playnite 多主题、窗口缩放、真实备份恢复与大型游戏库仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 回归。
+> **当前状态：`0.5.11-development-preview`。** 管理面板继续采用 SQLite 缓存优先和按工作区懒加载，并在保留统一滚动条、DataGrid 复选框与可清除搜索框的基础上，在修复页签内容居中和底部裁切回归的基础上，继续修复 TabPanel 对页签右侧圆角的裁切。Release 编译与 Core 测试需持续通过；Playnite 多主题、窗口缩放、真实备份恢复与大型游戏库仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 回归。
 
 ## 核心原则
 

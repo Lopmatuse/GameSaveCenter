@@ -1,3 +1,9 @@
+# 0.5.11 Development Preview
+
+- 修复 WPF `TabPanel` 在使用外部 `TabItem.Margin` 时对模板右边缘的裁切：页签间距移入模板内部固定透明列，确保选中与未选中页签的右上、右下圆角完整显示。
+- 页签 Chrome 在自身布局槽内保留 1 DIP 安全边距并启用布局取整，避免高 DPI 下右侧描边被吸附成直线。
+- 保留 0.5.10 的页签内容 Stretch、DataGrid CheckBox、搜索清除、滚动条和布局修复。
+
 # 0.5.10 Development Preview
 
 - 修复 0.5.9 `TabItem.HorizontalContentAlignment/VerticalContentAlignment=Center` 向选中内容传播，导致维护、媒体、修改器等页面整体居中的布局回归。

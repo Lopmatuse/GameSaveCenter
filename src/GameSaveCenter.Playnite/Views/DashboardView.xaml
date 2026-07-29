@@ -243,7 +243,10 @@
             <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="14,7"/>
-            <Setter Property="Margin" Value="0,0,8,0"/>
+            <!-- TabPanel may clip the right edge of a child that uses an external Margin.
+                 Keep all inter-tab spacing inside the template so the complete Border,
+                 including both right corners, stays inside the arranged TabItem slot. -->
+            <Setter Property="Margin" Value="0"/>
             <Setter Property="MinHeight" Value="36"/>
             <Setter Property="Cursor" Value="Hand"/>
             <!-- These properties are inherited by the selected TabItem content.  They must
@@ -253,20 +256,35 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
-                        <Border x:Name="TabChrome"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="11"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True"
-                                ClipToBounds="False">
-                            <ContentPresenter ContentSource="Header"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"
-                                              RecognizesAccessKey="True"
-                                              SnapsToDevicePixels="True"/>
-                        </Border>
+                        <!-- The fixed spacer column replaces TabItem.Margin.  WPF TabPanel can
+                             clip a template at the arranged slot boundary; keeping 8 DIP of
+                             transparent space inside that slot prevents the right rounded edge
+                             from being cut into a straight vertical line. -->
+                        <Grid Background="Transparent"
+                              ClipToBounds="False"
+                              UseLayoutRounding="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="8"/>
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="TabChrome"
+                                    Grid.Column="0"
+                                    Margin="1"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="11"
+                                    Padding="{TemplateBinding Padding}"
+                                    SnapsToDevicePixels="False"
+                                    UseLayoutRounding="True"
+                                    ClipToBounds="False">
+                                <ContentPresenter ContentSource="Header"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  RecognizesAccessKey="True"
+                                                  SnapsToDevicePixels="True"/>
+                            </Border>
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="TabChrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
@@ -611,7 +629,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.5.10" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.5.11" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
