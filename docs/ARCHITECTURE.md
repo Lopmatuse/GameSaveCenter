@@ -131,6 +131,7 @@ Failed
 
 - 默认只调用 `rclone copy`；
 - 校验使用 `rclone check --one-way` 等只读校验；
+- 多设备状态使用每设备独立的、无存档内容 sidecar；读取只调用 `rclone lsf/cat`，分叉仅提示人工选择；
 - 不调用 `sync`、`delete`、`purge`；
 - 本地副本是主副本，云端失败只记录任务错误；
 - 多设备默认使用不同设备子目录；

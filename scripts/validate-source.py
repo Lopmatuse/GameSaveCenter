@@ -528,6 +528,23 @@ def check_061_reliability_guards() -> None:
     if "MaxDownloadBytes" not in fling:
         fail("FLiNG download size guard missing")
 
+def check_device_state_guards() -> None:
+    """Device comparison must remain content-free and read-only."""
+    service = (ROOT / "src/GameSaveCenter.Worker/Services/DeviceStateService.cs").read_text(encoding="utf-8")
+    rclone = (ROOT / "src/GameSaveCenter.Worker/Infrastructure/RcloneClient.cs").read_text(encoding="utf-8")
+    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    for token in ("DeviceStateSidecarDto", "DeviceConflictDetector", "GetLatestBackupSummariesAsync", "ReadRemoteTextAsync"):
+        if token not in service:
+            fail(f"Device-state service guard missing: {token}")
+    for forbidden in ('"sync"', '"delete"', '"purge"', '"move"'):
+        if forbidden in service.lower():
+            fail(f"Device-state service must not invoke destructive cloud operation: {forbidden}")
+    for token in ('"lsf"', '"cat"'):
+        if token not in rclone:
+            fail(f"Read-only rclone sidecar guard missing: {token}")
+    if "SyncDeviceStatesCommand" not in ui or "设备状态" not in ui:
+        fail("Device-state maintenance UI guard missing")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -544,6 +561,7 @@ def main() -> int:
     check_windows_launchers()
     check_large_library_performance_guards()
     check_061_reliability_guards()
+    check_device_state_guards()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:

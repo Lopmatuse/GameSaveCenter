@@ -63,6 +63,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         private string taskStatusFilter = "全部";
         private string taskGameFilter = "全部";
         private string taskTypeFilter = "全部";
+        private string deviceStateMessage = "尚未刷新多设备状态。该功能只比较摘要，绝不自动恢复或覆盖存档。";
 
         public DashboardViewModel(GameSaveCenterPlugin plugin)
         {
@@ -96,6 +97,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             CopyTaskErrorCommand = new RelayCommand(_ => RunLocal(CopySelectedTaskError), _ => SelectedTask != null && !string.IsNullOrWhiteSpace(SelectedTask.DetailMessage));
             OpenAttentionCenterCommand = new RelayCommand(_ => OpenAttentionCenter());
             RefreshDiagnosticsCommand = new RelayCommand(_ => Run(RefreshDiagnosticsAsync), _ => !IsBusy);
+            SyncDeviceStatesCommand = new RelayCommand(_ => Run(SyncDeviceStatesAsync), _ => !IsBusy);
             CopyDiagnosticsCommand = new RelayCommand(_ => RunLocal(CopyDiagnostics), _ => !string.IsNullOrWhiteSpace(DiagnosticSummary));
             OpenDataDirectoryCommand = new RelayCommand(_ => RunLocal(() => OpenPath(EffectiveSettings.DataDirectory)), _ => !string.IsNullOrWhiteSpace(EffectiveSettings.DataDirectory));
             OpenBackupDirectoryCommand = new RelayCommand(_ => RunLocal(() => OpenPath(EffectiveSettings.LudusaviBackupDirectory)), _ => !string.IsNullOrWhiteSpace(EffectiveSettings.LudusaviBackupDirectory));
@@ -121,6 +123,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ObservableCollection<string> TaskGameFilterOptions { get; } = new ObservableCollection<string> { "全部" };
         public ObservableCollection<string> TaskTypeFilterOptions { get; } = new ObservableCollection<string> { "全部" };
         public ObservableCollection<ValidationFindingDto> Findings { get; } = new ObservableCollection<ValidationFindingDto>();
+        public ObservableCollection<DeviceConflictStatusDto> DeviceComparisons { get; } = new ObservableCollection<DeviceConflictStatusDto>();
         public ObservableCollection<BackupVersionDto> Backups { get; } = new ObservableCollection<BackupVersionDto>();
         public ObservableCollection<MediaItemDto> Media { get; } = new ObservableCollection<MediaItemDto>();
         public ObservableCollection<MediaItemDto> UnassignedMedia { get; } = new ObservableCollection<MediaItemDto>();
@@ -360,11 +363,13 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand CopyTaskErrorCommand { get; }
         public ICommand OpenAttentionCenterCommand { get; }
         public ICommand RefreshDiagnosticsCommand { get; }
+        public ICommand SyncDeviceStatesCommand { get; }
         public ICommand CopyDiagnosticsCommand { get; }
         public ICommand OpenDataDirectoryCommand { get; }
         public ICommand OpenBackupDirectoryCommand { get; }
         public ICommand OpenMediaDirectoryCommand { get; }
         public ICommand OpenWorkerLogCommand { get; }
+        public string DeviceStateMessage { get => deviceStateMessage; private set => SetValue(ref deviceStateMessage,value); }
         public ICommand ImportTrainerCommand { get; }
         public ICommand ImportCheatTableCommand { get; }
         public ICommand ImportToolFolderCommand { get; }
@@ -525,6 +530,17 @@ namespace GameSaveCenter.Playnite.ViewModels
             await RefreshDashboardAsync(false, false);
             await LoadDiagnosticsAsync();
             StatusMessage = "诊断信息已更新";
+        }
+
+        private async Task SyncDeviceStatesAsync()
+        {
+            var result=await plugin.RequestAsync<DeviceStateSyncResultDto>(MessageTypes.SyncDeviceStates,new { },TimeSpan.FromMinutes(5));
+            ApplyOnUi(()=>
+            {
+                Replace(DeviceComparisons,result.Comparisons);
+                DeviceStateMessage=result.StatusMessage;
+            });
+            StatusMessage=result.StatusMessage;
         }
 
         private async Task LoadDetailsAsync(bool forceBackupHistory = false)
@@ -1218,7 +1234,7 @@ namespace GameSaveCenter.Playnite.ViewModels
                 UpdateBackupMetadataCommand, CompareBackupCommand, PreviewRetentionCommand,
                 AddMediaSourceCommand, AcceptCandidateCommand, RejectCandidateCommand, ReassignMediaCommand,
                 AssignInboxMediaCommand, IgnoreInboxMediaCommand,
-                CancelTaskCommand, RetryTaskCommand, CopyTaskErrorCommand, RefreshDiagnosticsCommand, CopyDiagnosticsCommand,
+                CancelTaskCommand, RetryTaskCommand, CopyTaskErrorCommand, RefreshDiagnosticsCommand, SyncDeviceStatesCommand, CopyDiagnosticsCommand,
                 OpenDataDirectoryCommand, OpenBackupDirectoryCommand, OpenMediaDirectoryCommand, OpenWorkerLogCommand
                 ,ImportTrainerCommand,ImportCheatTableCommand,ImportToolFolderCommand,SaveGameToolCommand,LaunchGameToolCommand,
                 OpenGameToolDirectoryCommand,DeleteGameToolCommand,SyncTrainerCatalogCommand,SearchTrainerCatalogCommand,

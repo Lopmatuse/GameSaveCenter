@@ -35,6 +35,26 @@ public sealed class RcloneClient
             null, TimeSpan.FromHours(1), token);
     }
 
+    /// <summary>Lists remote sidecar paths. This is read-only and never modifies the remote.</summary>
+    public async Task<IReadOnlyList<string>> ListDeviceStateFilesAsync(CancellationToken token)
+    {
+        if (!IsConfigured) return Array.Empty<string>();
+        var result = await _runner.RunAsync(_options.RcloneExecutable,
+            new[] { "lsf", _options.RcloneDestination, "--recursive", "--files-only", "--include", "*/DeviceState/*.json" },
+            null, TimeSpan.FromMinutes(2), token).ConfigureAwait(false);
+        return !result.Success ? Array.Empty<string>() : result.StandardOutput.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(x=>x.Trim()).Where(x=>x.Length>0).Take(64).ToList();
+    }
+
+    /// <summary>Reads a small JSON sidecar; callers enforce their own schema and size limits.</summary>
+    public async Task<string> ReadRemoteTextAsync(string remoteRelativePath,CancellationToken token)
+    {
+        if (!IsConfigured) return string.Empty;
+        var result = await _runner.RunAsync(_options.RcloneExecutable,new[] { "cat", CombineRemote(_options.RcloneDestination,remoteRelativePath) },
+            null,TimeSpan.FromMinutes(1),token).ConfigureAwait(false);
+        return result.Success&&result.StandardOutput.Length<=1024*1024 ? result.StandardOutput : string.Empty;
+    }
+
     public async Task<string> GetVersionAsync(CancellationToken token)
     {
         if (!IsAvailable) return string.Empty;

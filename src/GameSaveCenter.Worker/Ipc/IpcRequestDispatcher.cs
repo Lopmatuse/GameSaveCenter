@@ -27,12 +27,13 @@ public sealed class IpcRequestDispatcher
     private readonly WorkerOptions _options;
     private readonly GameToolService _gameTools;
     private readonly ITrainerCatalogSource _trainerCatalog;
+    private readonly DeviceStateService _deviceStates;
     private readonly ILogger<IpcRequestDispatcher> _logger;
 
     public IpcRequestDispatcher(GameCatalogService catalog,GameSessionCoordinator sessions,BackupOrchestrator backup,RestoreOrchestrator restore,
         MediaSyncService media,SavePathDetectionService detection,DashboardService dashboard,SqliteStateStore store,TaskCoordinator tasks,
-        LudusaviClient ludusavi,WorkerOptions options,GameToolService gameTools,ITrainerCatalogSource trainerCatalog,ILogger<IpcRequestDispatcher> logger)
-    { _catalog=catalog;_sessions=sessions;_backup=backup;_restore=restore;_media=media;_detection=detection;_dashboard=dashboard;_store=store;_tasks=tasks;_ludusavi=ludusavi;_options=options;_gameTools=gameTools;_trainerCatalog=trainerCatalog;_logger=logger; }
+        LudusaviClient ludusavi,WorkerOptions options,GameToolService gameTools,ITrainerCatalogSource trainerCatalog,DeviceStateService deviceStates,ILogger<IpcRequestDispatcher> logger)
+    { _catalog=catalog;_sessions=sessions;_backup=backup;_restore=restore;_media=media;_detection=detection;_dashboard=dashboard;_store=store;_tasks=tasks;_ludusavi=ludusavi;_options=options;_gameTools=gameTools;_trainerCatalog=trainerCatalog;_deviceStates=deviceStates;_logger=logger; }
 
     public async Task<IpcEnvelope> DispatchAsync(IpcEnvelope request,CancellationToken token)
     {
@@ -70,6 +71,7 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.UpdateGamePolicy=>await UpdatePolicyAsync(Read<GamePolicyUpdateDto>(request),token).ConfigureAwait(false),
                 MessageTypes.GetTasks=>await _store.GetRecentTasksAsync(200,token).ConfigureAwait(false),
                 MessageTypes.GetTaskChanges=>GetTaskChanges(Read<TaskChangeRequestDto>(request)),
+                MessageTypes.SyncDeviceStates=>await _deviceStates.SyncAsync(token).ConfigureAwait(false),
                 MessageTypes.GetLogs=>await _store.GetAuditAsync(500,token).ConfigureAwait(false),
                 MessageTypes.GetSettings=>SanitizedSettings(),
                 MessageTypes.UpdateSettings=>await UpdateSettingsAsync(Read<WorkerSettingsDto>(request),token).ConfigureAwait(false),

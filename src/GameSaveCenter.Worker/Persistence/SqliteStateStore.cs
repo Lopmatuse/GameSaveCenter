@@ -672,6 +672,28 @@ ON CONFLICT(playnite_id,backup_id) DO UPDATE SET ludusavi_name=excluded.ludusavi
         return result;
     }
 
+    /// <summary>Returns one newest indexed backup per game for a content-free device sidecar.</summary>
+    public async Task<List<DeviceBackupSummaryDto>> GetLatestBackupSummariesAsync(CancellationToken token)
+    {
+        var result = new List<DeviceBackupSummaryDto>();
+        await using var connection = Open(); await connection.OpenAsync(token).ConfigureAwait(false);
+        var command = connection.CreateCommand();
+        command.CommandText = @"
+SELECT b.playnite_id,g.name,b.backup_id,b.created_utc,b.total_bytes,b.file_count
+FROM backup_versions b
+JOIN games g ON g.playnite_id=b.playnite_id
+JOIN (SELECT playnite_id,MAX(created_utc) AS newest FROM backup_versions GROUP BY playnite_id) latest
+  ON latest.playnite_id=b.playnite_id AND latest.newest=b.created_utc
+ORDER BY g.name COLLATE NOCASE;";
+        await using var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) result.Add(new DeviceBackupSummaryDto
+        {
+            PlayniteId=reader.GetString(0),GameName=reader.GetString(1),BackupId=reader.GetString(2),
+            CreatedUtc=DateTime.Parse(reader.GetString(3)).ToUniversalTime(),TotalBytes=reader.GetInt64(4),FileCount=reader.GetInt32(5)
+        });
+        return result;
+    }
+
     public async Task RemoveMissingBackupVersionsAsync(string playniteId, IReadOnlyCollection<string> activeBackupIds, CancellationToken token)
     {
         await _writeGate.WaitAsync(token).ConfigureAwait(false);

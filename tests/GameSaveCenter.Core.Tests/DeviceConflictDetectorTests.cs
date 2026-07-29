@@ -5,6 +5,14 @@ namespace GameSaveCenter.Core.Tests;
 public sealed class DeviceConflictDetectorTests
 {
     [Fact]
+    public void MissingLocalSummaryIsNotAutoResolved()
+    {
+        var remote=new BackupSnapshot{BackupId="handheld",SourceDevice="HANDHELD",CreatedUtc=DateTime.UtcNow,TotalBytes=140};
+        var conflict=new DeviceConflictDetector().Detect(null,remote);
+        Assert.False(conflict.HasConflict);Assert.Equal("OnlyOneSideAvailable",conflict.Reason);
+    }
+
+    [Fact]
     public void DivergentDevicesAreNotAutoResolved()
     {
         var left=new BackupSnapshot{BackupId="desktop",SourceDevice="DESKTOP",CreatedUtc=DateTime.UtcNow,TotalBytes=100};

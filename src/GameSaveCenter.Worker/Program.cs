@@ -29,6 +29,7 @@ internal static class Program
         builder.Services.AddSingleton<LudusaviClient>();
         builder.Services.AddSingleton<RcloneClient>();
         builder.Services.AddSingleton<CloudTransferCoordinator>();
+        builder.Services.AddSingleton<DeviceStateService>();
         builder.Services.AddSingleton<GameCatalogService>();
         builder.Services.AddSingleton<TaskCoordinator>();
         builder.Services.AddSingleton<BackupOrchestrator>();

@@ -6,7 +6,7 @@ namespace GameSaveCenter.Core.Services
     /// <summary>Detects likely divergent save histories between devices.</summary>
     public sealed class DeviceConflictDetector
     {
-        public DeviceConflict Detect(BackupSnapshot local, BackupSnapshot remote)
+        public DeviceConflict Detect(BackupSnapshot? local, BackupSnapshot? remote)
         {
             if (local == null || remote == null)
             {
