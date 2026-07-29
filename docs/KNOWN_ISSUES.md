@@ -1,7 +1,7 @@
 # 已知缺陷与回归状态
 
 更新时间：2026-07-29
-目标版本：`0.5.9-development-preview`
+目标版本：`0.5.10-development-preview`
 
 本文档是持续缺陷台账。任何修复必须同步更新 `DEVELOPMENT_PROGRESS.md` 与 `PROJECT_MEMORY.md`。
 

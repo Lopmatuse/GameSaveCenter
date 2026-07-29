@@ -1,3 +1,9 @@
+# 0.5.10 Development Preview
+
+- 修复 0.5.9 `TabItem.HorizontalContentAlignment/VerticalContentAlignment=Center` 向选中内容传播，导致维护、媒体、修改器等页面整体居中的布局回归。
+- 页签头部改为独立留白视口并隐藏内部横向滚动条轨道，避免底部圆角被裁切以及页签下方出现贯穿整行的伪分隔线。
+- 保留 0.5.9 已确认正常的 Apple 风格 DataGrid CheckBox、搜索清除按钮、DataGrid 与滚动条基础样式。
+
 # 0.5.9 Development Preview
 
 - 重写共享 ScrollBar Track/Thumb 几何：纵向与横向使用固定厚度、方向独立最小长度和有限圆角，避免大量数据时滑块被归一化成尖角或透镜形。

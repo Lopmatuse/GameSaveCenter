@@ -181,6 +181,10 @@
         <Style TargetType="ComboBox" BasedOn="{StaticResource GscComboBox}"/>
         <Style TargetType="ComboBoxItem" BasedOn="{StaticResource GscComboBoxItem}"/>
 
+        <!-- The header and selected content are deliberately separated.  In 0.5.9 the
+             TabItem content-alignment values were set to Center, and those inheritable
+             properties pulled complete page layouts into the middle of the available area.
+             The header remains centered by its own presenter while tab content always stretches. -->
         <Style x:Key="GscTabControl" TargetType="TabControl">
             <Setter Property="OverridesDefaultStyle" Value="True"/>
             <Setter Property="Background" Value="Transparent"/>
@@ -192,28 +196,38 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="TabControl">
                         <Grid KeyboardNavigation.TabNavigation="Local"
-                              SnapsToDevicePixels="True">
+                              SnapsToDevicePixels="True"
+                              ClipToBounds="False">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <ScrollViewer x:Name="HeaderScrollViewer"
-                                          Grid.Row="0"
-                                          HorizontalScrollBarVisibility="Auto"
-                                          VerticalScrollBarVisibility="Disabled"
-                                          CanContentScroll="False"
-                                          PanningMode="HorizontalOnly"
-                                          Focusable="False">
-                                <TabPanel x:Name="HeaderPanel"
-                                          IsItemsHost="True"
-                                          Background="Transparent"
-                                          KeyboardNavigation.TabIndex="1"/>
-                            </ScrollViewer>
+                            <!-- Keep enough space below the header viewport so the lower two
+                                 rounded corners are never clipped.  The scrollbar is hidden;
+                                 the small number of module tabs does not need a visible track. -->
+                            <Border Grid.Row="0"
+                                    Padding="1,1,1,10"
+                                    Background="Transparent"
+                                    ClipToBounds="False">
+                                <ScrollViewer x:Name="HeaderScrollViewer"
+                                              HorizontalScrollBarVisibility="Hidden"
+                                              VerticalScrollBarVisibility="Disabled"
+                                              CanContentScroll="False"
+                                              PanningMode="HorizontalOnly"
+                                              Focusable="False"
+                                              ClipToBounds="False">
+                                    <TabPanel x:Name="HeaderPanel"
+                                              IsItemsHost="True"
+                                              Background="Transparent"
+                                              ClipToBounds="False"
+                                              KeyboardNavigation.TabIndex="1"/>
+                                </ScrollViewer>
+                            </Border>
                             <ContentPresenter x:Name="PART_SelectedContentHost"
                                               Grid.Row="1"
                                               ContentSource="SelectedContent"
-                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              HorizontalAlignment="Stretch"
+                                              VerticalAlignment="Stretch"
                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                         </Grid>
                     </ControlTemplate>
@@ -228,12 +242,14 @@
             <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="14,8"/>
-            <Setter Property="Margin" Value="0,0,8,8"/>
-            <Setter Property="MinHeight" Value="38"/>
+            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="MinHeight" Value="36"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <!-- These properties are inherited by the selected TabItem content.  They must
+                 remain Stretch; only the header presenter below is centered. -->
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
@@ -241,13 +257,15 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="12"
+                                CornerRadius="11"
                                 Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
+                                SnapsToDevicePixels="True"
+                                ClipToBounds="False">
                             <ContentPresenter ContentSource="Header"
-                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                              RecognizesAccessKey="True"/>
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"
+                                              SnapsToDevicePixels="True"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -593,7 +611,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.5.9" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.5.10" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
