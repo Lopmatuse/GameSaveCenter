@@ -1,9 +1,12 @@
 [CmdletBinding()]
 param(
-    [string]$ProjectRoot = (Split-Path -Parent $PSScriptRoot)
+    [string]$ProjectRoot
 )
 
 $ErrorActionPreference = "Stop"
+if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
+    $ProjectRoot = Split-Path -Parent $PSScriptRoot
+}
 $xamlFiles = Get-ChildItem -Path (Join-Path $ProjectRoot "src\GameSaveCenter.Playnite") -Recurse -Filter *.xaml
 $errors = [System.Collections.Generic.List[string]]::new()
 
@@ -15,7 +18,7 @@ foreach ($file in $xamlFiles) {
         $document.Load($file.FullName)
     }
     catch {
-        $errors.Add("$($file.FullName): XML 解析失败：$($_.Exception.Message)")
+        $errors.Add("$($file.FullName): XML parsing failed: $($_.Exception.Message)")
         continue
     }
 
@@ -25,7 +28,7 @@ foreach ($file in $xamlFiles) {
         foreach ($node in $nodes) {
             if ($null -eq $node.ParentNode -or $node.ParentNode.LocalName -ne $expectedParent) {
                 $actualParent = if ($null -eq $node.ParentNode) { "<none>" } else { $node.ParentNode.LocalName }
-                $errors.Add("$($file.FullName): <$triggerProperty> 必须直属 <$expectedParent>，当前父元素为 <$actualParent>。")
+                $errors.Add("$($file.FullName): <$triggerProperty> must be a direct child of <$expectedParent>; actual parent: <$actualParent>.")
             }
         }
     }
@@ -46,12 +49,12 @@ foreach ($file in $xamlFiles) {
             foreach ($targetNode in $targetNodes) {
                 $targetName = $targetNode.GetAttribute("TargetName")
                 if (-not $namedElements.ContainsKey($targetName)) {
-                    $errors.Add("$($file.FullName): <$templateName> 中 TargetName='$targetName' 找不到对应命名元素。")
+                    $errors.Add("$($file.FullName): <$templateName> TargetName='$targetName' does not reference a named element.")
                     continue
                 }
 
                 if ($namedElements[$targetName] -match "Transform$") {
-                    $errors.Add("$($file.FullName): TargetName='$targetName' 指向 $($namedElements[$targetName])；模板触发器应定位可视元素，再整体设置 RenderTransform。")
+                    $errors.Add("$($file.FullName): TargetName='$targetName' references $($namedElements[$targetName]); target a visual element and set its RenderTransform instead.")
                 }
             }
         }
@@ -60,7 +63,7 @@ foreach ($file in $xamlFiles) {
 
     $styleTransformSetters = $document.SelectNodes("//*[local-name()='Style']/*[local-name()='Setter' and @Property='RenderTransform']/*[local-name()='Setter.Value']/*[substring(local-name(), string-length(local-name()) - string-length('Transform') + 1) = 'Transform']")
     foreach ($transform in $styleTransformSetters) {
-        $errors.Add("$($file.FullName): Style Setter 中的 <$($transform.LocalName)> 会被 WPF 共享并冻结；需要动画时应在代码中为控件创建独立的可变 Transform。")
+        $errors.Add("$($file.FullName): <$($transform.LocalName)> in a Style Setter can be shared and frozen by WPF; animated controls need an independent mutable transform.")
     }
 
     $codeBehind = "$($file.FullName).cs"
@@ -76,7 +79,7 @@ foreach ($file in $xamlFiles) {
         }
         foreach ($handlerName in $handlerNames) {
             if ($codeText -notmatch ("\b" + [Regex]::Escape($handlerName) + "\s*\(")) {
-                $errors.Add("$($file.FullName): XAML 事件处理器 '$handlerName' 未在 $codeBehind 中定义。")
+                $errors.Add("$($file.FullName): XAML event handler '$handlerName' is not defined in $codeBehind.")
             }
         }
     }
@@ -84,7 +87,7 @@ foreach ($file in $xamlFiles) {
 
 if ($errors.Count -gt 0) {
     $errors | ForEach-Object { Write-Error $_ }
-    throw "XAML 结构检查失败，共 $($errors.Count) 项。"
+    throw "XAML structural validation failed with $($errors.Count) error(s)."
 }
 
-Write-Host "XAML 结构检查通过，共检查 $($xamlFiles.Count) 个文件。"
+Write-Host "XAML structural validation passed for $($xamlFiles.Count) file(s)."

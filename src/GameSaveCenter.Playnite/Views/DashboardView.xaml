@@ -629,7 +629,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.6" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.7" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -1383,11 +1383,11 @@
                                     <Grid Margin="0,12,0,0">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                         <WrapPanel Margin="0,0,0,10">
-                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,0"><TextBlock><Run Text="媒体 "/><Run Text="{Binding MediaSummary.TotalCount}" FontWeight="SemiBold"/></TextBlock></Border>
-                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,0"><TextBlock><Run Text="截图 "/><Run Text="{Binding MediaSummary.ScreenshotCount}" FontWeight="SemiBold"/></TextBlock></Border>
-                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,0"><TextBlock><Run Text="录像 "/><Run Text="{Binding MediaSummary.VideoCount}" FontWeight="SemiBold"/></TextBlock></Border>
-                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,0"><TextBlock><Run Text="收藏 "/><Run Text="{Binding MediaSummary.FavoriteCount}" FontWeight="SemiBold"/></TextBlock></Border>
-                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7"><TextBlock><Run Text="占用 "/><Run Text="{Binding MediaSummary.TotalSizeDisplay}" FontWeight="SemiBold"/></TextBlock></Border>
+                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,0"><TextBlock><Run Text="媒体 "/><Run Text="{Binding MediaSummary.TotalCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
+                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,0"><TextBlock><Run Text="截图 "/><Run Text="{Binding MediaSummary.ScreenshotCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
+                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,0"><TextBlock><Run Text="录像 "/><Run Text="{Binding MediaSummary.VideoCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
+                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,0"><TextBlock><Run Text="收藏 "/><Run Text="{Binding MediaSummary.FavoriteCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
+                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7"><TextBlock><Run Text="占用 "/><Run Text="{Binding MediaSummary.TotalSizeDisplay, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
                                         </WrapPanel>
                                         <Border Grid.Row="1" Style="{StaticResource GscTableFrame}" MinHeight="190">
                                             <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Media}" SelectedItem="{Binding SelectedMedia}">

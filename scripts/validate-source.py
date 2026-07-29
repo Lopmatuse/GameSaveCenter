@@ -275,13 +275,17 @@ def check_dashboard_regressions() -> None:
     dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
     if 'SelectedTask.DurationDisplay, Mode=OneWay' not in dashboard:
         fail("DurationDisplay must use OneWay binding because it is read-only")
+    run_binding_count = 0
     for path in ROOT.joinpath("src/GameSaveCenter.Playnite").rglob("*.xaml"):
         if any(part in {"bin", "obj"} for part in path.parts):
             continue
         text = path.read_text(encoding="utf-8")
-        for binding in re.findall(r'<Run\\b[^>]*\\bText="\\{Binding ([^}]*)\\}"', text):
+        for binding in re.findall(r'<Run\b[^>]*\bText="\{Binding ([^}]*)\}"', text):
+            run_binding_count += 1
             if "Mode=OneWay" not in binding:
                 fail(f"Run.Text binding must explicitly use Mode=OneWay: {path.relative_to(ROOT)}: {binding}")
+    if run_binding_count == 0:
+        fail("Run.Text binding guard matched no XAML; check the validator regex")
     if 'ItemsSource="{Binding GamesView}"' not in dashboard or 'GameSearchText' not in dashboard:
         fail("Dashboard large-library search/filter view is missing")
     if 'ProgressBar Width="120" Height="4" IsIndeterminate="{Binding IsBusy}"' in dashboard:

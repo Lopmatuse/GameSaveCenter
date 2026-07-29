@@ -1,7 +1,7 @@
 # 已知缺陷与回归状态
 
 更新时间：2026-07-29
-目标版本：`0.6.6-development-preview`
+目标版本：`0.6.7-development-preview`
 
 本文档是持续缺陷台账。任何修复必须同步更新 `DEVELOPMENT_PROGRESS.md` 与 `PROJECT_MEMORY.md`。
 
@@ -33,6 +33,16 @@
 | GSC-046 | 一级导航只切换同一七标签详情页，普通窗口持续拥挤 | 已重构待 Playnite 回归 | 当前模块只显示相关标签；任务/维护移除游戏列；1320/1050/880 DIP 响应式布局 |
 | GSC-047 | 后台刷新进度插入底部状态行导致页面震动 | 已修复待 Playnite 回归 | 正常状态只保留侧栏；后台刷新提示不再参与 Dashboard 主布局测量 |
 | GSC-048 | 设置页下拉框和滚动条回退为宿主默认白色控件 | 已修复待多主题回归 | 共享 ComboBox/Popup/ScrollBar/ProgressBar 模板，设置页显式复用 |
+| GSC-049 | 0.6.6 媒体统计只读属性被 Run.Text 回写导致崩溃 | 已修复为 0.6.7 待真机回归 | 打开媒体页并切换游戏/主题，不出现未处理绑定异常 |
+
+## GSC-049：0.6.6 媒体页因只读统计绑定崩溃
+
+- **状态**：已修复为 0.6.7，待 Windows/Playnite 真机回归。
+- **真机证据**：Playnite 10.56 日志记录加载 `GameSaveCenter, version 0.6.6`，随后在 2026-07-29 19:47:53 抛出未处理的 `System.InvalidOperationException`。
+- **异常**：无法对 `MediaStorageSummaryDto.TotalSizeDisplay` 只读属性进行 TwoWay 或 OneWayToSource 绑定。
+- **根因**：新增媒体统计使用了未显式指定模式的 `Run.Text` 绑定；既有防回归正则多写了一层反斜杠，验证脚本实际没有匹配任何 `Run`。
+- **修复**：媒体统计五个数据绑定全部显式设为 OneWay，并修正门禁正则。
+- **回归**：安装 0.6.7 后反复打开媒体页、切换有/无媒体的游戏与三种主题；Playnite 日志不得再出现该绑定异常。
 | GSC-049 | 图标侧栏仍保留 Worker/Ludusavi 文本，缩小时图标与状态被裁切 | 已修复待 Playnite 回归 | Compact 模式仅显示居中状态灯并减小导航内边距 |
 | GSC-050 | 自定义横向滚动条 Thumb 显示为错误的小方块 | 已修复待 Playnite 回归 | `PART_Track` 绑定视口和范围；水平/垂直方向使用独立尺寸与翻页命令 |
 | GSC-051 | 媒体页的自动行挤压两个 DataGrid，导致仅显示一行或底边裁切 | 已修复待 Playnite 回归 | 局部纵向滚动；两个表格各保留约四行高度 |

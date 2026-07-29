@@ -1,3 +1,9 @@
+# 0.6.7 Development Preview
+
+- 修复打开媒体页时 `Run.Text` 尝试回写只读空间占用属性、导致 Playnite 未处理异常的崩溃。
+- 媒体统计的全部内联绑定显式使用 OneWay，并修复此前未实际匹配 XAML 的源码防回归规则。
+- XAML 门禁脚本恢复 Windows PowerShell 5.1 编码兼容。
+
 # 0.6.6 Development Preview
 
 - 设置页新增带架构版本的 JSON 导出、导入和缺失程序/目录迁移报告；只有点击 Playnite 保存后才应用。

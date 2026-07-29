@@ -1,7 +1,7 @@
 # 开发实现进度
 
 更新时间：2026-07-29
-当前版本：`0.6.6-development-preview`
+当前版本：`0.6.7-development-preview`
 
 状态定义：
 
@@ -11,6 +11,14 @@
 - ⬜ **未开发**：没有可用实现。
 
 > Windows 真机已确认 0.4.2 可以编译、安装并打开侧栏。0.4.3 修复 Worker/Ludusavi 路径混淆、重复启动和缩放布局问题；Release 编译与隔离 Worker 冒烟测试已通过，仍需完成 Playnite 交互与真实 Ludusavi 回归。
+
+## 2026-07-29 0.6.7 媒体页只读绑定崩溃修复
+
+- 0.6.6 真机日志确认打开媒体页时，WPF `Run.Text` 尝试 TwoWay 回写只读的 `MediaStorageSummaryDto.TotalSizeDisplay`，导致 Playnite 主线程未处理异常。
+- 媒体统计的五个 `Run.Text` 数据绑定全部显式改为 `Mode=OneWay`，避免相同模板内其他统计字段以后改为只读属性时再次崩溃。
+- 修复 `validate-source.py` 中被双重转义破坏的 `Run.Text` 正则；门禁现在会实际扫描所有 Playnite XAML 并拒绝缺少显式 OneWay 的数据绑定。
+- `check-xaml.ps1` 的输出改为 ASCII，避免 Windows PowerShell 5.1 将 UTF-8 无 BOM 中文误解码后产生脚本解析错误。
+- [ ] 安装 0.6.7 后连续切换媒体页、不同游戏和三种主题，确认不再出现扩展崩溃窗口或绑定错误。
 
 ## 2026-07-29 0.6.6 设置迁移与媒体管理补足
 
