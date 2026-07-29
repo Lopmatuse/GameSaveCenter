@@ -37,6 +37,9 @@ namespace GameSaveCenter.Contracts
         public const string GetTasks = "tasks.get";
         public const string GetTaskChanges = "tasks.changes";
         public const string SyncDeviceStates = "devices.state.sync";
+        public const string ListProcessMappings = "processMappings.list";
+        public const string SaveProcessMapping = "processMappings.save";
+        public const string DeleteProcessMapping = "processMappings.delete";
         public const string GetLogs = "logs.get";
         public const string UpdateSettings = "settings.update";
         public const string GetSettings = "settings.get";

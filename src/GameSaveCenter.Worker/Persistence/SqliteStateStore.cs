@@ -694,6 +694,16 @@ ORDER BY g.name COLLATE NOCASE;";
         return result;
     }
 
+    public async Task<List<ProcessMappingDto>> GetProcessMappingsAsync(CancellationToken token)
+    {
+        var result=new List<ProcessMappingDto>();await using var connection=Open();await connection.OpenAsync(token).ConfigureAwait(false);
+        var command=connection.CreateCommand();command.CommandText="SELECT executable_name,playnite_id,game_name,enabled,created_utc FROM process_mappings ORDER BY game_name COLLATE NOCASE,executable_name COLLATE NOCASE;";
+        await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        while(await reader.ReadAsync(token).ConfigureAwait(false))result.Add(new ProcessMappingDto{ExecutableName=reader.GetString(0),PlayniteId=reader.GetString(1),GameName=reader.GetString(2),Enabled=reader.GetInt32(3)==1,CreatedUtc=DateTime.Parse(reader.GetString(4)).ToUniversalTime()});return result;
+    }
+    public Task UpsertProcessMappingAsync(ProcessMappingDto value,CancellationToken token)=>ExecuteAsync("INSERT INTO process_mappings(executable_name,playnite_id,game_name,enabled,created_utc) VALUES($exe,$game,$name,$enabled,$utc) ON CONFLICT(executable_name) DO UPDATE SET playnite_id=excluded.playnite_id,game_name=excluded.game_name,enabled=excluded.enabled;",new Dictionary<string,object?>{{"$exe",value.ExecutableName},{"$game",value.PlayniteId},{"$name",value.GameName},{"$enabled",value.Enabled?1:0},{"$utc",value.CreatedUtc.ToString("O")}},token);
+    public Task DeleteProcessMappingAsync(string executableName,CancellationToken token)=>ExecuteAsync("DELETE FROM process_mappings WHERE executable_name=$exe;",new Dictionary<string,object?>{{"$exe",executableName}},token);
+
     public async Task RemoveMissingBackupVersionsAsync(string playniteId, IReadOnlyCollection<string> activeBackupIds, CancellationToken token)
     {
         await _writeGate.WaitAsync(token).ConfigureAwait(false);
@@ -941,6 +951,7 @@ CREATE TABLE IF NOT EXISTS game_tools(tool_id TEXT PRIMARY KEY,playnite_id TEXT 
 CREATE TABLE IF NOT EXISTS game_tool_versions(version_id TEXT PRIMARY KEY,tool_id TEXT NOT NULL REFERENCES game_tools(tool_id) ON DELETE CASCADE,version_name TEXT,entry_path TEXT NOT NULL,working_directory TEXT,arguments TEXT,source_url TEXT,file_sha256 TEXT,download_utc TEXT,created_utc TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS trainer_catalog(catalog_id TEXT PRIMARY KEY,title TEXT NOT NULL,normalized_title TEXT NOT NULL,page_url TEXT NOT NULL,game_version TEXT,option_count INTEGER NOT NULL DEFAULT 0,last_updated_utc TEXT,last_synced_utc TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS trainer_releases(release_id TEXT PRIMARY KEY,catalog_id TEXT NOT NULL REFERENCES trainer_catalog(catalog_id) ON DELETE CASCADE,display_name TEXT NOT NULL,download_url TEXT NOT NULL,size_bytes INTEGER NOT NULL DEFAULT 0,published_utc TEXT,last_synced_utc TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS process_mappings(executable_name TEXT PRIMARY KEY,playnite_id TEXT NOT NULL,game_name TEXT NOT NULL,enabled INTEGER NOT NULL DEFAULT 1,created_utc TEXT NOT NULL);
 CREATE INDEX IF NOT EXISTS ix_tasks_created ON tasks(created_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_backup_versions_game_time ON backup_versions(playnite_id,created_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_media_game ON media(playnite_id,captured_utc DESC);

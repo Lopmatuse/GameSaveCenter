@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using GameSaveCenter.Contracts;
 using GameSaveCenter.Worker.Configuration;
+using GameSaveCenter.Worker.Persistence;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -12,11 +13,12 @@ public sealed class ExternalGameProcessDetector : BackgroundService
     private readonly WorkerOptions _options;
     private readonly GameCatalogService _catalog;
     private readonly GameSessionCoordinator _sessions;
+    private readonly SqliteStateStore _store;
     private readonly ILogger<ExternalGameProcessDetector> _logger;
     private readonly Dictionary<int,DetectedProcess> _detected=new();
 
-    public ExternalGameProcessDetector(WorkerOptions options,GameCatalogService catalog,GameSessionCoordinator sessions,ILogger<ExternalGameProcessDetector> logger)
-    { _options=options;_catalog=catalog;_sessions=sessions;_logger=logger; }
+    public ExternalGameProcessDetector(WorkerOptions options,GameCatalogService catalog,GameSessionCoordinator sessions,SqliteStateStore store,ILogger<ExternalGameProcessDetector> logger)
+    { _options=options;_catalog=catalog;_sessions=sessions;_store=store;_logger=logger; }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -34,6 +36,9 @@ public sealed class ExternalGameProcessDetector : BackgroundService
     {
         var games=await _catalog.GetGamesAsync(token).ConfigureAwait(false);
         var map=BuildMap(games);
+        var byId=games.ToDictionary(x=>x.PlayniteId,StringComparer.OrdinalIgnoreCase);
+        foreach(var learned in await _store.GetProcessMappingsAsync(token).ConfigureAwait(false))
+            if(learned.Enabled&&byId.TryGetValue(learned.PlayniteId,out var game))map[learned.ExecutableName]=new List<GameDescriptorDto>{game};
         var processes=Process.GetProcesses();var live=new HashSet<int>();
         foreach(var process in processes)
         {

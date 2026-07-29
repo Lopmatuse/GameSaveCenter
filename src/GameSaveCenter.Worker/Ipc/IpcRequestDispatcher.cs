@@ -72,6 +72,9 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.GetTasks=>await _store.GetRecentTasksAsync(200,token).ConfigureAwait(false),
                 MessageTypes.GetTaskChanges=>GetTaskChanges(Read<TaskChangeRequestDto>(request)),
                 MessageTypes.SyncDeviceStates=>await _deviceStates.SyncAsync(token).ConfigureAwait(false),
+                MessageTypes.ListProcessMappings=>await _store.GetProcessMappingsAsync(token).ConfigureAwait(false),
+                MessageTypes.SaveProcessMapping=>await SaveProcessMappingAsync(Read<ProcessMappingDto>(request),token).ConfigureAwait(false),
+                MessageTypes.DeleteProcessMapping=>await DeleteProcessMappingAsync(Read<ProcessMappingDto>(request).ExecutableName,token).ConfigureAwait(false),
                 MessageTypes.GetLogs=>await _store.GetAuditAsync(500,token).ConfigureAwait(false),
                 MessageTypes.GetSettings=>SanitizedSettings(),
                 MessageTypes.UpdateSettings=>await UpdateSettingsAsync(Read<WorkerSettingsDto>(request),token).ConfigureAwait(false),
@@ -105,6 +108,15 @@ public sealed class IpcRequestDispatcher
 
     private async Task<object> UpsertAsync(List<GameDescriptorDto> games,CancellationToken token){await _catalog.UpsertAndMatchAsync(games,token).ConfigureAwait(false);return new{accepted=games.Count};}
     private object GetTaskChanges(TaskChangeRequestDto request)=>_tasks.GetChanges(request.AfterSequence,request.Limit);
+    private async Task<object> SaveProcessMappingAsync(ProcessMappingDto mapping,CancellationToken token)
+    {
+        mapping.ExecutableName=Path.GetFileNameWithoutExtension(mapping.ExecutableName??string.Empty).Trim();
+        if(string.IsNullOrWhiteSpace(mapping.ExecutableName)||string.IsNullOrWhiteSpace(mapping.PlayniteId))throw new ArgumentException("必须提供 EXE 名称和目标游戏。");
+        var game=await _catalog.GetGameAsync(mapping.PlayniteId,token).ConfigureAwait(false)??throw new InvalidOperationException("目标游戏不存在。");
+        mapping.GameName=game.Name;mapping.CreatedUtc=DateTime.UtcNow;await _store.UpsertProcessMappingAsync(mapping,token).ConfigureAwait(false);return mapping;
+    }
+    private async Task<object> DeleteProcessMappingAsync(string executableName,CancellationToken token)
+    { await _store.DeleteProcessMappingAsync(executableName,token).ConfigureAwait(false);return new { deleted=true }; }
     private async Task<object> StopAsync(GameSessionEventDto value,CancellationToken token){await _sessions.StopAsync(value,token).ConfigureAwait(false);return new{stopped=true};}
     private async Task<List<BackupVersionDto>> ListBackupsAsync(GameQueryDto query,CancellationToken token)
     {

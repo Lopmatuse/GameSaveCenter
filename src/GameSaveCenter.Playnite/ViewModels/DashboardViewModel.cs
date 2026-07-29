@@ -64,6 +64,9 @@ namespace GameSaveCenter.Playnite.ViewModels
         private string taskGameFilter = "全部";
         private string taskTypeFilter = "全部";
         private string deviceStateMessage = "尚未刷新多设备状态。该功能只比较摘要，绝不自动恢复或覆盖存档。";
+        private string processMappingExecutable = string.Empty;
+        private GameStatusDto processMappingTargetGame = null!;
+        private ProcessMappingDto selectedProcessMapping = null!;
 
         public DashboardViewModel(GameSaveCenterPlugin plugin)
         {
@@ -98,6 +101,8 @@ namespace GameSaveCenter.Playnite.ViewModels
             OpenAttentionCenterCommand = new RelayCommand(_ => OpenAttentionCenter());
             RefreshDiagnosticsCommand = new RelayCommand(_ => Run(RefreshDiagnosticsAsync), _ => !IsBusy);
             SyncDeviceStatesCommand = new RelayCommand(_ => Run(SyncDeviceStatesAsync), _ => !IsBusy);
+            SaveProcessMappingCommand = new RelayCommand(_ => Run(SaveProcessMappingAsync), _ => !IsBusy && !string.IsNullOrWhiteSpace(ProcessMappingExecutable) && ProcessMappingTargetGame != null);
+            DeleteProcessMappingCommand = new RelayCommand(_ => Run(DeleteProcessMappingAsync), _ => !IsBusy && SelectedProcessMapping != null);
             CopyDiagnosticsCommand = new RelayCommand(_ => RunLocal(CopyDiagnostics), _ => !string.IsNullOrWhiteSpace(DiagnosticSummary));
             OpenDataDirectoryCommand = new RelayCommand(_ => RunLocal(() => OpenPath(EffectiveSettings.DataDirectory)), _ => !string.IsNullOrWhiteSpace(EffectiveSettings.DataDirectory));
             OpenBackupDirectoryCommand = new RelayCommand(_ => RunLocal(() => OpenPath(EffectiveSettings.LudusaviBackupDirectory)), _ => !string.IsNullOrWhiteSpace(EffectiveSettings.LudusaviBackupDirectory));
@@ -124,6 +129,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ObservableCollection<string> TaskTypeFilterOptions { get; } = new ObservableCollection<string> { "全部" };
         public ObservableCollection<ValidationFindingDto> Findings { get; } = new ObservableCollection<ValidationFindingDto>();
         public ObservableCollection<DeviceConflictStatusDto> DeviceComparisons { get; } = new ObservableCollection<DeviceConflictStatusDto>();
+        public ObservableCollection<ProcessMappingDto> ProcessMappings { get; } = new ObservableCollection<ProcessMappingDto>();
         public ObservableCollection<BackupVersionDto> Backups { get; } = new ObservableCollection<BackupVersionDto>();
         public ObservableCollection<MediaItemDto> Media { get; } = new ObservableCollection<MediaItemDto>();
         public ObservableCollection<MediaItemDto> UnassignedMedia { get; } = new ObservableCollection<MediaItemDto>();
@@ -364,12 +370,17 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand OpenAttentionCenterCommand { get; }
         public ICommand RefreshDiagnosticsCommand { get; }
         public ICommand SyncDeviceStatesCommand { get; }
+        public ICommand SaveProcessMappingCommand { get; }
+        public ICommand DeleteProcessMappingCommand { get; }
         public ICommand CopyDiagnosticsCommand { get; }
         public ICommand OpenDataDirectoryCommand { get; }
         public ICommand OpenBackupDirectoryCommand { get; }
         public ICommand OpenMediaDirectoryCommand { get; }
         public ICommand OpenWorkerLogCommand { get; }
         public string DeviceStateMessage { get => deviceStateMessage; private set => SetValue(ref deviceStateMessage,value); }
+        public string ProcessMappingExecutable { get => processMappingExecutable; set { SetValue(ref processMappingExecutable,value??string.Empty); RaiseCommandStates(); } }
+        public GameStatusDto ProcessMappingTargetGame { get => processMappingTargetGame; set { SetValue(ref processMappingTargetGame,value); RaiseCommandStates(); } }
+        public ProcessMappingDto SelectedProcessMapping { get => selectedProcessMapping; set { SetValue(ref selectedProcessMapping,value); RaiseCommandStates(); } }
         public ICommand ImportTrainerCommand { get; }
         public ICommand ImportCheatTableCommand { get; }
         public ICommand ImportToolFolderCommand { get; }
@@ -518,11 +529,26 @@ namespace GameSaveCenter.Playnite.ViewModels
         private async Task LoadDiagnosticsAsync()
         {
             var settings = await plugin.RequestAsync<WorkerSettingsSnapshotDto>(MessageTypes.GetSettings, new { });
+            var mappings = await plugin.RequestAsync<List<ProcessMappingDto>>(MessageTypes.ListProcessMappings, new { });
             ApplyOnUi(() =>
             {
                 EffectiveSettings = settings;
                 DiagnosticSummary = BuildDiagnosticSummary(settings);
+                Replace(ProcessMappings,mappings);
+                if(ProcessMappingTargetGame==null) ProcessMappingTargetGame=SelectedGame??Games.FirstOrDefault();
             });
+        }
+
+        private async Task SaveProcessMappingAsync()
+        {
+            var saved=await plugin.RequestAsync<ProcessMappingDto>(MessageTypes.SaveProcessMapping,new ProcessMappingDto{ExecutableName=ProcessMappingExecutable,PlayniteId=ProcessMappingTargetGame.PlayniteId});
+            await LoadDiagnosticsAsync();ProcessMappingExecutable=string.Empty;StatusMessage=$"已将 {saved.ExecutableName} 绑定到 {saved.GameName}";
+        }
+
+        private async Task DeleteProcessMappingAsync()
+        {
+            await plugin.RequestAsync<object>(MessageTypes.DeleteProcessMapping,new ProcessMappingDto{ExecutableName=SelectedProcessMapping.ExecutableName});
+            await LoadDiagnosticsAsync();StatusMessage="已删除进程映射";
         }
 
         private async Task RefreshDiagnosticsAsync()
@@ -1235,6 +1261,7 @@ namespace GameSaveCenter.Playnite.ViewModels
                 AddMediaSourceCommand, AcceptCandidateCommand, RejectCandidateCommand, ReassignMediaCommand,
                 AssignInboxMediaCommand, IgnoreInboxMediaCommand,
                 CancelTaskCommand, RetryTaskCommand, CopyTaskErrorCommand, RefreshDiagnosticsCommand, SyncDeviceStatesCommand, CopyDiagnosticsCommand,
+                SaveProcessMappingCommand,DeleteProcessMappingCommand,
                 OpenDataDirectoryCommand, OpenBackupDirectoryCommand, OpenMediaDirectoryCommand, OpenWorkerLogCommand
                 ,ImportTrainerCommand,ImportCheatTableCommand,ImportToolFolderCommand,SaveGameToolCommand,LaunchGameToolCommand,
                 OpenGameToolDirectoryCommand,DeleteGameToolCommand,SyncTrainerCatalogCommand,SearchTrainerCatalogCommand,

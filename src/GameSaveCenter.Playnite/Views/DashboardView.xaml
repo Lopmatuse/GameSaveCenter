@@ -629,7 +629,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.2" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.3" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -1510,7 +1510,7 @@
 
                         <TabItem x:Name="DiagnosticTab" Header="诊断">
                             <Grid Margin="0,12,0,0">
-                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                                 <WrapPanel>
                                     <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding RefreshDiagnosticsCommand}" Content="刷新诊断"/>
                                     <Button Style="{StaticResource GscButtonBase}" Command="{Binding CopyDiagnosticsCommand}" Content="复制诊断"/>
@@ -1531,7 +1531,20 @@
                                         <StackPanel><TextBlock Text="版本策略" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0"><Run Text="{Binding EffectiveSettings.BackupFormat, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding EffectiveSettings.Compression, Mode=OneWay}"/></TextBlock><TextBlock Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0"><Run Text="完整 "/><Run Text="{Binding EffectiveSettings.FullBackupLimit, Mode=OneWay}"/><Run Text=" · 差异 "/><Run Text="{Binding EffectiveSettings.DifferentialBackupLimit, Mode=OneWay}"/></TextBlock></StackPanel>
                                     </Border>
                                 </Grid>
-                                <Expander Grid.Row="2" Header="查看完整诊断信息" Foreground="{DynamicResource GscPrimaryTextBrush}" IsExpanded="False">
+                                <Border Grid.Row="2" Style="{StaticResource GscSurface}" Padding="12" Margin="0,0,0,8">
+                                    <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="120"/></Grid.RowDefinitions>
+                                        <TextBlock FontWeight="SemiBold" Text="学习未知进程 / MOD 启动器"/>
+                                        <Grid Grid.Row="1" Margin="0,8,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                            <TextBox Style="{StaticResource GscTextBox}" Text="{Binding ProcessMappingExecutable, UpdateSourceTrigger=PropertyChanged}" ToolTip="输入 EXE 文件名，例如 skse64.exe；不要填写完整路径"/>
+                                            <ComboBox Grid.Column="2" Style="{StaticResource GscComboBox}" ItemsSource="{Binding Games}" SelectedItem="{Binding ProcessMappingTargetGame}" DisplayMemberPath="Name"/>
+                                            <Button Grid.Column="3" Style="{StaticResource GscButtonBase}" Command="{Binding SaveProcessMappingCommand}" Content="绑定" Margin="8,0,0,0"/>
+                                        </Grid>
+                                        <DataGrid Grid.Row="2" Style="{StaticResource GscDataGrid}" ItemsSource="{Binding ProcessMappings}" SelectedItem="{Binding SelectedProcessMapping}">
+                                            <DataGrid.Columns><DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="EXE" Binding="{Binding ExecutableName}" Width="180"/><DataGridTextColumn Header="目标游戏" Binding="{Binding GameName}" Width="*"/><DataGridTemplateColumn HeaderStyle="{StaticResource GscLastColumnHeader}" Header="操作" Width="90"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Style="{StaticResource GscContextButton}" Command="{Binding DataContext.DeleteProcessMappingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Content="删除"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns>
+                                        </DataGrid>
+                                    </Grid>
+                                </Border>
+                                <Expander Grid.Row="3" Header="查看完整诊断信息" Foreground="{DynamicResource GscPrimaryTextBrush}" IsExpanded="False">
                                     <Border Style="{StaticResource GscSurface}" CornerRadius="12" Padding="12" Margin="0,8,0,0">
                                         <TextBox Style="{StaticResource GscTextBox}" Text="{Binding DiagnosticSummary, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="Consolas"/>
                                     </Border>
