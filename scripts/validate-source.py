@@ -607,6 +607,23 @@ def check_066_portability_media_guards() -> None:
         if forbidden in view_model:
             fail(f"Media UI must remain non-destructive: {forbidden}")
 
+def check_067_media_browsing_guards() -> None:
+    """Keep media filtering local and selected-image preview bounded."""
+    view_model = (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8")
+    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    converter = (ROOT / "src/GameSaveCenter.Playnite/Converters/MediaThumbnailConverter.cs").read_text(encoding="utf-8")
+    for token in ("MediaView", "FilterMedia", "MediaFilterOptions", "MediaSearchText"):
+        if token not in view_model:
+            fail(f"Media browsing guard missing: {token}")
+    for token in ("MediaView", "MediaFilterOptions", "MediaSearchText"):
+        if token not in ui:
+            fail(f"Media browsing UI guard missing: {token}")
+    for token in ("DecodePixelWidth=480", "BitmapCacheOption.OnLoad", "image.Freeze()", "FileShare.ReadWrite|FileShare.Delete"):
+        if token not in converter:
+            fail(f"Bounded selected-media preview guard missing: {token}")
+    if 'ItemsSource="{Binding MediaView}"' not in ui or "MediaThumbnailConverter" not in ui:
+        fail("Media filtered view/preview binding guard missing")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -626,6 +643,7 @@ def main() -> int:
     check_device_state_guards()
     check_065_completion_guards()
     check_066_portability_media_guards()
+    check_067_media_browsing_guards()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:

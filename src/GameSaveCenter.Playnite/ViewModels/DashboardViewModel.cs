@@ -42,6 +42,8 @@ namespace GameSaveCenter.Playnite.ViewModels
         private MediaStorageSummaryDto mediaSummary = new MediaStorageSummaryDto();
         private string mediaComment = string.Empty;
         private bool mediaFavorite;
+        private string mediaSearchText = string.Empty;
+        private string mediaFilter = "全部";
         private GameStatusDto mediaTargetGame = null!;
         private MediaItemDto selectedInboxMedia = null!;
         private GameStatusDto inboxTargetGame = null!;
@@ -83,6 +85,8 @@ namespace GameSaveCenter.Playnite.ViewModels
             GamesView.Filter = FilterGame;
             TasksView = CollectionViewSource.GetDefaultView(Tasks);
             TasksView.Filter = FilterTask;
+            MediaView = CollectionViewSource.GetDefaultView(Media);
+            MediaView.Filter = FilterMedia;
             ApplyGameSort();
             RefreshCommand = new RelayCommand(_ => Run(RefreshAsync), _ => !IsBusy);
             BackupSelectedCommand = new RelayCommand(_ => Run(BackupSelectedAsync), _ => !IsBusy && SelectedGame != null && SelectedGame.LudusaviMatched && Snapshot.LudusaviAvailable);
@@ -155,6 +159,8 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ObservableCollection<TrainerReleaseDto> TrainerReleases { get; } = new ObservableCollection<TrainerReleaseDto>();
         public ICollectionView GamesView { get; }
         public ICollectionView TasksView { get; }
+        public ICollectionView MediaView { get; }
+        public IReadOnlyList<string> MediaFilterOptions { get; } = new[] { "全部", "截图", "录像", "收藏" };
         public IReadOnlyList<string> GameStatusFilterOptions { get; } = new[] { "全部", "已就绪", "未匹配", "运行中", "需关注", "有历史" };
         public IReadOnlyList<string> GameSortOptions { get; } = new[] { "名称", "运行优先", "匹配优先", "最近备份" };
 
@@ -349,6 +355,16 @@ namespace GameSaveCenter.Playnite.ViewModels
         public MediaStorageSummaryDto MediaSummary { get => mediaSummary; private set => SetValue(ref mediaSummary,value??new MediaStorageSummaryDto()); }
         public string MediaComment { get => mediaComment; set => SetValue(ref mediaComment,value??string.Empty); }
         public bool MediaFavorite { get => mediaFavorite; set => SetValue(ref mediaFavorite,value); }
+        public string MediaSearchText
+        {
+            get => mediaSearchText;
+            set { SetValue(ref mediaSearchText,value??string.Empty); MediaView.Refresh(); }
+        }
+        public string MediaFilter
+        {
+            get => mediaFilter;
+            set { SetValue(ref mediaFilter,string.IsNullOrWhiteSpace(value)?"全部":value); MediaView.Refresh(); }
+        }
         public GameStatusDto MediaTargetGame
         {
             get => mediaTargetGame;
@@ -651,6 +667,7 @@ namespace GameSaveCenter.Playnite.ViewModels
                     {
                         if (!IsSelectedGame(id)) return;
                         Replace(Media, mediaTask.Result);
+                        MediaView.Refresh();
                         Replace(MediaSources, sourcesTask.Result);
                         MediaSummary=summaryTask.Result;
                         SelectedMedia=Media.FirstOrDefault();
@@ -965,6 +982,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             var index=Media.IndexOf(selected);
             if(index>=0)Media[index]=updated;
             SelectedMedia=updated;
+            MediaView.Refresh();
             if(SelectedGame!=null)
                 MediaSummary=await plugin.RequestAsync<MediaStorageSummaryDto>(MessageTypes.GetMediaSummary,new GameQueryDto{PlayniteId=SelectedGame.PlayniteId});
             ConfirmSuccess("媒体备注与收藏状态已保存");
@@ -1353,6 +1371,18 @@ namespace GameSaveCenter.Playnite.ViewModels
             => string.Equals(game.HealthState, "Attention", StringComparison.OrdinalIgnoreCase)
                || string.Equals(game.HealthState, "Warning", StringComparison.OrdinalIgnoreCase)
                || string.Equals(game.HealthState, "LudusaviUnavailable", StringComparison.OrdinalIgnoreCase);
+
+        private bool FilterMedia(object value)
+        {
+            if(value is not MediaItemDto item)return false;
+            if(string.Equals(MediaFilter,"截图",StringComparison.Ordinal)&&item.Kind!=MediaKind.Screenshot)return false;
+            if(string.Equals(MediaFilter,"录像",StringComparison.Ordinal)&&item.Kind!=MediaKind.VideoClip)return false;
+            if(string.Equals(MediaFilter,"收藏",StringComparison.Ordinal)&&!item.IsFavorite)return false;
+            if(string.IsNullOrWhiteSpace(MediaSearchText))return true;
+            return (item.FileName??string.Empty).IndexOf(MediaSearchText,StringComparison.OrdinalIgnoreCase)>=0
+                   || (item.Comment??string.Empty).IndexOf(MediaSearchText,StringComparison.OrdinalIgnoreCase)>=0
+                   || (item.SourceDisplay??string.Empty).IndexOf(MediaSearchText,StringComparison.OrdinalIgnoreCase)>=0;
+        }
 
         private void ClearSelectedGameDetails()
         {
