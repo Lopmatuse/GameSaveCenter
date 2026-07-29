@@ -278,9 +278,8 @@ git fsck --full
 
 1. 多设备远端备份下载和人工冲突解决向导。当前只有只读摘要比较。
 2. 保留策略候选的安全清理执行。当前只预览，不删除。
-3. 插件自动更新安装。
-4. Playnite Add-ons 数据库正式发布。
-5. `DashboardView.xaml`、`DashboardViewModel.cs` 和 `SqliteStateStore.cs` 的进一步模块拆分。0.6.11 已先拆出 Dashboard 与 SQLite 媒体域。
+3. Playnite Add-ons 数据库正式发布：0.6.12 已准备 installer/add-on 清单，仍需仓库所有者创建 Release、上传 PEXT 并向官方数据库发 PR。
+4. `DashboardView.xaml`、`DashboardViewModel.cs` 和 `SqliteStateStore.cs` 的进一步模块拆分。0.6.11 已先拆出 Dashboard 与 SQLite 媒体域。
 
 ### 已实现但必须真机回归
 

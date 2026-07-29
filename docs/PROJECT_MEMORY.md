@@ -14,6 +14,12 @@
 - 同一时间只允许选中项的一个内嵌视频预览，默认静音；完整播放继续交给系统文件关联。
 - WPF `MediaElement` 受 Windows Media Foundation 编解码器限制，加载失败不得影响元数据、定位或系统打开入口。
 
+### Playnite 官方更新边界
+
+- 插件不得在 Playnite 运行期间下载后自替换 DLL；插件不能热重载，官方安装会整体替换扩展目录。
+- 自动更新的受信任入口是 Playnite Add-ons 数据库。仓库维护 installer manifest 和待提交的 add-on manifest，版本、扩展 ID 与 PEXT 文件名由静态门禁校验。
+- 只有 GitHub Release 资产已匿名可下载且官方数据库 PR 已合并，才能声称自动更新上线；此前只能称为“发布准备完成”。
+
 ### 0.6.11 模块拆分约束
 
 - `SqliteStateStore` 与 `DashboardViewModel` 采用按领域 partial 渐进拆分；移动代码时不得顺便改变 SQL、IPC、绑定名或安全语义。

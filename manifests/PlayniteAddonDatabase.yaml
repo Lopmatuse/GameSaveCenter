@@ -1,0 +1,19 @@
+AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
+Type: Generic
+Name: GameSaveCenter
+Author: Sable Drift
+ShortDescription: 在 Playnite 中统一管理本地优先的游戏存档历史、媒体归档、校验与安全恢复。
+Description: >-
+  GameSaveCenter 使用 Playnite 插件与独立 Worker 管理 Ludusavi 版本备份、
+  Rclone 单向云端复制、PreRestore 安全恢复、截图录像归档、存档候选路径和修改器。
+  自动备份可以积极，恢复、冲突处理与覆盖操作始终要求人工确认。
+InstallerManifestUrl: https://raw.githubusercontent.com/Nikilua/GameSaveCenter/main/manifests/InstallerManifest.yaml
+SourceUrl: https://github.com/Nikilua/GameSaveCenter
+IconUrl: https://raw.githubusercontent.com/Nikilua/GameSaveCenter/main/src/GameSaveCenter.Playnite/icon.png
+Tags:
+  - Backup
+  - Game Saves
+  - Media
+Links:
+  Source: https://github.com/Nikilua/GameSaveCenter
+  Changelog: https://github.com/Nikilua/GameSaveCenter/blob/main/docs/RELEASE_NOTES.md

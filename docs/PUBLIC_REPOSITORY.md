@@ -1,5 +1,17 @@
 # 公开仓库约定
 
+## Playnite Add-ons 与自动更新
+
+Playnite 插件不在运行中自替换 DLL。官方 Add-ons 数据库负责检查、提示和整目录更新：
+
+1. 为当前版本创建 GitHub Release，标签使用 `v<版本>`。
+2. 上传 `artifacts/GameSaveCenter-<版本>.pext`，文件名必须与 `manifests/InstallerManifest.yaml` 完全一致。
+3. 确认 release 资产可以匿名下载，再用 Playnite `Toolbox.exe verify installer manifests/InstallerManifest.yaml` 校验。
+4. 将 `manifests/PlayniteAddonDatabase.yaml` 复制到 `JosefNemec/PlayniteAddonDatabase` 的 `addons/generic/` 并发起 PR。
+5. PR 合并后用 `playnite://playnite/installaddon/66e9f2d7-67bb-43ef-b62a-b8e60734fcec` 验证安装与后续版本更新。
+
+在 Release 资产上传和官方 PR 合并前，不得声称自动更新已经上线。
+
 ## Git 身份
 
 - 作者与提交者：`Sable Drift`

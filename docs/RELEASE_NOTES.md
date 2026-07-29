@@ -4,6 +4,7 @@
 - 缩略图按路径、大小、修改时间和解码宽度缓存，最多保留 96 项；图像冻结且读取后立即释放文件句柄。
 - 选中录像使用单个静音 `MediaElement` 内嵌预览，完整声音与不支持格式继续使用系统默认播放器。
 - 新增 WPF 自动测试，验证 100 张缩略图转换后文件可删除且 LRU 不超过上限。
+- 增加官方 Playnite Add-ons installer/add-on 清单与版本门禁；自动更新需在 GitHub Release 上传 PEXT 并由官方数据库合并后生效。
 
 # 0.6.11 Development Preview
 

@@ -21,6 +21,15 @@
 - [x] WPF 自动测试用 100 张 PNG 验证图像冻结、文件句柄释放和缓存上限。
 - [ ] 在 Playnite 中验证 MP4/WMV/AVI/MOV 的本机 Media Foundation 支持、损坏录像、4K/8K 截图和 1000+ 媒体滚动内存。
 
+## 2026-07-29 Playnite 官方更新发布准备
+
+- [x] 确认 Playnite 插件不能运行中热重载，官方 Add-ons 数据库负责安装与自动更新提示。
+- [x] 增加 `manifests/InstallerManifest.yaml`，绑定扩展 ID、0.6.12 PEXT 下载地址、最低 API 与变更说明。
+- [x] 增加可提交到官方数据库 `addons/generic/` 的 add-on manifest。
+- [x] 源码门禁校验扩展 ID、版本、PEXT 文件名与两份清单一致。
+- [ ] 使用仓库所有者身份创建 `v0.6.12` GitHub Release 并上传 PEXT。
+- [ ] 向 `JosefNemec/PlayniteAddonDatabase` 发起 PR；合并后验证 Playnite 内安装与下一版本更新。
+
 ## 2026-07-29 0.6.11 媒体域模块拆分
 
 - [x] `SqliteStateStore` 改为 partial，并将媒体哈希、列表、摘要、批量元数据、收件箱、来源规则和归类状态迁到独立文件。

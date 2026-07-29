@@ -1,0 +1,10 @@
+AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
+Packages:
+  - Version: 0.6.12
+    RequiredApiVersion: 6.16.0
+    ReleaseDate: 2026-07-29
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.12/GameSaveCenter-0.6.12.pext
+    Changelog:
+      - 媒体列表启用回收虚拟化与有界缩略图缓存。
+      - 选中录像支持静音内嵌预览。
+      - 新增设置迁移、SQLite 与 WPF 缩略图自动化回归。

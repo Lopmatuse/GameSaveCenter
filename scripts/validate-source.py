@@ -274,6 +274,30 @@ def check_version_consistency() -> None:
     if assembly_version != f"{prefix_version}.0":
         fail(f"AssemblyVersion mismatch: expected {prefix_version}.0, got {assembly_version}")
 
+    installer_path = ROOT / "manifests/InstallerManifest.yaml"
+    addon_path = ROOT / "manifests/PlayniteAddonDatabase.yaml"
+    if not installer_path.exists() or not addon_path.exists():
+        fail("Playnite release manifests are missing")
+        return
+    if yaml is None:
+        return
+    try:
+        installer = yaml.safe_load(installer_path.read_text(encoding="utf-8"))
+        addon = yaml.safe_load(addon_path.read_text(encoding="utf-8"))
+        extension_id = re.search(r"^Id:\s*(\S+)\s*$", manifest, re.M)
+        package = (installer.get("Packages") or [None])[0]
+        if not extension_id or installer.get("AddonId") != extension_id.group(1) or addon.get("AddonId") != extension_id.group(1):
+            fail("Playnite release manifest AddonId mismatch")
+        if not package or str(package.get("Version")) != manifest_version:
+            fail("Playnite installer manifest version mismatch")
+        expected_asset = f"/v{manifest_version}/GameSaveCenter-{manifest_version}.pext"
+        if expected_asset not in str(package.get("PackageUrl", "")):
+            fail("Playnite installer manifest package URL/version mismatch")
+        if addon.get("Type") != "Generic" or not addon.get("InstallerManifestUrl") or not addon.get("SourceUrl"):
+            fail("Playnite add-on database manifest is incomplete")
+    except Exception as exc:
+        fail(f"Playnite release manifest validation failed: {exc}")
+
 
 def check_delivery_guards() -> None:
     forbidden = ["rclone.conf", "secrets.json", "appsettings.local.json"]
