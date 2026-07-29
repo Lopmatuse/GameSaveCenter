@@ -1,3 +1,10 @@
+# 0.6.11 Development Preview
+
+- 将媒体持久化从单体 `SqliteStateStore.cs` 拆到独立 partial，保留原 SQL、锁和公开方法。
+- 将媒体工作区加载、筛选、同步、元数据、收件箱与本地打开逻辑拆到 Dashboard 媒体 partial。
+- 静态门禁改为聚合扫描全部持久层和 Dashboard partial，避免模块化后误报功能缺失。
+- Release 构建、Worker SQLite 与 Playnite 设置测试验证拆分前后行为边界不变。
+
 # 0.6.10 Development Preview
 
 - 新增独立 Playnite 设置迁移测试项目，不改变插件本体的 net462 兼容目标。

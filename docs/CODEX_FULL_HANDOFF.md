@@ -281,7 +281,7 @@ git fsck --full
 3. 虚拟化媒体缩略图画廊和内嵌视频预览。批量元数据已在 0.6.8 实现。
 4. 插件自动更新安装。
 5. Playnite Add-ons 数据库正式发布。
-6. `DashboardView.xaml`、`DashboardViewModel.cs` 和 `SqliteStateStore.cs` 的进一步模块拆分。
+6. `DashboardView.xaml`、`DashboardViewModel.cs` 和 `SqliteStateStore.cs` 的进一步模块拆分。0.6.11 已先拆出 Dashboard 与 SQLite 媒体域。
 
 ### 已实现但必须真机回归
 

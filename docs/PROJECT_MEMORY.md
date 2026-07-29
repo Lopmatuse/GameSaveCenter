@@ -1,11 +1,17 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-29
-当前版本：`0.6.10-development-preview`
+当前版本：`0.6.11-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
 完成度百分比与剩余功能必须以 `FEATURE_COMPLETION_ASSESSMENT.md` 为准，并始终区分源码覆盖、真机验证和安全可用度。
+
+### 0.6.11 模块拆分约束
+
+- `SqliteStateStore` 与 `DashboardViewModel` 采用按领域 partial 渐进拆分；移动代码时不得顺便改变 SQL、IPC、绑定名或安全语义。
+- 源码门禁必须聚合读取 `SqliteStateStore*.cs` 与 `DashboardViewModel*.cs`，不能重新假设所有实现位于单文件。
+- 当前已拆出媒体域；后续优先拆备份/设备/修改器领域，并用现有集成测试验证行为不变。
 
 ### 0.6.10 设置迁移测试边界
 

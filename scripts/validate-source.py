@@ -22,6 +22,24 @@ def fail(message: str) -> None:
     ERRORS.append(message)
 
 
+def read_state_store() -> str:
+    """Read every partial of the SQLite store so guards survive domain splitting."""
+    persistence = ROOT / "src/GameSaveCenter.Worker/Persistence"
+    return "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted(persistence.glob("SqliteStateStore*.cs"))
+    )
+
+
+def read_dashboard_view_model() -> str:
+    """Read every dashboard partial so feature guards follow extracted workspaces."""
+    view_models = ROOT / "src/GameSaveCenter.Playnite/ViewModels"
+    return "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted(view_models.glob("DashboardViewModel*.cs"))
+    )
+
+
 def check_structured_files() -> None:
     for path in ROOT.rglob("*.json"):
         if any(part in {"bin", "obj", ".git", "artifacts"} for part in path.parts):
@@ -335,9 +353,9 @@ def check_dashboard_regressions() -> None:
 def check_media_inbox_guards() -> None:
     messages = (ROOT / "src/GameSaveCenter.Contracts/MessageTypes.cs").read_text(encoding="utf-8")
     operations = (ROOT / "src/GameSaveCenter.Contracts/OperationDtos.cs").read_text(encoding="utf-8")
-    store = (ROOT / "src/GameSaveCenter.Worker/Persistence/SqliteStateStore.cs").read_text(encoding="utf-8")
+    store = read_state_store()
     service = (ROOT / "src/GameSaveCenter.Worker/Services/MediaSyncService.cs").read_text(encoding="utf-8")
-    view_model = (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8")
+    view_model = read_dashboard_view_model()
     dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
 
     for token in ("ListUnassignedMedia", "IgnoreMedia"):
@@ -374,7 +392,7 @@ def check_media_inbox_guards() -> None:
 
 def check_media_sql_migration() -> None:
     """Execute the legacy media-table upgrade order against an in-memory SQLite database."""
-    store = (ROOT / "src/GameSaveCenter.Worker/Persistence/SqliteStateStore.cs").read_text(encoding="utf-8")
+    store = read_state_store()
     schema_match = re.search(r'private const string Schema = @"(.*?)";\s*\}', store, re.S)
     if not schema_match:
         return
@@ -420,7 +438,7 @@ def check_media_sql_migration() -> None:
 
 def check_game_tools_guards() -> None:
     """Protect the trainer schema, IPC surface and navigation separation."""
-    store = (ROOT / "src/GameSaveCenter.Worker/Persistence/SqliteStateStore.cs").read_text(encoding="utf-8")
+    store = read_state_store()
     service = (ROOT / "src/GameSaveCenter.Worker/Services/GameToolService.cs").read_text(encoding="utf-8")
     source = (ROOT / "src/GameSaveCenter.Worker/Services/FlingTrainerCatalogSource.cs").read_text(encoding="utf-8")
     dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
@@ -480,11 +498,11 @@ def check_windows_launchers() -> None:
 
 def check_large_library_performance_guards() -> None:
     plugin = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenterPlugin.cs").read_text(encoding="utf-8")
-    view_model = (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8")
+    view_model = read_dashboard_view_model()
     catalog = (ROOT / "src/GameSaveCenter.Worker/Services/GameCatalogService.cs").read_text(encoding="utf-8")
     dashboard = (ROOT / "src/GameSaveCenter.Worker/Services/DashboardService.cs").read_text(encoding="utf-8")
     dispatcher = (ROOT / "src/GameSaveCenter.Worker/Ipc/IpcRequestDispatcher.cs").read_text(encoding="utf-8")
-    store = (ROOT / "src/GameSaveCenter.Worker/Persistence/SqliteStateStore.cs").read_text(encoding="utf-8")
+    store = read_state_store()
 
     for token in ("lastSynchronizedLibraryFingerprint", "CreateLibraryFingerprint", "TimeSpan.FromMinutes(5)"):
         if token not in plugin:
@@ -506,7 +524,7 @@ def check_061_reliability_guards() -> None:
     """Keep the actionable attention, cloud restore lock and bounded trainer download safeguards intact."""
     messages = (ROOT / "src/GameSaveCenter.Contracts/MessageTypes.cs").read_text(encoding="utf-8")
     operations = (ROOT / "src/GameSaveCenter.Contracts/OperationDtos.cs").read_text(encoding="utf-8")
-    view_model = (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8")
+    view_model = read_dashboard_view_model()
     dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
     restore = (ROOT / "src/GameSaveCenter.Worker/Services/RestoreOrchestrator.cs").read_text(encoding="utf-8")
     cloud = (ROOT / "src/GameSaveCenter.Worker/Services/CloudTransferCoordinator.cs").read_text(encoding="utf-8")
@@ -557,7 +575,7 @@ def check_065_completion_guards() -> None:
     backup = (ROOT / "src/GameSaveCenter.Worker/Services/BackupOrchestrator.cs").read_text(encoding="utf-8")
     plugin = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenterPlugin.cs").read_text(encoding="utf-8")
     tools = (ROOT / "src/GameSaveCenter.Worker/Services/GameToolService.cs").read_text(encoding="utf-8")
-    view_model = (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8")
+    view_model = read_dashboard_view_model()
     ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
     for token in ("WaitForTaskChanges", "RetryCloudUpload", "InspectGameToolImport"):
         if token not in messages:
@@ -582,9 +600,9 @@ def check_066_portability_media_guards() -> None:
     settings = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettings.cs").read_text(encoding="utf-8")
     settings_ui = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml").read_text(encoding="utf-8")
     messages = (ROOT / "src/GameSaveCenter.Contracts/MessageTypes.cs").read_text(encoding="utf-8")
-    store = (ROOT / "src/GameSaveCenter.Worker/Persistence/SqliteStateStore.cs").read_text(encoding="utf-8")
+    store = read_state_store()
     dispatcher = (ROOT / "src/GameSaveCenter.Worker/Ipc/IpcRequestDispatcher.cs").read_text(encoding="utf-8")
-    view_model = (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8")
+    view_model = read_dashboard_view_model()
     ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
     for token in ("ExportPortableJson", "ImportPortableJson", "SchemaVersion = 1", "ValidateValueRanges", "MissingPaths"):
         if token not in settings:
@@ -619,7 +637,7 @@ def check_066_portability_media_guards() -> None:
 
 def check_067_media_browsing_guards() -> None:
     """Keep media filtering local and selected-image preview bounded."""
-    view_model = (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8")
+    view_model = read_dashboard_view_model()
     ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
     converter = (ROOT / "src/GameSaveCenter.Playnite/Converters/MediaThumbnailConverter.cs").read_text(encoding="utf-8")
     for token in ("MediaView", "FilterMedia", "MediaFilterOptions", "MediaSearchText"):
@@ -638,9 +656,9 @@ def check_068_media_batch_guards() -> None:
     """Keep batch media edits transactional, bounded and non-destructive."""
     messages = (ROOT / "src/GameSaveCenter.Contracts/MessageTypes.cs").read_text(encoding="utf-8")
     operations = (ROOT / "src/GameSaveCenter.Contracts/OperationDtos.cs").read_text(encoding="utf-8")
-    store = (ROOT / "src/GameSaveCenter.Worker/Persistence/SqliteStateStore.cs").read_text(encoding="utf-8")
+    store = read_state_store()
     dispatcher = (ROOT / "src/GameSaveCenter.Worker/Ipc/IpcRequestDispatcher.cs").read_text(encoding="utf-8")
-    view_model = (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8")
+    view_model = read_dashboard_view_model()
     ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
     worker_test = ROOT / "tests/GameSaveCenter.Worker.Tests/SqliteMediaMetadataTests.cs"
     for token in ("UpdateMediaMetadataBatch", "MediaMetadataBatchUpdateDto"):
@@ -658,13 +676,13 @@ def check_068_media_batch_guards() -> None:
 def check_069_device_decision_guards() -> None:
     """Keep device conflict decisions auditable and non-executing."""
     contracts = (ROOT / "src/GameSaveCenter.Contracts/DeviceStateDtos.cs").read_text(encoding="utf-8")
-    store = (ROOT / "src/GameSaveCenter.Worker/Persistence/SqliteStateStore.cs").read_text(encoding="utf-8")
+    store = read_state_store()
     dispatcher = (ROOT / "src/GameSaveCenter.Worker/Ipc/IpcRequestDispatcher.cs").read_text(encoding="utf-8")
     ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
     for token in ("DeviceConflictDecisionDto", "device_conflict_decisions", "SaveDeviceConflictDecisionAsync", "SaveDeviceDecisionCommand"):
         if token not in contracts + store + dispatcher + ui:
             fail(f"Device decision guard missing: {token}")
-    if "已记录人工决策；未下载、恢复、删除或覆盖任何存档" not in (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8"):
+    if "已记录人工决策；未下载、恢复、删除或覆盖任何存档" not in read_dashboard_view_model():
         fail("Device decision UI must state its non-executing boundary")
 
 def main() -> int:
