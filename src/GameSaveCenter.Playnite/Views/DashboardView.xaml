@@ -15,6 +15,7 @@
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <converters:MediaThumbnailConverter x:Key="MediaThumbnailConverter"/>
+        <converters:MediaVideoSourceConverter x:Key="MediaVideoSourceConverter"/>
 
         <!-- A compact vector mark shared by the expanded and icon-only sidebars. -->
         <Geometry x:Key="GscBrandIconGeometry">M 5,17 C 5,11 10,7 16,7 L 32,7 C 38,7 43,11 43,17 L 43,26 C 43,31 39,35 35,35 C 31,35 29,32 27,29 L 21,29 C 19,32 17,35 13,35 C 9,35 5,31 5,26 Z</Geometry>
@@ -631,7 +632,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.11" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.12" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -1398,9 +1399,32 @@
                                             </WrapPanel>
                                         </StackPanel>
                                         <Border Grid.Row="1" Style="{StaticResource GscTableFrame}" MinHeight="190">
-                                            <DataGrid x:Name="MediaGrid" Style="{StaticResource GscDataGrid}" ItemsSource="{Binding MediaView}" SelectedItem="{Binding SelectedMedia}" SelectionMode="Extended" SelectionUnit="FullRow">
+                                            <DataGrid x:Name="MediaGrid" Style="{StaticResource GscDataGrid}" ItemsSource="{Binding MediaView}" SelectedItem="{Binding SelectedMedia}"
+                                                      SelectionMode="Extended" SelectionUnit="FullRow" EnableRowVirtualization="True" EnableColumnVirtualization="True"
+                                                      VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
                                                 <DataGrid.Columns>
-                                                    <DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="拍摄时间" Binding="{Binding CapturedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="110"/>
+                                                    <DataGridTemplateColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="预览" Width="82">
+                                                        <DataGridTemplateColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <Grid Width="64" Height="38" Margin="2" ToolTip="{Binding FileName}">
+                                                                    <Border CornerRadius="6" Background="{DynamicResource GscControlFillBrush}" ClipToBounds="True">
+                                                                        <Image Source="{Binding ArchivePath, Converter={StaticResource MediaThumbnailConverter}, ConverterParameter=96}" Stretch="UniformToFill"/>
+                                                                    </Border>
+                                                                    <TextBlock Text="视频" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}">
+                                                                        <TextBlock.Style>
+                                                                            <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+                                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding Kind}" Value="{x:Static contracts:MediaKind.VideoClip}"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </TextBlock.Style>
+                                                                    </TextBlock>
+                                                                </Grid>
+                                                            </DataTemplate>
+                                                        </DataGridTemplateColumn.CellTemplate>
+                                                    </DataGridTemplateColumn>
+                                                    <DataGridTextColumn Header="拍摄时间" Binding="{Binding CapturedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="110"/>
                                                     <DataGridTextColumn Header="类型" Binding="{Binding KindDisplay, Mode=OneWay}" Width="72"/>
                                                     <DataGridTextColumn Header="来源" Binding="{Binding SourceDisplay, Mode=OneWay}" Width="115"/>
                                                     <DataGridCheckBoxColumn Header="收藏" Binding="{Binding IsFavorite, Mode=OneWay}" Width="68"/>
@@ -1419,8 +1443,28 @@
                                                 <Grid.ColumnDefinitions><ColumnDefinition Width="170"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                                 <Border Height="104" CornerRadius="10" ClipToBounds="True" Background="{DynamicResource GscControlFillBrush}" Margin="0,0,12,0">
                                                     <Grid>
-                                                        <TextBlock Text="选择截图可预览；录像请点击打开媒体" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" Margin="14" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
-                                                        <Image Source="{Binding SelectedMedia.ArchivePath, Converter={StaticResource MediaThumbnailConverter}}" Stretch="UniformToFill"/>
+                                                        <TextBlock Text="选择截图或录像可在此预览" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" Margin="14" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                                        <Image Source="{Binding SelectedMedia.ArchivePath, Converter={StaticResource MediaThumbnailConverter}}" Stretch="UniformToFill">
+                                                            <Image.Style>
+                                                                <Style TargetType="Image">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding SelectedMedia.Kind}" Value="{x:Static contracts:MediaKind.Screenshot}"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Image.Style>
+                                                        </Image>
+                                                        <MediaElement Source="{Binding SelectedMedia.ArchivePath, Converter={StaticResource MediaVideoSourceConverter}}"
+                                                                      LoadedBehavior="Play" UnloadedBehavior="Stop" IsMuted="True" Stretch="UniformToFill" ScrubbingEnabled="True">
+                                                            <MediaElement.Style>
+                                                                <Style TargetType="MediaElement">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding SelectedMedia.Kind}" Value="{x:Static contracts:MediaKind.VideoClip}"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </MediaElement.Style>
+                                                        </MediaElement>
                                                     </Grid>
                                                 </Border>
                                                 <StackPanel Grid.Column="1">

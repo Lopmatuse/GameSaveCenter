@@ -646,11 +646,21 @@ def check_067_media_browsing_guards() -> None:
     for token in ("MediaView", "MediaFilterOptions", "MediaSearchText"):
         if token not in ui:
             fail(f"Media browsing UI guard missing: {token}")
-    for token in ("DecodePixelWidth=480", "BitmapCacheOption.OnLoad", "image.Freeze()", "FileShare.ReadWrite|FileShare.Delete"):
+    for token in ("DefaultPreviewWidth = 480", "CacheLimit = 96", "DecodePixelWidth=width",
+                  "BitmapCacheOption.OnLoad", "image.Freeze()", "FileShare.ReadWrite|FileShare.Delete"):
         if token not in converter:
             fail(f"Bounded selected-media preview guard missing: {token}")
-    if 'ItemsSource="{Binding MediaView}"' not in ui or "MediaThumbnailConverter" not in ui:
+    for token in ('ItemsSource="{Binding MediaView}"', "MediaThumbnailConverter", "MediaVideoSourceConverter",
+                  'ConverterParameter=96', 'VirtualizingPanel.VirtualizationMode="Recycling"', "<MediaElement"):
+        if token not in ui:
+            fail(f"Media virtualized preview guard missing: {token}")
+    if "LoadedBehavior=\"Play\"" not in ui or "IsMuted=\"True\"" not in ui:
+        fail("Embedded video preview must remain selected-only and muted")
+    if "MediaVideoSourceConverter" not in converter:
         fail("Media filtered view/preview binding guard missing")
+    thumbnail_test = ROOT / "tests/GameSaveCenter.Playnite.Tests/MediaThumbnailConverterTests.cs"
+    if not thumbnail_test.exists() or "Convert_UsesBoundedFrozenCacheAndReleasesFiles" not in thumbnail_test.read_text(encoding="utf-8"):
+        fail("Bounded thumbnail cache test is missing")
 
 def check_068_media_batch_guards() -> None:
     """Keep batch media edits transactional, bounded and non-destructive."""
