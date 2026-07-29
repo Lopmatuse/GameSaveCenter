@@ -34,6 +34,7 @@ namespace GameSaveCenter.Playnite
         private Timer? taskNotificationTimer;
         private DateTime taskNotificationMonitorStartedUtc;
         private bool taskNotificationSnapshotInitialized;
+        private long lastTaskNotificationSequence;
         private string lastSynchronizedLibraryFingerprint = string.Empty;
         private DateTime lastLibrarySynchronizationUtc = DateTime.MinValue;
 
@@ -198,7 +199,7 @@ namespace GameSaveCenter.Playnite
         private void StartTaskNotificationMonitor()
         {
             taskNotificationMonitorStartedUtc = DateTime.UtcNow;
-            taskNotificationTimer = new Timer(_ => PollTaskNotifications(), null, TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(5));
+            taskNotificationTimer = new Timer(_ => PollTaskNotifications(), null, TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(1));
         }
 
         private async void PollTaskNotifications()
@@ -206,22 +207,40 @@ namespace GameSaveCenter.Playnite
             if (!await taskNotificationPollGate.WaitAsync(0).ConfigureAwait(false)) return;
             try
             {
-                // Do not start a disabled Worker merely to poll notifications. Once any normal
-                // plugin action starts it, this lightweight IPC request begins observing tasks.
-                var tasks = await RequestAsync<TaskStatusDto[]>(MessageTypes.GetTasks, new GameQueryDto { Limit = 200 }, TimeSpan.FromSeconds(4)).ConfigureAwait(false);
-                foreach (var task in tasks)
+                if (!taskNotificationSnapshotInitialized)
                 {
-                    var terminal = task.State == TaskState.Succeeded || task.State == TaskState.Failed || task.State == TaskState.Cancelled;
-                    if (!terminal) continue;
-                    if (!taskNotificationSnapshotInitialized && task.CreatedUtc < taskNotificationMonitorStartedUtc.AddSeconds(-5))
+                    // Seed durable history once, then switch to the Worker's signalled change feed.
+                    // This does not start a disabled Worker; connection failure is handled below.
+                    var tasks = await RequestAsync<TaskStatusDto[]>(MessageTypes.GetTasks, new GameQueryDto { Limit = 200 }, TimeSpan.FromSeconds(4)).ConfigureAwait(false);
+                    foreach (var task in tasks)
                     {
-                        notifiedTaskIds.TryAdd(task.TaskId, 0);
-                        continue;
+                        var terminal = task.State == TaskState.Succeeded || task.State == TaskState.Failed || task.State == TaskState.Cancelled;
+                        if (!terminal) continue;
+                        if (task.CreatedUtc < taskNotificationMonitorStartedUtc.AddSeconds(-5))
+                            notifiedTaskIds.TryAdd(task.TaskId, 0);
+                        else if (Settings.EnableTaskNotifications) ShowTaskNotification(task);
+                        else notifiedTaskIds.TryAdd(task.TaskId, 0);
                     }
-                    if (Settings.EnableTaskNotifications) ShowTaskNotification(task);
-                    else notifiedTaskIds.TryAdd(task.TaskId, 0);
+                    taskNotificationSnapshotInitialized = true;
                 }
-                taskNotificationSnapshotInitialized = true;
+
+                var feed = await RequestAsync<TaskChangeFeedDto>(
+                    MessageTypes.WaitForTaskChanges,
+                    new TaskChangeRequestDto { AfterSequence = lastTaskNotificationSequence, Limit = 200, WaitSeconds = 20 },
+                    TimeSpan.FromSeconds(25)).ConfigureAwait(false);
+                if (feed.ResetRequired) lastTaskNotificationSequence = 0;
+                foreach (var change in feed.Changes)
+                {
+                    var task=change.Task;
+                    var terminal=task.State==TaskState.Succeeded||task.State==TaskState.Failed||task.State==TaskState.Cancelled;
+                    if (terminal)
+                    {
+                        if (Settings.EnableTaskNotifications) ShowTaskNotification(task);
+                        else notifiedTaskIds.TryAdd(task.TaskId,0);
+                    }
+                    lastTaskNotificationSequence=Math.Max(lastTaskNotificationSequence,change.Sequence);
+                }
+                lastTaskNotificationSequence=Math.Max(lastTaskNotificationSequence,feed.LatestSequence);
             }
             catch (Exception ex)
             {

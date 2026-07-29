@@ -1,17 +1,10 @@
 # 已知限制与风险
 
-## 1. 最新 0.4.3 尚未完成全部 Windows 业务回归
+## 1. 最新 0.6.5 尚未完成全部 Windows/Playnite 业务回归
 
-- 当前执行环境没有 Windows、Playnite、WPF 或可用 .NET SDK，因此不能执行真实编译、安装和侧栏加载。
-- 0.4.2 已在用户 Windows 真机完成编译、安装并打开侧栏；0.4.3 已通过 Release 编译和隔离 Worker 存活测试，仍需验证配置自动迁移、Playnite 内窗口缩放及真实 Ludusavi 调用。
-
-当前执行容器没有 .NET SDK、MSBuild、Playnite 和 Windows API。尝试下载临时 SDK 时被环境的网络/文件策略阻止。因此：
-
-- 已执行源码结构、XAML/XML、JSON/YAML、解决方案、IPC 常量和 C# 括号检查；
-- 已编写 xUnit 测试；
-- **尚未执行 `dotnet restore/build/test`**；
-- **尚未加载到 Playnite 10 真机**；
-- **尚未对真实 Ludusavi JSON 输出做端到端验证**。
+- 当前 Windows 开发环境已经能够执行 Release 编译和 Core 测试，用户也已确认构建、安装和 Git 推送链路可用。
+- 本轮仍未自动操控 Playnite 完成真实 UI、Ludusavi、Rclone、游戏进程和安全软件交互回归，因此不能把“编译通过”等同于“所有业务真机验证完成”。
+- 必须继续按 `WINDOWS_TEST_PLAN.md` 保存真实备份、恢复、云端、多主题/DPI 与修改器样本证据。
 
 ## 2. 高级识别功能需要真实数据调优
 
@@ -23,7 +16,7 @@
 
 ## 3. 多设备冲突尚未形成远端闭环
 
-`DeviceConflictDetector` 已实现保守冲突判定，但当前 Worker 尚未从 Rclone 远端读取其他设备的版本摘要。多设备使用时应：
+`DeviceConflictDetector` 和远端只读 sidecar 摄取已经实现，但尚未提供远端备份下载与人工冲突解决向导。多设备使用时应：
 
 - 每台电脑写入不同的远端子目录；
 - 禁止自动双向恢复；
@@ -45,7 +38,7 @@
 
 ## 6. 后台通知
 
-手动命令有 UI 状态和错误通知；自动定时/退出任务会写入任务与异常页面。Worker 到 Playnite 的持续事件推送通道尚未完成，因此后台成功通知不是实时主动弹出。
+手动命令有 UI 状态和错误通知；自动定时/退出任务会写入任务与异常页面。Worker 已提供任务变化信号唤醒的有界长轮询，后台通知接近实时；它仍是可恢复的请求/响应通道，不是无限期双工连接，Worker 重启和管道中断时会回退到 SQLite 快照。
 
 ## 7. 主题、材质与宿主边界
 

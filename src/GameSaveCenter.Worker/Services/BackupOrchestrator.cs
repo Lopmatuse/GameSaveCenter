@@ -190,6 +190,7 @@ public sealed class BackupOrchestrator
                     var policy = await _store.GetPolicyAsync(game.PlayniteId, ct).ConfigureAwait(false);
                     if (_options.EnableCloudUpload && policy.UploadAfterBackup && _rclone.IsConfigured)
                     {
+                        await _store.UpdateGameCloudStateAsync(game.PlayniteId,"Pending",ct).ConfigureAwait(false);
                         await progress.ReportAsync(82, $"{requestLabel}：正在复制到云端").ConfigureAwait(false);
                         var cloud = await _cloudTransfers.RunUploadAsync("backup", transferToken => _rclone
                             .CopyAsync(_options.LudusaviBackupDirectory, Path.Combine(Environment.MachineName, "Saves"), transferToken), ct)
@@ -228,6 +229,35 @@ public sealed class BackupOrchestrator
         }
 
         return results;
+    }
+
+    /// <summary>
+    /// Repeats only the safe one-way cloud copy after a local backup already succeeded.
+    /// It deliberately does not create another Ludusavi version.
+    /// </summary>
+    public async Task<TaskStatusDto> RetryCloudUploadAsync(string playniteId,CancellationToken token)
+    {
+        var game=await _catalog.GetGameAsync(playniteId,token).ConfigureAwait(false)
+                 ??throw new WorkerOperationException("CLOUD_GAME_NOT_FOUND","找不到需要重试云端上传的游戏。",playniteId);
+        return await _tasks.RunAsync("CloudUpload",game.PlayniteId,game.Name,async(progress,ct)=>
+        {
+            if(!_options.EnableCloudUpload||!_rclone.IsConfigured)
+                throw new WorkerOperationException("RCLONE_NOT_CONFIGURED","云端复制尚未启用或 Rclone 配置不可用。",_options.RcloneDestination);
+            if(!Directory.Exists(_options.LudusaviBackupDirectory))
+                throw new WorkerOperationException("BACKUP_DIRECTORY_MISSING","本地 Ludusavi 备份目录不存在，无法重试上传。",_options.LudusaviBackupDirectory);
+
+            await _store.UpdateGameCloudStateAsync(game.PlayniteId,"Pending",ct).ConfigureAwait(false);
+            await progress.ReportAsync(10,"正在重新复制本地备份到云端").ConfigureAwait(false);
+            var cloud=await _cloudTransfers.RunUploadAsync("backup retry",transferToken=>_rclone.CopyAsync(
+                _options.LudusaviBackupDirectory,Path.Combine(Environment.MachineName,"Saves"),transferToken),ct).ConfigureAwait(false);
+            if(!cloud.Success)
+            {
+                await _store.UpdateGameCloudStateAsync(game.PlayniteId,"Failed",ct).ConfigureAwait(false);
+                throw new WorkerOperationException("RCLONE_COPY_FAILED","云端复制重试失败。",cloud.StandardError);
+            }
+            await _store.UpdateGameCloudStateAsync(game.PlayniteId,"Uploaded",ct).ConfigureAwait(false);
+            await progress.ReportAsync(100,"云端复制重试完成").ConfigureAwait(false);
+        },token).ConfigureAwait(false);
     }
 
     public async Task RefreshBackupHistoryAsync(string playniteId, string ludusaviName, CancellationToken token)

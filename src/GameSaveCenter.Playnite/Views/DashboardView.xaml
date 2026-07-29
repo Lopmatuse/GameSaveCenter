@@ -629,7 +629,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.4" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.5" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -1077,7 +1077,7 @@
                                 <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource GscTabItem}"/></TabControl.Resources>
                                 <TabItem Header="已安装">
                                     <Grid Margin="0,12,0,0">
-                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="1.25*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="0.9*"/></Grid.ColumnDefinitions>
                                         <Grid Grid.ColumnSpan="3">
                                             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -1091,7 +1091,33 @@
                                                 <Button Style="{StaticResource GscButtonBase}" Command="{Binding ImportCheatTableCommand}" Content="导入 CT" Margin="0"/>
                                             </WrapPanel>
                                         </Grid>
-                                        <Grid Grid.Row="1" Grid.Column="0" Margin="0,12,0,0">
+                                        <Border Grid.Row="1" Grid.ColumnSpan="3" Background="{DynamicResource GscAccentTintBrush}"
+                                                BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="12"
+                                                Padding="12" Margin="0,12,0,0">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasPendingGameToolEntrySelection}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <WrapPanel>
+                                                <StackPanel VerticalAlignment="Center" Margin="0,0,14,8">
+                                                    <TextBlock Text="选择修改器主程序" FontWeight="SemiBold"/>
+                                                    <TextBlock Text="检测到多个 EXE，确认后才会完成导入。" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11" Margin="0,3,0,0"/>
+                                                </StackPanel>
+                                                <ComboBox ItemsSource="{Binding ImportEntryCandidates}" SelectedItem="{Binding SelectedImportEntryCandidate}"
+                                                          DisplayMemberPath="Display" MinWidth="260" MaxWidth="440" VerticalAlignment="Center" Margin="0,0,12,8"/>
+                                                <WrapPanel VerticalAlignment="Center">
+                                                    <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding ConfirmGameToolImportCommand}" Content="确认导入"/>
+                                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding CancelGameToolImportCommand}" Content="取消" Margin="0"/>
+                                                </WrapPanel>
+                                            </WrapPanel>
+                                        </Border>
+                                        <Grid Grid.Row="2" Grid.Column="0" Margin="0,12,0,0">
                                             <ListBox ItemsSource="{Binding GameTools}" SelectedItem="{Binding SelectedGameTool}" BorderThickness="0"
                                                      Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                                                 <ListBox.ItemContainerStyle>
@@ -1153,7 +1179,7 @@
                                                 <TextBlock Text="可以导入本地文件，或在 FLiNG 在线库中搜索并下载。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0" TextWrapping="Wrap" TextAlignment="Center"/>
                                             </StackPanel>
                                         </Grid>
-                                        <Border Grid.Row="1" Grid.Column="2" Background="{DynamicResource GscGlassStrongBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="14" Padding="14" Margin="0,12,0,0">
+                                        <Border Grid.Row="2" Grid.Column="2" Background="{DynamicResource GscGlassStrongBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="14" Padding="14" Margin="0,12,0,0">
                                             <Grid>
                                                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                                                 <StackPanel>
@@ -1163,6 +1189,17 @@
                                                                TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedGameTool.DisplayName}"/>
                                                 </StackPanel>
                                                 <StackPanel Grid.Row="1" Margin="0,16,0,0">
+                                                    <TextBlock Text="当前版本" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/>
+                                                    <ComboBox ItemsSource="{Binding SelectedGameTool.Versions}"
+                                                              SelectedItem="{Binding SelectedGameToolVersion}"
+                                                              DisplayMemberPath="VersionName"
+                                                              Margin="0,5,0,4"
+                                                              ToolTip="选择活动版本后点击“保存设置”"/>
+                                                    <TextBlock Text="{Binding SelectedGameToolVersion.EntryPath, Mode=OneWay}"
+                                                               Foreground="{DynamicResource GscMutedTextBrush}" FontSize="10"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               ToolTip="{Binding SelectedGameToolVersion.EntryPath}"
+                                                               Margin="1,0,0,12"/>
                                                     <CheckBox Content="启用" IsChecked="{Binding SelectedGameTool.Enabled}" Margin="0,0,0,10"/>
                                                     <CheckBox Content="随游戏启动" IsChecked="{Binding SelectedGameTool.AutoStart}" Margin="0,0,0,10"/>
                                                     <CheckBox Content="游戏退出后关闭" IsChecked="{Binding SelectedGameTool.CloseOnGameExit}" Margin="0,0,0,10"/>

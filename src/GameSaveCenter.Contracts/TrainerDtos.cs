@@ -58,6 +58,31 @@ namespace GameSaveCenter.Contracts
         public bool CopyIntoLibrary { get; set; } = true;
     }
 
+    public sealed class InspectGameToolImportRequestDto
+    {
+        public string SourcePath { get; set; } = string.Empty;
+        public GameToolType ToolType { get; set; } = GameToolType.Trainer;
+    }
+
+    public sealed class GameToolEntryCandidateDto
+    {
+        public string RelativePath { get; set; } = string.Empty;
+        public long SizeBytes { get; set; }
+        public string FileName => Path.GetFileName(RelativePath ?? string.Empty);
+        public string SizeDisplay => SizeBytes < 1024 * 1024
+            ? $"{SizeBytes / 1024d:0.#} KiB"
+            : $"{SizeBytes / 1024d / 1024d:0.#} MiB";
+        public string Display => $"{RelativePath} · {SizeDisplay}";
+    }
+
+    public sealed class GameToolImportInspectionDto
+    {
+        public string SourcePath { get; set; } = string.Empty;
+        public GameToolType ToolType { get; set; }
+        public List<GameToolEntryCandidateDto> Candidates { get; set; } = new List<GameToolEntryCandidateDto>();
+        public bool RequiresSelection => Candidates.Count > 1;
+    }
+
     public sealed class UpdateGameToolRequestDto
     {
         public string ToolId { get; set; } = string.Empty;

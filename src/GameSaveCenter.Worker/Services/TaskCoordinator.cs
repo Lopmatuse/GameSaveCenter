@@ -13,6 +13,8 @@ public sealed class TaskCoordinator
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _gameLocks = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, CancellationTokenSource> _taskTokens = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentQueue<TaskChangeEventDto> _changes = new();
+    private readonly object _changeSignalGate = new();
+    private TaskCompletionSource<bool> _changeSignal = NewChangeSignal();
     private long _changeSequence;
     private const int ChangeRetention = 500;
 
@@ -102,13 +104,42 @@ public sealed class TaskCoordinator
         return new TaskChangeFeedDto{LatestSequence=latest,ResetRequired=resetRequired,Changes=changes.ToList()};
     }
 
+    public async Task<TaskChangeFeedDto> WaitForChangesAsync(long afterSequence,int limit,int waitSeconds,CancellationToken token)
+    {
+        var current=GetChanges(afterSequence,limit);
+        if(current.ResetRequired||current.Changes.Count>0||waitSeconds<=0)return current;
+
+        Task signalTask;
+        lock(_changeSignalGate) signalTask=_changeSignal.Task;
+
+        // Close the small race between the first snapshot and subscribing to the signal.
+        current=GetChanges(afterSequence,limit);
+        if(current.ResetRequired||current.Changes.Count>0)return current;
+
+        using var timeout=CancellationTokenSource.CreateLinkedTokenSource(token);
+        timeout.CancelAfter(TimeSpan.FromSeconds(Math.Clamp(waitSeconds,1,25)));
+        try{await signalTask.WaitAsync(timeout.Token).ConfigureAwait(false);}
+        catch(OperationCanceledException) when(!token.IsCancellationRequested){/* Normal long-poll timeout. */}
+        return GetChanges(afterSequence,limit);
+    }
+
     private async Task PersistAndPublishAsync(TaskStatusDto task,CancellationToken token)
     {
         await _store.AddOrUpdateTaskAsync(task,token).ConfigureAwait(false);
         var sequence=Interlocked.Increment(ref _changeSequence);
         _changes.Enqueue(new TaskChangeEventDto{Sequence=sequence,Task=Clone(task)});
         while(_changes.Count>ChangeRetention && _changes.TryDequeue(out _)) { }
+        TaskCompletionSource<bool> signal;
+        lock(_changeSignalGate)
+        {
+            signal=_changeSignal;
+            _changeSignal=NewChangeSignal();
+        }
+        signal.TrySetResult(true);
     }
+
+    private static TaskCompletionSource<bool> NewChangeSignal()
+        =>new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     private static TaskStatusDto Clone(TaskStatusDto task)=>new()
     {

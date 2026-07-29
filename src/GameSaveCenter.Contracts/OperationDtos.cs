@@ -121,6 +121,11 @@ namespace GameSaveCenter.Contracts
     {
         public long AfterSequence { get; set; }
         public int Limit { get; set; } = 100;
+        /// <summary>
+        /// Optional long-poll duration. Zero keeps the original immediate snapshot behavior.
+        /// The Worker clamps this value so one client cannot hold a pipe indefinitely.
+        /// </summary>
+        public int WaitSeconds { get; set; }
     }
 
     public sealed class TaskChangeEventDto

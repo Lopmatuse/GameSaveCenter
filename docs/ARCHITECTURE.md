@@ -42,7 +42,7 @@ GameSaveCenter.Worker (net8.0-windows)
 - 协议版本和最大消息大小由 Contracts 固定；
 - 当前实现以请求/响应为主；`tasks.changes` 提供 Worker 内存中的增量任务变化拉取，避免面板每次轮询重建完整首页。Worker 主动持续推送尚未完成。
 
-长任务由 Worker 写入 SQLite 任务表；Playnite 以 `tasks.changes` 获取短期增量，Worker 重启、事件窗口溢出或面板首次打开时回退到 SQLite 全量快照。后续持续事件推送只能作为体验增强，不能成为任务正确性的唯一依赖。
+长任务由 Worker 写入 SQLite 任务表；Playnite 以 `tasks.changes` 获取立即增量，并以 `tasks.changes.wait` 建立最长 25 秒的信号唤醒长轮询。Worker 重启、事件窗口溢出、管道中断或面板首次打开时回退到 SQLite 全量快照；近实时事件只增强体验，不能成为任务正确性的唯一依赖。
 
 ## 数据存储
 

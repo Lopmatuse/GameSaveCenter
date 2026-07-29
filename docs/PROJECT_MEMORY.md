@@ -1,11 +1,18 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-29
-当前版本：`0.6.2-development-preview`
+当前版本：`0.6.5-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
 完成度百分比与剩余功能必须以 `FEATURE_COMPLETION_ASSESSMENT.md` 为准，并始终区分源码覆盖、真机验证和安全可用度。
+
+### 0.6.5 任务事件、云端重试与修改器入口选择
+
+- `tasks.changes.wait` 是本地命名管道上的有界长轮询：Worker 在任务状态变化时唤醒等待者；超时、Worker 重启或游标丢失时，客户端继续以 SQLite 快照恢复正确状态。
+- `cloud.upload.retry` 只重复安全的单向 `rclone copy`，不得调用 Ludusavi 重新备份，也不得引入 `sync/delete/purge/move`。
+- 修改器 ZIP/目录有多个候选 EXE 时必须由用户明确选择；不能再按体积最大的文件静默绑定。检查阶段和实际解压阶段都必须保留 Zip Slip、条目数和展开体积限制。
+- 一个工具的多个版本必须保留并可从 Inspector 选择活动版本；切换后需显式保存，默认不自动启动。
 
 ### 0.6.2 多设备只读摘要
 
@@ -158,7 +165,7 @@
 
 1. 当前交付环境没有可用 .NET SDK/MSBuild，因此最新 0.4.1 改动只能做结构校验；早期版本已由用户在 Windows 完成 restore/build/test/package 和 Playnite 加载。
 2. Windows 已验证游戏库、运行状态、Ludusavi 匹配和测试存档备份；ZIP 多版本、安全恢复、Rclone、真实媒体来源与 MOD 复杂会话仍需端到端回归。
-3. Worker → Playnite 的主动持续事件推送尚未完成；0.6.1 先通过管理面板的 `tasks.changes` 增量拉取降低轮询负担。面板关闭时不保证即时通知。
+3. Worker → Playnite 已采用 `tasks.changes.wait` 信号唤醒长轮询提供近实时任务通知；它不是无限期双工连接，Worker 重启或游标失效时必须回退 SQLite 快照。
 4. 公共截图目录已接入文件名、无重叠会话时间窗口和全局未识别收件箱；复杂并发会话、真实文件时间语义、超大公共目录性能和媒体预览仍需 Windows 数据调优。
 5. “游戏启动前快照 + 退出后差异”的默认会话闭环已经接入，但目录深度、扩展名、性能和评分阈值仍需使用真实未匹配游戏调优。
 6. 多设备冲突尚缺 Rclone 远端 sidecar/摘要读取和完整 UI。

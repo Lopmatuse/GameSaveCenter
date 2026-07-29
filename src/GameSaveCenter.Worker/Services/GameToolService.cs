@@ -29,6 +29,43 @@ public sealed class GameToolService
 
     public Task<List<GameToolDto>> ListAsync(string gameId,CancellationToken token)=>_store.GetGameToolsAsync(gameId,token);
 
+    public Task<GameToolImportInspectionDto> InspectImportAsync(InspectGameToolImportRequestDto request,CancellationToken token)
+    {
+        var source=Path.GetFullPath(Environment.ExpandEnvironmentVariables(request.SourcePath??string.Empty));
+        if(!File.Exists(source)&&!Directory.Exists(source))throw new FileNotFoundException("导入源不存在。",source);
+        var extension=request.ToolType==GameToolType.CheatTable?".ct":".exe";
+        var candidates=new List<GameToolEntryCandidateDto>();
+        if(Directory.Exists(source))
+        {
+            foreach(var path in Directory.EnumerateFiles(source,"*",SearchOption.AllDirectories))
+            {
+                token.ThrowIfCancellationRequested();
+                if(!IsEntryCandidate(path,extension))continue;
+                candidates.Add(new GameToolEntryCandidateDto{RelativePath=Path.GetRelativePath(source,path),SizeBytes=new FileInfo(path).Length});
+            }
+        }
+        else if(source.EndsWith(".zip",StringComparison.OrdinalIgnoreCase))
+        {
+            using var zip=ZipFile.OpenRead(source);
+            ValidateArchiveShape(zip);
+            foreach(var entry in zip.Entries)
+            {
+                token.ThrowIfCancellationRequested();
+                if(string.IsNullOrEmpty(entry.Name)||!IsEntryCandidate(entry.FullName,extension))continue;
+                // Validate every selectable entry before showing it to the user.
+                ArchivePathGuard.ResolveEntryPath(Path.Combine(Path.GetTempPath(),"GameSaveCenterImportInspection"),entry.FullName);
+                candidates.Add(new GameToolEntryCandidateDto{RelativePath=entry.FullName.Replace('/',Path.DirectorySeparatorChar),SizeBytes=entry.Length});
+            }
+        }
+        else if(IsEntryCandidate(source,extension))
+            candidates.Add(new GameToolEntryCandidateDto{RelativePath=Path.GetFileName(source),SizeBytes=new FileInfo(source).Length});
+
+        candidates=candidates.OrderByDescending(x=>IsLikelyPrimaryEntry(x.RelativePath))
+            .ThenByDescending(x=>x.SizeBytes).ThenBy(x=>x.RelativePath,StringComparer.OrdinalIgnoreCase).ToList();
+        if(candidates.Count==0)throw new InvalidDataException($"未在导入内容中找到 {extension}。");
+        return Task.FromResult(new GameToolImportInspectionDto{SourcePath=source,ToolType=request.ToolType,Candidates=candidates});
+    }
+
     public async Task<GameToolDto> ImportAsync(ImportGameToolRequestDto request,CancellationToken token)
     {
         if(string.IsNullOrWhiteSpace(request.PlayniteId))throw new ArgumentException("必须选择目标游戏。");
@@ -244,6 +281,19 @@ public sealed class GameToolService
     private static void ExtractZipSafely(string archive,string destination)
     {
         using var zip=ZipFile.OpenRead(archive);
+        ValidateArchiveShape(zip);
+        foreach(var entry in zip.Entries)
+        {
+            string target;
+            try{target=ArchivePathGuard.ResolveEntryPath(destination,entry.FullName);}
+            catch(InvalidDataException ex){throw new InvalidDataException("ZIP 包含越界路径，已拒绝解压。",ex);}
+            if(string.IsNullOrEmpty(entry.Name)){Directory.CreateDirectory(target);continue;}
+            Directory.CreateDirectory(Path.GetDirectoryName(target)!);entry.ExtractToFile(target,false);
+        }
+    }
+
+    private static void ValidateArchiveShape(ZipArchive zip)
+    {
         if(zip.Entries.Count>MaxArchiveEntryCount)
             throw new InvalidDataException($"ZIP 包含过多文件（{zip.Entries.Count}），已拒绝解压。");
         long expandedBytes=0;
@@ -254,11 +304,6 @@ public sealed class GameToolService
             expandedBytes=checked(expandedBytes+entry.Length);
             if(expandedBytes>MaxArchiveExpandedBytes)
                 throw new InvalidDataException("ZIP 解压后的总大小超过安全上限，已拒绝解压。");
-            string target;
-            try{target=ArchivePathGuard.ResolveEntryPath(destination,entry.FullName);}
-            catch(InvalidDataException ex){throw new InvalidDataException("ZIP 包含越界路径，已拒绝解压。",ex);}
-            if(string.IsNullOrEmpty(entry.Name)){Directory.CreateDirectory(target);continue;}
-            Directory.CreateDirectory(Path.GetDirectoryName(target)!);entry.ExtractToFile(target,false);
         }
     }
 
@@ -275,6 +320,19 @@ public sealed class GameToolService
             .OrderByDescending(x=>new FileInfo(x).Length).ToList();
         if(candidates.Count==0)throw new InvalidDataException($"未在导入内容中找到 {extension}。");
         return candidates[0];
+    }
+
+    private static bool IsEntryCandidate(string path,string extension)
+        =>path.EndsWith(extension,StringComparison.OrdinalIgnoreCase)
+          &&!Path.GetFileName(path).Contains("unins",StringComparison.OrdinalIgnoreCase)
+          &&!Path.GetFileName(path).Contains("update",StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsLikelyPrimaryEntry(string path)
+    {
+        var name=Path.GetFileNameWithoutExtension(path);
+        return name.Contains("trainer",StringComparison.OrdinalIgnoreCase)
+               ||name.Contains("fling",StringComparison.OrdinalIgnoreCase)
+               ||name.Contains("launcher",StringComparison.OrdinalIgnoreCase);
     }
 
     private static void CopyDirectory(string source,string target,CancellationToken token)

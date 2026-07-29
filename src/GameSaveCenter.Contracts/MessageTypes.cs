@@ -36,6 +36,8 @@ namespace GameSaveCenter.Contracts
         public const string RejectSavePath = "detection.reject";
         public const string GetTasks = "tasks.get";
         public const string GetTaskChanges = "tasks.changes";
+        public const string WaitForTaskChanges = "tasks.changes.wait";
+        public const string RetryCloudUpload = "cloud.upload.retry";
         public const string SyncDeviceStates = "devices.state.sync";
         public const string ListProcessMappings = "processMappings.list";
         public const string SaveProcessMapping = "processMappings.save";
@@ -45,6 +47,7 @@ namespace GameSaveCenter.Contracts
         public const string GetSettings = "settings.get";
         public const string CancelTask = "task.cancel";
         public const string ListGameTools = "tools.list";
+        public const string InspectGameToolImport = "tools.import.inspect";
         public const string ImportGameTool = "tools.import";
         public const string UpdateGameTool = "tools.update";
         public const string DeleteGameTool = "tools.delete";

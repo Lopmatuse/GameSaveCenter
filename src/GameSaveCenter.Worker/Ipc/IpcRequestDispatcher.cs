@@ -71,6 +71,8 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.UpdateGamePolicy=>await UpdatePolicyAsync(Read<GamePolicyUpdateDto>(request),token).ConfigureAwait(false),
                 MessageTypes.GetTasks=>await _store.GetRecentTasksAsync(200,token).ConfigureAwait(false),
                 MessageTypes.GetTaskChanges=>GetTaskChanges(Read<TaskChangeRequestDto>(request)),
+                MessageTypes.WaitForTaskChanges=>await WaitForTaskChangesAsync(Read<TaskChangeRequestDto>(request),token).ConfigureAwait(false),
+                MessageTypes.RetryCloudUpload=>await _backup.RetryCloudUploadAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
                 MessageTypes.SyncDeviceStates=>await _deviceStates.SyncAsync(token).ConfigureAwait(false),
                 MessageTypes.ListProcessMappings=>await _store.GetProcessMappingsAsync(token).ConfigureAwait(false),
                 MessageTypes.SaveProcessMapping=>await SaveProcessMappingAsync(Read<ProcessMappingDto>(request),token).ConfigureAwait(false),
@@ -80,6 +82,7 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.UpdateSettings=>await UpdateSettingsAsync(Read<WorkerSettingsDto>(request),token).ConfigureAwait(false),
                 MessageTypes.CancelTask=>new CancelTaskResultDto{Cancelled=_tasks.Cancel(Read<CancelTaskRequestDto>(request).TaskId)},
                 MessageTypes.ListGameTools=>await _gameTools.ListAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
+                MessageTypes.InspectGameToolImport=>await _gameTools.InspectImportAsync(Read<InspectGameToolImportRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ImportGameTool=>await _gameTools.ImportAsync(Read<ImportGameToolRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.UpdateGameTool=>await _gameTools.UpdateAsync(Read<UpdateGameToolRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.DeleteGameTool=>await _gameTools.DeleteAsync(Read<GameToolCommandRequestDto>(request).ToolId,token).ConfigureAwait(false),
@@ -108,6 +111,8 @@ public sealed class IpcRequestDispatcher
 
     private async Task<object> UpsertAsync(List<GameDescriptorDto> games,CancellationToken token){await _catalog.UpsertAndMatchAsync(games,token).ConfigureAwait(false);return new{accepted=games.Count};}
     private object GetTaskChanges(TaskChangeRequestDto request)=>_tasks.GetChanges(request.AfterSequence,request.Limit);
+    private Task<TaskChangeFeedDto> WaitForTaskChangesAsync(TaskChangeRequestDto request,CancellationToken token)
+        =>_tasks.WaitForChangesAsync(request.AfterSequence,request.Limit,request.WaitSeconds,token);
     private async Task<object> SaveProcessMappingAsync(ProcessMappingDto mapping,CancellationToken token)
     {
         mapping.ExecutableName=Path.GetFileNameWithoutExtension(mapping.ExecutableName??string.Empty).Trim();

@@ -545,6 +545,33 @@ def check_device_state_guards() -> None:
     if "SyncDeviceStatesCommand" not in ui or "设备状态" not in ui:
         fail("Device-state maintenance UI guard missing")
 
+def check_065_completion_guards() -> None:
+    """Protect the signalled task feed, cloud-only retry and explicit trainer entry selection."""
+    messages = (ROOT / "src/GameSaveCenter.Contracts/MessageTypes.cs").read_text(encoding="utf-8")
+    coordinator = (ROOT / "src/GameSaveCenter.Worker/Services/TaskCoordinator.cs").read_text(encoding="utf-8")
+    backup = (ROOT / "src/GameSaveCenter.Worker/Services/BackupOrchestrator.cs").read_text(encoding="utf-8")
+    plugin = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenterPlugin.cs").read_text(encoding="utf-8")
+    tools = (ROOT / "src/GameSaveCenter.Worker/Services/GameToolService.cs").read_text(encoding="utf-8")
+    view_model = (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8")
+    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    for token in ("WaitForTaskChanges", "RetryCloudUpload", "InspectGameToolImport"):
+        if token not in messages:
+            fail(f"0.6.5 IPC completion guard missing: {token}")
+    for token in ("WaitForChangesAsync", "RunContinuationsAsynchronously", "CancelAfter"):
+        if token not in coordinator:
+            fail(f"Signalled task-feed guard missing: {token}")
+    for token in ("RetryCloudUploadAsync", '"CloudUpload"', '"Pending"', '"Uploaded"', '"Failed"'):
+        if token not in backup:
+            fail(f"Cloud-only retry guard missing: {token}")
+    if "MessageTypes.WaitForTaskChanges" not in plugin or "WaitSeconds = 20" not in plugin:
+        fail("Playnite task notification monitor must use the bounded signalled feed")
+    for token in ("InspectImportAsync", "ValidateArchiveShape", "GameToolEntryCandidateDto"):
+        if token not in tools:
+            fail(f"Explicit trainer entry inspection guard missing: {token}")
+    for token in ("HasPendingGameToolEntrySelection", "ConfirmGameToolImportCommand", "SelectedGameToolVersion"):
+        if token not in view_model or token not in ui:
+            fail(f"Trainer selection/version UI guard missing: {token}")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -562,6 +589,7 @@ def main() -> int:
     check_large_library_performance_guards()
     check_061_reliability_guards()
     check_device_state_guards()
+    check_065_completion_guards()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:
