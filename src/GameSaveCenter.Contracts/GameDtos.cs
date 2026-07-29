@@ -84,6 +84,14 @@ namespace GameSaveCenter.Contracts
             "LudusaviUnavailable" => "Ludusavi 未配置",
             _ => HealthState
         };
+        public string CloudStateDisplay => CloudState switch
+        {
+            "Uploaded" => "已上传",
+            "Failed" => "上传失败",
+            "Disabled" => "未启用",
+            "Pending" => "待上传",
+            _ => string.IsNullOrWhiteSpace(CloudState) ? "未启用" : CloudState
+        };
         public DateTime? LastBackupLocal => LastBackupUtc?.ToLocalTime();
         public DateTime? LastMediaSyncLocal => LastMediaSyncUtc?.ToLocalTime();
     }

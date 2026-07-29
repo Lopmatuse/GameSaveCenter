@@ -196,11 +196,13 @@ public sealed class BackupOrchestrator
                             .ConfigureAwait(false);
                         if (!cloud.Success)
                         {
+                            await _store.UpdateGameCloudStateAsync(game.PlayniteId,"Failed",ct).ConfigureAwait(false);
                             throw new WorkerOperationException(
                                 "RCLONE_COPY_FAILED",
                                 "本地备份成功，但云端复制失败。",
                                 cloud.StandardError);
                         }
+                        await _store.UpdateGameCloudStateAsync(game.PlayniteId,"Uploaded",ct).ConfigureAwait(false);
                     }
 
                     var completion = change switch

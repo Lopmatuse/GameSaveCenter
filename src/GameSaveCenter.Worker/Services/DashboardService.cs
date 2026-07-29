@@ -58,7 +58,7 @@ public sealed class DashboardService
             {
                 PlayniteId=game.PlayniteId,Name=game.Name,Platform=game.Platform,IsRunning=active.Contains(game.PlayniteId),LudusaviMatched=matched,
                 LudusaviName=record.LudusaviName,LastBackupUtc=record.LastBackupUtc,BackupVersionCount=record.BackupVersionCount,
-                LastMediaSyncUtc=record.LastMediaUtc,MediaCount=record.MediaCount,CloudState=_rclone.IsConfigured?"Configured":"Disabled",
+                LastMediaSyncUtc=record.LastMediaUtc,MediaCount=record.MediaCount,CloudState=record.CloudState,
                 HealthState=!_ludusavi.IsAvailable?"LudusaviUnavailable":attentionGames.Contains(game.PlayniteId)?"Attention":matched?"Ready":"Unmatched",
                 Policy=record.Policy
             });

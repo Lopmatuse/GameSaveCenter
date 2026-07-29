@@ -459,7 +459,7 @@ WHERE playnite_id=$id;",
         await connection.OpenAsync(token).ConfigureAwait(false);
         var command = connection.CreateCommand();
         command.CommandText = @"
-SELECT g.descriptor_json,g.ludusavi_name,g.match_confidence,
+SELECT g.descriptor_json,g.ludusavi_name,g.match_confidence,g.cloud_state,
        COALESCE(b.version_count,0),b.last_backup_utc,
        COALESCE(m.media_count,0),m.last_media_utc,p.policy_json
 FROM games g
@@ -483,13 +483,14 @@ ORDER BY g.name COLLATE NOCASE;";
                 Descriptor = descriptor,
                 LudusaviName = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
                 MatchConfidence = reader.IsDBNull(2) ? 0 : reader.GetDouble(2),
-                BackupVersionCount = reader.GetInt32(3),
-                LastBackupUtc = reader.IsDBNull(4) ? null : DateTime.Parse(reader.GetString(4)).ToUniversalTime(),
-                MediaCount = reader.GetInt32(5),
-                LastMediaUtc = reader.IsDBNull(6) ? null : DateTime.Parse(reader.GetString(6)).ToUniversalTime(),
-                Policy = reader.IsDBNull(7)
+                CloudState = reader.IsDBNull(3) ? "Disabled" : reader.GetString(3),
+                BackupVersionCount = reader.GetInt32(4),
+                LastBackupUtc = reader.IsDBNull(5) ? null : DateTime.Parse(reader.GetString(5)).ToUniversalTime(),
+                MediaCount = reader.GetInt32(6),
+                LastMediaUtc = reader.IsDBNull(7) ? null : DateTime.Parse(reader.GetString(7)).ToUniversalTime(),
+                Policy = reader.IsDBNull(8)
                     ? new BackupPolicyDto()
-                    : JsonSerializer.Deserialize<BackupPolicyDto>(reader.GetString(7), _json) ?? new BackupPolicyDto()
+                    : JsonSerializer.Deserialize<BackupPolicyDto>(reader.GetString(8), _json) ?? new BackupPolicyDto()
             });
         }
         return result;
@@ -858,6 +859,7 @@ WHERE media_id=$id AND classification_state='Inbox';",
     public Task UpdateMediaCloudStateAsync(string playniteId, string state, CancellationToken token) => ExecuteAsync(
         "UPDATE media SET cloud_state=$state WHERE playnite_id=$game;",
         new Dictionary<string, object?> { ["$game"]=playniteId, ["$state"]=state }, token);
+    public Task UpdateGameCloudStateAsync(string playniteId,string state,CancellationToken token)=>ExecuteAsync("UPDATE games SET cloud_state=$state,updated_utc=$utc WHERE playnite_id=$game;",new Dictionary<string,object?>{{"$game",playniteId},{"$state",state},{"$utc",DateTime.UtcNow.ToString("O")}},token);
 
     public async Task<List<SavePathCandidateDto>> GetSaveCandidatesAsync(string playniteId, CancellationToken token)
     {
@@ -977,6 +979,7 @@ public sealed class DashboardGameRecord
     public GameDescriptorDto Descriptor { get; set; } = new();
     public string LudusaviName { get; set; } = string.Empty;
     public double MatchConfidence { get; set; }
+    public string CloudState { get; set; } = "Disabled";
     public int BackupVersionCount { get; set; }
     public DateTime? LastBackupUtc { get; set; }
     public int MediaCount { get; set; }
