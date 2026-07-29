@@ -1,10 +1,12 @@
 using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using GameSaveCenter.Playnite.Infrastructure;
+using Microsoft.Win32;
 
 namespace GameSaveCenter.Playnite.Settings
 {
@@ -54,6 +56,53 @@ namespace GameSaveCenter.Playnite.Settings
         private void OnGlassStrengthChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (IsLoaded) Dispatcher.BeginInvoke(new Action(ApplyAdaptiveTheme), DispatcherPriority.Background);
+        }
+
+        private void OnExportSettingsClick(object sender, RoutedEventArgs e)
+        {
+            if (CurrentSettings == null) return;
+            var dialog = new SaveFileDialog
+            {
+                Title = "导出 GameSaveCenter 设置",
+                Filter = "GameSaveCenter 设置 (*.json)|*.json",
+                FileName = $"GameSaveCenter-settings-{DateTime.Now:yyyyMMdd}.json",
+                AddExtension = true,
+                DefaultExt = ".json"
+            };
+            if (dialog.ShowDialog() != true) return;
+            File.WriteAllText(dialog.FileName, CurrentSettings.ExportPortableJson(), new System.Text.UTF8Encoding(false));
+            MessageBox.Show("设置已导出。文件不包含 Rclone 密码，但会包含你填写的本地路径和云端目标名称。",
+                "GameSaveCenter", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void OnImportSettingsClick(object sender, RoutedEventArgs e)
+        {
+            var settings = CurrentSettings;
+            if (settings == null) return;
+            var dialog = new OpenFileDialog
+            {
+                Title = "导入 GameSaveCenter 设置",
+                Filter = "GameSaveCenter 设置 (*.json)|*.json|所有文件 (*.*)|*.*",
+                CheckFileExists = true,
+                Multiselect = false
+            };
+            if (dialog.ShowDialog() != true) return;
+            try
+            {
+                var info = new FileInfo(dialog.FileName);
+                if (info.Length > 1024 * 1024) throw new InvalidDataException("设置文件超过 1 MiB 安全上限。");
+                var report = settings.ImportPortableJson(File.ReadAllText(dialog.FileName));
+                DataContext = null;
+                DataContext = settings;
+                ApplyAdaptiveTheme();
+                MessageBox.Show(report.Summary, "GameSaveCenter 设置迁移报告",
+                    MessageBoxButton.OK, report.MissingPaths.Count == 0 ? MessageBoxImage.Information : MessageBoxImage.Warning);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("无法导入设置：" + ex.Message, "GameSaveCenter",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void PlayEntranceAnimation()

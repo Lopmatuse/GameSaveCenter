@@ -52,6 +52,38 @@ namespace GameSaveCenter.Playnite.Settings
         public int FullBackupLimit { get; set; } = 3;
         public int DifferentialBackupLimit { get; set; } = 5;
 
+        public string ExportPortableJson()
+        {
+            var package = new PortableSettingsPackage
+            {
+                SchemaVersion = 1,
+                ExportedUtc = DateTime.UtcNow,
+                Settings = Clone()
+            };
+            return JsonConvert.SerializeObject(package, Formatting.Indented);
+        }
+
+        public SettingsImportReport ImportPortableJson(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json)) throw new InvalidDataException("设置文件为空。");
+            if (json.Length > 1024 * 1024) throw new InvalidDataException("设置文件超过 1 MiB 安全上限。");
+            var package = JsonConvert.DeserializeObject<PortableSettingsPackage>(json)
+                          ?? throw new InvalidDataException("设置文件格式无效。");
+            if (package.SchemaVersion != 1) throw new InvalidDataException($"不支持的设置架构版本：{package.SchemaVersion}。");
+            var imported = package.Settings ?? throw new InvalidDataException("设置文件不包含 settings 节点。");
+            var valueErrors = ValidateValueRanges(imported);
+            if (valueErrors.Count > 0) throw new InvalidDataException("设置值无效：" + string.Join("；", valueErrors));
+
+            CopyFrom(imported);
+            var report = new SettingsImportReport { SchemaVersion = package.SchemaVersion, ExportedUtc = package.ExportedUtc };
+            AddMissingFile(report, "Worker", WorkerExecutable);
+            AddMissingFile(report, "Ludusavi", LudusaviExecutable);
+            AddMissingFile(report, "Rclone", RcloneExecutable);
+            AddMissingDirectory(report, "存档目录", LudusaviBackupDirectory);
+            AddMissingDirectory(report, "媒体目录", MediaArchiveDirectory);
+            return report;
+        }
+
         public void BeginEdit() => editingClone = Clone();
 
         public void CancelEdit()
@@ -180,6 +212,31 @@ namespace GameSaveCenter.Playnite.Settings
             DifferentialBackupLimit = other.DifferentialBackupLimit;
         }
 
+        private static List<string> ValidateValueRanges(GameSaveCenterSettings value)
+        {
+            var errors = new List<string>();
+            if (value.DefaultBackupIntervalMinutes < 1 || value.DefaultBackupIntervalMinutes > 1440) errors.Add("备份间隔超出 1–1440");
+            if (value.ProcessPollingSeconds < 2 || value.ProcessPollingSeconds > 60) errors.Add("进程检测间隔超出 2–60");
+            if (value.DashboardRefreshSeconds < 5 || value.DashboardRefreshSeconds > 300) errors.Add("面板刷新间隔超出 5–300");
+            if (value.GlassEffectStrength < 20 || value.GlassEffectStrength > 100) errors.Add("毛玻璃强度超出 20–100");
+            if (value.FullBackupLimit < 1 || value.FullBackupLimit > 255) errors.Add("完整版本数超出 1–255");
+            if (value.DifferentialBackupLimit < 0 || value.DifferentialBackupLimit > 255) errors.Add("差异版本数超出 0–255");
+            if (value.CompressionLevel < -7 || value.CompressionLevel > 22) errors.Add("压缩等级超出 -7–22");
+            if (!Enum.IsDefined(typeof(GameSaveCenterThemeMode), value.ThemeMode)) errors.Add("未知主题模式");
+            if (!Enum.IsDefined(typeof(BackupStorageFormat), value.BackupFormat)) errors.Add("未知备份格式");
+            return errors;
+        }
+
+        private static void AddMissingFile(SettingsImportReport report, string label, string path)
+        {
+            if (!string.IsNullOrWhiteSpace(path) && !File.Exists(Expand(path))) report.MissingPaths.Add($"{label}：{path}");
+        }
+
+        private static void AddMissingDirectory(SettingsImportReport report, string label, string path)
+        {
+            if (!string.IsNullOrWhiteSpace(path) && !Directory.Exists(Expand(path))) report.MissingPaths.Add($"{label}：{path}");
+        }
+
         private static string Expand(string value) => string.IsNullOrWhiteSpace(value) ? string.Empty : Environment.ExpandEnvironmentVariables(value);
 
         internal static bool IsWorkerExecutable(string value)
@@ -187,5 +244,22 @@ namespace GameSaveCenter.Playnite.Settings
 
         private static bool IsLudusaviExecutable(string value)
             => string.Equals(Path.GetFileName(Expand(value)), "ludusavi.exe", StringComparison.OrdinalIgnoreCase);
+
+        private sealed class PortableSettingsPackage
+        {
+            public int SchemaVersion { get; set; }
+            public DateTime ExportedUtc { get; set; }
+            public GameSaveCenterSettings? Settings { get; set; }
+        }
+    }
+
+    public sealed class SettingsImportReport
+    {
+        public int SchemaVersion { get; set; }
+        public DateTime ExportedUtc { get; set; }
+        public List<string> MissingPaths { get; } = new List<string>();
+        public string Summary => MissingPaths.Count == 0
+            ? "设置已载入，未发现缺失路径。点击 Playnite 的保存按钮后生效。"
+            : $"设置已载入，但有 {MissingPaths.Count} 个路径需要重新选择：\n" + string.Join("\n", MissingPaths);
     }
 }

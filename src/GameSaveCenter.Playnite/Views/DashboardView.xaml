@@ -629,7 +629,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.5" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.6" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -1382,25 +1382,46 @@
                                 <TabItem Header="当前游戏媒体">
                                     <Grid Margin="0,12,0,0">
                                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                        <TextBlock Text="已确认归类到当前游戏的截图与录像" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="2,0,0,10"/>
+                                        <WrapPanel Margin="0,0,0,10">
+                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,0"><TextBlock><Run Text="媒体 "/><Run Text="{Binding MediaSummary.TotalCount}" FontWeight="SemiBold"/></TextBlock></Border>
+                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,0"><TextBlock><Run Text="截图 "/><Run Text="{Binding MediaSummary.ScreenshotCount}" FontWeight="SemiBold"/></TextBlock></Border>
+                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,0"><TextBlock><Run Text="录像 "/><Run Text="{Binding MediaSummary.VideoCount}" FontWeight="SemiBold"/></TextBlock></Border>
+                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,0"><TextBlock><Run Text="收藏 "/><Run Text="{Binding MediaSummary.FavoriteCount}" FontWeight="SemiBold"/></TextBlock></Border>
+                                            <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7"><TextBlock><Run Text="占用 "/><Run Text="{Binding MediaSummary.TotalSizeDisplay}" FontWeight="SemiBold"/></TextBlock></Border>
+                                        </WrapPanel>
                                         <Border Grid.Row="1" Style="{StaticResource GscTableFrame}" MinHeight="190">
                                             <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Media}" SelectedItem="{Binding SelectedMedia}">
                                                 <DataGrid.Columns>
                                                     <DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="拍摄时间" Binding="{Binding CapturedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="110"/>
                                                     <DataGridTextColumn Header="类型" Binding="{Binding KindDisplay, Mode=OneWay}" Width="72"/>
                                                     <DataGridTextColumn Header="来源" Binding="{Binding SourceDisplay, Mode=OneWay}" Width="115"/>
+                                                    <DataGridCheckBoxColumn Header="收藏" Binding="{Binding IsFavorite, Mode=OneWay}" Width="68"/>
                                                     <DataGridTextColumn Header="云端" Binding="{Binding CloudStateDisplay, Mode=OneWay}" Width="90"/>
+                                                    <DataGridTextColumn Header="备注" Binding="{Binding Comment, Mode=OneWay}" Width="150" CellStyle="{StaticResource GscLeftDataGridCell}">
+                                                        <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding Comment}"/></Style></DataGridTextColumn.ElementStyle>
+                                                    </DataGridTextColumn>
                                                     <DataGridTextColumn HeaderStyle="{StaticResource GscLastColumnHeader}" Header="归档路径" Binding="{Binding ArchivePath, Mode=OneWay}" Width="*" MinWidth="360" CellStyle="{StaticResource GscLeftDataGridCell}">
                                                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="TextWrapping" Value="NoWrap"/><Setter Property="ToolTip" Value="{Binding ArchivePath}"/></Style></DataGridTextColumn.ElementStyle>
                                                     </DataGridTextColumn>
                                                 </DataGrid.Columns>
                                             </DataGrid>
                                         </Border>
-                                        <WrapPanel Grid.Row="2" Margin="0,10,0,0">
-                                            <TextBlock Text="重新归类到：" VerticalAlignment="Center"/>
-                                            <ComboBox Width="240" ItemsSource="{Binding Games}" SelectedItem="{Binding MediaTargetGame}" Margin="7,0,8,8"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
-                                            <Button Style="{StaticResource GscButtonBase}" Command="{Binding ReassignMediaCommand}" Content="移动并重新归类"/>
-                                        </WrapPanel>
+                                        <Border Grid.Row="2" Style="{StaticResource GscSurface}" CornerRadius="12" Padding="12" Margin="0,10,0,0">
+                                            <StackPanel>
+                                                <WrapPanel>
+                                                    <CheckBox Content="收藏" IsChecked="{Binding MediaFavorite}" Margin="0,8,12,8"/>
+                                                    <TextBox Style="{StaticResource GscTextBox}" MinWidth="280" MaxWidth="520" Text="{Binding MediaComment, UpdateSourceTrigger=PropertyChanged}" ToolTip="为选中媒体添加备注" Margin="0,0,8,8"/>
+                                                    <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding UpdateMediaMetadataCommand}" Content="保存元数据"/>
+                                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding OpenSelectedMediaCommand}" Content="打开媒体"/>
+                                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding RevealSelectedMediaCommand}" Content="在目录中显示"/>
+                                                </WrapPanel>
+                                                <WrapPanel Margin="0,2,0,0">
+                                                    <TextBlock Text="重新归类到：" VerticalAlignment="Center"/>
+                                                    <ComboBox Width="240" ItemsSource="{Binding Games}" SelectedItem="{Binding MediaTargetGame}" Margin="7,0,8,8"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+                                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding ReassignMediaCommand}" Content="移动并重新归类"/>
+                                                </WrapPanel>
+                                            </StackPanel>
+                                        </Border>
                                     </Grid>
                                 </TabItem>
                                 <TabItem Header="来源与规则">

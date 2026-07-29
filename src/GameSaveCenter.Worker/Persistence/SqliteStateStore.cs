@@ -767,6 +767,44 @@ VALUES($id,$game,$kind,$source,$archive,$original,$captured,$size,$hash,$favorit
         return result;
     }
 
+    public async Task<MediaStorageSummaryDto> GetMediaSummaryAsync(string playniteId, CancellationToken token)
+    {
+        await using var connection=Open(); await connection.OpenAsync(token).ConfigureAwait(false);
+        var command=connection.CreateCommand();
+        command.CommandText=@"SELECT
+COUNT(*),
+COALESCE(SUM(CASE WHEN kind=$screenshot THEN 1 ELSE 0 END),0),
+COALESCE(SUM(CASE WHEN kind=$video THEN 1 ELSE 0 END),0),
+COALESCE(SUM(CASE WHEN is_favorite=1 THEN 1 ELSE 0 END),0),
+COALESCE(SUM(size_bytes),0)
+FROM media
+WHERE playnite_id=$id AND classification_state='Assigned';";
+        command.Parameters.AddWithValue("$id",playniteId);
+        command.Parameters.AddWithValue("$screenshot",(int)MediaKind.Screenshot);
+        command.Parameters.AddWithValue("$video",(int)MediaKind.VideoClip);
+        await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        if(!await reader.ReadAsync(token).ConfigureAwait(false))return new MediaStorageSummaryDto();
+        return new MediaStorageSummaryDto
+        {
+            TotalCount=checked((int)reader.GetInt64(0)),
+            ScreenshotCount=checked((int)reader.GetInt64(1)),
+            VideoCount=checked((int)reader.GetInt64(2)),
+            FavoriteCount=checked((int)reader.GetInt64(3)),
+            TotalBytes=reader.GetInt64(4)
+        };
+    }
+
+    public Task UpdateMediaMetadataAsync(MediaMetadataUpdateDto update,CancellationToken token)=>ExecuteAsync(@"
+UPDATE media
+SET is_favorite=$favorite,comment=$comment
+WHERE media_id=$id;",
+        new Dictionary<string,object?>
+        {
+            ["$id"]=update.MediaId,
+            ["$favorite"]=update.IsFavorite?1:0,
+            ["$comment"]=(update.Comment??string.Empty).Trim()
+        },token);
+
     public async Task<List<MediaItemDto>> GetUnassignedMediaAsync(int limit, CancellationToken token)
     {
         var result=new List<MediaItemDto>(); await using var connection=Open(); await connection.OpenAsync(token).ConfigureAwait(false);

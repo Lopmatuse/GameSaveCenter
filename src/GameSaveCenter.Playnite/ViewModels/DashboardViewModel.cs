@@ -39,6 +39,9 @@ namespace GameSaveCenter.Playnite.ViewModels
         private string customMediaPattern = "*";
         private bool customMediaShared;
         private MediaItemDto selectedMedia = null!;
+        private MediaStorageSummaryDto mediaSummary = new MediaStorageSummaryDto();
+        private string mediaComment = string.Empty;
+        private bool mediaFavorite;
         private GameStatusDto mediaTargetGame = null!;
         private MediaItemDto selectedInboxMedia = null!;
         private GameStatusDto inboxTargetGame = null!;
@@ -98,6 +101,9 @@ namespace GameSaveCenter.Playnite.ViewModels
             AcceptCandidateCommand = new RelayCommand(_ => Run(AcceptCandidateAsync), _ => !IsBusy && SelectedGame != null && SelectedCandidate != null && !string.Equals(SelectedCandidate.Status, "Accepted", StringComparison.OrdinalIgnoreCase));
             RejectCandidateCommand = new RelayCommand(_ => Run(RejectCandidateAsync), _ => !IsBusy && SelectedGame != null && SelectedCandidate != null && !string.Equals(SelectedCandidate.Status, "Accepted", StringComparison.OrdinalIgnoreCase));
             ReassignMediaCommand = new RelayCommand(_ => Run(ReassignMediaAsync), _ => !IsBusy && SelectedMedia != null && MediaTargetGame != null);
+            UpdateMediaMetadataCommand = new RelayCommand(_ => Run(UpdateMediaMetadataAsync), _ => !IsBusy && SelectedMedia != null);
+            OpenSelectedMediaCommand = new RelayCommand(_ => RunLocal(OpenSelectedMedia), _ => SelectedMedia != null && !string.IsNullOrWhiteSpace(SelectedMedia.ArchivePath));
+            RevealSelectedMediaCommand = new RelayCommand(_ => RunLocal(() => OpenPath(SelectedMedia.ArchivePath)), _ => SelectedMedia != null && !string.IsNullOrWhiteSpace(SelectedMedia.ArchivePath));
             AssignInboxMediaCommand = new RelayCommand(_ => Run(AssignInboxMediaAsync), _ => !IsBusy && SelectedInboxMedia != null && InboxTargetGame != null);
             IgnoreInboxMediaCommand = new RelayCommand(_ => Run(IgnoreInboxMediaAsync), _ => !IsBusy && SelectedInboxMedia != null);
             CancelTaskCommand = new RelayCommand(_ => CancelSelectedTask(), _ => SelectedTask != null && SelectedTask.CanCancel && !IsCancellingTask);
@@ -335,9 +341,14 @@ namespace GameSaveCenter.Playnite.ViewModels
             set
             {
                 SetValue(ref selectedMedia, value);
+                MediaComment=value?.Comment??string.Empty;
+                MediaFavorite=value?.IsFavorite??false;
                 RaiseCommandStates();
             }
         }
+        public MediaStorageSummaryDto MediaSummary { get => mediaSummary; private set => SetValue(ref mediaSummary,value??new MediaStorageSummaryDto()); }
+        public string MediaComment { get => mediaComment; set => SetValue(ref mediaComment,value??string.Empty); }
+        public bool MediaFavorite { get => mediaFavorite; set => SetValue(ref mediaFavorite,value); }
         public GameStatusDto MediaTargetGame
         {
             get => mediaTargetGame;
@@ -385,6 +396,9 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand AcceptCandidateCommand { get; }
         public ICommand RejectCandidateCommand { get; }
         public ICommand ReassignMediaCommand { get; }
+        public ICommand UpdateMediaMetadataCommand { get; }
+        public ICommand OpenSelectedMediaCommand { get; }
+        public ICommand RevealSelectedMediaCommand { get; }
         public ICommand AssignInboxMediaCommand { get; }
         public ICommand IgnoreInboxMediaCommand { get; }
         public ICommand CancelTaskCommand { get; }
@@ -631,12 +645,15 @@ namespace GameSaveCenter.Playnite.ViewModels
                 {
                     var mediaTask = plugin.RequestAsync<MediaItemDto[]>(MessageTypes.ListMedia, new GameQueryDto { PlayniteId = id, Limit = 1000 });
                     var sourcesTask = plugin.RequestAsync<MediaSourceRuleDto[]>(MessageTypes.ListMediaSources, new GameQueryDto { PlayniteId = id });
-                    await Task.WhenAll(mediaTask, sourcesTask);
+                    var summaryTask = plugin.RequestAsync<MediaStorageSummaryDto>(MessageTypes.GetMediaSummary, new GameQueryDto { PlayniteId = id });
+                    await Task.WhenAll(mediaTask, sourcesTask, summaryTask);
                     ApplyOnUi(() =>
                     {
                         if (!IsSelectedGame(id)) return;
                         Replace(Media, mediaTask.Result);
                         Replace(MediaSources, sourcesTask.Result);
+                        MediaSummary=summaryTask.Result;
+                        SelectedMedia=Media.FirstOrDefault();
                         MediaTargetGame = Games.FirstOrDefault(x => string.Equals(x.PlayniteId, MediaTargetGame?.PlayniteId, StringComparison.OrdinalIgnoreCase))
                                           ?? SelectedGame
                                           ?? Games.FirstOrDefault();
@@ -934,6 +951,30 @@ namespace GameSaveCenter.Playnite.ViewModels
             ConfirmSuccess($"媒体已重新归类到 {MediaTargetGame.Name}");
             await LoadDetailsAsync();
             await LoadInboxAsync();
+        }
+
+        private async Task UpdateMediaMetadataAsync()
+        {
+            var selected=SelectedMedia??throw new InvalidOperationException("请先选择媒体。");
+            var updated=await plugin.RequestAsync<MediaItemDto>(MessageTypes.UpdateMediaMetadata,new MediaMetadataUpdateDto
+            {
+                MediaId=selected.MediaId,
+                IsFavorite=MediaFavorite,
+                Comment=MediaComment
+            });
+            var index=Media.IndexOf(selected);
+            if(index>=0)Media[index]=updated;
+            SelectedMedia=updated;
+            if(SelectedGame!=null)
+                MediaSummary=await plugin.RequestAsync<MediaStorageSummaryDto>(MessageTypes.GetMediaSummary,new GameQueryDto{PlayniteId=SelectedGame.PlayniteId});
+            ConfirmSuccess("媒体备注与收藏状态已保存");
+        }
+
+        private void OpenSelectedMedia()
+        {
+            var path=SelectedMedia?.ArchivePath;
+            if(string.IsNullOrWhiteSpace(path)||!File.Exists(path))throw new FileNotFoundException("归档媒体文件不存在。",path);
+            Process.Start(new ProcessStartInfo{FileName=path,UseShellExecute=true});
         }
 
         private async Task AssignInboxMediaAsync()
@@ -1327,6 +1368,7 @@ namespace GameSaveCenter.Playnite.ViewModels
                 SelectedBackup = null!;
                 SelectedCandidate = null!;
                 SelectedMedia = null!;
+                MediaSummary = new MediaStorageSummaryDto();
             });
         }
 
@@ -1339,6 +1381,7 @@ namespace GameSaveCenter.Playnite.ViewModels
                 UndoRestoreCommand, LoadDetailsCommand, SavePolicyCommand,
                 UpdateBackupMetadataCommand, CompareBackupCommand, PreviewRetentionCommand,
                 AddMediaSourceCommand, AcceptCandidateCommand, RejectCandidateCommand, ReassignMediaCommand,
+                UpdateMediaMetadataCommand,OpenSelectedMediaCommand,RevealSelectedMediaCommand,
                 AssignInboxMediaCommand, IgnoreInboxMediaCommand,
                 CancelTaskCommand, RetryTaskCommand, CopyTaskErrorCommand, RefreshDiagnosticsCommand, SyncDeviceStatesCommand, CopyDiagnosticsCommand,
                 SaveProcessMappingCommand,DeleteProcessMappingCommand,

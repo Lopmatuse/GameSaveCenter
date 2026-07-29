@@ -57,6 +57,8 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.UndoRestore=>await _restore.UndoAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
                 MessageTypes.SyncMedia=>await _media.SyncAsync(Read<MediaSyncRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ListMedia=>await ListMediaAsync(Read<GameQueryDto>(request),token).ConfigureAwait(false),
+                MessageTypes.GetMediaSummary=>await _store.GetMediaSummaryAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
+                MessageTypes.UpdateMediaMetadata=>await UpdateMediaMetadataAsync(Read<MediaMetadataUpdateDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ListUnassignedMedia=>await _store.GetUnassignedMediaAsync(Read<GameQueryDto>(request).Limit,token).ConfigureAwait(false),
                 MessageTypes.ReassignMedia=>await _media.ReassignAsync(Read<ReassignMediaRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.IgnoreMedia=>await _media.IgnoreAsync(Read<IgnoreMediaRequestDto>(request),token).ConfigureAwait(false),
@@ -166,6 +168,20 @@ public sealed class IpcRequestDispatcher
         return cached;
     }
     private Task<List<MediaItemDto>> ListMediaAsync(GameQueryDto query,CancellationToken token)=>_store.GetMediaAsync(query.PlayniteId,query.Limit,token);
+    private async Task<MediaItemDto> UpdateMediaMetadataAsync(MediaMetadataUpdateDto update,CancellationToken token)
+    {
+        if(string.IsNullOrWhiteSpace(update.MediaId))throw new ArgumentException("必须选择媒体。");
+        update.Comment=(update.Comment??string.Empty).Trim();
+        if(update.Comment.Length>1000)throw new ArgumentException("媒体备注不能超过 1000 个字符。");
+        var existing=await _store.GetMediaByIdAsync(update.MediaId,token).ConfigureAwait(false)
+                     ?? throw new InvalidOperationException("媒体记录不存在。");
+        await _store.UpdateMediaMetadataAsync(update,token).ConfigureAwait(false);
+        existing.IsFavorite=update.IsFavorite;
+        existing.Comment=update.Comment;
+        await _store.AppendAuditAsync("MediaMetadata","Updated media metadata",
+            JsonSerializer.Serialize(new{update.MediaId,update.IsFavorite}),token).ConfigureAwait(false);
+        return existing;
+    }
 
     private async Task<object> UpdatePolicyAsync(GamePolicyUpdateDto update,CancellationToken token)
     {

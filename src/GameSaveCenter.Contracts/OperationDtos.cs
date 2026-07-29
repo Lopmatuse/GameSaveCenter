@@ -207,6 +207,14 @@ namespace GameSaveCenter.Contracts
         public bool? Locked { get; set; }
     }
 
+    /// <summary>Updates user-owned metadata without moving or deleting the media file.</summary>
+    public sealed class MediaMetadataUpdateDto
+    {
+        public string MediaId { get; set; } = string.Empty;
+        public bool IsFavorite { get; set; }
+        public string Comment { get; set; } = string.Empty;
+    }
+
     /// <summary>Simple per-game query used by list and undo operations.</summary>
     public sealed class GameQueryDto
     {

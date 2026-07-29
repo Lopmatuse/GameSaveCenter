@@ -572,6 +572,37 @@ def check_065_completion_guards() -> None:
         if token not in view_model or token not in ui:
             fail(f"Trainer selection/version UI guard missing: {token}")
 
+def check_066_portability_media_guards() -> None:
+    """Protect portable settings validation and non-destructive media metadata/storage features."""
+    settings = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettings.cs").read_text(encoding="utf-8")
+    settings_ui = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml").read_text(encoding="utf-8")
+    messages = (ROOT / "src/GameSaveCenter.Contracts/MessageTypes.cs").read_text(encoding="utf-8")
+    store = (ROOT / "src/GameSaveCenter.Worker/Persistence/SqliteStateStore.cs").read_text(encoding="utf-8")
+    dispatcher = (ROOT / "src/GameSaveCenter.Worker/Ipc/IpcRequestDispatcher.cs").read_text(encoding="utf-8")
+    view_model = (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8")
+    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    for token in ("ExportPortableJson", "ImportPortableJson", "SchemaVersion = 1", "ValidateValueRanges", "MissingPaths"):
+        if token not in settings:
+            fail(f"Portable settings guard missing: {token}")
+    for token in ("OnExportSettingsClick", "OnImportSettingsClick"):
+        if token not in settings_ui:
+            fail(f"Settings migration UI guard missing: {token}")
+    for token in ("GetMediaSummary", "UpdateMediaMetadata"):
+        if token not in messages:
+            fail(f"Media metadata IPC guard missing: {token}")
+    for token in ("GetMediaSummaryAsync", "SUM(size_bytes)", "UpdateMediaMetadataAsync"):
+        if token not in store:
+            fail(f"Media aggregate/metadata store guard missing: {token}")
+    for token in ("MessageTypes.GetMediaSummary", "MessageTypes.UpdateMediaMetadata", "1000"):
+        if token not in dispatcher:
+            fail(f"Media metadata dispatcher guard missing: {token}")
+    for token in ("MediaSummary", "UpdateMediaMetadataCommand", "OpenSelectedMediaCommand", "RevealSelectedMediaCommand"):
+        if token not in view_model or token not in ui:
+            fail(f"Media management UI guard missing: {token}")
+    for forbidden in ("File.Delete(", "Directory.Delete("):
+        if forbidden in view_model:
+            fail(f"Media UI must remain non-destructive: {forbidden}")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -590,6 +621,7 @@ def main() -> int:
     check_061_reliability_guards()
     check_device_state_guards()
     check_065_completion_guards()
+    check_066_portability_media_guards()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:

@@ -32,6 +32,45 @@
         <Style TargetType="ComboBox" BasedOn="{StaticResource GscComboBox}"/>
         <Style TargetType="ComboBoxItem" BasedOn="{StaticResource GscComboBoxItem}"/>
         <Style TargetType="CheckBox" BasedOn="{StaticResource GscCheckBox}"/>
+        <Style x:Key="SettingsActionButton" TargetType="Button">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GscDividerBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="MinHeight" Value="38"/>
+            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Chrome" CornerRadius="11" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}" RenderTransformOrigin="0.5,0.5">
+                            <Border.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1"/></Border.RenderTransform>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Chrome" Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="0.97" ScaleY="0.97"/></Setter.Value></Setter>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
+                                <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.4"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -159,6 +198,23 @@
                     <Border Background="#14FF9F0A" BorderBrush="#38FF9F0A" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,13,0,0">
                         <TextBlock Text="自动恢复始终关闭。恢复必须经过当前快照、游戏关闭确认、预览、恢复后校验和可撤销快照。" TextWrapping="Wrap"/>
                     </Border>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource SettingsCard}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentTintBrush}" Margin="0,0,9,0">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B5;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="设置迁移" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Text="导出文件包含非敏感插件设置、本地路径和云端目标名称，不包含 Rclone 密码。导入后先显示缺失路径报告，点击 Playnite 的保存按钮后才会生效。"
+                               Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                    <WrapPanel>
+                        <Button Style="{StaticResource SettingsActionButton}" Content="导出设置" Click="OnExportSettingsClick"/>
+                        <Button Style="{StaticResource SettingsActionButton}" Content="导入设置" Click="OnImportSettingsClick" Margin="0"/>
+                    </WrapPanel>
                 </StackPanel>
             </Border>
         </StackPanel>

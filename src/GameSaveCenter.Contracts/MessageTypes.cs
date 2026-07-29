@@ -25,6 +25,8 @@ namespace GameSaveCenter.Contracts
         public const string UndoRestore = "restore.undo";
         public const string SyncMedia = "media.sync";
         public const string ListMedia = "media.list";
+        public const string GetMediaSummary = "media.summary";
+        public const string UpdateMediaMetadata = "media.metadata.update";
         public const string ListUnassignedMedia = "media.inbox.list";
         public const string ReassignMedia = "media.reassign";
         public const string IgnoreMedia = "media.inbox.ignore";

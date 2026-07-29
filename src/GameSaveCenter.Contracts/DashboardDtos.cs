@@ -155,4 +155,23 @@ namespace GameSaveCenter.Contracts
             return $"{bytes / 1024d / 1024d / 1024d:0.##} GiB";
         }
     }
+
+    /// <summary>Indexed storage totals for the selected game's assigned media.</summary>
+    public sealed class MediaStorageSummaryDto
+    {
+        public int TotalCount { get; set; }
+        public int ScreenshotCount { get; set; }
+        public int VideoCount { get; set; }
+        public int FavoriteCount { get; set; }
+        public long TotalBytes { get; set; }
+        public string TotalSizeDisplay => FormatBytes(TotalBytes);
+
+        private static string FormatBytes(long bytes)
+        {
+            if (bytes < 1024) return $"{bytes} B";
+            if (bytes < 1024L * 1024) return $"{bytes / 1024d:0.##} KiB";
+            if (bytes < 1024L * 1024 * 1024) return $"{bytes / 1024d / 1024d:0.##} MiB";
+            return $"{bytes / 1024d / 1024d / 1024d:0.##} GiB";
+        }
+    }
 }
