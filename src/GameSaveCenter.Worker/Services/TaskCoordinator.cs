@@ -12,6 +12,9 @@ public sealed class TaskCoordinator
     private readonly ILogger<TaskCoordinator> _logger;
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _gameLocks = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, CancellationTokenSource> _taskTokens = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentQueue<TaskChangeEventDto> _changes = new();
+    private long _changeSequence;
+    private const int ChangeRetention = 500;
 
     public TaskCoordinator(SqliteStateStore store, ILogger<TaskCoordinator> logger)
     { _store=store; _logger=logger; }
@@ -28,7 +31,7 @@ public sealed class TaskCoordinator
             TaskId=Guid.NewGuid().ToString("N"), TaskType=taskType, GameId=gameId, GameName=gameName,
             State=TaskState.Queued, ProgressPercent=0, Message="等待执行", CreatedUtc=DateTime.UtcNow
         };
-        await _store.AddOrUpdateTaskAsync(task, outerToken).ConfigureAwait(false);
+        await PersistAndPublishAsync(task, outerToken).ConfigureAwait(false);
         var gate=_gameLocks.GetOrAdd(string.IsNullOrWhiteSpace(gameId)?"__global__":gameId,_=>new SemaphoreSlim(1,1));
         using var linked=CancellationTokenSource.CreateLinkedTokenSource(outerToken);
         _taskTokens[task.TaskId]=linked;
@@ -38,11 +41,11 @@ public sealed class TaskCoordinator
             await gate.WaitAsync(linked.Token).ConfigureAwait(false);
             gateEntered=true;
             task.State=TaskState.Running;task.StartedUtc=DateTime.UtcNow;task.Message="正在执行";
-            await _store.AddOrUpdateTaskAsync(task,linked.Token).ConfigureAwait(false);
+            await PersistAndPublishAsync(task,linked.Token).ConfigureAwait(false);
             var progress=new TaskProgress(async (percent,message)=>
             {
                 task.ProgressPercent=Math.Clamp(percent,0,100);task.Message=message;
-                await _store.AddOrUpdateTaskAsync(task,CancellationToken.None).ConfigureAwait(false);
+                await PersistAndPublishAsync(task,CancellationToken.None).ConfigureAwait(false);
             });
             await operation(progress,linked.Token).ConfigureAwait(false);
             task.State=TaskState.Succeeded;
@@ -70,7 +73,7 @@ public sealed class TaskCoordinator
         }
         finally
         {
-            await _store.AddOrUpdateTaskAsync(task,CancellationToken.None).ConfigureAwait(false);
+            await PersistAndPublishAsync(task,CancellationToken.None).ConfigureAwait(false);
             _taskTokens.TryRemove(task.TaskId,out _);
             if(gateEntered)gate.Release();
         }
@@ -83,6 +86,36 @@ public sealed class TaskCoordinator
         try{token.Cancel();return true;}
         catch(ObjectDisposedException){return false;}
     }
+
+    public TaskChangeFeedDto GetChanges(long afterSequence,int limit)
+    {
+        // Progress callbacks can reach this queue concurrently. Normalize the small bounded
+        // retention window so a scheduler interleave cannot make the first enqueued item look
+        // newer than the actual oldest sequence.
+        var snapshot=_changes.ToArray().OrderBy(x=>x.Sequence).ToArray();
+        var oldest=snapshot.Length==0?Interlocked.Read(ref _changeSequence):snapshot[0].Sequence;
+        var latest=Interlocked.Read(ref _changeSequence);
+        var resetRequired=afterSequence>latest || (snapshot.Length>0 && afterSequence<oldest-1);
+        var changes=resetRequired
+            ? snapshot.Take(Math.Clamp(limit,1,500))
+            : snapshot.Where(x=>x.Sequence>afterSequence).Take(Math.Clamp(limit,1,500));
+        return new TaskChangeFeedDto{LatestSequence=latest,ResetRequired=resetRequired,Changes=changes.ToList()};
+    }
+
+    private async Task PersistAndPublishAsync(TaskStatusDto task,CancellationToken token)
+    {
+        await _store.AddOrUpdateTaskAsync(task,token).ConfigureAwait(false);
+        var sequence=Interlocked.Increment(ref _changeSequence);
+        _changes.Enqueue(new TaskChangeEventDto{Sequence=sequence,Task=Clone(task)});
+        while(_changes.Count>ChangeRetention && _changes.TryDequeue(out _)) { }
+    }
+
+    private static TaskStatusDto Clone(TaskStatusDto task)=>new()
+    {
+        TaskId=task.TaskId,TaskType=task.TaskType,GameId=task.GameId,GameName=task.GameName,State=task.State,
+        ProgressPercent=task.ProgressPercent,Message=task.Message,CreatedUtc=task.CreatedUtc,StartedUtc=task.StartedUtc,
+        FinishedUtc=task.FinishedUtc,ErrorCode=task.ErrorCode,ErrorMessage=task.ErrorMessage
+    };
 }
 
 /// <summary>Task progress sink safe for background callers.</summary>

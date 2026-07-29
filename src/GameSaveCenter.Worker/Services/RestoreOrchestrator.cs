@@ -12,9 +12,11 @@ public sealed class RestoreOrchestrator
     private readonly SqliteStateStore _store;
     private readonly LudusaviClient _ludusavi;
     private readonly TaskCoordinator _tasks;
+    private readonly GameSessionCoordinator _sessions;
+    private readonly CloudTransferCoordinator _cloudTransfers;
 
-    public RestoreOrchestrator(GameCatalogService catalog,SqliteStateStore store,LudusaviClient ludusavi,TaskCoordinator tasks)
-    { _catalog=catalog;_store=store;_ludusavi=ludusavi;_tasks=tasks; }
+    public RestoreOrchestrator(GameCatalogService catalog,SqliteStateStore store,LudusaviClient ludusavi,TaskCoordinator tasks,GameSessionCoordinator sessions,CloudTransferCoordinator cloudTransfers)
+    { _catalog=catalog;_store=store;_ludusavi=ludusavi;_tasks=tasks;_sessions=sessions;_cloudTransfers=cloudTransfers; }
 
     public async Task<LudusaviCommandResult> PreviewAsync(RestoreRequestDto request,CancellationToken token)
     {
@@ -33,6 +35,7 @@ public sealed class RestoreOrchestrator
             var state=RestoreState.Requested;
             await AuditAsync(game.PlayniteId,state,request,ct).ConfigureAwait(false);
             await progress.ReportAsync(5,"正在确认游戏已关闭").ConfigureAwait(false);
+            await EnsureGameClosedAsync(game.PlayniteId,ct).ConfigureAwait(false);
             state=RestoreState.GameClosedVerified;await AuditAsync(game.PlayniteId,state,request,ct).ConfigureAwait(false);
 
             var before=await _ludusavi.ListBackupsAsync(new[]{match},ct).ConfigureAwait(false);
@@ -54,6 +57,8 @@ public sealed class RestoreOrchestrator
             var preview=await _ludusavi.RestoreAsync(match,request.BackupId,true,ct).ConfigureAwait(false);
             if(!preview.Success||!preview.Json.HasValue||LudusaviResultParser.SomeGamesFailed(preview.Json.Value)) throw new InvalidOperationException("Restore preview failed; live files were not changed.");
 
+            await progress.ReportAsync(55,"正在等待现有云端传输安全结束").ConfigureAwait(false);
+            using var cloudPause=await _cloudTransfers.PauseForRestoreAsync(ct).ConfigureAwait(false);
             state=RestoreState.CloudJobsPaused;await AuditAsync(game.PlayniteId,state,request,ct).ConfigureAwait(false);
             await progress.ReportAsync(60,"正在恢复指定版本").ConfigureAwait(false);
             var restored=await _ludusavi.RestoreAsync(match,request.BackupId,false,ct).ConfigureAwait(false);
@@ -86,6 +91,29 @@ public sealed class RestoreOrchestrator
     {
         var matches=await _catalog.GetMatchesAsync(token).ConfigureAwait(false);
         return matches.TryGetValue(playniteId,out var match)&&!string.IsNullOrWhiteSpace(match.Name)?match.Name:throw new InvalidOperationException("Game is not matched to Ludusavi.");
+    }
+
+    private async Task EnsureGameClosedAsync(string playniteId,CancellationToken token)
+    {
+        if(_sessions.ActiveSessions.Any(x=>string.Equals(x.PlayniteId,playniteId,StringComparison.OrdinalIgnoreCase)))
+            throw new WorkerOperationException("RESTORE_GAME_RUNNING","Worker 仍检测到该游戏会话正在运行，已阻止恢复。请退出游戏并稍后重试。",playniteId);
+
+        var persisted=await _store.GetOpenSessionsAsync(token).ConfigureAwait(false);
+        foreach(var session in persisted.Where(x=>string.Equals(x.PlayniteId,playniteId,StringComparison.OrdinalIgnoreCase)))
+        {
+            if(session.ProcessId is not int processId)continue;
+            try
+            {
+                using var process=System.Diagnostics.Process.GetProcessById(processId);
+                if(!process.HasExited)
+                    throw new WorkerOperationException("RESTORE_GAME_PROCESS_RUNNING","Worker 仍检测到该游戏的已记录进程，已阻止恢复。请退出游戏、启动器及相关 MOD 工具后重试。",$"PID={processId}; Name={process.ProcessName}");
+            }
+            catch(ArgumentException)
+            {
+                // A stale persisted session cannot prove that a game is still running. The explicit
+                // confirmation remains the safe fallback if no live process is known to the Worker.
+            }
+        }
     }
 
     private Task AuditAsync(string gameId,RestoreState state,object detail,CancellationToken token)=>_store.AppendAuditAsync("Restore",state.ToString(),JsonSerializer.Serialize(new{gameId,state,detail}),token);

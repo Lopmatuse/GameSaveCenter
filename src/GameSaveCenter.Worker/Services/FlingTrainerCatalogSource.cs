@@ -19,6 +19,7 @@ public interface ITrainerCatalogSource
 /// <summary>Isolates FLiNG's public HTML so page changes cannot affect local tool management.</summary>
 public sealed class FlingTrainerCatalogSource : ITrainerCatalogSource
 {
+    private const long MaxDownloadBytes=2L*1024*1024*1024;
     private static readonly Uri CatalogUri = new("https://flingtrainer.com/all-trainers/");
     private static readonly Regex TrainerLink = new(
         "<a[^>]+href=[\"'](?<url>https://flingtrainer\\.com/trainer/[^\"'#?]+/?)[\"'][^>]*>(?<title>.*?)</a>",
@@ -94,6 +95,8 @@ public sealed class FlingTrainerCatalogSource : ITrainerCatalogSource
         using var response=await _http.GetAsync(release.DownloadUrl,HttpCompletionOption.ResponseHeadersRead,token).ConfigureAwait(false);
         EnsureFlingUri(response.RequestMessage?.RequestUri?.ToString()??string.Empty);
         response.EnsureSuccessStatusCode();
+        if(response.Content.Headers.ContentLength is long declaredLength&&declaredLength>MaxDownloadBytes)
+            throw new WorkerOperationException("FLING_DOWNLOAD_TOO_LARGE","修改器下载文件超过安全大小上限，已拒绝下载。",$"{declaredLength} bytes");
         Directory.CreateDirectory(Path.GetDirectoryName(targetPath)!);
         await using var source=await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false);
         await using var target=new FileStream(targetPath,FileMode.Create,FileAccess.Write,FileShare.None,81920,true);
@@ -101,7 +104,10 @@ public sealed class FlingTrainerCatalogSource : ITrainerCatalogSource
         while(true)
         {
             var count=await source.ReadAsync(buffer,token).ConfigureAwait(false);if(count==0)break;
-            await target.WriteAsync(buffer.AsMemory(0,count),token).ConfigureAwait(false);received+=count;progress?.Report((received,total));
+            await target.WriteAsync(buffer.AsMemory(0,count),token).ConfigureAwait(false);received+=count;
+            if(received>MaxDownloadBytes)
+                throw new WorkerOperationException("FLING_DOWNLOAD_TOO_LARGE","修改器下载文件超过安全大小上限，已中止下载。",$"{received} bytes");
+            progress?.Report((received,total));
         }
         if(received==0)throw new WorkerOperationException("FLING_DOWNLOAD_EMPTY","下载内容为空。",release.DownloadUrl);
     }

@@ -13,6 +13,9 @@ namespace GameSaveCenter.Worker.Services;
 /// <summary>Imports, launches and tracks local trainers and Cheat Engine tables.</summary>
 public sealed class GameToolService
 {
+    private const int MaxArchiveEntryCount=5000;
+    private const long MaxArchiveEntryBytes=1024L*1024*1024;
+    private const long MaxArchiveExpandedBytes=4L*1024*1024*1024;
     private readonly WorkerOptions _options;
     private readonly SqliteStateStore _store;
     private readonly ITrainerCatalogSource _catalog;
@@ -151,7 +154,7 @@ public sealed class GameToolService
                 await progress.ReportAsync(100,"该 FLiNG 版本已经绑定，无需重复下载").ConfigureAwait(false);
                 return;
             }
-            var temporary=Path.Combine(_options.DownloadDirectory,request.ReleaseId+".download");
+            var temporary=Path.Combine(_options.DownloadDirectory,request.ReleaseId+"."+Guid.NewGuid().ToString("N")+".download");
             await progress.ReportAsync(5,"正在下载 FLiNG 修改器").ConfigureAwait(false);
             var sink=new Progress<(long Received,long? Total)>(value=>
             {
@@ -162,9 +165,10 @@ public sealed class GameToolService
             await progress.ReportAsync(82,"正在安全解压").ConfigureAwait(false);
             var toolId=existingTool?.ToolId??Guid.NewGuid().ToString("N");var versionId=Guid.NewGuid().ToString("N");
             var root=Path.Combine(_options.GameToolsDirectory,SafeSegment(request.PlayniteId),toolId,versionId);Directory.CreateDirectory(root);
-            string entry;
+            var installedSuccessfully=false;
             try
             {
+                string entry;
                 if(HasSignature(temporary,0x50,0x4B))
                 {
                     ExtractZipSafely(temporary,root);
@@ -179,20 +183,27 @@ public sealed class GameToolService
                 {
                     throw new WorkerOperationException("FLING_DOWNLOAD_INVALID","下载内容既不是 ZIP 也不是 Windows 可执行文件，已拒绝绑定。",release.DownloadUrl);
                 }
+
+                var now=DateTime.UtcNow;
+                var tool=existingTool??new GameToolDto{ToolId=toolId,PlayniteId=request.PlayniteId,ToolType=GameToolType.Trainer,SourceType=GameToolSourceType.Fling,
+                    DisplayName=catalog.Title,Enabled=true,AutoStart=false,LaunchDelaySeconds=8,CreatedUtc=now};
+                tool.ActiveVersionId=versionId;tool.UpdatedUtc=now;
+                var version=new GameToolVersionDto{VersionId=versionId,ToolId=toolId,VersionName=release.DisplayName,EntryPath=entry,
+                    WorkingDirectory=Path.GetDirectoryName(entry)??root,SourceUrl=release.DownloadUrl,FileSha256=await HashAsync(entry,taskToken).ConfigureAwait(false),
+                    DownloadUtc=now,CreatedUtc=now,IsAvailable=true};
+                await _store.UpsertGameToolAsync(tool,version,taskToken).ConfigureAwait(false);
+                installedSuccessfully=true;
+                await progress.ReportAsync(96,"已下载并绑定到当前游戏").ConfigureAwait(false);
+            }
+            catch
+            {
+                if(!installedSuccessfully&&Directory.Exists(root))Directory.Delete(root,true);
+                throw;
             }
             finally
             {
                 if(File.Exists(temporary))File.Delete(temporary);
             }
-            var now=DateTime.UtcNow;
-            var tool=existingTool??new GameToolDto{ToolId=toolId,PlayniteId=request.PlayniteId,ToolType=GameToolType.Trainer,SourceType=GameToolSourceType.Fling,
-                DisplayName=catalog.Title,Enabled=true,AutoStart=false,LaunchDelaySeconds=8,CreatedUtc=now};
-            tool.ActiveVersionId=versionId;tool.UpdatedUtc=now;
-            var version=new GameToolVersionDto{VersionId=versionId,ToolId=toolId,VersionName=release.DisplayName,EntryPath=entry,
-                WorkingDirectory=Path.GetDirectoryName(entry)??root,SourceUrl=release.DownloadUrl,FileSha256=await HashAsync(entry,taskToken).ConfigureAwait(false),
-                DownloadUtc=now,CreatedUtc=now,IsAvailable=true};
-            await _store.UpsertGameToolAsync(tool,version,taskToken).ConfigureAwait(false);
-            await progress.ReportAsync(96,"已下载并绑定到当前游戏").ConfigureAwait(false);
         },token).ConfigureAwait(false);
     }
 
@@ -233,8 +244,16 @@ public sealed class GameToolService
     private static void ExtractZipSafely(string archive,string destination)
     {
         using var zip=ZipFile.OpenRead(archive);
+        if(zip.Entries.Count>MaxArchiveEntryCount)
+            throw new InvalidDataException($"ZIP 包含过多文件（{zip.Entries.Count}），已拒绝解压。");
+        long expandedBytes=0;
         foreach(var entry in zip.Entries)
         {
+            if(entry.Length>MaxArchiveEntryBytes)
+                throw new InvalidDataException($"ZIP 包含超过安全大小上限的文件：{entry.FullName}");
+            expandedBytes=checked(expandedBytes+entry.Length);
+            if(expandedBytes>MaxArchiveExpandedBytes)
+                throw new InvalidDataException("ZIP 解压后的总大小超过安全上限，已拒绝解压。");
             string target;
             try{target=ArchivePathGuard.ResolveEntryPath(destination,entry.FullName);}
             catch(InvalidDataException ex){throw new InvalidDataException("ZIP 包含越界路径，已拒绝解压。",ex);}

@@ -22,11 +22,12 @@ public sealed class MediaSyncService
     private readonly GameCatalogService _catalog;
     private readonly SqliteStateStore _store;
     private readonly RcloneClient _rclone;
+    private readonly CloudTransferCoordinator _cloudTransfers;
     private readonly TaskCoordinator _tasks;
     private readonly ILogger<MediaSyncService> _logger;
 
-    public MediaSyncService(WorkerOptions options,GameCatalogService catalog,SqliteStateStore store,RcloneClient rclone,TaskCoordinator tasks,ILogger<MediaSyncService> logger)
-    { _options=options;_catalog=catalog;_store=store;_rclone=rclone;_tasks=tasks;_logger=logger; }
+    public MediaSyncService(WorkerOptions options,GameCatalogService catalog,SqliteStateStore store,RcloneClient rclone,CloudTransferCoordinator cloudTransfers,TaskCoordinator tasks,ILogger<MediaSyncService> logger)
+    { _options=options;_catalog=catalog;_store=store;_rclone=rclone;_cloudTransfers=cloudTransfers;_tasks=tasks;_logger=logger; }
 
     public async Task<List<TaskStatusDto>> SyncAsync(MediaSyncRequestDto request,CancellationToken token)
     {
@@ -110,7 +111,7 @@ public sealed class MediaSyncService
                 await progress.ReportAsync(90,"正在复制媒体到云端").ConfigureAwait(false);
                 var gameDirectory=Path.Combine(_options.MediaArchiveDirectory,Sanitize(game.Name));
                 var remote=Path.Combine(Environment.MachineName,"Media",Sanitize(game.Name));
-                var cloud=await _rclone.CopyAsync(gameDirectory,remote,ct).ConfigureAwait(false);
+                var cloud=await _cloudTransfers.RunUploadAsync("media",transferToken=>_rclone.CopyAsync(gameDirectory,remote,transferToken),ct).ConfigureAwait(false);
                 if(!cloud.Success)
                 {
                     await _store.UpdateMediaCloudStateAsync(game.PlayniteId,"Failed",ct).ConfigureAwait(false);
@@ -166,7 +167,7 @@ public sealed class MediaSyncService
                     await progress.ReportAsync(94,$"正在复制 {game.Name} 的公共媒体到云端").ConfigureAwait(false);
                     var gameDirectory=Path.Combine(_options.MediaArchiveDirectory,Sanitize(game.Name));
                     var remote=Path.Combine(Environment.MachineName,"Media",Sanitize(game.Name));
-                    var cloud=await _rclone.CopyAsync(gameDirectory,remote,ct).ConfigureAwait(false);
+                    var cloud=await _cloudTransfers.RunUploadAsync("media inbox",transferToken=>_rclone.CopyAsync(gameDirectory,remote,transferToken),ct).ConfigureAwait(false);
                     if(!cloud.Success)
                     {
                         await _store.UpdateMediaCloudStateAsync(gameId,"Failed",ct).ConfigureAwait(false);

@@ -629,7 +629,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.5.11" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.1" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -731,10 +731,16 @@
                 </Grid>
             </Border>
             <Border Style="{StaticResource GscMetricCard}">
-                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="#20FF453A"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB52;" Foreground="{StaticResource GscErrorBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
-                    <StackPanel Grid.Column="1"><TextBlock Text="需要关注" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.WarningGames}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
-                </Grid>
+                <Button Style="{StaticResource GscButtonBase}"
+                        Command="{Binding OpenAttentionCenterCommand}"
+                        ToolTip="查看需要关注的游戏、原因和建议处理方式"
+                        Padding="0" Margin="0" Background="Transparent" BorderBrush="Transparent">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <Border Width="36" Height="36" CornerRadius="18" Background="#20FF453A"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB52;" Foreground="{StaticResource GscErrorBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                        <StackPanel Grid.Column="1"><TextBlock Text="需要关注" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.WarningGames}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
+                        <TextBlock Grid.Column="2" Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource GscMutedTextBrush}" VerticalAlignment="Center" ToolTip="查看详情"/>
+                    </Grid>
+                </Button>
             </Border>
             <Border Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
@@ -1536,12 +1542,18 @@
                         <TabItem x:Name="LogsTab" Header="异常与日志">
                             <Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
                                 <Border Style="{StaticResource GscTableFrame}">
-                                    <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Findings}">
+                                    <DataGrid x:Name="FindingsGrid" Style="{StaticResource GscDataGrid}" ItemsSource="{Binding Findings}" SelectedItem="{Binding SelectedFinding}">
                                         <DataGrid.Columns>
                                             <DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="等级" Binding="{Binding Severity}" Width="70"/>
+                                            <DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="150">
+                                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding GameName}"/></Style></DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
                                             <DataGridTextColumn Header="标题" Binding="{Binding Title}" Width="170"/>
-                                            <DataGridTextColumn HeaderStyle="{StaticResource GscLastColumnHeader}" Header="详情" Binding="{Binding Detail}" Width="*" MinWidth="320" CellStyle="{StaticResource GscLeftDataGridCell}">
+                                            <DataGridTextColumn Header="详情" Binding="{Binding Detail}" Width="*" MinWidth="320" CellStyle="{StaticResource GscLeftDataGridCell}">
                                                 <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="TextWrapping" Value="NoWrap"/><Setter Property="ToolTip" Value="{Binding Detail}"/></Style></DataGridTextColumn.ElementStyle>
+                                            </DataGridTextColumn>
+                                            <DataGridTextColumn HeaderStyle="{StaticResource GscLastColumnHeader}" Header="建议处理" Binding="{Binding SuggestedAction}" Width="1.1*" MinWidth="240" CellStyle="{StaticResource GscLeftDataGridCell}">
+                                                <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource GscSecondaryTextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="TextWrapping" Value="NoWrap"/><Setter Property="ToolTip" Value="{Binding SuggestedAction}"/></Style></DataGridTextColumn.ElementStyle>
                                             </DataGridTextColumn>
                                         </DataGrid.Columns>
                                     </DataGrid>

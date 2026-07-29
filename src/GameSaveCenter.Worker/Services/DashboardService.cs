@@ -33,6 +33,14 @@ public sealed class DashboardService
             .Where(x=>x.Severity>=FindingSeverity.Error)
             .Select(x=>x.PlayniteId)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var gameNames=games.ToDictionary(x=>x.Descriptor.PlayniteId,x=>x.Descriptor.Name,StringComparer.OrdinalIgnoreCase);
+        foreach(var finding in findings)
+        {
+            if(!string.IsNullOrWhiteSpace(finding.PlayniteId) && gameNames.TryGetValue(finding.PlayniteId,out var gameName))
+                finding.GameName=gameName;
+            else if(string.IsNullOrWhiteSpace(finding.GameName))
+                finding.GameName="全局";
+        }
         var snapshot=new DashboardSnapshotDto
         {
             GeneratedUtc=DateTime.UtcNow,WorkerHealthy=true,WorkerVersion=typeof(DashboardService).Assembly.GetName().Version?.ToString()??"dev",

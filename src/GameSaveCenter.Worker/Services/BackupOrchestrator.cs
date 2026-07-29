@@ -14,6 +14,7 @@ public sealed class BackupOrchestrator
     private readonly SqliteStateStore _store;
     private readonly LudusaviClient _ludusavi;
     private readonly RcloneClient _rclone;
+    private readonly CloudTransferCoordinator _cloudTransfers;
     private readonly TaskCoordinator _tasks;
     private readonly WorkerOptions _options;
     private readonly BackupValidationService _validator = new();
@@ -23,6 +24,7 @@ public sealed class BackupOrchestrator
         SqliteStateStore store,
         LudusaviClient ludusavi,
         RcloneClient rclone,
+        CloudTransferCoordinator cloudTransfers,
         TaskCoordinator tasks,
         WorkerOptions options)
     {
@@ -30,6 +32,7 @@ public sealed class BackupOrchestrator
         _store = store;
         _ludusavi = ludusavi;
         _rclone = rclone;
+        _cloudTransfers = cloudTransfers;
         _tasks = tasks;
         _options = options;
     }
@@ -188,8 +191,8 @@ public sealed class BackupOrchestrator
                     if (_options.EnableCloudUpload && policy.UploadAfterBackup && _rclone.IsConfigured)
                     {
                         await progress.ReportAsync(82, $"{requestLabel}：正在复制到云端").ConfigureAwait(false);
-                        var cloud = await _rclone
-                            .CopyAsync(_options.LudusaviBackupDirectory, Path.Combine(Environment.MachineName, "Saves"), ct)
+                        var cloud = await _cloudTransfers.RunUploadAsync("backup", transferToken => _rclone
+                            .CopyAsync(_options.LudusaviBackupDirectory, Path.Combine(Environment.MachineName, "Saves"), transferToken), ct)
                             .ConfigureAwait(false);
                         if (!cloud.Success)
                         {

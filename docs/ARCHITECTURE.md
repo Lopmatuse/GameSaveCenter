@@ -40,9 +40,9 @@ GameSaveCenter.Worker (net8.0-windows)
 - 每条请求包含 `requestId`、`type`、`timestampUtc`、`payload`；
 - 响应复用相同 `requestId`；
 - 协议版本和最大消息大小由 Contracts 固定；
-- 当前实现是请求/响应模式；任务事件消息类型已预留，但 Worker 主动持续推送尚未完成。
+- 当前实现以请求/响应为主；`tasks.changes` 提供 Worker 内存中的增量任务变化拉取，避免面板每次轮询重建完整首页。Worker 主动持续推送尚未完成。
 
-长任务由 Worker 写入 SQLite 任务表，Playnite 页面通过刷新查询状态。后续事件推送只能作为体验增强，不能成为任务正确性的唯一依赖。
+长任务由 Worker 写入 SQLite 任务表；Playnite 以 `tasks.changes` 获取短期增量，Worker 重启、事件窗口溢出或面板首次打开时回退到 SQLite 全量快照。后续持续事件推送只能作为体验增强，不能成为任务正确性的唯一依赖。
 
 ## 数据存储
 
@@ -125,7 +125,7 @@ Failed
 → RolledBack / ManualInterventionRequired
 ```
 
-当前“云同步暂停”主要体现在恢复编排期间不主动创建上传任务；独立并发上传任务的全局暂停锁仍属于待增强项。
+恢复会先验证该游戏不存在活跃会话或仍存活的记录进程，再取得全局云传输闸门：它会等待已有 `rclone copy` 结束，并在恢复完成前阻止新的备份和媒体上传启动。它不会强制终止已经运行的安全上传。
 
 ## 云端边界
 

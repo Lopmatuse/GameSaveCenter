@@ -116,10 +116,32 @@ namespace GameSaveCenter.Contracts
         }
     }
 
+    /// <summary>Incremental task state feed. It is deliberately a pull-based reliable fallback for short-lived IPC.</summary>
+    public sealed class TaskChangeRequestDto
+    {
+        public long AfterSequence { get; set; }
+        public int Limit { get; set; } = 100;
+    }
+
+    public sealed class TaskChangeEventDto
+    {
+        public long Sequence { get; set; }
+        public TaskStatusDto Task { get; set; } = new TaskStatusDto();
+    }
+
+    public sealed class TaskChangeFeedDto
+    {
+        public long LatestSequence { get; set; }
+        public bool ResetRequired { get; set; }
+        public List<TaskChangeEventDto> Changes { get; set; } = new List<TaskChangeEventDto>();
+    }
+
     /// <summary>One validation result displayed to the user.</summary>
     public sealed class ValidationFindingDto
     {
         public string PlayniteId { get; set; } = string.Empty;
+        /// <summary>Resolved game title when this finding is sent in a dashboard snapshot.</summary>
+        public string GameName { get; set; } = string.Empty;
         public FindingSeverity Severity { get; set; }
         public string Code { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;

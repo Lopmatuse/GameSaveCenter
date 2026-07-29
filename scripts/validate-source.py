@@ -496,6 +496,38 @@ def check_large_library_performance_guards() -> None:
     if "(query.ForceRefresh || cached.Count == 0)" not in dispatcher:
         fail("Backup history must remain cache-first unless explicitly refreshed")
 
+
+def check_061_reliability_guards() -> None:
+    """Keep the actionable attention, cloud restore lock and bounded trainer download safeguards intact."""
+    messages = (ROOT / "src/GameSaveCenter.Contracts/MessageTypes.cs").read_text(encoding="utf-8")
+    operations = (ROOT / "src/GameSaveCenter.Contracts/OperationDtos.cs").read_text(encoding="utf-8")
+    view_model = (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8")
+    dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    restore = (ROOT / "src/GameSaveCenter.Worker/Services/RestoreOrchestrator.cs").read_text(encoding="utf-8")
+    cloud = (ROOT / "src/GameSaveCenter.Worker/Services/CloudTransferCoordinator.cs").read_text(encoding="utf-8")
+    tools = (ROOT / "src/GameSaveCenter.Worker/Services/GameToolService.cs").read_text(encoding="utf-8")
+    fling = (ROOT / "src/GameSaveCenter.Worker/Services/FlingTrainerCatalogSource.cs").read_text(encoding="utf-8")
+
+    for token in ("OpenAttentionCenterCommand", "SelectedFinding", "AttentionCenterRequested"):
+        if token not in view_model:
+            fail(f"Actionable attention center guard missing from view model: {token}")
+    for token in ("OpenAttentionCenterCommand", "FindingsGrid", "SuggestedAction", "GameName"):
+        if token not in dashboard:
+            fail(f"Actionable attention center UI guard missing: {token}")
+    if "GetTaskChanges" not in messages or "TaskChangeFeedDto" not in operations:
+        fail("Incremental task-feed contract guard missing")
+    for token in ("EnsureGameClosedAsync", "PauseForRestoreAsync", "RESTORE_GAME_RUNNING"):
+        if token not in restore:
+            fail(f"Restore safety guard missing: {token}")
+    for token in ("RunUploadAsync", "PauseForRestoreAsync"):
+        if token not in cloud:
+            fail(f"Cloud transfer gate guard missing: {token}")
+    for token in ("MaxArchiveEntryCount", "MaxArchiveExpandedBytes", "installedSuccessfully"):
+        if token not in tools:
+            fail(f"Trainer archive safety guard missing: {token}")
+    if "MaxDownloadBytes" not in fling:
+        fail("FLiNG download size guard missing")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -511,6 +543,7 @@ def main() -> int:
     check_game_tools_guards()
     check_windows_launchers()
     check_large_library_performance_guards()
+    check_061_reliability_guards()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:

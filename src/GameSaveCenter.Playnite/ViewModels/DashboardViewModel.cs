@@ -26,6 +26,8 @@ namespace GameSaveCenter.Playnite.ViewModels
         private bool isBackgroundRefreshing;
         private bool isCancellingTask;
         private bool taskSnapshotInitialized;
+        private long lastTaskEventSequence;
+        private DateTime lastFullDashboardRefreshUtc=DateTime.MinValue;
         private string statusMessage = "准备就绪";
         private GameStatusDto selectedGame = null!;
         private BackupVersionDto selectedBackup = null!;
@@ -41,6 +43,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         private MediaItemDto selectedInboxMedia = null!;
         private GameStatusDto inboxTargetGame = null!;
         private TaskStatusDto selectedTask = null!;
+        private ValidationFindingDto selectedFinding = null!;
         private WorkerSettingsSnapshotDto effectiveSettings = new WorkerSettingsSnapshotDto();
         private string diagnosticSummary = "诊断信息尚未加载。";
         private string diffSummary = string.Empty;
@@ -91,6 +94,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             CancelTaskCommand = new RelayCommand(_ => CancelSelectedTask(), _ => SelectedTask != null && SelectedTask.CanCancel && !IsCancellingTask);
             RetryTaskCommand = new RelayCommand(_ => Run(RetrySelectedTaskAsync), _ => !IsBusy && CanRetrySelectedTask());
             CopyTaskErrorCommand = new RelayCommand(_ => RunLocal(CopySelectedTaskError), _ => SelectedTask != null && !string.IsNullOrWhiteSpace(SelectedTask.DetailMessage));
+            OpenAttentionCenterCommand = new RelayCommand(_ => OpenAttentionCenter());
             RefreshDiagnosticsCommand = new RelayCommand(_ => Run(RefreshDiagnosticsAsync), _ => !IsBusy);
             CopyDiagnosticsCommand = new RelayCommand(_ => RunLocal(CopyDiagnostics), _ => !string.IsNullOrWhiteSpace(DiagnosticSummary));
             OpenDataDirectoryCommand = new RelayCommand(_ => RunLocal(() => OpenPath(EffectiveSettings.DataDirectory)), _ => !string.IsNullOrWhiteSpace(EffectiveSettings.DataDirectory));
@@ -283,6 +287,11 @@ namespace GameSaveCenter.Playnite.ViewModels
                 RaiseCommandStates();
             }
         }
+        public ValidationFindingDto SelectedFinding
+        {
+            get => selectedFinding;
+            set => SetValue(ref selectedFinding, value);
+        }
         public string BackupComment { get => backupComment; set => SetValue(ref backupComment, value); }
         public bool LockSelectedBackup { get => lockSelectedBackup; set => SetValue(ref lockSelectedBackup, value); }
         public string CustomMediaSourcePath { get => customMediaSourcePath; set => SetValue(ref customMediaSourcePath, value); }
@@ -349,6 +358,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand CancelTaskCommand { get; }
         public ICommand RetryTaskCommand { get; }
         public ICommand CopyTaskErrorCommand { get; }
+        public ICommand OpenAttentionCenterCommand { get; }
         public ICommand RefreshDiagnosticsCommand { get; }
         public ICommand CopyDiagnosticsCommand { get; }
         public ICommand OpenDataDirectoryCommand { get; }
@@ -368,6 +378,23 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand DownloadTrainerCommand { get; }
 
         public Task RefreshAsync() => RefreshCoreAsync(true);
+
+        /// <summary>Turns the overview warning count into a route to its concrete reasons.</summary>
+        private void OpenAttentionCenter()
+        {
+            var finding=Findings.FirstOrDefault(x=>x.Severity>=FindingSeverity.Warning);
+            if(finding==null)
+            {
+                StatusMessage="当前没有需要处理的关注项。";
+                return;
+            }
+
+            SelectedFinding=finding;
+            CurrentWorkspace=WorkspaceKind.Maintenance;
+            AttentionCenterRequested?.Invoke(this,EventArgs.Empty);
+        }
+
+        public event EventHandler? AttentionCenterRequested;
 
         private async Task InitializeAsync()
         {
@@ -398,6 +425,12 @@ namespace GameSaveCenter.Playnite.ViewModels
             try
             {
                 await plugin.EnsureWorkerAsync();
+                var taskChanges=await plugin.RequestAsync<TaskChangeFeedDto>(MessageTypes.GetTaskChanges,
+                    new TaskChangeRequestDto{AfterSequence=lastTaskEventSequence,Limit=100});
+                lastTaskEventSequence=taskChanges.LatestSequence;
+                var refreshDashboard=taskChanges.ResetRequired||taskChanges.Changes.Count>0||
+                    DateTime.UtcNow-lastFullDashboardRefreshUtc>=TimeSpan.FromMinutes(1);
+                if(!refreshDashboard)return;
                 var refreshDetails = await RefreshDashboardAsync(false, true);
                 if (CurrentWorkspace == WorkspaceKind.Media) await LoadInboxAsync();
                 if (refreshDetails && !IsBusy && SelectedGame != null) await LoadDetailsAsync();
@@ -473,6 +506,7 @@ namespace GameSaveCenter.Playnite.ViewModels
                     : "Worker 不可用";
             });
             foreach (var task in notifications) plugin.ShowTaskNotification(task);
+            lastFullDashboardRefreshUtc=DateTime.UtcNow;
             return selectedTaskCompleted;
         }
 

@@ -35,6 +35,7 @@ namespace GameSaveCenter.Contracts
         public const string AcceptSavePath = "detection.accept";
         public const string RejectSavePath = "detection.reject";
         public const string GetTasks = "tasks.get";
+        public const string GetTaskChanges = "tasks.changes";
         public const string GetLogs = "logs.get";
         public const string UpdateSettings = "settings.update";
         public const string GetSettings = "settings.get";

@@ -29,6 +29,7 @@ namespace GameSaveCenter.Playnite.Views
 
             viewModel = new DashboardViewModel(plugin);
             viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            viewModel.AttentionCenterRequested += OnAttentionCenterRequested;
             DataContext = viewModel;
 
             refreshTimer = new DispatcherTimer(DispatcherPriority.Background);
@@ -92,6 +93,19 @@ namespace GameSaveCenter.Playnite.Views
             activeConfirmation = null;
             DialogOverlay.Visibility = Visibility.Collapsed;
             ToastHost.Children.Clear();
+        }
+
+        private void OnAttentionCenterRequested(object? sender, EventArgs e)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                NavMaintenance.IsChecked = true;
+                UpdateWorkspacePresentation();
+                DetailsTabControl.SelectedItem = LogsTab;
+                FindingsGrid.ScrollIntoView(viewModel.SelectedFinding);
+                FindingsGrid.Focus();
+                AnimateElement(DetailsTabControl, 10, 0, 0.2);
+            }), DispatcherPriority.Background);
         }
 
         private void OnVisualSettingsChanged(object sender, EventArgs e)

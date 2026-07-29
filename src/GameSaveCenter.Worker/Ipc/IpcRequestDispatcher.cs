@@ -69,6 +69,7 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.GetGamePolicy=>await _store.GetPolicyAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
                 MessageTypes.UpdateGamePolicy=>await UpdatePolicyAsync(Read<GamePolicyUpdateDto>(request),token).ConfigureAwait(false),
                 MessageTypes.GetTasks=>await _store.GetRecentTasksAsync(200,token).ConfigureAwait(false),
+                MessageTypes.GetTaskChanges=>GetTaskChanges(Read<TaskChangeRequestDto>(request)),
                 MessageTypes.GetLogs=>await _store.GetAuditAsync(500,token).ConfigureAwait(false),
                 MessageTypes.GetSettings=>SanitizedSettings(),
                 MessageTypes.UpdateSettings=>await UpdateSettingsAsync(Read<WorkerSettingsDto>(request),token).ConfigureAwait(false),
@@ -101,6 +102,7 @@ public sealed class IpcRequestDispatcher
     }
 
     private async Task<object> UpsertAsync(List<GameDescriptorDto> games,CancellationToken token){await _catalog.UpsertAndMatchAsync(games,token).ConfigureAwait(false);return new{accepted=games.Count};}
+    private object GetTaskChanges(TaskChangeRequestDto request)=>_tasks.GetChanges(request.AfterSequence,request.Limit);
     private async Task<object> StopAsync(GameSessionEventDto value,CancellationToken token){await _sessions.StopAsync(value,token).ConfigureAwait(false);return new{stopped=true};}
     private async Task<List<BackupVersionDto>> ListBackupsAsync(GameQueryDto query,CancellationToken token)
     {
