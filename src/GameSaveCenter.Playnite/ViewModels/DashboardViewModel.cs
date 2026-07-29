@@ -74,6 +74,8 @@ namespace GameSaveCenter.Playnite.ViewModels
         private DeviceConflictStatusDto selectedDeviceComparison = null!;
         private string deviceDecision = "稍后处理";
         private string deviceDecisionComment = string.Empty;
+        private RemoteBackupStageResultDto? stagedRemoteBackup;
+        private string stagedRemoteBackupStatus = "尚未下载远端存档。下载只会写入本机隔离区，不会覆盖当前存档。";
         private string processMappingExecutable = string.Empty;
         private GameStatusDto processMappingTargetGame = null!;
         private ProcessMappingDto selectedProcessMapping = null!;
@@ -124,6 +126,8 @@ namespace GameSaveCenter.Playnite.ViewModels
             RefreshDiagnosticsCommand = new RelayCommand(_ => Run(RefreshDiagnosticsAsync), _ => !IsBusy);
             SyncDeviceStatesCommand = new RelayCommand(_ => Run(SyncDeviceStatesAsync), _ => !IsBusy);
             SaveDeviceDecisionCommand = new RelayCommand(_ => Run(SaveDeviceDecisionAsync), _ => !IsBusy && SelectedDeviceComparison != null);
+            StageRemoteBackupCommand = new RelayCommand(_ => Run(StageRemoteBackupAsync), _ => !IsBusy && SelectedDeviceComparison != null && !string.IsNullOrWhiteSpace(SelectedDeviceComparison.RemoteBackupId));
+            RestoreStagedRemoteBackupCommand = new RelayCommand(_ => Run(RestoreStagedRemoteBackupAsync), _ => !IsBusy && StagedRemoteBackup != null && StagedRemoteBackup.Verified);
             SaveProcessMappingCommand = new RelayCommand(_ => Run(SaveProcessMappingAsync), _ => !IsBusy && !string.IsNullOrWhiteSpace(ProcessMappingExecutable) && ProcessMappingTargetGame != null);
             DeleteProcessMappingCommand = new RelayCommand(_ => Run(DeleteProcessMappingAsync), _ => !IsBusy && SelectedProcessMapping != null);
             CopyDiagnosticsCommand = new RelayCommand(_ => RunLocal(CopyDiagnostics), _ => !string.IsNullOrWhiteSpace(DiagnosticSummary));
@@ -436,6 +440,8 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand RefreshDiagnosticsCommand { get; }
         public ICommand SyncDeviceStatesCommand { get; }
         public ICommand SaveDeviceDecisionCommand { get; }
+        public ICommand StageRemoteBackupCommand { get; }
+        public ICommand RestoreStagedRemoteBackupCommand { get; }
         public ICommand SaveProcessMappingCommand { get; }
         public ICommand DeleteProcessMappingCommand { get; }
         public ICommand CopyDiagnosticsCommand { get; }
@@ -455,8 +461,30 @@ namespace GameSaveCenter.Playnite.ViewModels
                     "保留两者"=>"保留两者","记录为优先本机"=>"以本机为准","记录为优先远端"=>"以远端为准",_=>"稍后处理"
                 };
                 DeviceDecisionComment=value?.DecisionComment??string.Empty;
+                if(StagedRemoteBackup!=null&&(value==null||
+                   !string.Equals(StagedRemoteBackup.PlayniteId,value.PlayniteId,StringComparison.OrdinalIgnoreCase)||
+                   !string.Equals(StagedRemoteBackup.RemoteDevice,value.RemoteDevice,StringComparison.OrdinalIgnoreCase)||
+                   !string.Equals(StagedRemoteBackup.BackupId,value.RemoteBackupId,StringComparison.OrdinalIgnoreCase)))
+                    StagedRemoteBackup=null;
                 RaiseCommandStates();
             }
+        }
+        public RemoteBackupStageResultDto? StagedRemoteBackup
+        {
+            get=>stagedRemoteBackup;
+            private set
+            {
+                SetValue(ref stagedRemoteBackup,value);
+                StagedRemoteBackupStatus=value==null
+                    ?"尚未下载远端存档。下载只会写入本机隔离区，不会覆盖当前存档。"
+                    :$"已校验：{value.GameName} / {value.RemoteDevice} / {value.BackupId}；{value.ExpiresUtc.ToLocalTime():yyyy-MM-dd HH:mm} 前有效。";
+                RaiseCommandStates();
+            }
+        }
+        public string StagedRemoteBackupStatus
+        {
+            get=>stagedRemoteBackupStatus;
+            private set=>SetValue(ref stagedRemoteBackupStatus,value);
         }
         public string DeviceDecision { get=>deviceDecision; set=>SetValue(ref deviceDecision,value??"稍后处理"); }
         public string DeviceDecisionComment { get=>deviceDecisionComment; set=>SetValue(ref deviceDecisionComment,value??string.Empty); }
@@ -678,6 +706,41 @@ namespace GameSaveCenter.Playnite.ViewModels
             if(index>=0)DeviceComparisons[index]=selected;
             SelectedDeviceComparison=selected;
             ConfirmSuccess("已记录人工决策；未下载、恢复、删除或覆盖任何存档");
+        }
+
+        private async Task StageRemoteBackupAsync()
+        {
+            var selected=SelectedDeviceComparison??throw new InvalidOperationException("请先选择包含远端备份的设备记录。");
+            if(!await plugin.ConfirmAsync(
+                   "下载远端备份到隔离区",
+                   $"将从设备“{selected.RemoteDevice}”下载完整 Ludusavi 备份库，并在本机隔离区校验版本“{selected.RemoteBackupId}”。\n\n此步骤不会恢复或覆盖当前存档，但下载量可能较大。是否继续？",
+                   "下载并校验",
+                   "取消"))return;
+            var staged=await plugin.RequestAsync<RemoteBackupStageResultDto>(MessageTypes.StageRemoteBackup,
+                new RemoteBackupStageRequestDto
+                {
+                    PlayniteId=selected.PlayniteId,RemoteDevice=selected.RemoteDevice,BackupId=selected.RemoteBackupId
+                },TimeSpan.FromHours(3));
+            StagedRemoteBackup=staged;
+            ConfirmSuccess(staged.StatusMessage);
+        }
+
+        private async Task RestoreStagedRemoteBackupAsync()
+        {
+            var staged=StagedRemoteBackup??throw new InvalidOperationException("请先下载并校验远端备份。");
+            if(!await plugin.ConfirmAsync(
+                   "从已校验的远端备份恢复",
+                   $"即将恢复“{staged.GameName}”在设备“{staged.RemoteDevice}”上的版本“{staged.BackupId}”。\n\n恢复前会创建并锁定本机当前存档的 PreRestore 快照。请确认游戏、启动器和 MOD 管理器均已关闭。",
+                   "创建快照并恢复",
+                   "取消"))return;
+            var task=await plugin.RequestAsync<TaskStatusDto>(MessageTypes.RestoreRemoteBackup,
+                new RemoteRestoreRequestDto
+                {
+                    StagingId=staged.StagingId,ConfirmedCurrentSnapshot=true,ConfirmedGameClosed=true,
+                    UserComment="Playnite remote restore wizard"
+                },TimeSpan.FromMinutes(45));
+            await RefreshCoreAsync(false);
+            NotifyTaskResults(new[]{task});
         }
 
         private async Task LoadDetailsAsync(bool forceBackupHistory = false)
@@ -1347,7 +1410,8 @@ namespace GameSaveCenter.Playnite.ViewModels
                 AddMediaSourceCommand, AcceptCandidateCommand, RejectCandidateCommand, ReassignMediaCommand,
                 UpdateMediaMetadataCommand,OpenSelectedMediaCommand,RevealSelectedMediaCommand,
                 AssignInboxMediaCommand, IgnoreInboxMediaCommand,
-                CancelTaskCommand, RetryTaskCommand, CopyTaskErrorCommand, RefreshDiagnosticsCommand, SyncDeviceStatesCommand, SaveDeviceDecisionCommand, CopyDiagnosticsCommand,
+                CancelTaskCommand, RetryTaskCommand, CopyTaskErrorCommand, RefreshDiagnosticsCommand, SyncDeviceStatesCommand, SaveDeviceDecisionCommand,
+                StageRemoteBackupCommand,RestoreStagedRemoteBackupCommand,CopyDiagnosticsCommand,
                 SaveProcessMappingCommand,DeleteProcessMappingCommand,
                 OpenDataDirectoryCommand, OpenBackupDirectoryCommand, OpenMediaDirectoryCommand, OpenWorkerLogCommand
                 ,ImportTrainerCommand,ImportCheatTableCommand,ImportToolFolderCommand,SaveGameToolCommand,LaunchGameToolCommand,

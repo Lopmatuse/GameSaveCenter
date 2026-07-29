@@ -46,17 +46,23 @@ public sealed class LudusaviClient
     }
 
     public Task<LudusaviCommandResult> ListBackupsAsync(IEnumerable<string> games, CancellationToken token)
+        => ListBackupsFromPathAsync(_options.LudusaviBackupDirectory, games, token);
+
+    public Task<LudusaviCommandResult> ListBackupsFromPathAsync(string backupPath, IEnumerable<string> games, CancellationToken token)
     {
-        var args = new List<string> { "backups", "--api", "--path", _options.LudusaviBackupDirectory };
+        var args = new List<string> { "backups", "--api", "--path", backupPath };
         args.AddRange(games.Where(x => !string.IsNullOrWhiteSpace(x)));
         return ExecuteJsonAsync(args, token);
     }
 
     public Task<LudusaviCommandResult> RestoreAsync(string game, string backupId, bool preview, CancellationToken token)
+        => RestoreFromPathAsync(_options.LudusaviBackupDirectory, game, backupId, preview, token);
+
+    public Task<LudusaviCommandResult> RestoreFromPathAsync(string backupPath, string game, string backupId, bool preview, CancellationToken token)
     {
         var args = new List<string>
         {
-            "restore", "--api", "--path", _options.LudusaviBackupDirectory,
+            "restore", "--api", "--path", backupPath,
             "--no-cloud-sync", "--backup", backupId
         };
         if (preview) args.Add("--preview");

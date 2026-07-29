@@ -28,12 +28,14 @@ public sealed class IpcRequestDispatcher
     private readonly GameToolService _gameTools;
     private readonly ITrainerCatalogSource _trainerCatalog;
     private readonly DeviceStateService _deviceStates;
+    private readonly RemoteBackupStagingService _remoteBackups;
     private readonly ILogger<IpcRequestDispatcher> _logger;
 
     public IpcRequestDispatcher(GameCatalogService catalog,GameSessionCoordinator sessions,BackupOrchestrator backup,RestoreOrchestrator restore,
         MediaSyncService media,SavePathDetectionService detection,DashboardService dashboard,SqliteStateStore store,TaskCoordinator tasks,
-        LudusaviClient ludusavi,WorkerOptions options,GameToolService gameTools,ITrainerCatalogSource trainerCatalog,DeviceStateService deviceStates,ILogger<IpcRequestDispatcher> logger)
-    { _catalog=catalog;_sessions=sessions;_backup=backup;_restore=restore;_media=media;_detection=detection;_dashboard=dashboard;_store=store;_tasks=tasks;_ludusavi=ludusavi;_options=options;_gameTools=gameTools;_trainerCatalog=trainerCatalog;_deviceStates=deviceStates;_logger=logger; }
+        LudusaviClient ludusavi,WorkerOptions options,GameToolService gameTools,ITrainerCatalogSource trainerCatalog,
+        DeviceStateService deviceStates,RemoteBackupStagingService remoteBackups,ILogger<IpcRequestDispatcher> logger)
+    { _catalog=catalog;_sessions=sessions;_backup=backup;_restore=restore;_media=media;_detection=detection;_dashboard=dashboard;_store=store;_tasks=tasks;_ludusavi=ludusavi;_options=options;_gameTools=gameTools;_trainerCatalog=trainerCatalog;_deviceStates=deviceStates;_remoteBackups=remoteBackups;_logger=logger; }
 
     public async Task<IpcEnvelope> DispatchAsync(IpcEnvelope request,CancellationToken token)
     {
@@ -78,6 +80,8 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.RetryCloudUpload=>await _backup.RetryCloudUploadAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
                 MessageTypes.SyncDeviceStates=>await _deviceStates.SyncAsync(token).ConfigureAwait(false),
                 MessageTypes.SaveDeviceConflictDecision=>await SaveDeviceConflictDecisionAsync(Read<DeviceConflictDecisionDto>(request),token).ConfigureAwait(false),
+                MessageTypes.StageRemoteBackup=>await _remoteBackups.StageAsync(Read<RemoteBackupStageRequestDto>(request),token).ConfigureAwait(false),
+                MessageTypes.RestoreRemoteBackup=>await _restore.ExecuteRemoteAsync(Read<RemoteRestoreRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ListProcessMappings=>await _store.GetProcessMappingsAsync(token).ConfigureAwait(false),
                 MessageTypes.SaveProcessMapping=>await SaveProcessMappingAsync(Read<ProcessMappingDto>(request),token).ConfigureAwait(false),
                 MessageTypes.DeleteProcessMapping=>await DeleteProcessMappingAsync(Read<ProcessMappingDto>(request).ExecutableName,token).ConfigureAwait(false),

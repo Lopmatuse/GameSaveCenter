@@ -278,7 +278,16 @@ git fsck --full
 
 1. 多设备远端备份下载和人工冲突解决向导。当前只有只读摘要比较。
 2. 保留策略候选的安全清理执行。当前只预览，不删除。
-3. Playnite Add-ons 数据库正式发布：0.6.12 已准备 installer/add-on 清单，仍需仓库所有者创建 Release、上传 PEXT 并向官方数据库发 PR。
+3. Playnite Add-ons 数据库正式发布：0.6.13 已准备 installer/add-on 清单，仍需仓库所有者创建 Release、上传 PEXT 并向官方数据库发 PR。
+
+### 0.6.13 远端备份恢复交接
+
+- 远端目录结构已经由上传实现确认：`<设备名>/Saves` 保存该设备的完整 Ludusavi 备份库。
+- `RemoteBackupStagingService` 将所选设备的完整库下载到 `DataDirectory/RemoteBackups/<opaque-id>/Vault`，下载与哈希检查持有同一云传输锁。
+- 暂存只有在 Rclone 检查通过、且 Ludusavi 从隔离路径列出所选 Backup ID 后才写入 manifest；句柄七天过期。
+- `RestoreOrchestrator.ExecuteRemoteAsync` 从隔离库读取目标版本，但 PreRestore 和失败回滚始终使用本机正式备份库。
+- 设备冲突决策依然只记录判断；下载和恢复是两个独立按钮及两次确认，禁止自动执行。
+- 仍需两个真实设备/Rclone 后端及低风险游戏的端到端验证，不得以 Release 编译和路径单测代替。
 4. `DashboardView.xaml`、`DashboardViewModel.cs` 和 `SqliteStateStore.cs` 的进一步模块拆分。0.6.11 已先拆出 Dashboard 与 SQLite 媒体域。
 
 ### 已实现但必须真机回归

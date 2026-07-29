@@ -35,6 +35,25 @@ public sealed class RcloneClient
             null, TimeSpan.FromHours(1), token);
     }
 
+    /// <summary>Verifies a staged download using provider hashes whenever Rclone can obtain them.</summary>
+    public Task<ProcessResult> ChecksumCheckAsync(string localDirectory, string remoteSubPath, CancellationToken token)
+    {
+        if (!IsConfigured) return Task.FromResult(ProcessResult.Failed(-1, string.Empty, "Rclone is not configured."));
+        return _runner.RunAsync(_options.RcloneExecutable,
+            BuildChecksumCheckArguments(_options.RcloneDestination, remoteSubPath, localDirectory),
+            null, TimeSpan.FromHours(1), token);
+    }
+
+    /// <summary>Copies a remote directory into a new local staging directory. It never writes to the remote.</summary>
+    public Task<ProcessResult> DownloadAsync(string remoteSubPath, string localDirectory, CancellationToken token)
+    {
+        if (!IsConfigured) return Task.FromResult(ProcessResult.Failed(-1, string.Empty, "Rclone is not configured."));
+        var source = CombineRemote(_options.RcloneDestination, remoteSubPath);
+        return _runner.RunAsync(_options.RcloneExecutable,
+            new[] { "copy", source, localDirectory, "--checksum", "--check-first", "--create-empty-src-dirs", "--stats-one-line" },
+            null, TimeSpan.FromHours(2), token);
+    }
+
     /// <summary>Lists remote sidecar paths. This is read-only and never modifies the remote.</summary>
     public async Task<IReadOnlyList<string>> ListDeviceStateFilesAsync(CancellationToken token)
     {
@@ -67,4 +86,7 @@ public sealed class RcloneClient
         var separator = root.EndsWith(":", StringComparison.Ordinal) || root.EndsWith("/", StringComparison.Ordinal) ? string.Empty : "/";
         return root + separator + child.Replace('\\', '/').TrimStart('/');
     }
+
+    internal static string[] BuildChecksumCheckArguments(string remoteRoot,string remoteSubPath,string localDirectory)
+        =>new[] { "check", CombineRemote(remoteRoot,remoteSubPath), localDirectory, "--one-way" };
 }

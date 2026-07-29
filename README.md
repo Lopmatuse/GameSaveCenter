@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.6.12-development-preview`。** 媒体列表现在使用回收虚拟化、96px 可见行缩略图和 96 项有界 LRU 缓存；选中录像可静音内嵌预览，不支持的编解码器仍可交给系统播放器打开。
+> **当前状态：`0.6.13-development-preview`。** 多设备冲突现在支持先把远端 Ludusavi 库下载到本机隔离区并完成哈希与版本校验，再通过独立确认、PreRestore 快照和失败回滚执行受保护恢复。
 
 ## 核心原则
 

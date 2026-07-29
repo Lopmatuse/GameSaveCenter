@@ -80,4 +80,35 @@ namespace GameSaveCenter.Contracts
         public string StatusMessage { get; set; } = string.Empty;
         public List<DeviceConflictStatusDto> Comparisons { get; set; } = new List<DeviceConflictStatusDto>();
     }
+
+    /// <summary>Downloads one remote device's complete Ludusavi vault into an isolated local staging directory.</summary>
+    public sealed class RemoteBackupStageRequestDto
+    {
+        public string PlayniteId { get; set; } = string.Empty;
+        public string RemoteDevice { get; set; } = string.Empty;
+        public string BackupId { get; set; } = string.Empty;
+    }
+
+    /// <summary>Opaque handle for a verified, isolated remote backup vault.</summary>
+    public sealed class RemoteBackupStageResultDto
+    {
+        public string StagingId { get; set; } = string.Empty;
+        public string PlayniteId { get; set; } = string.Empty;
+        public string GameName { get; set; } = string.Empty;
+        public string RemoteDevice { get; set; } = string.Empty;
+        public string BackupId { get; set; } = string.Empty;
+        public DateTime StagedUtc { get; set; }
+        public DateTime ExpiresUtc { get; set; }
+        public bool Verified { get; set; }
+        public string StatusMessage { get; set; } = string.Empty;
+    }
+
+    /// <summary>Explicit restore request for a previously verified remote staging vault.</summary>
+    public sealed class RemoteRestoreRequestDto
+    {
+        public string StagingId { get; set; } = string.Empty;
+        public bool ConfirmedCurrentSnapshot { get; set; }
+        public bool ConfirmedGameClosed { get; set; }
+        public string UserComment { get; set; } = string.Empty;
+    }
 }

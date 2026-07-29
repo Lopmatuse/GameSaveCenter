@@ -37,6 +37,7 @@ public sealed class WorkerOptions
     public string DetectionSnapshotDirectory => Path.Combine(DataDirectory, "DetectionSnapshots");
     public string GameToolsDirectory => Path.Combine(DataDirectory, "GameTools");
     public string DownloadDirectory => Path.Combine(DataDirectory, "Downloads");
+    public string RemoteBackupStagingDirectory => Path.Combine(DataDirectory, "RemoteBackups");
     public string RuntimeSettingsPath => Path.Combine(DataDirectory, "worker-settings.json");
 
     public static WorkerOptions Load(IConfiguration configuration)

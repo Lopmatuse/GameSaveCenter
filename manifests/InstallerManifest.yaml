@@ -1,10 +1,10 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.12
+  - Version: 0.6.13
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-07-29
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.12/GameSaveCenter-0.6.12.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.13/GameSaveCenter-0.6.13.pext
     Changelog:
-      - 媒体列表启用回收虚拟化与有界缩略图缓存。
-      - 选中录像支持静音内嵌预览。
-      - 新增设置迁移、SQLite 与 WPF 缩略图自动化回归。
+      - 多设备冲突支持远端 Ludusavi 备份库隔离下载。
+      - 下载后和恢复前均执行哈希与 Backup ID 校验。
+      - 远端恢复强制创建本机 PreRestore，并保留失败回滚。

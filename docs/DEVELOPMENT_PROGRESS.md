@@ -1,7 +1,7 @@
 # 开发实现进度
 
 更新时间：2026-07-29
-当前版本：`0.6.12-development-preview`
+当前版本：`0.6.13-development-preview`
 
 状态定义：
 
@@ -11,6 +11,17 @@
 - ⬜ **未开发**：没有可用实现。
 
 > Windows 真机已确认 0.4.2 可以编译、安装并打开侧栏。0.4.3 修复 Worker/Ludusavi 路径混淆、重复启动和缩放布局问题；Release 编译与隔离 Worker 冒烟测试已通过，仍需完成 Playnite 交互与真实 Ludusavi 回归。
+
+## 2026-07-29 0.6.13 远端备份隔离下载与受保护恢复
+
+- [x] 从所选远端设备的 `Saves` 子树单向下载完整 Ludusavi 库到本机 `RemoteBackups` 隔离区。
+- [x] 下载与哈希检查使用同一全局传输锁，避免本机上传任务并发干扰；不修改远端内容。
+- [x] 使用隔离库运行 Ludusavi `backups --api`，确认所选游戏和 Backup ID 真实存在后才签发七天暂存句柄。
+- [x] 设备名、暂存 ID 和本机根路径均执行路径穿越防护；失败暂存会尽力清理。
+- [x] 远端恢复复用现有游戏关闭检查、PreRestore 锁定、本机回滚、云端暂停、恢复后预览校验和审计。
+- [x] 设备状态页提供“下载并校验”与“创建快照并恢复”两个独立确认步骤。
+- [x] Worker 路径防护自动测试已加入一键测试链路。
+- [ ] 用两个真实设备目录和 Rclone 后端验证大库断线续传、远端变化、哈希不一致、过期暂存与低风险游戏恢复。
 
 ## 2026-07-29 0.6.12 虚拟化媒体缩略图与录像预览
 
@@ -27,7 +38,7 @@
 - [x] 增加 `manifests/InstallerManifest.yaml`，绑定扩展 ID、0.6.12 PEXT 下载地址、最低 API 与变更说明。
 - [x] 增加可提交到官方数据库 `addons/generic/` 的 add-on manifest。
 - [x] 源码门禁校验扩展 ID、版本、PEXT 文件名与两份清单一致。
-- [ ] 使用仓库所有者身份创建 `v0.6.12` GitHub Release 并上传 PEXT。
+- [ ] 使用仓库所有者身份创建 `v0.6.13` GitHub Release 并上传 PEXT。
 - [ ] 向 `JosefNemec/PlayniteAddonDatabase` 发起 PR；合并后验证 Playnite 内安装与下一版本更新。
 
 ## 2026-07-29 0.6.11 媒体域模块拆分

@@ -14,9 +14,11 @@ public sealed class RestoreOrchestrator
     private readonly TaskCoordinator _tasks;
     private readonly GameSessionCoordinator _sessions;
     private readonly CloudTransferCoordinator _cloudTransfers;
+    private readonly RemoteBackupStagingService _remoteBackups;
 
-    public RestoreOrchestrator(GameCatalogService catalog,SqliteStateStore store,LudusaviClient ludusavi,TaskCoordinator tasks,GameSessionCoordinator sessions,CloudTransferCoordinator cloudTransfers)
-    { _catalog=catalog;_store=store;_ludusavi=ludusavi;_tasks=tasks;_sessions=sessions;_cloudTransfers=cloudTransfers; }
+    public RestoreOrchestrator(GameCatalogService catalog,SqliteStateStore store,LudusaviClient ludusavi,TaskCoordinator tasks,
+        GameSessionCoordinator sessions,CloudTransferCoordinator cloudTransfers,RemoteBackupStagingService remoteBackups)
+    { _catalog=catalog;_store=store;_ludusavi=ludusavi;_tasks=tasks;_sessions=sessions;_cloudTransfers=cloudTransfers;_remoteBackups=remoteBackups; }
 
     public async Task<LudusaviCommandResult> PreviewAsync(RestoreRequestDto request,CancellationToken token)
     {
@@ -25,6 +27,20 @@ public sealed class RestoreOrchestrator
     }
 
     public async Task<TaskStatusDto> ExecuteAsync(RestoreRequestDto request,CancellationToken token)
+        =>await ExecuteCoreAsync(request,null,token).ConfigureAwait(false);
+
+    public async Task<TaskStatusDto> ExecuteRemoteAsync(RemoteRestoreRequestDto request,CancellationToken token)
+    {
+        var stage=await _remoteBackups.RevalidateAsync(request.StagingId,token).ConfigureAwait(false);
+        return await ExecuteCoreAsync(new RestoreRequestDto
+        {
+            PlayniteId=stage.Manifest.PlayniteId,BackupId=stage.Manifest.BackupId,
+            ConfirmedCurrentSnapshot=request.ConfirmedCurrentSnapshot,ConfirmedGameClosed=request.ConfirmedGameClosed,
+            UserComment=$"Remote device {stage.Manifest.RemoteDevice}: {request.UserComment}".Trim()
+        },stage.VaultPath,token).ConfigureAwait(false);
+    }
+
+    private async Task<TaskStatusDto> ExecuteCoreAsync(RestoreRequestDto request,string? targetBackupPath,CancellationToken token)
     {
         if(!request.ConfirmedCurrentSnapshot||!request.ConfirmedGameClosed)
             throw new InvalidOperationException("Restore requires explicit confirmation that the game is closed and the current state may be snapshotted.");
@@ -54,14 +70,14 @@ public sealed class RestoreOrchestrator
             state=RestoreState.PreRestoreBackupCreated;await AuditAsync(game.PlayniteId,state,new{request,preVersion.BackupId},ct).ConfigureAwait(false);
 
             await progress.ReportAsync(40,"正在预览目标版本").ConfigureAwait(false);
-            var preview=await _ludusavi.RestoreAsync(match,request.BackupId,true,ct).ConfigureAwait(false);
+            var preview=await RestoreTargetAsync(targetBackupPath,match,request.BackupId,true,ct).ConfigureAwait(false);
             if(!preview.Success||!preview.Json.HasValue||LudusaviResultParser.SomeGamesFailed(preview.Json.Value)) throw new InvalidOperationException("Restore preview failed; live files were not changed.");
 
             await progress.ReportAsync(55,"正在等待现有云端传输安全结束").ConfigureAwait(false);
             using var cloudPause=await _cloudTransfers.PauseForRestoreAsync(ct).ConfigureAwait(false);
             state=RestoreState.CloudJobsPaused;await AuditAsync(game.PlayniteId,state,request,ct).ConfigureAwait(false);
             await progress.ReportAsync(60,"正在恢复指定版本").ConfigureAwait(false);
-            var restored=await _ludusavi.RestoreAsync(match,request.BackupId,false,ct).ConfigureAwait(false);
+            var restored=await RestoreTargetAsync(targetBackupPath,match,request.BackupId,false,ct).ConfigureAwait(false);
             if(!restored.Success||!restored.Json.HasValue||LudusaviResultParser.SomeGamesFailed(restored.Json.Value))
             {
                 state=RestoreState.RollbackAttempted;await AuditAsync(game.PlayniteId,state,new{request,preVersion.BackupId},ct).ConfigureAwait(false);
@@ -72,13 +88,18 @@ public sealed class RestoreOrchestrator
             }
             state=RestoreState.RestoreExecuted;await AuditAsync(game.PlayniteId,state,request,ct).ConfigureAwait(false);
             await progress.ReportAsync(88,"正在执行恢复后校验").ConfigureAwait(false);
-            var post=await _ludusavi.RestoreAsync(match,request.BackupId,true,ct).ConfigureAwait(false);
+            var post=await RestoreTargetAsync(targetBackupPath,match,request.BackupId,true,ct).ConfigureAwait(false);
             if(!post.Success||!post.Json.HasValue||LudusaviResultParser.SomeGamesFailed(post.Json.Value)) throw new InvalidOperationException("Restore completed but post-restore validation was inconclusive. PreRestore remains available.");
             state=RestoreState.PostRestoreValidated;await AuditAsync(game.PlayniteId,state,request,ct).ConfigureAwait(false);
             state=RestoreState.Completed;await AuditAsync(game.PlayniteId,state,new{request,preVersion.BackupId},ct).ConfigureAwait(false);
             await progress.ReportAsync(100,"安全恢复完成").ConfigureAwait(false);
         },token).ConfigureAwait(false);
     }
+
+    private Task<LudusaviCommandResult> RestoreTargetAsync(string? backupPath,string game,string backupId,bool preview,CancellationToken token)
+        =>string.IsNullOrWhiteSpace(backupPath)
+            ?_ludusavi.RestoreAsync(game,backupId,preview,token)
+            :_ludusavi.RestoreFromPathAsync(backupPath,game,backupId,preview,token);
 
     public async Task<TaskStatusDto> UndoAsync(string playniteId,CancellationToken token)
     {

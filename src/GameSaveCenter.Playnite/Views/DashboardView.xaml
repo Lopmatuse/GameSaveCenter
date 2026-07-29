@@ -632,7 +632,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.12" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.13" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -1678,7 +1678,7 @@
                         </TabItem>
 
                         <TabItem Header="设备状态">
-                            <Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                 <WrapPanel>
                                     <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding SyncDeviceStatesCommand}" Content="刷新设备状态"/>
                                 </WrapPanel>
@@ -1709,6 +1709,16 @@
                                         <TextBox Style="{StaticResource GscTextBox}" MinWidth="280" Text="{Binding DeviceDecisionComment, UpdateSourceTrigger=PropertyChanged}" ToolTip="仅记录判断依据，不会执行远端操作"/>
                                         <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding SaveDeviceDecisionCommand}" Content="保存人工决策"/>
                                     </WrapPanel>
+                                </Border>
+                                <Border Grid.Row="4" Style="{StaticResource GscSurface}" Padding="12" Margin="0,8,0,0">
+                                    <StackPanel>
+                                        <TextBlock FontWeight="SemiBold" Text="受保护的远端恢复"/>
+                                        <TextBlock Text="{Binding StagedRemoteBackupStatus}" TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,10"/>
+                                        <WrapPanel>
+                                            <Button Style="{StaticResource GscContextButton}" Command="{Binding StageRemoteBackupCommand}" Content="1. 下载并校验"/>
+                                            <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding RestoreStagedRemoteBackupCommand}" Content="2. 创建快照并恢复"/>
+                                        </WrapPanel>
+                                    </StackPanel>
                                 </Border>
                             </Grid>
                         </TabItem>

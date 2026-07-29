@@ -719,6 +719,27 @@ def check_069_device_decision_guards() -> None:
     if "已记录人工决策；未下载、恢复、删除或覆盖任何存档" not in read_dashboard_view_model():
         fail("Device decision UI must state its non-executing boundary")
 
+def check_0613_remote_restore_guards() -> None:
+    """Keep remote restore isolated, verified, explicit and rollback-protected."""
+    staging = (ROOT / "src/GameSaveCenter.Worker/Services/RemoteBackupStagingService.cs").read_text(encoding="utf-8")
+    rclone = (ROOT / "src/GameSaveCenter.Worker/Infrastructure/RcloneClient.cs").read_text(encoding="utf-8")
+    restore = (ROOT / "src/GameSaveCenter.Worker/Services/RestoreOrchestrator.cs").read_text(encoding="utf-8")
+    view_model = read_dashboard_view_model()
+    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    test = ROOT / "tests/GameSaveCenter.Worker.Tests/RemoteBackupStagingSafetyTests.cs"
+    for token in ("ResolveStagingRoot", "IsSafeDeviceName", "ChecksumCheckAsync", "ListBackupsFromPathAsync", "RevalidateAsync",
+                  "ExpiresUtc", "TryDeleteStaging"):
+        if token not in staging + rclone:
+            fail(f"Remote staging safety guard missing: {token}")
+    for token in ("ExecuteRemoteAsync", "PreRestore", "RestoreFromPathAsync", "PauseForRestoreAsync"):
+        if token not in restore:
+            fail(f"Remote restore state-machine guard missing: {token}")
+    for token in ("StageRemoteBackupCommand", "RestoreStagedRemoteBackupCommand", "下载并校验", "创建快照并恢复"):
+        if token not in view_model + ui:
+            fail(f"Two-step remote restore UI guard missing: {token}")
+    if not test.exists() or "DeviceName_RejectsTraversalAndSeparators" not in test.read_text(encoding="utf-8"):
+        fail("Remote staging traversal tests are missing")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -741,6 +762,7 @@ def main() -> int:
     check_067_media_browsing_guards()
     check_068_media_batch_guards()
     check_069_device_decision_guards()
+    check_0613_remote_restore_guards()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:
