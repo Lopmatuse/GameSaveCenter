@@ -42,6 +42,7 @@ namespace GameSaveCenter.Contracts
         public const string WaitForTaskChanges = "tasks.changes.wait";
         public const string RetryCloudUpload = "cloud.upload.retry";
         public const string SyncDeviceStates = "devices.state.sync";
+        public const string SaveDeviceConflictDecision = "devices.conflict.decision.save";
         public const string ListProcessMappings = "processMappings.list";
         public const string SaveProcessMapping = "processMappings.save";
         public const string DeleteProcessMapping = "processMappings.delete";

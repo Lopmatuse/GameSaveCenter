@@ -37,7 +37,18 @@ namespace GameSaveCenter.Contracts
         public double Confidence { get; set; }
         public DateTime LocalCreatedUtc { get; set; }
         public DateTime RemoteCreatedUtc { get; set; }
+        public string Decision { get; set; } = string.Empty;
+        public string DecisionComment { get; set; } = string.Empty;
+        public DateTime? DecidedUtc { get; set; }
         public string StateDisplay => HasConflict ? "需要人工决定" : "一致或仅单端存在";
+        public string DecisionDisplay => Decision switch
+        {
+            "KeepBoth" => "保留两者",
+            "PreferLocal" => "记录为优先本机",
+            "PreferRemote" => "记录为优先远端",
+            "Defer" => "稍后处理",
+            _ => "尚未记录"
+        };
         public string ReasonDisplay => Reason switch
         {
             "DifferentDevicesChangedWithinTenMinutes" => "两台设备在十分钟内产生不同备份",
@@ -46,6 +57,18 @@ namespace GameSaveCenter.Contracts
             "OnlyOneSideAvailable" => "仅一台设备存在该备份摘要",
             _ => string.IsNullOrWhiteSpace(Reason) ? "未知状态" : Reason
         };
+    }
+
+    /// <summary>Records a human decision only; it never downloads, restores, deletes or overwrites a backup.</summary>
+    public sealed class DeviceConflictDecisionDto
+    {
+        public string PlayniteId { get; set; } = string.Empty;
+        public string RemoteDevice { get; set; } = string.Empty;
+        public string LocalBackupId { get; set; } = string.Empty;
+        public string RemoteBackupId { get; set; } = string.Empty;
+        public string Decision { get; set; } = "Defer";
+        public string Comment { get; set; } = string.Empty;
+        public DateTime DecidedUtc { get; set; }
     }
 
     public sealed class DeviceStateSyncResultDto

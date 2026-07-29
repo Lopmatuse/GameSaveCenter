@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.6.8-development-preview`。** 当前游戏媒体支持多选后事务化批量收藏、取消收藏和备注；任一记录无效会整体回滚，且不移动或删除媒体文件。0.6.7 的崩溃修复、搜索筛选和有界预览保持不变。多设备仍只读比较摘要，不会自动下载、恢复或覆盖任何存档。
+> **当前状态：`0.6.9-development-preview`。** 多设备分叉现在可记录“稍后处理、保留两者、优先本机或优先远端”的人工决策与备注；该记录只用于审计，不会自动下载、恢复、删除或覆盖存档。0.6.8 的事务化媒体批量元数据操作保持不变。
 
 ## 核心原则
 

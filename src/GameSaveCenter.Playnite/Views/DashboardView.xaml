@@ -631,7 +631,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.8" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.9" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -1634,7 +1634,7 @@
                         </TabItem>
 
                         <TabItem Header="设备状态">
-                            <Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                            <Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                 <WrapPanel>
                                     <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding SyncDeviceStatesCommand}" Content="刷新设备状态"/>
                                 </WrapPanel>
@@ -1645,17 +1645,26 @@
                                     </StackPanel>
                                 </Border>
                                 <Border Grid.Row="2" Style="{StaticResource GscTableFrame}">
-                                    <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding DeviceComparisons}">
+                                    <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding DeviceComparisons}" SelectedItem="{Binding SelectedDeviceComparison}">
                                         <DataGrid.Columns>
                                             <DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="状态" Binding="{Binding StateDisplay}" Width="150"/>
                                             <DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="*" MinWidth="180"/>
                                             <DataGridTextColumn Header="其他设备" Binding="{Binding RemoteDevice}" Width="130"/>
                                             <DataGridTextColumn Header="原因" Binding="{Binding ReasonDisplay}" Width="240"/>
+                                            <DataGridTextColumn Header="人工决策" Binding="{Binding DecisionDisplay}" Width="130"/>
                                             <DataGridTextColumn HeaderStyle="{StaticResource GscLastColumnHeader}" Header="建议" Binding="{Binding SuggestedBackupId}" Width="180">
                                                 <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding SuggestedBackupId}"/></Style></DataGridTextColumn.ElementStyle>
                                             </DataGridTextColumn>
                                         </DataGrid.Columns>
                                     </DataGrid>
+                                </Border>
+                                <Border Grid.Row="3" Style="{StaticResource GscSurface}" Padding="12" Margin="0,8,0,0">
+                                    <WrapPanel>
+                                        <TextBlock Text="记录决策：" VerticalAlignment="Center"/>
+                                        <ComboBox Width="150" ItemsSource="{Binding DeviceDecisionOptions}" SelectedItem="{Binding DeviceDecision}" Margin="8,0"/>
+                                        <TextBox Style="{StaticResource GscTextBox}" MinWidth="280" Text="{Binding DeviceDecisionComment, UpdateSourceTrigger=PropertyChanged}" ToolTip="仅记录判断依据，不会执行远端操作"/>
+                                        <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding SaveDeviceDecisionCommand}" Content="保存人工决策"/>
+                                    </WrapPanel>
                                 </Border>
                             </Grid>
                         </TabItem>

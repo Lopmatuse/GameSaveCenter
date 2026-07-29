@@ -977,6 +977,37 @@ LIMIT 100;";
         "INSERT INTO audit_log(audit_id,category,message,detail_json,created_utc) VALUES($id,$category,$message,$detail,$utc);",
         new Dictionary<string, object?> { ["$id"]=Guid.NewGuid().ToString("N"),["$category"]=category,["$message"]=message,["$detail"]=detailJson,["$utc"]=DateTime.UtcNow.ToString("O")},token);
 
+    public Task SaveDeviceConflictDecisionAsync(DeviceConflictDecisionDto decision,CancellationToken token)=>ExecuteAsync(@"
+INSERT INTO device_conflict_decisions(playnite_id,remote_device,local_backup_id,remote_backup_id,decision,comment,decided_utc)
+VALUES($game,$device,$local,$remote,$decision,$comment,$utc)
+ON CONFLICT(playnite_id,remote_device) DO UPDATE SET
+local_backup_id=excluded.local_backup_id,remote_backup_id=excluded.remote_backup_id,
+decision=excluded.decision,comment=excluded.comment,decided_utc=excluded.decided_utc;",
+        new Dictionary<string,object?>
+        {
+            ["$game"]=decision.PlayniteId,["$device"]=decision.RemoteDevice,
+            ["$local"]=decision.LocalBackupId,["$remote"]=decision.RemoteBackupId,
+            ["$decision"]=decision.Decision,["$comment"]=decision.Comment,
+            ["$utc"]=decision.DecidedUtc.ToString("O")
+        },token);
+
+    public async Task<DeviceConflictDecisionDto?> GetDeviceConflictDecisionAsync(string playniteId,string remoteDevice,CancellationToken token)
+    {
+        await using var connection=Open();await connection.OpenAsync(token).ConfigureAwait(false);
+        var command=connection.CreateCommand();command.CommandText=@"SELECT local_backup_id,remote_backup_id,decision,comment,decided_utc
+FROM device_conflict_decisions WHERE playnite_id=$game AND remote_device=$device LIMIT 1;";
+        command.Parameters.AddWithValue("$game",playniteId);command.Parameters.AddWithValue("$device",remoteDevice);
+        await using var reader=await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        if(!await reader.ReadAsync(token).ConfigureAwait(false))return null;
+        return new DeviceConflictDecisionDto
+        {
+            PlayniteId=playniteId,RemoteDevice=remoteDevice,
+            LocalBackupId=reader.GetString(0),RemoteBackupId=reader.GetString(1),
+            Decision=reader.GetString(2),Comment=reader.IsDBNull(3)?string.Empty:reader.GetString(3),
+            DecidedUtc=DateTime.Parse(reader.GetString(4)).ToUniversalTime()
+        };
+    }
+
 
     public async Task<List<AuditLogEntryDto>> GetAuditAsync(int limit, CancellationToken token)
     {
@@ -1026,6 +1057,7 @@ CREATE TABLE IF NOT EXISTS game_tool_versions(version_id TEXT PRIMARY KEY,tool_i
 CREATE TABLE IF NOT EXISTS trainer_catalog(catalog_id TEXT PRIMARY KEY,title TEXT NOT NULL,normalized_title TEXT NOT NULL,page_url TEXT NOT NULL,game_version TEXT,option_count INTEGER NOT NULL DEFAULT 0,last_updated_utc TEXT,last_synced_utc TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS trainer_releases(release_id TEXT PRIMARY KEY,catalog_id TEXT NOT NULL REFERENCES trainer_catalog(catalog_id) ON DELETE CASCADE,display_name TEXT NOT NULL,download_url TEXT NOT NULL,size_bytes INTEGER NOT NULL DEFAULT 0,published_utc TEXT,last_synced_utc TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS process_mappings(executable_name TEXT PRIMARY KEY,playnite_id TEXT NOT NULL,game_name TEXT NOT NULL,enabled INTEGER NOT NULL DEFAULT 1,created_utc TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS device_conflict_decisions(playnite_id TEXT NOT NULL,remote_device TEXT NOT NULL,local_backup_id TEXT,remote_backup_id TEXT,decision TEXT NOT NULL,comment TEXT,decided_utc TEXT NOT NULL,PRIMARY KEY(playnite_id,remote_device));
 CREATE INDEX IF NOT EXISTS ix_tasks_created ON tasks(created_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_backup_versions_game_time ON backup_versions(playnite_id,created_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_media_game ON media(playnite_id,captured_utc DESC);

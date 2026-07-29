@@ -645,6 +645,18 @@ def check_068_media_batch_guards() -> None:
     if not worker_test.exists() or "BatchMetadataUpdate_IsAtomicAndPreservesUnchangedFields" not in worker_test.read_text(encoding="utf-8"):
         fail("Batch media SQLite integration test is missing")
 
+def check_069_device_decision_guards() -> None:
+    """Keep device conflict decisions auditable and non-executing."""
+    contracts = (ROOT / "src/GameSaveCenter.Contracts/DeviceStateDtos.cs").read_text(encoding="utf-8")
+    store = (ROOT / "src/GameSaveCenter.Worker/Persistence/SqliteStateStore.cs").read_text(encoding="utf-8")
+    dispatcher = (ROOT / "src/GameSaveCenter.Worker/Ipc/IpcRequestDispatcher.cs").read_text(encoding="utf-8")
+    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    for token in ("DeviceConflictDecisionDto", "device_conflict_decisions", "SaveDeviceConflictDecisionAsync", "SaveDeviceDecisionCommand"):
+        if token not in contracts + store + dispatcher + ui:
+            fail(f"Device decision guard missing: {token}")
+    if "已记录人工决策；未下载、恢复、删除或覆盖任何存档" not in (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8"):
+        fail("Device decision UI must state its non-executing boundary")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -666,6 +678,7 @@ def main() -> int:
     check_066_portability_media_guards()
     check_067_media_browsing_guards()
     check_068_media_batch_guards()
+    check_069_device_decision_guards()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:

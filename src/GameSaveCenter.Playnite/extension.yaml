@@ -1,7 +1,7 @@
 Id: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Name: GameSaveCenter
 Author: Sable Drift
-Version: 0.6.8
+Version: 0.6.9
 Module: GameSaveCenter.Playnite.dll
 Type: GenericPlugin
 Icon: icon.png

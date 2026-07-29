@@ -55,6 +55,21 @@ public sealed class SqliteMediaMetadataTests : IDisposable
         Assert.True(one!.IsFavorite);
     }
 
+    [Fact]
+    public async Task DeviceConflictDecision_IsPersistedWithoutFileOperations()
+    {
+        var decision=new DeviceConflictDecisionDto
+        {
+            PlayniteId="game",RemoteDevice="OTHER-PC",LocalBackupId="local",
+            RemoteBackupId="remote",Decision="KeepBoth",Comment="manual review",DecidedUtc=DateTime.UtcNow
+        };
+        await store.SaveDeviceConflictDecisionAsync(decision,CancellationToken.None);
+        var loaded=await store.GetDeviceConflictDecisionAsync("game","OTHER-PC",CancellationToken.None);
+        Assert.NotNull(loaded);
+        Assert.Equal("KeepBoth",loaded!.Decision);
+        Assert.Equal("manual review",loaded.Comment);
+    }
+
     public void Dispose()
     {
         SqliteConnection.ClearAllPools();

@@ -77,6 +77,7 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.WaitForTaskChanges=>await WaitForTaskChangesAsync(Read<TaskChangeRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.RetryCloudUpload=>await _backup.RetryCloudUploadAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
                 MessageTypes.SyncDeviceStates=>await _deviceStates.SyncAsync(token).ConfigureAwait(false),
+                MessageTypes.SaveDeviceConflictDecision=>await SaveDeviceConflictDecisionAsync(Read<DeviceConflictDecisionDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ListProcessMappings=>await _store.GetProcessMappingsAsync(token).ConfigureAwait(false),
                 MessageTypes.SaveProcessMapping=>await SaveProcessMappingAsync(Read<ProcessMappingDto>(request),token).ConfigureAwait(false),
                 MessageTypes.DeleteProcessMapping=>await DeleteProcessMappingAsync(Read<ProcessMappingDto>(request).ExecutableName,token).ConfigureAwait(false),
@@ -125,6 +126,18 @@ public sealed class IpcRequestDispatcher
     }
     private async Task<object> DeleteProcessMappingAsync(string executableName,CancellationToken token)
     { await _store.DeleteProcessMappingAsync(executableName,token).ConfigureAwait(false);return new { deleted=true }; }
+    private async Task<DeviceConflictDecisionDto> SaveDeviceConflictDecisionAsync(DeviceConflictDecisionDto decision,CancellationToken token)
+    {
+        var allowed=new[]{"Defer","KeepBoth","PreferLocal","PreferRemote"};
+        if(string.IsNullOrWhiteSpace(decision.PlayniteId)||string.IsNullOrWhiteSpace(decision.RemoteDevice))throw new ArgumentException("必须选择设备冲突记录。");
+        if(!allowed.Contains(decision.Decision,StringComparer.Ordinal))throw new ArgumentException("设备冲突决策无效。");
+        decision.Comment=(decision.Comment??string.Empty).Trim();
+        if(decision.Comment.Length>1000)throw new ArgumentException("决策备注不能超过 1000 个字符。");
+        decision.DecidedUtc=DateTime.UtcNow;
+        await _store.SaveDeviceConflictDecisionAsync(decision,token).ConfigureAwait(false);
+        await _store.AppendAuditAsync("DeviceConflict","已记录人工冲突决策",JsonSerializer.Serialize(decision),token).ConfigureAwait(false);
+        return decision;
+    }
     private async Task<object> StopAsync(GameSessionEventDto value,CancellationToken token){await _sessions.StopAsync(value,token).ConfigureAwait(false);return new{stopped=true};}
     private async Task<List<BackupVersionDto>> ListBackupsAsync(GameQueryDto query,CancellationToken token)
     {

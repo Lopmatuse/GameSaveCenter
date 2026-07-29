@@ -72,6 +72,14 @@ public sealed class DeviceStateService
             catch(JsonException ex){_logger.LogWarning(ex,"Ignoring invalid device-state sidecar {Path}",remotePath);}
         }
         result.Comparisons=result.Comparisons.OrderByDescending(x=>x.HasConflict).ThenBy(x=>x.GameName,StringComparer.OrdinalIgnoreCase).ToList();
+        foreach(var comparison in result.Comparisons)
+        {
+            var decision=await _store.GetDeviceConflictDecisionAsync(comparison.PlayniteId,comparison.RemoteDevice,token).ConfigureAwait(false);
+            if(decision==null)continue;
+            comparison.Decision=decision.Decision;
+            comparison.DecisionComment=decision.Comment;
+            comparison.DecidedUtc=decision.DecidedUtc;
+        }
         result.StatusMessage=result.RemoteSidecarsRead==0?"已上传本机摘要；云端暂未发现其他设备摘要。":
             result.Comparisons.Any(x=>x.HasConflict)?"发现需要人工决定的设备分叉；未自动恢复或覆盖任何存档。":"设备摘要已比较，未发现需要人工决定的分叉。";
         return result;

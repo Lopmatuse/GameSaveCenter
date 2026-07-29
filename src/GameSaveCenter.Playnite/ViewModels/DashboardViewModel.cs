@@ -71,6 +71,9 @@ namespace GameSaveCenter.Playnite.ViewModels
         private string taskGameFilter = "全部";
         private string taskTypeFilter = "全部";
         private string deviceStateMessage = "尚未刷新多设备状态。该功能只比较摘要，绝不自动恢复或覆盖存档。";
+        private DeviceConflictStatusDto selectedDeviceComparison = null!;
+        private string deviceDecision = "稍后处理";
+        private string deviceDecisionComment = string.Empty;
         private string processMappingExecutable = string.Empty;
         private GameStatusDto processMappingTargetGame = null!;
         private ProcessMappingDto selectedProcessMapping = null!;
@@ -120,6 +123,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             OpenAttentionCenterCommand = new RelayCommand(_ => OpenAttentionCenter());
             RefreshDiagnosticsCommand = new RelayCommand(_ => Run(RefreshDiagnosticsAsync), _ => !IsBusy);
             SyncDeviceStatesCommand = new RelayCommand(_ => Run(SyncDeviceStatesAsync), _ => !IsBusy);
+            SaveDeviceDecisionCommand = new RelayCommand(_ => Run(SaveDeviceDecisionAsync), _ => !IsBusy && SelectedDeviceComparison != null);
             SaveProcessMappingCommand = new RelayCommand(_ => Run(SaveProcessMappingAsync), _ => !IsBusy && !string.IsNullOrWhiteSpace(ProcessMappingExecutable) && ProcessMappingTargetGame != null);
             DeleteProcessMappingCommand = new RelayCommand(_ => Run(DeleteProcessMappingAsync), _ => !IsBusy && SelectedProcessMapping != null);
             CopyDiagnosticsCommand = new RelayCommand(_ => RunLocal(CopyDiagnostics), _ => !string.IsNullOrWhiteSpace(DiagnosticSummary));
@@ -150,6 +154,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ObservableCollection<string> TaskTypeFilterOptions { get; } = new ObservableCollection<string> { "全部" };
         public ObservableCollection<ValidationFindingDto> Findings { get; } = new ObservableCollection<ValidationFindingDto>();
         public ObservableCollection<DeviceConflictStatusDto> DeviceComparisons { get; } = new ObservableCollection<DeviceConflictStatusDto>();
+        public IReadOnlyList<string> DeviceDecisionOptions { get; } = new[] { "稍后处理", "保留两者", "以本机为准", "以远端为准" };
         public ObservableCollection<ProcessMappingDto> ProcessMappings { get; } = new ObservableCollection<ProcessMappingDto>();
         public ObservableCollection<BackupVersionDto> Backups { get; } = new ObservableCollection<BackupVersionDto>();
         public ObservableCollection<MediaItemDto> Media { get; } = new ObservableCollection<MediaItemDto>();
@@ -430,6 +435,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand OpenAttentionCenterCommand { get; }
         public ICommand RefreshDiagnosticsCommand { get; }
         public ICommand SyncDeviceStatesCommand { get; }
+        public ICommand SaveDeviceDecisionCommand { get; }
         public ICommand SaveProcessMappingCommand { get; }
         public ICommand DeleteProcessMappingCommand { get; }
         public ICommand CopyDiagnosticsCommand { get; }
@@ -438,6 +444,22 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand OpenMediaDirectoryCommand { get; }
         public ICommand OpenWorkerLogCommand { get; }
         public string DeviceStateMessage { get => deviceStateMessage; private set => SetValue(ref deviceStateMessage,value); }
+        public DeviceConflictStatusDto SelectedDeviceComparison
+        {
+            get=>selectedDeviceComparison;
+            set
+            {
+                SetValue(ref selectedDeviceComparison,value);
+                DeviceDecision=value?.DecisionDisplay switch
+                {
+                    "保留两者"=>"保留两者","记录为优先本机"=>"以本机为准","记录为优先远端"=>"以远端为准",_=>"稍后处理"
+                };
+                DeviceDecisionComment=value?.DecisionComment??string.Empty;
+                RaiseCommandStates();
+            }
+        }
+        public string DeviceDecision { get=>deviceDecision; set=>SetValue(ref deviceDecision,value??"稍后处理"); }
+        public string DeviceDecisionComment { get=>deviceDecisionComment; set=>SetValue(ref deviceDecisionComment,value??string.Empty); }
         public string ProcessMappingExecutable { get => processMappingExecutable; set { SetValue(ref processMappingExecutable,value??string.Empty); RaiseCommandStates(); } }
         public GameStatusDto ProcessMappingTargetGame { get => processMappingTargetGame; set { SetValue(ref processMappingTargetGame,value); RaiseCommandStates(); } }
         public ProcessMappingDto SelectedProcessMapping { get => selectedProcessMapping; set { SetValue(ref selectedProcessMapping,value); RaiseCommandStates(); } }
@@ -639,6 +661,23 @@ namespace GameSaveCenter.Playnite.ViewModels
                 DeviceStateMessage=result.StatusMessage;
             });
             StatusMessage=result.StatusMessage;
+        }
+
+        private async Task SaveDeviceDecisionAsync()
+        {
+            var selected=SelectedDeviceComparison??throw new InvalidOperationException("请先选择设备比较记录。");
+            var code=DeviceDecision switch{"保留两者"=>"KeepBoth","以本机为准"=>"PreferLocal","以远端为准"=>"PreferRemote",_=>"Defer"};
+            var saved=await plugin.RequestAsync<DeviceConflictDecisionDto>(MessageTypes.SaveDeviceConflictDecision,new DeviceConflictDecisionDto
+            {
+                PlayniteId=selected.PlayniteId,RemoteDevice=selected.RemoteDevice,
+                LocalBackupId=selected.LocalBackupId,RemoteBackupId=selected.RemoteBackupId,
+                Decision=code,Comment=DeviceDecisionComment
+            });
+            selected.Decision=saved.Decision;selected.DecisionComment=saved.Comment;selected.DecidedUtc=saved.DecidedUtc;
+            var index=DeviceComparisons.IndexOf(selected);
+            if(index>=0)DeviceComparisons[index]=selected;
+            SelectedDeviceComparison=selected;
+            ConfirmSuccess("已记录人工决策；未下载、恢复、删除或覆盖任何存档");
         }
 
         private async Task LoadDetailsAsync(bool forceBackupHistory = false)
@@ -1445,7 +1484,7 @@ namespace GameSaveCenter.Playnite.ViewModels
                 AddMediaSourceCommand, AcceptCandidateCommand, RejectCandidateCommand, ReassignMediaCommand,
                 UpdateMediaMetadataCommand,OpenSelectedMediaCommand,RevealSelectedMediaCommand,
                 AssignInboxMediaCommand, IgnoreInboxMediaCommand,
-                CancelTaskCommand, RetryTaskCommand, CopyTaskErrorCommand, RefreshDiagnosticsCommand, SyncDeviceStatesCommand, CopyDiagnosticsCommand,
+                CancelTaskCommand, RetryTaskCommand, CopyTaskErrorCommand, RefreshDiagnosticsCommand, SyncDeviceStatesCommand, SaveDeviceDecisionCommand, CopyDiagnosticsCommand,
                 SaveProcessMappingCommand,DeleteProcessMappingCommand,
                 OpenDataDirectoryCommand, OpenBackupDirectoryCommand, OpenMediaDirectoryCommand, OpenWorkerLogCommand
                 ,ImportTrainerCommand,ImportCheatTableCommand,ImportToolFolderCommand,SaveGameToolCommand,LaunchGameToolCommand,
