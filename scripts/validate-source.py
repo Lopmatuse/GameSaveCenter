@@ -209,7 +209,7 @@ def check_solution() -> None:
         fail("Solution contains duplicate projects")
     expected = {
         "GameSaveCenter.Contracts", "GameSaveCenter.Core", "GameSaveCenter.Worker",
-        "GameSaveCenter.Playnite", "GameSaveCenter.Core.Tests"
+        "GameSaveCenter.Playnite", "GameSaveCenter.Core.Tests", "GameSaveCenter.Worker.Tests"
     }
     if set(names) != expected:
         fail(f"Solution project set mismatch: {set(names)!r}")
@@ -624,6 +624,27 @@ def check_067_media_browsing_guards() -> None:
     if 'ItemsSource="{Binding MediaView}"' not in ui or "MediaThumbnailConverter" not in ui:
         fail("Media filtered view/preview binding guard missing")
 
+def check_068_media_batch_guards() -> None:
+    """Keep batch media edits transactional, bounded and non-destructive."""
+    messages = (ROOT / "src/GameSaveCenter.Contracts/MessageTypes.cs").read_text(encoding="utf-8")
+    operations = (ROOT / "src/GameSaveCenter.Contracts/OperationDtos.cs").read_text(encoding="utf-8")
+    store = (ROOT / "src/GameSaveCenter.Worker/Persistence/SqliteStateStore.cs").read_text(encoding="utf-8")
+    dispatcher = (ROOT / "src/GameSaveCenter.Worker/Ipc/IpcRequestDispatcher.cs").read_text(encoding="utf-8")
+    view_model = (ROOT / "src/GameSaveCenter.Playnite/ViewModels/DashboardViewModel.cs").read_text(encoding="utf-8")
+    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    worker_test = ROOT / "tests/GameSaveCenter.Worker.Tests/SqliteMediaMetadataTests.cs"
+    for token in ("UpdateMediaMetadataBatch", "MediaMetadataBatchUpdateDto"):
+        if token not in messages + operations + dispatcher:
+            fail(f"Batch media IPC guard missing: {token}")
+    for token in ("BeginTransactionAsync", "updated!=update.MediaIds.Count", "CommitAsync"):
+        if token not in store:
+            fail(f"Batch media transaction guard missing: {token}")
+    for token in ("FavoriteSelectedMediaCommand", "UnfavoriteSelectedMediaCommand", "CommentSelectedMediaCommand"):
+        if token not in view_model or token not in ui:
+            fail(f"Batch media UI guard missing: {token}")
+    if not worker_test.exists() or "BatchMetadataUpdate_IsAtomicAndPreservesUnchangedFields" not in worker_test.read_text(encoding="utf-8"):
+        fail("Batch media SQLite integration test is missing")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -644,6 +665,7 @@ def main() -> int:
     check_065_completion_guards()
     check_066_portability_media_guards()
     check_067_media_browsing_guards()
+    check_068_media_batch_guards()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:

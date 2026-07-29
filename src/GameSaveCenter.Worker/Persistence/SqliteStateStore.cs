@@ -805,6 +805,40 @@ WHERE media_id=$id;",
             ["$comment"]=(update.Comment??string.Empty).Trim()
         },token);
 
+    public async Task UpdateMediaMetadataBatchAsync(MediaMetadataBatchUpdateDto update,CancellationToken token)
+    {
+        await _writeGate.WaitAsync(token).ConfigureAwait(false);
+        try
+        {
+            await using var connection=Open();
+            await connection.OpenAsync(token).ConfigureAwait(false);
+            await using var transaction=await connection.BeginTransactionAsync(token).ConfigureAwait(false);
+            var updated=0;
+            foreach(var mediaId in update.MediaIds)
+            {
+                var command=connection.CreateCommand();
+                command.Transaction=(SqliteTransaction)transaction;
+                command.CommandText=@"UPDATE media
+SET is_favorite=CASE WHEN $update_favorite=1 THEN $favorite ELSE is_favorite END,
+    comment=CASE WHEN $update_comment=1 THEN $comment ELSE comment END
+WHERE media_id=$id;";
+                command.Parameters.AddWithValue("$id",mediaId);
+                command.Parameters.AddWithValue("$update_favorite",update.IsFavorite.HasValue?1:0);
+                command.Parameters.AddWithValue("$favorite",update.IsFavorite==true?1:0);
+                command.Parameters.AddWithValue("$update_comment",update.UpdateComment?1:0);
+                command.Parameters.AddWithValue("$comment",update.Comment);
+                updated+=await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+            }
+            if(updated!=update.MediaIds.Count)
+                throw new InvalidOperationException("一个或多个媒体记录不存在，批量更新已取消。");
+            await transaction.CommitAsync(token).ConfigureAwait(false);
+        }
+        finally
+        {
+            _writeGate.Release();
+        }
+    }
+
     public async Task<List<MediaItemDto>> GetUnassignedMediaAsync(int limit, CancellationToken token)
     {
         var result=new List<MediaItemDto>(); await using var connection=Open(); await connection.OpenAsync(token).ConfigureAwait(false);

@@ -1,7 +1,7 @@
 # GameSaveCenter Codex 完整开发交接
 
 更新时间：2026-07-29
-交接版本：`0.6.7-development-preview`
+交接版本：`0.6.8-development-preview`
 仓库：`https://github.com/Lopmatuse/GameSaveCenter.git`
 主分支：`main`
 插件 ID：`66e9f2d7-67bb-43ef-b62a-b8e60734fcec`

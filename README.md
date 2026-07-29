@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.6.7-development-preview`。** 已修复媒体统计只读绑定导致的 Playnite 崩溃并恢复源码门禁，同时加入可移植设置迁移、媒体聚合与元数据、即时搜索、类型/收藏筛选和有界截图预览。多设备仍只读比较摘要，不会自动下载、恢复或覆盖任何存档。Playnite 多主题、窗口缩放、真实备份恢复、Rclone 与大型游戏库仍需按 [`docs/WINDOWS_TEST_PLAN.md`](docs/WINDOWS_TEST_PLAN.md) 回归。
+> **当前状态：`0.6.8-development-preview`。** 当前游戏媒体支持多选后事务化批量收藏、取消收藏和备注；任一记录无效会整体回滚，且不移动或删除媒体文件。0.6.7 的崩溃修复、搜索筛选和有界预览保持不变。多设备仍只读比较摘要，不会自动下载、恢复或覆盖任何存档。
 
 ## 核心原则
 

@@ -1,3 +1,9 @@
+# 0.6.8 Development Preview
+
+- 当前游戏媒体支持多选后批量收藏、取消收藏和批量备注。
+- Worker 使用有界 SQLite 事务更新所选元数据；任一记录无效时整体回滚。
+- 新增 Worker SQLite 集成测试项目，一键构建会同时运行 Core 和 Worker 测试。
+
 # 0.6.7 Development Preview
 
 - 修复打开媒体页时 `Run.Text` 尝试回写只读空间占用属性、导致 Playnite 未处理异常的崩溃。

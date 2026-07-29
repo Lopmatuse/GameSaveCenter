@@ -215,6 +215,15 @@ namespace GameSaveCenter.Contracts
         public string Comment { get; set; } = string.Empty;
     }
 
+    /// <summary>Atomically updates non-destructive metadata for an explicit media selection.</summary>
+    public sealed class MediaMetadataBatchUpdateDto
+    {
+        public List<string> MediaIds { get; set; } = new List<string>();
+        public bool? IsFavorite { get; set; }
+        public bool UpdateComment { get; set; }
+        public string Comment { get; set; } = string.Empty;
+    }
+
     /// <summary>Simple per-game query used by list and undo operations.</summary>
     public sealed class GameQueryDto
     {

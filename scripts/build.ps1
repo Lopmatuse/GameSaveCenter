@@ -61,6 +61,12 @@ try {
             '-c', $Configuration,
             '--no-build'
         )
+        Invoke-DotNet -StepName '运行 Worker 集成测试' -Arguments @(
+            'test',
+            '.\tests\GameSaveCenter.Worker.Tests\GameSaveCenter.Worker.Tests.csproj',
+            '-c', $Configuration,
+            '--no-build'
+        )
     }
 
     Write-Host "`n构建与测试全部成功。下一步可运行 scripts/package.ps1" -ForegroundColor Green

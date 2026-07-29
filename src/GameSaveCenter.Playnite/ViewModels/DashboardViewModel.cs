@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -106,6 +107,9 @@ namespace GameSaveCenter.Playnite.ViewModels
             RejectCandidateCommand = new RelayCommand(_ => Run(RejectCandidateAsync), _ => !IsBusy && SelectedGame != null && SelectedCandidate != null && !string.Equals(SelectedCandidate.Status, "Accepted", StringComparison.OrdinalIgnoreCase));
             ReassignMediaCommand = new RelayCommand(_ => Run(ReassignMediaAsync), _ => !IsBusy && SelectedMedia != null && MediaTargetGame != null);
             UpdateMediaMetadataCommand = new RelayCommand(_ => Run(UpdateMediaMetadataAsync), _ => !IsBusy && SelectedMedia != null);
+            FavoriteSelectedMediaCommand = new RelayCommand(value => Run(() => UpdateMediaMetadataBatchAsync(value, true, false)), _ => !IsBusy);
+            UnfavoriteSelectedMediaCommand = new RelayCommand(value => Run(() => UpdateMediaMetadataBatchAsync(value, false, false)), _ => !IsBusy);
+            CommentSelectedMediaCommand = new RelayCommand(value => Run(() => UpdateMediaMetadataBatchAsync(value, null, true)), _ => !IsBusy);
             OpenSelectedMediaCommand = new RelayCommand(_ => RunLocal(OpenSelectedMedia), _ => SelectedMedia != null && !string.IsNullOrWhiteSpace(SelectedMedia.ArchivePath));
             RevealSelectedMediaCommand = new RelayCommand(_ => RunLocal(() => OpenPath(SelectedMedia.ArchivePath)), _ => SelectedMedia != null && !string.IsNullOrWhiteSpace(SelectedMedia.ArchivePath));
             AssignInboxMediaCommand = new RelayCommand(_ => Run(AssignInboxMediaAsync), _ => !IsBusy && SelectedInboxMedia != null && InboxTargetGame != null);
@@ -413,6 +417,9 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand RejectCandidateCommand { get; }
         public ICommand ReassignMediaCommand { get; }
         public ICommand UpdateMediaMetadataCommand { get; }
+        public ICommand FavoriteSelectedMediaCommand { get; }
+        public ICommand UnfavoriteSelectedMediaCommand { get; }
+        public ICommand CommentSelectedMediaCommand { get; }
         public ICommand OpenSelectedMediaCommand { get; }
         public ICommand RevealSelectedMediaCommand { get; }
         public ICommand AssignInboxMediaCommand { get; }
@@ -986,6 +993,31 @@ namespace GameSaveCenter.Playnite.ViewModels
             if(SelectedGame!=null)
                 MediaSummary=await plugin.RequestAsync<MediaStorageSummaryDto>(MessageTypes.GetMediaSummary,new GameQueryDto{PlayniteId=SelectedGame.PlayniteId});
             ConfirmSuccess("媒体备注与收藏状态已保存");
+        }
+
+        private async Task UpdateMediaMetadataBatchAsync(object? value,bool? favorite,bool updateComment)
+        {
+            var selected=(value as IList)?.Cast<object>().OfType<MediaItemDto>()
+                .GroupBy(x=>x.MediaId,StringComparer.OrdinalIgnoreCase)
+                .Select(x=>x.First())
+                .ToList()??new List<MediaItemDto>();
+            if(selected.Count==0)throw new InvalidOperationException("请先在媒体列表中选择一个或多个项目。");
+            var updated=await plugin.RequestAsync<MediaItemDto[]>(MessageTypes.UpdateMediaMetadataBatch,new MediaMetadataBatchUpdateDto
+            {
+                MediaIds=selected.Select(x=>x.MediaId).ToList(),
+                IsFavorite=favorite,
+                UpdateComment=updateComment,
+                Comment=MediaComment
+            });
+            var byId=updated.ToDictionary(x=>x.MediaId,StringComparer.OrdinalIgnoreCase);
+            for(var index=0;index<Media.Count;index++)
+                if(byId.TryGetValue(Media[index].MediaId,out var replacement))Media[index]=replacement;
+            MediaView.Refresh();
+            if(SelectedMedia!=null&&byId.TryGetValue(SelectedMedia.MediaId,out var selectedReplacement))
+                SelectedMedia=selectedReplacement;
+            if(SelectedGame!=null)
+                MediaSummary=await plugin.RequestAsync<MediaStorageSummaryDto>(MessageTypes.GetMediaSummary,new GameQueryDto{PlayniteId=SelectedGame.PlayniteId});
+            ConfirmSuccess(updateComment?$"已为 {updated.Length} 个媒体文件更新备注":favorite==true?$"已收藏 {updated.Length} 个媒体文件":$"已取消收藏 {updated.Length} 个媒体文件");
         }
 
         private void OpenSelectedMedia()

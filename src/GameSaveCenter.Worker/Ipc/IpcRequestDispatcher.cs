@@ -59,6 +59,7 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.ListMedia=>await ListMediaAsync(Read<GameQueryDto>(request),token).ConfigureAwait(false),
                 MessageTypes.GetMediaSummary=>await _store.GetMediaSummaryAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
                 MessageTypes.UpdateMediaMetadata=>await UpdateMediaMetadataAsync(Read<MediaMetadataUpdateDto>(request),token).ConfigureAwait(false),
+                MessageTypes.UpdateMediaMetadataBatch=>await UpdateMediaMetadataBatchAsync(Read<MediaMetadataBatchUpdateDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ListUnassignedMedia=>await _store.GetUnassignedMediaAsync(Read<GameQueryDto>(request).Limit,token).ConfigureAwait(false),
                 MessageTypes.ReassignMedia=>await _media.ReassignAsync(Read<ReassignMediaRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.IgnoreMedia=>await _media.IgnoreAsync(Read<IgnoreMediaRequestDto>(request),token).ConfigureAwait(false),
@@ -181,6 +182,31 @@ public sealed class IpcRequestDispatcher
         await _store.AppendAuditAsync("MediaMetadata","Updated media metadata",
             JsonSerializer.Serialize(new{update.MediaId,update.IsFavorite}),token).ConfigureAwait(false);
         return existing;
+    }
+
+    private async Task<List<MediaItemDto>> UpdateMediaMetadataBatchAsync(MediaMetadataBatchUpdateDto update,CancellationToken token)
+    {
+        update.MediaIds=(update.MediaIds??new List<string>())
+            .Where(x=>!string.IsNullOrWhiteSpace(x))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        if(update.MediaIds.Count==0)throw new ArgumentException("必须选择至少一个媒体文件。");
+        if(update.MediaIds.Count>500)throw new ArgumentException("单次最多批量更新 500 个媒体文件。");
+        update.Comment=(update.Comment??string.Empty).Trim();
+        if(update.UpdateComment&&update.Comment.Length>1000)throw new ArgumentException("媒体备注不能超过 1000 个字符。");
+        if(!update.IsFavorite.HasValue&&!update.UpdateComment)throw new ArgumentException("没有需要更新的媒体元数据。");
+
+        await _store.UpdateMediaMetadataBatchAsync(update,token).ConfigureAwait(false);
+        var result=new List<MediaItemDto>(update.MediaIds.Count);
+        foreach(var mediaId in update.MediaIds)
+        {
+            var item=await _store.GetMediaByIdAsync(mediaId,token).ConfigureAwait(false)
+                     ?? throw new InvalidOperationException("批量更新后无法读取媒体记录。");
+            result.Add(item);
+        }
+        await _store.AppendAuditAsync("MediaMetadata","批量更新媒体元数据",
+            JsonSerializer.Serialize(new{count=result.Count,update.IsFavorite,update.UpdateComment,mediaIds=update.MediaIds}),token).ConfigureAwait(false);
+        return result;
     }
 
     private async Task<object> UpdatePolicyAsync(GamePolicyUpdateDto update,CancellationToken token)

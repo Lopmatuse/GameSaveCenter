@@ -631,7 +631,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.7" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.8" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -1398,7 +1398,7 @@
                                             </WrapPanel>
                                         </StackPanel>
                                         <Border Grid.Row="1" Style="{StaticResource GscTableFrame}" MinHeight="190">
-                                            <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding MediaView}" SelectedItem="{Binding SelectedMedia}">
+                                            <DataGrid x:Name="MediaGrid" Style="{StaticResource GscDataGrid}" ItemsSource="{Binding MediaView}" SelectedItem="{Binding SelectedMedia}" SelectionMode="Extended" SelectionUnit="FullRow">
                                                 <DataGrid.Columns>
                                                     <DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="拍摄时间" Binding="{Binding CapturedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="110"/>
                                                     <DataGridTextColumn Header="类型" Binding="{Binding KindDisplay, Mode=OneWay}" Width="72"/>
@@ -1435,6 +1435,12 @@
                                                         <TextBlock Text="重新归类到：" VerticalAlignment="Center"/>
                                                         <ComboBox Width="240" ItemsSource="{Binding Games}" SelectedItem="{Binding MediaTargetGame}" Margin="7,0,8,8"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
                                                         <Button Style="{StaticResource GscButtonBase}" Command="{Binding ReassignMediaCommand}" Content="移动并重新归类"/>
+                                                    </WrapPanel>
+                                                    <WrapPanel Margin="0,2,0,0">
+                                                        <TextBlock Text="批量操作：" VerticalAlignment="Center"/>
+                                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding FavoriteSelectedMediaCommand}" CommandParameter="{Binding SelectedItems, ElementName=MediaGrid}" Content="收藏所选"/>
+                                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding UnfavoriteSelectedMediaCommand}" CommandParameter="{Binding SelectedItems, ElementName=MediaGrid}" Content="取消收藏"/>
+                                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding CommentSelectedMediaCommand}" CommandParameter="{Binding SelectedItems, ElementName=MediaGrid}" Content="将当前备注应用到所选"/>
                                                     </WrapPanel>
                                                 </StackPanel>
                                             </Grid>
