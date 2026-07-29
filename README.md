@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.6.9-development-preview`。** 多设备分叉现在可记录“稍后处理、保留两者、优先本机或优先远端”的人工决策与备注；该记录只用于审计，不会自动下载、恢复、删除或覆盖存档。0.6.8 的事务化媒体批量元数据操作保持不变。
+> **当前状态：`0.6.10-development-preview`。** 设置导入导出现在有独立自动化回归，覆盖架构版本、旧配置默认值、非法值原子拒绝、1 MiB 上限和缺失路径报告；多设备决策与媒体批量元数据的非破坏性边界保持不变。
 
 ## 核心原则
 
@@ -36,7 +36,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 - 管理面板自动刷新、Playnite 任务通知、任务进度详情和可复制诊断中心；
 - 未匹配游戏会话的启动前/退出后文件快照、候选持久化、判断依据、接受/忽略流程；
 - 失败或取消的备份/媒体任务可复制完整详情，并在明确支持的任务类型上执行安全重试；
-- Core xUnit 测试源码与跨平台源码结构校验。
+- Core、Worker SQLite 与 Playnite 设置迁移测试，以及跨平台源码结构校验。
 
 部分高级闭环仍需 Windows 真机和真实数据继续完善，详见进度表。
 

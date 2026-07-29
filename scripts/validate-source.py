@@ -209,7 +209,8 @@ def check_solution() -> None:
         fail("Solution contains duplicate projects")
     expected = {
         "GameSaveCenter.Contracts", "GameSaveCenter.Core", "GameSaveCenter.Worker",
-        "GameSaveCenter.Playnite", "GameSaveCenter.Core.Tests", "GameSaveCenter.Worker.Tests"
+        "GameSaveCenter.Playnite", "GameSaveCenter.Core.Tests", "GameSaveCenter.Worker.Tests",
+        "GameSaveCenter.Playnite.Tests"
     }
     if set(names) != expected:
         fail(f"Solution project set mismatch: {set(names)!r}")
@@ -588,6 +589,15 @@ def check_066_portability_media_guards() -> None:
     for token in ("ExportPortableJson", "ImportPortableJson", "SchemaVersion = 1", "ValidateValueRanges", "MissingPaths"):
         if token not in settings:
             fail(f"Portable settings guard missing: {token}")
+    settings_test = ROOT / "tests/GameSaveCenter.Playnite.Tests/PortableSettingsTests.cs"
+    if not settings_test.exists():
+        fail("Portable settings migration tests are missing")
+    else:
+        test_text = settings_test.read_text(encoding="utf-8")
+        for token in ("ExportImport_RoundTripsNonSecretSettings", "Import_LegacyPackageUsesDefaultsForNewFields",
+                      "Import_InvalidValuesDoesNotMutateCurrentSettings", "Import_ReportsMissingProgramsAndDirectoriesWithoutCreatingThem"):
+            if token not in test_text:
+                fail(f"Portable settings test guard missing: {token}")
     for token in ("OnExportSettingsClick", "OnImportSettingsClick"):
         if token not in settings_ui:
             fail(f"Settings migration UI guard missing: {token}")

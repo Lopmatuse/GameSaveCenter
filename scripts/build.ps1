@@ -67,6 +67,12 @@ try {
             '-c', $Configuration,
             '--no-build'
         )
+        Invoke-DotNet -StepName '运行 Playnite 设置迁移测试' -Arguments @(
+            'test',
+            '.\tests\GameSaveCenter.Playnite.Tests\GameSaveCenter.Playnite.Tests.csproj',
+            '-c', $Configuration,
+            '--no-build'
+        )
     }
 
     Write-Host "`n构建与测试全部成功。下一步可运行 scripts/package.ps1" -ForegroundColor Green

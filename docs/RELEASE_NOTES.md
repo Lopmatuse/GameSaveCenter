@@ -1,3 +1,10 @@
+# 0.6.10 Development Preview
+
+- 新增独立 Playnite 设置迁移测试项目，不改变插件本体的 net462 兼容目标。
+- 覆盖可移植 JSON 往返、旧包缺失字段默认值、未知架构与枚举、数值越界、1 MiB 上限和缺失路径报告。
+- 验证非法导入不会污染当前设置，缺失路径检查不会创建程序或目录。
+- 一键构建现在同时运行 Core、Worker SQLite 和 Playnite 设置迁移测试。
+
 # 0.6.9 Development Preview
 
 - 多设备分叉支持记录可审计的人工决策与备注。

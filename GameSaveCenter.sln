@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameSaveCenter.Core.Tests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameSaveCenter.Worker.Tests", "tests\GameSaveCenter.Worker.Tests\GameSaveCenter.Worker.Tests.csproj", "{8E75F8A1-CC57-4C89-BFE2-6A253DA1F72A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameSaveCenter.Playnite.Tests", "tests\GameSaveCenter.Playnite.Tests\GameSaveCenter.Playnite.Tests.csproj", "{7A34D12B-6268-4B66-B48B-EBCFC81CDA9B}"
+EndProject
 Global
     GlobalSection(SolutionConfigurationPlatforms) = preSolution
         Debug|Any CPU = Debug|Any CPU
@@ -44,5 +46,9 @@ Global
         {8E75F8A1-CC57-4C89-BFE2-6A253DA1F72A}.Debug|Any CPU.Build.0 = Debug|Any CPU
         {8E75F8A1-CC57-4C89-BFE2-6A253DA1F72A}.Release|Any CPU.ActiveCfg = Release|Any CPU
         {8E75F8A1-CC57-4C89-BFE2-6A253DA1F72A}.Release|Any CPU.Build.0 = Release|Any CPU
+        {7A34D12B-6268-4B66-B48B-EBCFC81CDA9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {7A34D12B-6268-4B66-B48B-EBCFC81CDA9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {7A34D12B-6268-4B66-B48B-EBCFC81CDA9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {7A34D12B-6268-4B66-B48B-EBCFC81CDA9B}.Release|Any CPU.Build.0 = Release|Any CPU
     EndGlobalSection
 EndGlobal
