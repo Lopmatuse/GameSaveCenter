@@ -50,6 +50,8 @@ namespace GameSaveCenter.Playnite
         public override Guid Id => PluginId;
         public GameSaveCenterSettings Settings { get; }
         public event EventHandler? VisualSettingsChanged;
+        public event EventHandler<UiNotificationEventArgs>? UiNotificationRequested;
+        public event EventHandler<UiConfirmationEventArgs>? UiConfirmationRequested;
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
@@ -132,13 +134,25 @@ namespace GameSaveCenter.Playnite
         public void ShowError(string message)
         {
             logger.Error(message);
-            AddNotification("Error", message, NotificationType.Error);
+            if (!RaiseUiNotification("操作失败", message, UiNotificationKind.Error))
+                AddNotification("Error", message, NotificationType.Error);
         }
 
         public void ShowInfo(string message)
         {
             logger.Info(message);
-            AddNotification("Info", message, NotificationType.Info);
+            if (!RaiseUiNotification("操作完成", message, UiNotificationKind.Success))
+                AddNotification("Info", message, NotificationType.Info);
+        }
+
+        public async Task<bool> ConfirmAsync(string title, string message, string confirmText = "确认", string cancelText = "取消", bool isDangerous = false)
+        {
+            var args = new UiConfirmationEventArgs(title, message, confirmText, cancelText, isDangerous);
+            PlayniteApi.MainView.UIDispatcher.Invoke(() => UiConfirmationRequested?.Invoke(this, args));
+            if (args.Handled) return await args.Completion.Task.ConfigureAwait(false);
+
+            var result = PlayniteApi.Dialogs.ShowMessage(message, title, System.Windows.MessageBoxButton.YesNo);
+            return result == System.Windows.MessageBoxResult.Yes;
         }
 
         public void ShowTaskNotification(TaskStatusDto task)
@@ -148,11 +162,31 @@ namespace GameSaveCenter.Playnite
             if (!notifiedTaskIds.TryAdd(task.TaskId, 0)) return;
             var game = string.IsNullOrWhiteSpace(task.GameName) ? "后台任务" : task.GameName;
             var text = task.State == TaskState.Failed
-                ? $"{game} · {task.TaskType} 失败：{LimitNotificationText(task.DetailMessage)}"
+                ? $"{game} · {task.TaskTypeDisplay} 失败：{LimitNotificationText(task.DetailMessage)}"
                 : task.State == TaskState.Cancelled
-                    ? $"{game} · {task.TaskType} 已取消"
+                    ? $"{game} · {task.TaskTypeDisplay} 已取消"
                     : $"{game} · {LimitNotificationText(task.DetailMessage)}";
-            AddNotification("Task." + task.TaskId, text, task.State == TaskState.Failed ? NotificationType.Error : NotificationType.Info);
+            var kind = task.State == TaskState.Failed ? UiNotificationKind.Error
+                : task.State == TaskState.Cancelled ? UiNotificationKind.Warning
+                : UiNotificationKind.Success;
+            if (!RaiseUiNotification(TaskNotificationTitle(task), text, kind))
+                AddNotification("Task." + task.TaskId, text, task.State == TaskState.Failed ? NotificationType.Error : NotificationType.Info);
+        }
+
+        private static string TaskNotificationTitle(TaskStatusDto task)
+        {
+            if (task.State == TaskState.Failed) return "后台任务失败";
+            if (task.State == TaskState.Cancelled) return "后台任务已取消";
+            return "后台任务完成";
+        }
+
+        private bool RaiseUiNotification(string title, string message, UiNotificationKind kind)
+        {
+            var handler = UiNotificationRequested;
+            if (handler == null) return false;
+            var args = new UiNotificationEventArgs(title, LimitNotificationText(message), kind);
+            PlayniteApi.MainView.UIDispatcher.Invoke(() => handler(this, args));
+            return args.Handled;
         }
 
         private void AddNotification(string category, string message, NotificationType type)

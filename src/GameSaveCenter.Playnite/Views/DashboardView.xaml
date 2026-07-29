@@ -6,12 +6,18 @@
              TextElement.FontFamily="Segoe UI Variable Text, Segoe UI"
              UseLayoutRounding="True" SnapsToDevicePixels="True"
              TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"
-             TextOptions.TextHintingMode="Fixed" RenderOptions.ClearTypeHint="Enabled">
+             TextOptions.TextHintingMode="Fixed" RenderOptions.ClearTypeHint="Enabled"
+             ToolTipService.InitialShowDelay="350" ToolTipService.ShowDuration="18000">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+        <!-- A compact vector mark shared by the expanded and icon-only sidebars. -->
+        <Geometry x:Key="GscBrandIconGeometry">M 5,17 C 5,11 10,7 16,7 L 32,7 C 38,7 43,11 43,17 L 43,26 C 43,31 39,35 35,35 C 31,35 29,32 27,29 L 21,29 C 19,32 17,35 13,35 C 9,35 5,31 5,26 Z</Geometry>
+        <Geometry x:Key="GscBrandDpadGeometry">M 14,17 L 14,25 M 10,21 L 18,21</Geometry>
+        <Geometry x:Key="GscBrandSaveGeometry">M 24,29 L 24,39 M 19,35 L 24,40 L 29,35 M 16,43 L 32,43</Geometry>
 
         <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
             <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
@@ -323,28 +329,60 @@
 
         <Style x:Key="GscTabItem" TargetType="TabItem">
             <Setter Property="FocusVisualStyle" Value="{StaticResource GscFocusVisual}"/>
-            <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
-            <Setter Property="Padding" Value="12,9"/>
-            <Setter Property="Margin" Value="0,0,3,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource GscSecondaryTextBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="13,7"/>
+            <Setter Property="Margin" Value="0,0,8,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TabItem">
-                        <Grid>
-                            <Border x:Name="TabBackground" Background="Transparent" CornerRadius="9"/>
-                            <ContentPresenter ContentSource="Header" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,5"/>
-                            <Border x:Name="Indicator" Height="2" Background="Transparent" VerticalAlignment="Bottom" CornerRadius="1"/>
-                        </Grid>
+                        <Border x:Name="TabChrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter ContentSource="Header"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
                         <ControlTemplate.Triggers>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="TabBackground" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
-                                <Setter TargetName="Indicator" Property="Background" Value="{StaticResource GscAccentBrush}"/>
-                                <Setter Property="Foreground" Value="{StaticResource GscAccentBrush}"/>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="TabChrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                                <Setter TargetName="TabChrome" Property="BorderBrush" Value="{StaticResource GscAccentTintStrongBrush}"/>
                             </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="TabBackground" Property="Background" Value="{StaticResource GscAccentTintBrush}"/></Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="TabChrome" Property="Background" Value="{StaticResource GscAccentTintStrongBrush}"/>
+                                <Setter TargetName="TabChrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
+                                <Setter Property="Foreground" Value="{StaticResource GscAccentBrush}"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="TabChrome" Property="Opacity" Value="0.42"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <Style x:Key="GscCenteredCellText" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+
+        <Style x:Key="GscLeftCellText" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Left"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="TextWrapping" Value="NoWrap"/>
         </Style>
 
         <Style x:Key="GscDataGrid" TargetType="DataGrid">
@@ -352,54 +390,151 @@
             <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
             <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource GscDividerBrush}"/>
+            <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
             <Setter Property="HeadersVisibility" Value="Column"/>
             <Setter Property="RowBackground" Value="Transparent"/>
-            <Setter Property="AlternatingRowBackground" Value="#087C5CFC"/>
-            <Setter Property="RowHeight" Value="44"/>
-            <Setter Property="ColumnHeaderHeight" Value="40"/>
+            <Setter Property="AlternatingRowBackground" Value="Transparent"/>
+            <Setter Property="RowHeight" Value="46"/>
+            <Setter Property="ColumnHeaderHeight" Value="42"/>
             <Setter Property="RowHeaderWidth" Value="0"/>
             <Setter Property="SelectionUnit" Value="FullRow"/>
             <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserResizeColumns" Value="True"/>
+            <Setter Property="CanUserReorderColumns" Value="False"/>
+            <Setter Property="CanUserSortColumns" Value="True"/>
             <Setter Property="IsReadOnly" Value="True"/>
             <Setter Property="AutoGenerateColumns" Value="False"/>
+            <Setter Property="EnableRowVirtualization" Value="True"/>
+            <Setter Property="EnableColumnVirtualization" Value="True"/>
+            <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+            <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Stretch"/>
         </Style>
+
         <Style TargetType="DataGridColumnHeader">
-            <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
-            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource GscSecondaryTextBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource GscTableHeaderBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GscDividerBrush}"/>
             <Setter Property="BorderThickness" Value="0,0,0,1"/>
-            <Setter Property="Padding" Value="10,9"/>
-            <Setter Property="FontWeight" Value="Normal"/>
-            <Setter Property="Opacity" Value="0.65"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridColumnHeader">
+                        <Border x:Name="HeaderChrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <Grid>
+                                <ContentPresenter Margin="{TemplateBinding Padding}"
+                                                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  RecognizesAccessKey="True"/>
+                                <Path x:Name="SortArrow" Data="M 0 5 L 5 0 L 10 5" Stretch="None"
+                                      Stroke="{StaticResource GscAccentBrush}" StrokeThickness="1.5"
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                      HorizontalAlignment="Right" VerticalAlignment="Center"
+                                      Margin="0,0,9,0" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
+                                    <Path.RenderTransform><RotateTransform Angle="0"/></Path.RenderTransform>
+                                </Path>
+                                <Thumb x:Name="PART_LeftHeaderGripper" Width="6" HorizontalAlignment="Left"
+                                       Cursor="SizeWE" Background="Transparent"/>
+                                <Thumb x:Name="PART_RightHeaderGripper" Width="6" HorizontalAlignment="Right"
+                                       Cursor="SizeWE" Background="Transparent"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="HeaderChrome" Property="Background" Value="{DynamicResource GscRowHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="SortDirection" Value="Ascending">
+                                <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="SortDirection" Value="Descending">
+                                <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="SortArrow" Property="RenderTransform">
+                                    <Setter.Value><RotateTransform Angle="180"/></Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
+
         <Style TargetType="DataGridCell">
             <Setter Property="FocusVisualStyle" Value="{StaticResource GscFocusVisual}"/>
             <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="9,8"/>
-            <Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
-                    <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
-                    <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="Padding" Value="10,7"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridCell">
+                        <Border x:Name="CellChrome" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="CellChrome" Property="Background" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+                                <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
+
+        <Style x:Key="GscLeftDataGridCell" TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
         <Style TargetType="DataGridRow">
             <Setter Property="FocusVisualStyle" Value="{StaticResource GscFocusVisual}"/>
-            <Setter Property="MinHeight" Value="44"/>
+            <Setter Property="MinHeight" Value="46"/>
             <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
             <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#0CFFFFFF"/></Trigger>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
-                    <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
-                    <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
-                </Trigger>
-            </Style.Triggers>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GscDividerBrush}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="DataGridRow">
+                        <Border x:Name="RowChrome"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                SnapsToDevicePixels="True">
+                            <DataGridCellsPresenter x:Name="PART_CellsPresenter"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="RowChrome" Property="Background" Value="{DynamicResource GscRowHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="RowChrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+                                <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
         <Style TargetType="ListBoxItem">
@@ -514,18 +649,28 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Background="{DynamicResource GscSidebarBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}" BorderThickness="1" CornerRadius="22" Padding="15">
+            <Border x:Name="SidebarChrome" Grid.Column="0" Background="{DynamicResource GscSidebarBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}" BorderThickness="1" CornerRadius="22" Padding="15">
                 <Border.Effect><DropShadowEffect Color="#26000000" BlurRadius="24" ShadowDepth="3" Opacity="0.35"/></Border.Effect>
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <StackPanel Margin="3,3,3,20">
-                        <StackPanel Orientation="Horizontal">
-                            <Border Width="38" Height="38" CornerRadius="12" Background="{StaticResource GscAccentBrush}" ToolTip="GameSaveCenter">
-                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="18"/>
+                    <StackPanel x:Name="SidebarBrandContainer" Margin="0,2,0,20" HorizontalAlignment="Stretch">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                            <Border x:Name="SidebarBrandIcon" Width="42" Height="42" CornerRadius="13" Background="{StaticResource GscAccentBrush}" ToolTip="GameSaveCenter" ClipToBounds="False">
+                                <Viewbox Margin="7" Stretch="Uniform">
+                                    <Grid Width="48" Height="48">
+                                        <Path Data="{StaticResource GscBrandIconGeometry}" Fill="White" Stretch="None"/>
+                                        <Path Data="{StaticResource GscBrandDpadGeometry}" Stroke="{StaticResource GscAccentBrush}" StrokeThickness="3.2"
+                                              StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                        <Ellipse Width="4.5" Height="4.5" Fill="{StaticResource GscInfoBrush}" Margin="30,16,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                        <Ellipse Width="4.5" Height="4.5" Fill="{StaticResource GscAccentBrush}" Margin="35,21,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                        <Path Data="{StaticResource GscBrandSaveGeometry}" Stroke="White" StrokeThickness="3"
+                                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                                    </Grid>
+                                </Viewbox>
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.5.7" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.5.8" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -561,7 +706,7 @@
                                 <TextBlock FontSize="12" Foreground="{DynamicResource GscSecondaryTextBrush}"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/><Setter Property="Text" Value=" 正常"/><Style.Triggers><DataTrigger Binding="{Binding Snapshot.WorkerHealthy}" Value="False"><Setter Property="Text" Value=" 不可用"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
                             </StackPanel>
                         </StackPanel>
-                        <TextBlock x:Name="SidebarLudusaviStatusText" Text="{Binding Snapshot.LudusaviVersion, StringFormat=Ludusavi：{0}}" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,7,0,0" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock x:Name="SidebarLudusaviStatusText" Text="{Binding Snapshot.LudusaviVersion, StringFormat=Ludusavi：{0}}" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,7,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding Snapshot.LudusaviVersion}"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -575,7 +720,11 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" Margin="4,0,0,16">
-            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition x:Name="TopChromeSafetyColumn" Width="96"/>
+            </Grid.ColumnDefinitions>
             <StackPanel VerticalAlignment="Center">
                 <TextBlock x:Name="PageTitleText" Text="首页" FontSize="25" FontWeight="SemiBold"/>
                 <TextBlock x:Name="PageSubtitleText" Text="存档、修改器、媒体与任务的一体化工作台" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0"/>
@@ -585,7 +734,7 @@
                     <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate>
                 </ComboBox>
             </StackPanel>
-            <WrapPanel x:Name="TopActionsPanel" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+            <WrapPanel x:Name="TopActionsPanel" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="14,0,0,0">
                 <!-- Background refresh never inserts an element into this WrapPanel. Keeping the toolbar's
                      measured width stable prevents timer-driven page movement when actions would wrap. -->
                 <Button x:Name="TopRefreshButton" Style="{StaticResource GscButtonBase}" Command="{Binding RefreshCommand}">
@@ -724,7 +873,7 @@
                                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"/>
                                         <TextBlock Text="{Binding PlatformDisplay}" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11" Margin="0,2,0,0"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
@@ -878,7 +1027,7 @@
                                             <DataGridTextColumn Header="文件" Binding="{Binding FileCount}" Width="65"/>
                                             <DataGridTextColumn Header="大小" Binding="{Binding SizeDisplay}" Width="95"/>
                                             <DataGridCheckBoxColumn Header="锁定" Binding="{Binding IsLocked}" Width="60"/>
-                                            <DataGridTextColumn Header="备注" Binding="{Binding Comment}" Width="*"/>
+                                            <DataGridTextColumn Header="备注" Binding="{Binding Comment}" Width="*" CellStyle="{StaticResource GscLeftDataGridCell}"/>
                                         </DataGrid.Columns>
                                     </DataGrid>
                                     <TextBlock Text="尚无历史版本&#x0a;完成一次有效备份后会显示在这里。" IsHitTestVisible="False">
@@ -1114,10 +1263,10 @@
                                                         <DataGridTextColumn Header="拍摄时间" Binding="{Binding CapturedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="110"/>
                                                         <DataGridTextColumn Header="类型" Binding="{Binding KindDisplay, Mode=OneWay}" Width="72"/>
                                                         <DataGridTextColumn Header="来源" Binding="{Binding SourceDisplay, Mode=OneWay}" Width="115"/>
-                                                        <DataGridTextColumn Header="文件" Binding="{Binding FileName, Mode=OneWay}" Width="*">
+                                                        <DataGridTextColumn Header="文件" Binding="{Binding FileName, Mode=OneWay}" Width="*" MinWidth="220" CellStyle="{StaticResource GscLeftDataGridCell}">
                                                             <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="TextWrapping" Value="NoWrap"/><Setter Property="ToolTip" Value="{Binding OriginalPath}"/></Style></DataGridTextColumn.ElementStyle>
                                                         </DataGridTextColumn>
-                                                        <DataGridTextColumn Header="原因" Binding="{Binding ClassificationReason, Mode=OneWay}" Width="1.1*">
+                                                        <DataGridTextColumn Header="原因" Binding="{Binding ClassificationReason, Mode=OneWay}" Width="1.1*" MinWidth="220" CellStyle="{StaticResource GscLeftDataGridCell}">
                                                             <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource GscSecondaryTextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="TextWrapping" Value="NoWrap"/><Setter Property="ToolTip" Value="{Binding ClassificationReason}"/></Style></DataGridTextColumn.ElementStyle>
                                                         </DataGridTextColumn>
                                                     </DataGrid.Columns>
@@ -1146,7 +1295,7 @@
                                                     <DataGridTextColumn Header="类型" Binding="{Binding KindDisplay, Mode=OneWay}" Width="72"/>
                                                     <DataGridTextColumn Header="来源" Binding="{Binding SourceDisplay, Mode=OneWay}" Width="115"/>
                                                     <DataGridTextColumn Header="云端" Binding="{Binding CloudStateDisplay, Mode=OneWay}" Width="90"/>
-                                                    <DataGridTextColumn Header="归档路径" Binding="{Binding ArchivePath, Mode=OneWay}" Width="*">
+                                                    <DataGridTextColumn Header="归档路径" Binding="{Binding ArchivePath, Mode=OneWay}" Width="*" MinWidth="360" CellStyle="{StaticResource GscLeftDataGridCell}">
                                                         <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="TextWrapping" Value="NoWrap"/><Setter Property="ToolTip" Value="{Binding ArchivePath}"/></Style></DataGridTextColumn.ElementStyle>
                                                     </DataGridTextColumn>
                                                 </DataGrid.Columns>
@@ -1197,10 +1346,10 @@
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="可信度" Binding="{Binding Score, Mode=OneWay, StringFormat=P0}" Width="78"/>
                                             <DataGridTextColumn Header="状态" Binding="{Binding StatusDisplay, Mode=OneWay}" Width="90"/>
-                                            <DataGridTextColumn Header="路径" Binding="{Binding Path, Mode=OneWay}" Width="1.4*">
+                                            <DataGridTextColumn Header="路径" Binding="{Binding Path, Mode=OneWay}" Width="1.4*" MinWidth="360" CellStyle="{StaticResource GscLeftDataGridCell}">
                                                 <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding Path}"/></Style></DataGridTextColumn.ElementStyle>
                                             </DataGridTextColumn>
-                                            <DataGridTextColumn Header="依据" Binding="{Binding ReasonsDisplay, Mode=OneWay}" Width="1.2*">
+                                            <DataGridTextColumn Header="依据" Binding="{Binding ReasonsDisplay, Mode=OneWay}" Width="1.2*" MinWidth="260" CellStyle="{StaticResource GscLeftDataGridCell}">
                                                 <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource GscSecondaryTextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding ReasonsDisplay}"/></Style></DataGridTextColumn.ElementStyle>
                                             </DataGridTextColumn>
                                         </DataGrid.Columns>
@@ -1237,10 +1386,10 @@
                                             <DataGridTemplateColumn Header="状态" Width="90">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <StackPanel Orientation="Horizontal">
+                                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                             <Border x:Name="TaskDot" Width="7" Height="7" CornerRadius="4"
                                                                     Background="{StaticResource GscWarningBrush}" Margin="0,0,7,0" VerticalAlignment="Center"/>
-                                                            <TextBlock Text="{Binding StateDisplay, Mode=OneWay}"/>
+                                                            <TextBlock Text="{Binding StateDisplay, Mode=OneWay}" VerticalAlignment="Center"/>
                                                         </StackPanel>
                                                         <DataTemplate.Triggers>
                                                             <DataTrigger Binding="{Binding State}" Value="Succeeded"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger>
@@ -1254,9 +1403,9 @@
                                             <DataGridTemplateColumn Header="进度" Width="132">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <Grid Margin="2,0">
+                                                        <Grid Margin="2,0" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                             <Grid.ColumnDefinitions><ColumnDefinition Width="82"/><ColumnDefinition Width="40"/></Grid.ColumnDefinitions>
-                                                            <ProgressBar Height="6" Width="76" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                            <ProgressBar Height="6" Width="76" HorizontalAlignment="Center" VerticalAlignment="Center"
                                                                          Minimum="0" Maximum="100" Value="{Binding ProgressPercent, Mode=OneWay}"/>
                                                             <TextBlock Grid.Column="1" Text="{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0}%}"
                                                                        HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11"
@@ -1265,7 +1414,7 @@
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
                                             </DataGridTemplateColumn>
-                                            <DataGridTextColumn Header="详情" Binding="{Binding DetailMessage, Mode=OneWay}" Width="1.6*">
+                                            <DataGridTextColumn Header="详情" Binding="{Binding DetailMessage, Mode=OneWay}" Width="1.6*" MinWidth="320" CellStyle="{StaticResource GscLeftDataGridCell}">
                                                 <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource GscSecondaryTextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding DetailMessage}"/></Style></DataGridTextColumn.ElementStyle>
                                             </DataGridTextColumn>
                                         </DataGrid.Columns>
@@ -1339,7 +1488,7 @@
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="等级" Binding="{Binding Severity}" Width="70"/>
                                             <DataGridTextColumn Header="标题" Binding="{Binding Title}" Width="170"/>
-                                            <DataGridTextColumn Header="详情" Binding="{Binding Detail}" Width="*">
+                                            <DataGridTextColumn Header="详情" Binding="{Binding Detail}" Width="*" MinWidth="320" CellStyle="{StaticResource GscLeftDataGridCell}">
                                                 <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="TextWrapping" Value="NoWrap"/><Setter Property="ToolTip" Value="{Binding Detail}"/></Style></DataGridTextColumn.ElementStyle>
                                             </DataGridTextColumn>
                                         </DataGrid.Columns>
@@ -1350,7 +1499,7 @@
                                         <DataGrid.Columns>
                                             <DataGridTextColumn Header="本地时间" Binding="{Binding CreatedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm:ss}}" Width="128"/>
                                             <DataGridTextColumn Header="分类" Binding="{Binding Category}" Width="100"/>
-                                            <DataGridTextColumn Header="消息" Binding="{Binding Message}" Width="*">
+                                            <DataGridTextColumn Header="消息" Binding="{Binding Message}" Width="*" MinWidth="360" CellStyle="{StaticResource GscLeftDataGridCell}">
                                                 <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="TextWrapping" Value="NoWrap"/><Setter Property="ToolTip" Value="{Binding Message}"/></Style></DataGridTextColumn.ElementStyle>
                                             </DataGridTextColumn>
                                         </DataGrid.Columns>
@@ -1394,6 +1543,53 @@
             </Border>
         </Grid>
             </Grid>
+        </Grid>
+
+        <!-- In-plugin feedback stays inside the Playnite content host and never steals focus with a new Window. -->
+        <StackPanel x:Name="ToastHost"
+                    Panel.ZIndex="90"
+                    Width="360"
+                    MaxWidth="360"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Margin="0,78,22,0"/>
+
+        <Grid x:Name="DialogOverlay"
+              Panel.ZIndex="100"
+              Visibility="Collapsed"
+              Background="{DynamicResource GscOverlayBrush}">
+            <Border x:Name="DialogCard"
+                    Width="480"
+                    MaxWidth="640"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="{DynamicResource GscGlassStrongBrush}"
+                    BorderBrush="{DynamicResource GscGlassStrokeBrush}"
+                    BorderThickness="1"
+                    CornerRadius="22"
+                    Padding="22"
+                    Opacity="0">
+                <Border.Effect>
+                    <DropShadowEffect Color="#52000000" BlurRadius="34" ShadowDepth="8" Opacity="0.48"/>
+                </Border.Effect>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel>
+                        <TextBlock x:Name="DialogTitleText" FontSize="21" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                        <TextBlock x:Name="DialogMessageText" Margin="0,10,0,0" Foreground="{DynamicResource GscSecondaryTextBrush}"
+                                   TextWrapping="Wrap" LineHeight="22"/>
+                    </StackPanel>
+                    <Border Grid.Row="1" Height="1" Background="{DynamicResource GscDividerBrush}" Margin="0,18,0,16"/>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button x:Name="DialogCancelButton" Style="{StaticResource GscButtonBase}" Click="OnDialogCancelClick" Content="取消"/>
+                        <Button x:Name="DialogConfirmButton" Style="{StaticResource GscPrimaryButton}" Click="OnDialogConfirmClick" Content="确认" Margin="0,0,0,8"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>

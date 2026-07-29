@@ -5,6 +5,10 @@ artifacts/
 dist/*.zip
 dist/*.pext
 
+# Python cache
+**/__pycache__/
+*.py[cod]
+
 # IDE
 .vs/
 .idea/

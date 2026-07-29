@@ -652,7 +652,12 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         private async Task DeleteSelectedGameToolAsync()
         {
-            var name=SelectedGameTool.DisplayName;
+            var name = SelectedGameTool.DisplayName;
+            if (!await plugin.ConfirmAsync(
+                    "解除修改器绑定",
+                    $"确认解除“{name}”与当前游戏的绑定？\n\n本地文件会保留，不会被删除。",
+                    "解除绑定",
+                    "取消")) return;
             await plugin.RequestAsync<object>(MessageTypes.DeleteGameTool,new GameToolCommandRequestDto{ToolId=SelectedGameTool.ToolId});
             await LoadDetailsAsync();ConfirmSuccess("已解除绑定并保留文件："+name);
         }
@@ -802,6 +807,11 @@ namespace GameSaveCenter.Playnite.ViewModels
         private async Task IgnoreInboxMediaAsync()
         {
             var media = SelectedInboxMedia ?? throw new InvalidOperationException("请先选择待归类媒体。");
+            if (!await plugin.ConfirmAsync(
+                    "忽略待归类媒体",
+                    $"确认忽略“{media.FileName}”？\n\n归档副本仍会保留在媒体目录中。",
+                    "忽略并保留副本",
+                    "取消")) return;
             await plugin.RequestAsync<MediaItemDto>(MessageTypes.IgnoreMedia, new IgnoreMediaRequestDto { MediaId = media.MediaId });
             ConfirmSuccess($"已忽略 {media.FileName}；归档副本仍保留在媒体目录");
             await RefreshDashboardAsync(false, false);
@@ -810,10 +820,11 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         private async Task RestoreAsync()
         {
-            var result = plugin.PlayniteApi.Dialogs.ShowMessage(
-                "恢复前会先创建并锁定当前存档的 PreRestore 快照。请确认游戏、启动器和 MOD 管理器均已关闭。\n\n继续恢复选中的历史版本？",
-                "GameSaveCenter 安全恢复", MessageBoxButton.YesNo);
-            if (result != MessageBoxResult.Yes) return;
+            if (!await plugin.ConfirmAsync(
+                    "GameSaveCenter 安全恢复",
+                    "恢复前会先创建并锁定当前存档的 PreRestore 快照。请确认游戏、启动器和 MOD 管理器均已关闭。\n\n继续恢复选中的历史版本？",
+                    "开始安全恢复",
+                    "取消")) return;
             var task = await plugin.RequestAsync<TaskStatusDto>(MessageTypes.RestoreExecute, new RestoreRequestDto
             {
                 PlayniteId = SelectedGame.PlayniteId,
@@ -828,8 +839,11 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         private async Task UndoRestoreAsync()
         {
-            var result = plugin.PlayniteApi.Dialogs.ShowMessage("撤销将恢复最近的 PreRestore 快照，仍会先保存当前状态。继续？", "撤销恢复", MessageBoxButton.YesNo);
-            if (result != MessageBoxResult.Yes) return;
+            if (!await plugin.ConfirmAsync(
+                    "撤销恢复",
+                    "撤销将恢复最近的 PreRestore 快照，并且仍会先保存当前状态。确认继续？",
+                    "撤销恢复",
+                    "取消")) return;
             var task = await plugin.RequestAsync<TaskStatusDto>(MessageTypes.UndoRestore, new GameQueryDto { PlayniteId = SelectedGame.PlayniteId }, TimeSpan.FromMinutes(30));
             await RefreshCoreAsync(false);
             NotifyTaskResults(new[] { task });
@@ -893,10 +907,12 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             if (SelectedTask == null || !SelectedTask.CanCancel || IsCancellingTask) return;
             var taskId = SelectedTask.TaskId;
-            var result = plugin.PlayniteApi.Dialogs.ShowMessage(
-                $"取消“{SelectedTask.GameName} · {SelectedTask.TaskType}”任务？\n\n取消请求会在当前文件操作的安全边界生效。",
-                "取消后台任务", MessageBoxButton.YesNo);
-            if (result != MessageBoxResult.Yes) return;
+            if (!await plugin.ConfirmAsync(
+                    "取消后台任务",
+                    $"取消“{SelectedTask.GameName} · {SelectedTask.TaskType}”任务？\n\n取消请求会在当前文件操作的安全边界生效。",
+                    "取消任务",
+                    "保留任务",
+                    true)) return;
             IsCancellingTask = true;
             try
             {

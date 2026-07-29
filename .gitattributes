@@ -1,2 +1,22 @@
+# Repository text files are normalized to LF in both the index and working tree.
+# Windows launchers remain byte-preserved because they intentionally use CRLF.
 * text=auto eol=lf
+
+*.py text eol=lf
+*.cs text eol=lf
+*.xaml text eol=lf
+*.xml text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.md text eol=lf
+*.props text eol=lf
+*.targets text eol=lf
+*.csproj text eol=lf
+*.sln text eol=crlf
+
 *.cmd binary
+*.bat binary
+*.png binary
+*.ico binary
+*.zip binary

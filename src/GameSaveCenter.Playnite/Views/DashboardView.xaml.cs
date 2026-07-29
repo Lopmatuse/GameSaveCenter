@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
@@ -17,6 +18,9 @@ namespace GameSaveCenter.Playnite.Views
         private DashboardViewModel viewModel;
         private bool hasPlayedEntrance;
         private bool visualSettingsSubscribed;
+        private bool uiFeedbackSubscribed;
+        private UiConfirmationEventArgs? activeConfirmation;
+        private bool dialogShowsResult;
 
         public DashboardView(GameSaveCenterPlugin plugin)
         {
@@ -33,6 +37,7 @@ namespace GameSaveCenter.Playnite.Views
             Unloaded += OnUnloaded;
             IsVisibleChanged += OnIsVisibleChanged;
             SizeChanged += OnSizeChanged;
+            PreviewKeyDown += OnPreviewKeyDown;
         }
 
         private bool MotionEnabled => plugin.Settings.EnableUiAnimations && !SystemParameters.HighContrast && SystemParameters.ClientAreaAnimation;
@@ -43,6 +48,12 @@ namespace GameSaveCenter.Playnite.Views
             {
                 plugin.VisualSettingsChanged += OnVisualSettingsChanged;
                 visualSettingsSubscribed = true;
+            }
+            if (!uiFeedbackSubscribed)
+            {
+                plugin.UiNotificationRequested += OnUiNotificationRequested;
+                plugin.UiConfirmationRequested += OnUiConfirmationRequested;
+                uiFeedbackSubscribed = true;
             }
             var version = typeof(DashboardView).Assembly.GetName().Version;
             SidebarVersionText.Text = version == null ? "开发预览" : "v" + version.ToString(3);
@@ -71,6 +82,16 @@ namespace GameSaveCenter.Playnite.Views
                 plugin.VisualSettingsChanged -= OnVisualSettingsChanged;
                 visualSettingsSubscribed = false;
             }
+            if (uiFeedbackSubscribed)
+            {
+                plugin.UiNotificationRequested -= OnUiNotificationRequested;
+                plugin.UiConfirmationRequested -= OnUiConfirmationRequested;
+                uiFeedbackSubscribed = false;
+            }
+            activeConfirmation?.Completion.TrySetResult(false);
+            activeConfirmation = null;
+            DialogOverlay.Visibility = Visibility.Collapsed;
+            ToastHost.Children.Clear();
         }
 
         private void OnVisualSettingsChanged(object sender, EventArgs e)
@@ -112,6 +133,8 @@ namespace GameSaveCenter.Playnite.Views
 
             SidebarColumn.Width = new GridLength(iconSidebar ? (mode == LayoutMode.Narrow ? 68 : 72) : 220);
             SidebarGutterColumn.Width = new GridLength(iconSidebar ? 10 : 18);
+            TopChromeSafetyColumn.Width = new GridLength(width < 980 ? 76 : 96);
+            ToastHost.Margin = new Thickness(0, height < 760 ? 66 : 78, width < 980 ? 12 : 22, 0);
             SetSidebarLabelsVisible(!iconSidebar);
 
             GameBrowserPanel.Visibility = showGameBrowser ? Visibility.Visible : Visibility.Collapsed;
@@ -228,6 +251,10 @@ namespace GameSaveCenter.Playnite.Views
             SidebarWorkerStatusText.Visibility = visibility;
             SidebarLudusaviStatusText.Visibility = visibility;
             SidebarStatusPanel.HorizontalAlignment = visible ? HorizontalAlignment.Stretch : HorizontalAlignment.Center;
+            SidebarChrome.Padding = visible ? new Thickness(15) : new Thickness(10);
+            SidebarBrandContainer.HorizontalAlignment = visible ? HorizontalAlignment.Stretch : HorizontalAlignment.Center;
+            SidebarBrandIcon.Width = visible ? 42 : 44;
+            SidebarBrandIcon.Height = visible ? 42 : 44;
 
             var navigationPadding = visible ? new Thickness(13, 10, 13, 10) : new Thickness(7, 10, 7, 10);
             NavOverview.Padding = navigationPadding;
@@ -412,6 +439,200 @@ namespace GameSaveCenter.Playnite.Views
             return scale;
         }
 
+        private void OnUiNotificationRequested(object? sender, UiNotificationEventArgs e)
+        {
+            if (!IsLoaded || !IsVisible) return;
+            e.Handled = true;
+            ShowToast(e.Title, e.Message, e.Kind);
+        }
+
+        private void OnUiConfirmationRequested(object? sender, UiConfirmationEventArgs e)
+        {
+            if (!IsLoaded || !IsVisible) return;
+            e.Handled = true;
+            ShowConfirmation(e);
+        }
+
+        private void ShowConfirmation(UiConfirmationEventArgs request)
+        {
+            activeConfirmation?.Completion.TrySetResult(false);
+            activeConfirmation = request;
+            dialogShowsResult = false;
+            DialogTitleText.Text = request.Title;
+            DialogMessageText.Text = request.Message;
+            DialogCancelButton.Content = request.CancelText;
+            DialogCancelButton.Visibility = Visibility.Visible;
+            DialogConfirmButton.Content = request.ConfirmText;
+            DialogConfirmButton.SetResourceReference(Control.BackgroundProperty, request.IsDangerous ? "GscErrorBrush" : "GscAccentBrush");
+            DialogConfirmButton.SetResourceReference(Control.BorderBrushProperty, request.IsDangerous ? "GscErrorBrush" : "GscAccentBrush");
+            OpenDialog(request.IsDangerous ? DialogCancelButton : DialogConfirmButton);
+        }
+
+        private void ShowResultDialog(string title, string message)
+        {
+            activeConfirmation?.Completion.TrySetResult(false);
+            activeConfirmation = null;
+            dialogShowsResult = true;
+            DialogTitleText.Text = title;
+            DialogMessageText.Text = message;
+            DialogCancelButton.Visibility = Visibility.Collapsed;
+            DialogConfirmButton.Content = "关闭";
+            DialogConfirmButton.SetResourceReference(Control.BackgroundProperty, "GscAccentBrush");
+            DialogConfirmButton.SetResourceReference(Control.BorderBrushProperty, "GscAccentBrush");
+            OpenDialog(DialogConfirmButton);
+        }
+
+        private void OpenDialog(Control initialFocus)
+        {
+            DialogOverlay.Visibility = Visibility.Visible;
+            DialogCard.Opacity = MotionEnabled ? 0 : 1;
+            var translate = GetMutableTranslateTransform(DialogCard);
+            translate.Y = MotionEnabled ? 14 : 0;
+            if (MotionEnabled)
+            {
+                var duration = TimeSpan.FromMilliseconds(210);
+                var easing = new CubicEase { EasingMode = EasingMode.EaseOut };
+                DialogCard.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, duration) { EasingFunction = easing });
+                translate.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(14, 0, duration) { EasingFunction = easing });
+            }
+            Dispatcher.BeginInvoke(new Action(() => initialFocus.Focus()), DispatcherPriority.Input);
+        }
+
+        private void OnDialogCancelClick(object sender, RoutedEventArgs e) => CompleteDialog(false);
+
+        private void OnDialogConfirmClick(object sender, RoutedEventArgs e)
+        {
+            if (dialogShowsResult)
+            {
+                CloseDialog();
+                return;
+            }
+            CompleteDialog(true);
+        }
+
+        private void CompleteDialog(bool result)
+        {
+            var completion = activeConfirmation?.Completion;
+            activeConfirmation = null;
+            CloseDialog();
+            completion?.TrySetResult(result);
+        }
+
+        private void CloseDialog()
+        {
+            dialogShowsResult = false;
+            DialogOverlay.Visibility = Visibility.Collapsed;
+            DialogCard.BeginAnimation(OpacityProperty, null);
+            DialogCard.Opacity = 0;
+        }
+
+        private void OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (DialogOverlay.Visibility != Visibility.Visible) return;
+            if (e.Key == Key.Escape)
+            {
+                e.Handled = true;
+                if (dialogShowsResult) CloseDialog(); else CompleteDialog(false);
+            }
+        }
+
+        private void ShowToast(string title, string message, UiNotificationKind kind)
+        {
+            var accentKey = kind == UiNotificationKind.Error ? "GscErrorBrush"
+                : kind == UiNotificationKind.Warning ? "GscWarningBrush"
+                : kind == UiNotificationKind.Success ? "GscSuccessBrush"
+                : "GscInfoBrush";
+
+            var card = new Border
+            {
+                CornerRadius = new CornerRadius(16),
+                BorderThickness = new Thickness(1),
+                Padding = new Thickness(14, 12, 10, 12),
+                Margin = new Thickness(0, 0, 0, 10),
+                MaxWidth = 360,
+                Opacity = MotionEnabled ? 0 : 1,
+                RenderTransform = new TranslateTransform(MotionEnabled ? 18 : 0, 0)
+            };
+            card.SetResourceReference(Border.BackgroundProperty, "GscGlassStrongBrush");
+            card.SetResourceReference(Border.BorderBrushProperty, "GscGlassStrokeBrush");
+            card.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            {
+                Color = Colors.Black,
+                BlurRadius = 22,
+                ShadowDepth = 5,
+                Opacity = 0.24
+            };
+
+            var layout = new Grid();
+            layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(12) });
+            layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            layout.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var indicator = new Border { Width = 9, Height = 9, CornerRadius = new CornerRadius(5), VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(0, 5, 0, 0) };
+            indicator.SetResourceReference(Border.BackgroundProperty, accentKey);
+            layout.Children.Add(indicator);
+
+            var textPanel = new StackPanel { Margin = new Thickness(10, 0, 8, 0) };
+            Grid.SetColumn(textPanel, 1);
+            var titleText = new TextBlock { Text = title, FontWeight = FontWeights.SemiBold, TextWrapping = TextWrapping.Wrap };
+            var messageText = new TextBlock { Text = message, Margin = new Thickness(0, 3, 0, 0), TextWrapping = TextWrapping.Wrap, MaxHeight = 72, TextTrimming = TextTrimming.CharacterEllipsis };
+            messageText.SetResourceReference(TextBlock.ForegroundProperty, "GscSecondaryTextBrush");
+            messageText.ToolTip = message;
+            textPanel.Children.Add(titleText);
+            textPanel.Children.Add(messageText);
+            if (kind == UiNotificationKind.Error)
+            {
+                var details = new Button { Content = "查看详情", HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 7, 0, 0), Padding = new Thickness(8, 4, 8, 4), MinHeight = 28 };
+                details.Style = (Style)Resources["GscButtonBase"];
+                details.Click += (_, __) => ShowResultDialog(title, message);
+                textPanel.Children.Add(details);
+            }
+            layout.Children.Add(textPanel);
+
+            var close = new Button { Content = "×", Width = 28, Height = 28, MinHeight = 28, Padding = new Thickness(0), Margin = new Thickness(2, -3, -2, 0), VerticalAlignment = VerticalAlignment.Top };
+            close.Style = (Style)Resources["GscButtonBase"];
+            Grid.SetColumn(close, 2);
+            layout.Children.Add(close);
+            card.Child = layout;
+            ToastHost.Children.Insert(0, card);
+            while (ToastHost.Children.Count > 4) ToastHost.Children.RemoveAt(ToastHost.Children.Count - 1);
+
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(kind == UiNotificationKind.Error ? 7 : 3.8) };
+            Action dismiss = () => DismissToast(card, timer);
+            timer.Tick += (_, __) => dismiss();
+            close.Click += (_, __) => dismiss();
+            card.MouseEnter += (_, __) => timer.Stop();
+            card.MouseLeave += (_, __) => timer.Start();
+            timer.Start();
+
+            if (MotionEnabled)
+            {
+                var duration = TimeSpan.FromMilliseconds(230);
+                var easing = new CubicEase { EasingMode = EasingMode.EaseOut };
+                card.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, duration) { EasingFunction = easing });
+                ((TranslateTransform)card.RenderTransform).BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(18, 0, duration) { EasingFunction = easing });
+            }
+        }
+
+        private void DismissToast(Border card, DispatcherTimer timer)
+        {
+            timer.Stop();
+            if (!ToastHost.Children.Contains(card)) return;
+            if (!MotionEnabled)
+            {
+                ToastHost.Children.Remove(card);
+                return;
+            }
+
+            var duration = TimeSpan.FromMilliseconds(180);
+            var fade = new DoubleAnimation(card.Opacity, 0, duration);
+            fade.Completed += (_, __) => ToastHost.Children.Remove(card);
+            card.BeginAnimation(OpacityProperty, fade);
+            var translate = card.RenderTransform as TranslateTransform ?? new TranslateTransform();
+            card.RenderTransform = translate;
+            translate.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(0, 16, duration));
+        }
+
         private void ApplyAdaptiveTheme()
         {
             var glassEnabled = plugin.Settings.EnableGlassEffects && !SystemParameters.HighContrast;
@@ -432,6 +653,18 @@ namespace GameSaveCenter.Playnite.Views
             Resources["GscGlassStrokeBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlStroke);
             Resources["GscGlassHighlightBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Highlight);
             Resources["GscBackdropBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Backdrop);
+            Resources["GscTableHeaderBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
+                palette.IsDark ? (byte)22 : (byte)12, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
+            Resources["GscRowHoverBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
+                palette.IsDark ? (byte)18 : (byte)10, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
+            Resources["GscScrollTrackBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
+                palette.IsDark ? (byte)28 : (byte)20, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
+            Resources["GscScrollThumbBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
+                palette.IsDark ? (byte)88 : (byte)68, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
+            Resources["GscScrollThumbHoverBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
+                166, 124, 92, 252));
+            Resources["GscOverlayBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
+                palette.IsDark ? (byte)138 : (byte)72, 0, 0, 0));
 
             AmbientGlowLayer.Opacity = glassEnabled
                 ? (palette.IsDark ? 0.46 : 0.56) * Math.Max(0.2, Math.Min(1, plugin.Settings.GlassEffectStrength / 100d))
