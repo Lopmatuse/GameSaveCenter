@@ -24,6 +24,7 @@
     <SolidColorBrush x:Key="GscControlFillBrush" Color="#CC171A25"/>
     <SolidColorBrush x:Key="GscControlStrokeBrush" Color="#30FFFFFF"/>
     <SolidColorBrush x:Key="GscDividerBrush" Color="#2B8E8E93"/>
+    <SolidColorBrush x:Key="GscTableDividerBrush" Color="#168E8E93"/>
     <SolidColorBrush x:Key="GscPopupBrush" Color="#FA202330"/>
     <SolidColorBrush x:Key="GscTableHeaderBrush" Color="#0DFFFFFF"/>
     <SolidColorBrush x:Key="GscRowHoverBrush" Color="#0AFFFFFF"/>
@@ -50,7 +51,10 @@
     </Style>
 
     <Style x:Key="GscCheckBox" TargetType="CheckBox">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource GscSharedFocusVisual}"/>
         <Setter Property="Template">
@@ -82,9 +86,161 @@
         </Setter>
     </Style>
 
+
+
+    <!-- Compact checkbox used inside DataGrid cells. It intentionally omits the content column
+         so the Apple-style rounded box remains mathematically centered in every cell. -->
+    <Style x:Key="GscDataGridCheckBox" TargetType="CheckBox">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Width" Value="18"/>
+        <Setter Property="Height" Value="18"/>
+        <Setter Property="MinWidth" Value="18"/>
+        <Setter Property="MinHeight" Value="18"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GscSharedFocusVisual}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Border x:Name="Box"
+                            Width="18"
+                            Height="18"
+                            CornerRadius="5"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource GscControlStrokeBrush}"
+                            Background="{DynamicResource GscControlFillBrush}">
+                        <Path x:Name="Check"
+                              Data="M 3.5 8.5 L 7 12 L 14.5 4.5"
+                              Stretch="None"
+                              Stroke="White"
+                              StrokeThickness="2"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              Visibility="Collapsed"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Box" Property="Background" Value="{StaticResource GscAccentBrush}"/>
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
+                            <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Box" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Box" Property="Opacity" Value="0.78"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.42"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GscTextBox" TargetType="TextBox">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GscSharedFocusVisual}"/>
+        <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="11,7"/>
+        <Setter Property="MinHeight" Value="38"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="CaretBrush" Value="{StaticResource GscAccentBrush}"/>
+        <Setter Property="SelectionBrush" Value="{StaticResource GscAccentTintStrongBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Chrome"
+                            CornerRadius="10"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            SnapsToDevicePixels="True">
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                      Margin="{TemplateBinding Padding}"
+                                      VerticalAlignment="Stretch"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentTintStrongBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GscSearchClearButton" TargetType="Button">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Width" Value="26"/>
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="MinWidth" Value="26"/>
+        <Setter Property="MinHeight" Value="26"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GscSharedFocusVisual}"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome"
+                            Width="26"
+                            Height="26"
+                            CornerRadius="13"
+                            Background="{TemplateBinding Background}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                        <Path Data="M 6 6 L 14 14 M 14 6 L 6 14"
+                              Width="20"
+                              Height="20"
+                              Stretch="None"
+                              Stroke="{DynamicResource GscSecondaryTextBrush}"
+                              StrokeThickness="1.7"
+                              StrokeStartLineCap="Round"
+                              StrokeEndLineCap="Round"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{StaticResource GscAccentTintStrongBrush}"/>
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.82"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.35"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Shared controls are deliberately owned by the plugin so Playnite's host theme cannot
          reintroduce bright native scrollbars, progress tracks, or ComboBox popups. -->
     <Style x:Key="GscComboBox" TargetType="ComboBox">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource GscSharedFocusVisual}"/>
         <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
         <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
@@ -97,7 +253,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBox">
                     <Grid>
-                        <ToggleButton x:Name="DropDownToggle" Focusable="False" ClickMode="Press"
+                        <ToggleButton x:Name="DropDownToggle" Focusable="False" ClickMode="Press" OverridesDefaultStyle="True"
                                       IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                             <ToggleButton.Template>
                                 <ControlTemplate TargetType="ToggleButton">
@@ -143,6 +299,7 @@
     </Style>
 
     <Style x:Key="GscComboBoxItem" TargetType="ComboBoxItem">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource GscSharedFocusVisual}"/>
         <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
         <Setter Property="Background" Value="Transparent"/>
@@ -166,6 +323,7 @@
     </Style>
 
     <Style x:Key="GscScrollThumb" TargetType="Thumb">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="Background" Value="{DynamicResource GscScrollThumbBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -173,9 +331,8 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Thumb">
                     <Border x:Name="ThumbChrome"
-                            Margin="0"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="999"
+                            CornerRadius="4"
                             SnapsToDevicePixels="True"/>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -194,6 +351,7 @@
     </Style>
 
     <Style TargetType="ScrollBar">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource GscScrollTrackBrush}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -202,8 +360,9 @@
                 <ControlTemplate TargetType="ScrollBar">
                     <Border x:Name="TrackChrome"
                             Background="{TemplateBinding Foreground}"
-                            CornerRadius="999"
-                            Padding="2">
+                            CornerRadius="5"
+                            Margin="1"
+                            SnapsToDevicePixels="True">
                         <Track x:Name="PART_Track"
                                Focusable="False"
                                IsDirectionReversed="True"
@@ -215,10 +374,18 @@
                             <Track.DecreaseRepeatButton>
                                 <RepeatButton x:Name="DecreaseButton"
                                               Command="ScrollBar.PageUpCommand"
+                                              CommandTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                              OverridesDefaultStyle="True"
                                               Background="Transparent"
                                               BorderThickness="0"
                                               Focusable="False"
-                                              Opacity="0"/>
+                                              Opacity="0">
+                                    <RepeatButton.Template>
+                                        <ControlTemplate TargetType="RepeatButton">
+                                            <Border Background="Transparent"/>
+                                        </ControlTemplate>
+                                    </RepeatButton.Template>
+                                </RepeatButton>
                             </Track.DecreaseRepeatButton>
                             <Track.Thumb>
                                 <Thumb x:Name="ScrollThumb"
@@ -227,10 +394,18 @@
                             <Track.IncreaseRepeatButton>
                                 <RepeatButton x:Name="IncreaseButton"
                                               Command="ScrollBar.PageDownCommand"
+                                              CommandTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                              OverridesDefaultStyle="True"
                                               Background="Transparent"
                                               BorderThickness="0"
                                               Focusable="False"
-                                              Opacity="0"/>
+                                              Opacity="0">
+                                    <RepeatButton.Template>
+                                        <ControlTemplate TargetType="RepeatButton">
+                                            <Border Background="Transparent"/>
+                                        </ControlTemplate>
+                                    </RepeatButton.Template>
+                                </RepeatButton>
                             </Track.IncreaseRepeatButton>
                         </Track>
                     </Border>
@@ -238,10 +413,10 @@
                         <Trigger Property="Orientation" Value="Vertical">
                             <Setter Property="Width" Value="12"/>
                             <Setter Property="MinWidth" Value="12"/>
-                            <Setter TargetName="ScrollThumb" Property="MinHeight" Value="28"/>
-                            <Setter TargetName="ScrollThumb" Property="MinWidth" Value="0"/>
-                            <Setter TargetName="ScrollThumb" Property="HorizontalAlignment" Value="Stretch"/>
-                            <Setter TargetName="ScrollThumb" Property="Margin" Value="1,0"/>
+                            <Setter TargetName="ScrollThumb" Property="Width" Value="8"/>
+                            <Setter TargetName="ScrollThumb" Property="MinHeight" Value="36"/>
+                            <Setter TargetName="ScrollThumb" Property="HorizontalAlignment" Value="Center"/>
+                            <Setter TargetName="ScrollThumb" Property="VerticalAlignment" Value="Stretch"/>
                         </Trigger>
                         <Trigger Property="Orientation" Value="Horizontal">
                             <Setter Property="Height" Value="12"/>
@@ -249,10 +424,10 @@
                             <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False"/>
                             <Setter TargetName="DecreaseButton" Property="Command" Value="ScrollBar.PageLeftCommand"/>
                             <Setter TargetName="IncreaseButton" Property="Command" Value="ScrollBar.PageRightCommand"/>
-                            <Setter TargetName="ScrollThumb" Property="MinWidth" Value="28"/>
-                            <Setter TargetName="ScrollThumb" Property="MinHeight" Value="0"/>
-                            <Setter TargetName="ScrollThumb" Property="VerticalAlignment" Value="Stretch"/>
-                            <Setter TargetName="ScrollThumb" Property="Margin" Value="0,1"/>
+                            <Setter TargetName="ScrollThumb" Property="Height" Value="8"/>
+                            <Setter TargetName="ScrollThumb" Property="MinWidth" Value="36"/>
+                            <Setter TargetName="ScrollThumb" Property="HorizontalAlignment" Value="Stretch"/>
+                            <Setter TargetName="ScrollThumb" Property="VerticalAlignment" Value="Center"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="TrackChrome" Property="Background" Value="{DynamicResource GscControlStrokeBrush}"/>
@@ -277,6 +452,7 @@
     </Style>
 
     <Style TargetType="ProgressBar">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="Foreground" Value="{StaticResource GscAccentBrush}"/>
         <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>

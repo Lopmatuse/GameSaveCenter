@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
-更新时间：2026-07-28
-当前版本：`0.5.8-development-preview`
+更新时间：2026-07-29
+当前版本：`0.5.9-development-preview`
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 
@@ -24,6 +24,14 @@
 - 用户提供的 `docs/design/APPLE_WPF_IMPLEMENTATION_PROMPT.md` 是后续 UI 设计与实现的长期基准；所有新增控件和改版必须同时通过 `docs/design/UI_CHANGE_GATE.md`。
 
 ## 当前已经进入仓库的实现
+
+### 0.5.9 WPF 控件几何与搜索规则
+
+- ScrollBar 的 Thumb 不得使用会在短边上归一化成透镜形的超大 CornerRadius；纵向和横向必须分别限定厚度与最小长度。
+- Dashboard 必须接管完整 TabControl 模板，禁止仅修改 TabItem 后继续叠加 Playnite 宿主标签线或默认 Chrome。
+- DataGrid 圆角外框必须与首末列 Header 的上圆角一致；表格锁定/选择列必须使用共享主题复选框。
+- 含图标按钮必须使用双列/统一 ContentPresenter，并显式水平、垂直居中；不得依赖字体图标默认基线。
+- 搜索占位文本仅在“文本为空且未获得键盘焦点”时显示；输入后必须出现统一清除按钮，清除后保留输入焦点。
 
 ### 0.5.8 WPF UI 收口与插件内反馈
 

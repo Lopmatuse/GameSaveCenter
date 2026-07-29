@@ -28,28 +28,7 @@
             <Setter Property="Margin" Value="0,0,0,16"/>
             <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="#20000000" BlurRadius="16" ShadowDepth="2" Opacity="0.3"/></Setter.Value></Setter>
         </Style>
-        <Style TargetType="TextBox">
-            <Setter Property="FocusVisualStyle" Value="{StaticResource GscSharedFocusVisual}"/>
-            <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
-            <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,7"/>
-            <Setter Property="MinHeight" Value="36"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="Chrome" CornerRadius="10" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
-                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/></Trigger>
-                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.45"/></Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <Style TargetType="TextBox" BasedOn="{StaticResource GscTextBox}"/>
         <Style TargetType="ComboBox" BasedOn="{StaticResource GscComboBox}"/>
         <Style TargetType="ComboBoxItem" BasedOn="{StaticResource GscComboBoxItem}"/>
         <Style TargetType="CheckBox" BasedOn="{StaticResource GscCheckBox}"/>

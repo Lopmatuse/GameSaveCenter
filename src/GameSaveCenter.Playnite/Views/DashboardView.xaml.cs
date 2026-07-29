@@ -161,6 +161,15 @@ namespace GameSaveCenter.Playnite.Views
 
         private void OnRefreshTimerTick(object sender, EventArgs e) => viewModel?.RequestBackgroundRefresh();
 
+
+        private void OnClearTextBoxClick(object sender, RoutedEventArgs e)
+        {
+            if (!(sender is FrameworkElement source) || !(source.Tag is TextBox textBox)) return;
+            textBox.Clear();
+            textBox.Focus();
+            Keyboard.Focus(textBox);
+        }
+
         private void OnNavigationChecked(object sender, RoutedEventArgs e)
         {
             if (viewModel == null || DetailsTabControl == null) return;
@@ -645,6 +654,8 @@ namespace GameSaveCenter.Playnite.Views
             Resources["GscControlFillBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlFill);
             Resources["GscControlStrokeBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlStroke);
             Resources["GscDividerBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Divider);
+            Resources["GscTableDividerBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
+                palette.IsDark ? (byte)24 : (byte)18, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
             Resources["GscPopupBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
                 250, palette.StrongSurfaceTop.R, palette.StrongSurfaceTop.G, palette.StrongSurfaceTop.B));
             Resources["GscGlassFillBrush"] = AdaptiveThemePaletteFactory.Gradient(palette.SurfaceTop, palette.SurfaceBottom);

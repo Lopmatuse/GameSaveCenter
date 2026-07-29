@@ -1,3 +1,12 @@
+# 0.5.9 Development Preview
+
+- 重写共享 ScrollBar Track/Thumb 几何：纵向与横向使用固定厚度、方向独立最小长度和有限圆角，避免大量数据时滑块被归一化成尖角或透镜形。
+- 完全接管 TabControl/TabItem 模板，移除 Playnite 宿主标签线与默认 Chrome；一级和二级页签现在四角一致、内容居中且具备完整 Hover/Selected/Focused 状态。
+- 重构 DataGrid 表头与外框：首末列表头匹配表格上圆角，弱化分隔线；表格复选框改为居中的 Apple-inspired 圆角勾选框。
+- 统一按钮 ContentPresenter 对齐，修复 Segoe MDL2 图标与文字不在同一水平线的问题；导航图标与文字同步垂直居中。
+- 游戏搜索和 FLiNG 搜索改为真实 Watermark：获得焦点即隐藏占位文本，输入后显示垂直居中的清除按钮，点击后清空并保留焦点。
+- 共享 TextBox、ComboBox、CheckBox、ScrollBar 与 DataGrid 模板应用到 Dashboard 和设置页，避免同类控件在其他页面继续回退为宿主默认样式。
+
 # 0.5.8 Development Preview
 
 - 重构全局 ScrollBar/Thumb 模板，修复大型游戏库中纵向滑块被最小宽度约束挤压变形的问题。
