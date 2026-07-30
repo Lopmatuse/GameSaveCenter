@@ -322,60 +322,94 @@
         </Setter>
     </Style>
 
-    <!-- Scrollbars are deliberately built from a padded Track instead of wrapping the
-         Track in a clipping Border. This keeps both ends of the Thumb fully rounded even
-         when it reaches the first/last item, at high DPI, or inside a DataGrid viewport. -->
+    <!-- Overlay scrollbars: the visible capsule is drawn from two circular caps plus a
+         rectangular body. This avoids the DPI/layout clipping that can make a Border-based
+         Thumb render with one rounded end and one flat end in Playnite-hosted ScrollViewers. -->
+    <ControlTemplate x:Key="GscVerticalScrollThumbTemplate" TargetType="Thumb">
+        <Grid Margin="2,1"
+              Background="Transparent"
+              ClipToBounds="False"
+              SnapsToDevicePixels="False"
+              UseLayoutRounding="False">
+            <Rectangle Width="8"
+                       Margin="0,4"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Stretch"
+                       Fill="{TemplateBinding Background}"/>
+            <Ellipse Width="8"
+                     Height="8"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Top"
+                     Fill="{TemplateBinding Background}"/>
+            <Ellipse Width="8"
+                     Height="8"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Bottom"
+                     Fill="{TemplateBinding Background}"/>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="GscHorizontalScrollThumbTemplate" TargetType="Thumb">
+        <Grid Margin="1,2"
+              Background="Transparent"
+              ClipToBounds="False"
+              SnapsToDevicePixels="False"
+              UseLayoutRounding="False">
+            <Rectangle Height="8"
+                       Margin="4,0"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Center"
+                       Fill="{TemplateBinding Background}"/>
+            <Ellipse Width="8"
+                     Height="8"
+                     HorizontalAlignment="Left"
+                     VerticalAlignment="Center"
+                     Fill="{TemplateBinding Background}"/>
+            <Ellipse Width="8"
+                     Height="8"
+                     HorizontalAlignment="Right"
+                     VerticalAlignment="Center"
+                     Fill="{TemplateBinding Background}"/>
+        </Grid>
+    </ControlTemplate>
+
     <Style x:Key="GscScrollThumb" TargetType="Thumb">
         <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Focusable" Value="False"/>
         <Setter Property="Background" Value="{DynamicResource GscScrollThumbBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="ClipToBounds" Value="False"/>
         <Setter Property="SnapsToDevicePixels" Value="False"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Thumb">
-                    <Border x:Name="ThumbChrome"
-                            Margin="0"
-                            Background="{TemplateBinding Background}"
-                            CornerRadius="4"
-                            SnapsToDevicePixels="False"
-                            UseLayoutRounding="True"/>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ThumbChrome" Property="Background" Value="{DynamicResource GscScrollThumbHoverBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsDragging" Value="True">
-                            <Setter TargetName="ThumbChrome" Property="Background" Value="{StaticResource GscAccentBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="ThumbChrome" Property="Opacity" Value="0.34"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="UseLayoutRounding" Value="False"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource GscScrollThumbHoverBrush}"/>
+            </Trigger>
+            <Trigger Property="IsDragging" Value="True">
+                <Setter Property="Background" Value="{StaticResource GscAccentBrush}"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.34"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <Style TargetType="ScrollBar">
         <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{DynamicResource GscScrollTrackBrush}"/>
+        <Setter Property="Foreground" Value="Transparent"/>
         <Setter Property="SnapsToDevicePixels" Value="False"/>
+        <Setter Property="UseLayoutRounding" Value="False"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ScrollBar">
-                    <Grid x:Name="Root" Background="Transparent" ClipToBounds="False">
-                        <Border x:Name="VerticalTrackChrome"
-                                Width="4" Margin="0,4"
-                                HorizontalAlignment="Center" VerticalAlignment="Stretch"
-                                Background="{TemplateBinding Foreground}"
-                                CornerRadius="2"/>
-                        <Border x:Name="HorizontalTrackChrome"
-                                Height="4" Margin="4,0"
-                                HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                Background="{TemplateBinding Foreground}"
-                                CornerRadius="2" Visibility="Collapsed"/>
+                    <Grid x:Name="Root"
+                          Background="Transparent"
+                          ClipToBounds="False"
+                          SnapsToDevicePixels="False"
+                          UseLayoutRounding="False">
                         <Track x:Name="PART_Track"
-                               Margin="2,4"
+                               Margin="0,4"
                                Focusable="False"
                                IsDirectionReversed="True"
                                Orientation="{TemplateBinding Orientation}"
@@ -392,12 +426,16 @@
                                               BorderThickness="0"
                                               Focusable="False">
                                     <RepeatButton.Template>
-                                        <ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate>
+                                        <ControlTemplate TargetType="RepeatButton">
+                                            <Border Background="Transparent"/>
+                                        </ControlTemplate>
                                     </RepeatButton.Template>
                                 </RepeatButton>
                             </Track.DecreaseRepeatButton>
                             <Track.Thumb>
-                                <Thumb x:Name="ScrollThumb" Style="{StaticResource GscScrollThumb}"/>
+                                <Thumb x:Name="ScrollThumb"
+                                       Style="{StaticResource GscScrollThumb}"
+                                       Template="{StaticResource GscVerticalScrollThumbTemplate}"/>
                             </Track.Thumb>
                             <Track.IncreaseRepeatButton>
                                 <RepeatButton x:Name="IncreaseButton"
@@ -408,7 +446,9 @@
                                               BorderThickness="0"
                                               Focusable="False">
                                     <RepeatButton.Template>
-                                        <ControlTemplate TargetType="RepeatButton"><Border Background="Transparent"/></ControlTemplate>
+                                        <ControlTemplate TargetType="RepeatButton">
+                                            <Border Background="Transparent"/>
+                                        </ControlTemplate>
                                     </RepeatButton.Template>
                                 </RepeatButton>
                             </Track.IncreaseRepeatButton>
@@ -416,30 +456,28 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="Orientation" Value="Vertical">
-                            <Setter Property="Width" Value="14"/>
-                            <Setter Property="MinWidth" Value="14"/>
-                            <Setter TargetName="ScrollThumb" Property="Width" Value="8"/>
-                            <Setter TargetName="ScrollThumb" Property="MinHeight" Value="32"/>
-                            <Setter TargetName="ScrollThumb" Property="HorizontalAlignment" Value="Center"/>
+                            <Setter Property="Width" Value="12"/>
+                            <Setter Property="MinWidth" Value="12"/>
+                            <Setter TargetName="PART_Track" Property="Margin" Value="0,4"/>
+                            <Setter TargetName="ScrollThumb" Property="Width" Value="12"/>
+                            <Setter TargetName="ScrollThumb" Property="MinHeight" Value="36"/>
+                            <Setter TargetName="ScrollThumb" Property="HorizontalAlignment" Value="Stretch"/>
                             <Setter TargetName="ScrollThumb" Property="VerticalAlignment" Value="Stretch"/>
+                            <Setter TargetName="ScrollThumb" Property="Template" Value="{StaticResource GscVerticalScrollThumbTemplate}"/>
                         </Trigger>
                         <Trigger Property="Orientation" Value="Horizontal">
-                            <Setter Property="Height" Value="14"/>
-                            <Setter Property="MinHeight" Value="14"/>
-                            <Setter TargetName="VerticalTrackChrome" Property="Visibility" Value="Collapsed"/>
-                            <Setter TargetName="HorizontalTrackChrome" Property="Visibility" Value="Visible"/>
-                            <Setter TargetName="PART_Track" Property="Margin" Value="4,2"/>
+                            <Setter Property="Height" Value="12"/>
+                            <Setter Property="MinHeight" Value="12"/>
+                            <Setter TargetName="PART_Track" Property="Margin" Value="4,0"/>
                             <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False"/>
                             <Setter TargetName="DecreaseButton" Property="Command" Value="ScrollBar.PageLeftCommand"/>
                             <Setter TargetName="IncreaseButton" Property="Command" Value="ScrollBar.PageRightCommand"/>
-                            <Setter TargetName="ScrollThumb" Property="Height" Value="8"/>
-                            <Setter TargetName="ScrollThumb" Property="MinWidth" Value="32"/>
+                            <Setter TargetName="ScrollThumb" Property="Height" Value="12"/>
+                            <Setter TargetName="ScrollThumb" Property="MinWidth" Value="36"/>
+                            <Setter TargetName="ScrollThumb" Property="MinHeight" Value="0"/>
                             <Setter TargetName="ScrollThumb" Property="HorizontalAlignment" Value="Stretch"/>
-                            <Setter TargetName="ScrollThumb" Property="VerticalAlignment" Value="Center"/>
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="VerticalTrackChrome" Property="Background" Value="{DynamicResource GscControlStrokeBrush}"/>
-                            <Setter TargetName="HorizontalTrackChrome" Property="Background" Value="{DynamicResource GscControlStrokeBrush}"/>
+                            <Setter TargetName="ScrollThumb" Property="VerticalAlignment" Value="Stretch"/>
+                            <Setter TargetName="ScrollThumb" Property="Template" Value="{StaticResource GscHorizontalScrollThumbTemplate}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Root" Property="Opacity" Value="0.3"/>
