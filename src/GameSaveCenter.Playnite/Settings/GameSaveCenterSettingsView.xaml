@@ -40,8 +40,10 @@
             <Setter Property="BorderBrush" Value="{DynamicResource GscDividerBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="15,8"/>
-            <Setter Property="MinHeight" Value="38"/>
-            <Setter Property="Margin" Value="0,0,8,8"/>
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -51,7 +53,9 @@
                                 BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
                                 Padding="{TemplateBinding Padding}" RenderTransformOrigin="0.5,0.5">
                             <Border.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1"/></Border.RenderTransform>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              RecognizesAccessKey="True"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -211,10 +215,10 @@
                     </StackPanel>
                     <TextBlock Text="导出文件包含非敏感插件设置、本地路径和云端目标名称，不包含 Rclone 密码。导入后先显示缺失路径报告，点击 Playnite 的保存按钮后才会生效。"
                                Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
-                    <WrapPanel>
-                        <Button Style="{StaticResource SettingsActionButton}" Content="导出设置" Click="OnExportSettingsClick"/>
-                        <Button Style="{StaticResource SettingsActionButton}" Content="导入设置" Click="OnImportSettingsClick" Margin="0"/>
-                    </WrapPanel>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource SettingsActionButton}" MinWidth="112" Content="导出设置" Click="OnExportSettingsClick" Margin="0,0,10,0"/>
+                        <Button Style="{StaticResource SettingsActionButton}" MinWidth="112" Content="导入设置" Click="OnImportSettingsClick"/>
+                    </StackPanel>
                 </StackPanel>
             </Border>
         </StackPanel>

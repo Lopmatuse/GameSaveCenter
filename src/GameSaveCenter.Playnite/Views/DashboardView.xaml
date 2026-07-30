@@ -180,6 +180,24 @@
             </Style.Triggers>
         </Style>
 
+        <!-- Button rows use an explicit zero-margin style so every item shares the same
+             measured height and vertical center. Spacing is owned by the parent layout. -->
+        <Style x:Key="GscToolbarButton" TargetType="Button" BasedOn="{StaticResource GscButtonBase}">
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="GscToolbarPrimaryButton" TargetType="Button" BasedOn="{StaticResource GscPrimaryButton}">
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
         <Style TargetType="CheckBox" BasedOn="{StaticResource GscCheckBox}"/>
         <Style TargetType="ComboBox" BasedOn="{StaticResource GscComboBox}"/>
         <Style TargetType="ComboBoxItem" BasedOn="{StaticResource GscComboBoxItem}"/>
@@ -323,6 +341,19 @@
             <Setter Property="TextWrapping" Value="NoWrap"/>
         </Style>
 
+        <!-- Column-resize hit areas remain available, but the host theme must not draw a
+             bright native Thumb over the header on light themes. -->
+        <Style x:Key="GscColumnHeaderGripper" TargetType="Thumb">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb"><Border Background="Transparent"/></ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="GscDataGrid" TargetType="DataGrid">
             <Setter Property="FocusVisualStyle" Value="{StaticResource GscFocusVisual}"/>
             <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
@@ -341,6 +372,7 @@
             <Setter Property="SelectionUnit" Value="FullRow"/>
             <Setter Property="CanUserAddRows" Value="False"/>
             <Setter Property="CanUserResizeColumns" Value="True"/>
+            <Setter Property="MinColumnWidth" Value="64"/>
             <Setter Property="CanUserReorderColumns" Value="False"/>
             <Setter Property="CanUserSortColumns" Value="True"/>
             <Setter Property="IsReadOnly" Value="True"/>
@@ -387,10 +419,10 @@
                                       Margin="0,0,9,0" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
                                     <Path.RenderTransform><RotateTransform Angle="0"/></Path.RenderTransform>
                                 </Path>
-                                <Thumb x:Name="PART_LeftHeaderGripper" Width="6" HorizontalAlignment="Left"
-                                       Cursor="SizeWE" Background="Transparent"/>
-                                <Thumb x:Name="PART_RightHeaderGripper" Width="6" HorizontalAlignment="Right"
-                                       Cursor="SizeWE" Background="Transparent"/>
+                                <Thumb x:Name="PART_LeftHeaderGripper" Style="{StaticResource GscColumnHeaderGripper}"
+                                       Width="8" HorizontalAlignment="Left" Cursor="SizeWE"/>
+                                <Thumb x:Name="PART_RightHeaderGripper" Style="{StaticResource GscColumnHeaderGripper}"
+                                       Width="8" HorizontalAlignment="Right" Cursor="SizeWE"/>
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -460,6 +492,11 @@
         </Style>
 
         <Style x:Key="GscLeftDataGridCell" TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="GscStretchDataGridCell" TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
@@ -632,7 +669,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.13" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.14" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -699,18 +736,18 @@
             <WrapPanel x:Name="TopActionsPanel" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="14,0,0,0">
                 <!-- Background refresh never inserts an element into this WrapPanel. Keeping the toolbar's
                      measured width stable prevents timer-driven page movement when actions would wrap. -->
-                <Button x:Name="TopRefreshButton" Style="{StaticResource GscButtonBase}" Command="{Binding RefreshCommand}">
+                <Button x:Name="TopRefreshButton" Style="{StaticResource GscToolbarButton}" Command="{Binding RefreshCommand}" Margin="0,0,8,0">
                     <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72C;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock Grid.Column="1" Text="刷新" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
                 </Button>
-                <Button x:Name="TopBackupAllButton" Style="{StaticResource GscButtonBase}" Command="{Binding BackupAllCommand}">
+                <Button x:Name="TopBackupAllButton" Style="{StaticResource GscToolbarButton}" Command="{Binding BackupAllCommand}" Margin="0,0,8,0">
                     <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock Grid.Column="1" Text="全部备份" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
                 </Button>
-                <Button x:Name="TopMediaSyncButton" Style="{StaticResource GscButtonBase}" Command="{Binding SyncMediaCommand}">
+                <Button x:Name="TopMediaSyncButton" Style="{StaticResource GscToolbarButton}" Command="{Binding SyncMediaCommand}" Margin="0,0,8,0">
                     <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock Grid.Column="1" Text="同步媒体" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
                 </Button>
-                <Button x:Name="TopTrainerImportButton" Style="{StaticResource GscButtonBase}" Command="{Binding ImportTrainerCommand}" Visibility="Collapsed" Content="导入修改器"/>
-                <Button x:Name="TopTrainerCatalogButton" Style="{StaticResource GscButtonBase}" Command="{Binding SyncTrainerCatalogCommand}" Visibility="Collapsed" Content="刷新目录"/>
-                <Button x:Name="TopDiagnosticsButton" Style="{StaticResource GscButtonBase}" Command="{Binding RefreshDiagnosticsCommand}" Visibility="Collapsed" Content="刷新诊断"/>
+                <Button x:Name="TopTrainerImportButton" Style="{StaticResource GscToolbarButton}" Command="{Binding ImportTrainerCommand}" Visibility="Collapsed" Content="导入修改器"/>
+                <Button x:Name="TopTrainerCatalogButton" Style="{StaticResource GscToolbarButton}" Margin="8,0,0,0" Command="{Binding SyncTrainerCatalogCommand}" Visibility="Collapsed" Content="刷新目录"/>
+                <Button x:Name="TopDiagnosticsButton" Style="{StaticResource GscToolbarButton}" Command="{Binding RefreshDiagnosticsCommand}" Visibility="Collapsed" Content="刷新诊断"/>
             </WrapPanel>
         </Grid>
 
@@ -718,43 +755,43 @@
             <Border Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
                     <Border Width="36" Height="36" CornerRadius="18" Background="#247C5CFC"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
-                    <StackPanel Grid.Column="1"><TextBlock Text="管理游戏" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.ManagedGames}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="管理游戏" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.ManagedGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </Border>
             <Border Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
                     <Border Width="36" Height="36" CornerRadius="18" Background="#220A84FF"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
-                    <StackPanel Grid.Column="1"><TextBlock Text="已匹配存档" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.MatchedGames}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="已匹配存档" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.MatchedGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </Border>
             <Border Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
                     <Border Width="36" Height="36" CornerRadius="18" Background="#2030D158"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE768;" Foreground="{StaticResource GscSuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
-                    <StackPanel Grid.Column="1"><TextBlock Text="正在运行" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.RunningGames}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="正在运行" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.RunningGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </Border>
             <Border Style="{StaticResource GscMetricCard}">
                 <Button Style="{StaticResource GscButtonBase}"
                         Command="{Binding OpenAttentionCenterCommand}"
                         ToolTip="查看需要关注的游戏、原因和建议处理方式"
+                        HorizontalContentAlignment="Stretch"
                         Padding="0" Margin="0" Background="Transparent" BorderBrush="Transparent">
-                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
                         <Border Width="36" Height="36" CornerRadius="18" Background="#20FF453A"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB52;" Foreground="{StaticResource GscErrorBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
-                        <StackPanel Grid.Column="1"><TextBlock Text="需要关注" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.WarningGames}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
-                        <TextBlock Grid.Column="2" Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource GscMutedTextBrush}" VerticalAlignment="Center" ToolTip="查看详情"/>
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="需要关注" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.WarningGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                     </Grid>
                 </Button>
             </Border>
             <Border Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
                     <Border Width="36" Height="36" CornerRadius="18" Background="#220A84FF"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
-                    <StackPanel Grid.Column="1"><TextBlock Text="云端任务" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.PendingCloudTasks}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="云端任务" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.PendingCloudTasks}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </Border>
             <Border Style="{StaticResource GscMetricCard}" Margin="0">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
                     <Border Width="36" Height="36" CornerRadius="18" Background="#20FF9F0A"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE91B;" Foreground="{StaticResource GscWarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
-                    <StackPanel Grid.Column="1"><TextBlock Text="待归类媒体" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount}" FontSize="22" FontWeight="SemiBold"/></StackPanel>
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="待归类媒体" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </Border>
         </UniformGrid>
@@ -937,12 +974,12 @@
                             </StackPanel>
                             <TextBlock Text="{Binding SelectedGame.LudusaviName, StringFormat=Ludusavi：{0}, TargetNullValue=Ludusavi：未匹配}" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,5,0,0"/>
                         </StackPanel>
-                        <WrapPanel Grid.Column="1">
-                            <Button x:Name="BackupSelectedButton" Style="{StaticResource GscPrimaryButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份"/>
-                            <Button x:Name="ValidateButton" Style="{StaticResource GscButtonBase}" Command="{Binding ValidateCommand}" Content="校验"/>
-                            <Button x:Name="DetectPathsButton" Style="{StaticResource GscButtonBase}" Command="{Binding DetectPathsCommand}" Content="侦测路径"/>
-                            <Button x:Name="PolicyToggleButton" Style="{StaticResource GscButtonBase}" Click="OnTogglePolicy" Content="策略"/>
-                        </WrapPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button x:Name="BackupSelectedButton" Style="{StaticResource GscToolbarPrimaryButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份" Margin="0,0,8,0"/>
+                            <Button x:Name="ValidateButton" Style="{StaticResource GscToolbarButton}" Command="{Binding ValidateCommand}" Content="校验" Margin="0,0,8,0"/>
+                            <Button x:Name="DetectPathsButton" Style="{StaticResource GscToolbarButton}" Command="{Binding DetectPathsCommand}" Content="侦测路径" Margin="0,0,8,0"/>
+                            <Button x:Name="PolicyToggleButton" Style="{StaticResource GscToolbarButton}" Click="OnTogglePolicy" Content="策略"/>
+                        </StackPanel>
                     </Grid>
 
                     <Border x:Name="RestoreSafetyBanner" Grid.Row="1" Background="#140A84FF" BorderBrush="#330A84FF" BorderThickness="1" CornerRadius="11" Padding="12" Margin="0,14,0,12">
@@ -1076,7 +1113,7 @@
                         </TabItem>
 
                         <TabItem x:Name="TrainerTab" Header="修改器">
-                            <TabControl Margin="0,12,0,0" Style="{StaticResource GscTabControl}">
+                            <TabControl Margin="0,8,0,0" Style="{StaticResource GscTabControl}">
                                 <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource GscTabItem}"/></TabControl.Resources>
                                 <TabItem Header="已安装">
                                     <Grid Margin="0,12,0,0">
@@ -1088,11 +1125,11 @@
                                                 <TextBlock Text="当前游戏工具" FontSize="16" FontWeight="SemiBold"/>
                                                 <TextBlock Text="每个工具独立决定是否随游戏启动；新导入项目默认关闭自动启动。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,3,0,0"/>
                                             </StackPanel>
-                                            <WrapPanel Grid.Column="1" HorizontalAlignment="Right">
-                                                <Button Style="{StaticResource GscButtonBase}" Command="{Binding ImportTrainerCommand}" Content="导入修改器"/>
-                                                <Button Style="{StaticResource GscButtonBase}" Command="{Binding ImportToolFolderCommand}" Content="导入目录"/>
-                                                <Button Style="{StaticResource GscButtonBase}" Command="{Binding ImportCheatTableCommand}" Content="导入 CT" Margin="0"/>
-                                            </WrapPanel>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                                <Button Style="{StaticResource GscToolbarButton}" MinWidth="104" Command="{Binding ImportTrainerCommand}" Content="导入修改器" Margin="0,0,8,0"/>
+                                                <Button Style="{StaticResource GscToolbarButton}" MinWidth="104" Command="{Binding ImportToolFolderCommand}" Content="导入目录" Margin="0,0,8,0"/>
+                                                <Button Style="{StaticResource GscToolbarButton}" MinWidth="104" Command="{Binding ImportCheatTableCommand}" Content="导入 CT"/>
+                                            </StackPanel>
                                         </Grid>
                                         <Border Grid.Row="1" Grid.ColumnSpan="3" Background="{DynamicResource GscAccentTintBrush}"
                                                 BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="12"
@@ -1339,7 +1376,7 @@
                         </TabItem>
 
                         <TabItem x:Name="MediaTab" Header="截图与录像">
-                            <TabControl Margin="0,12,0,0" Style="{StaticResource GscTabControl}">
+                            <TabControl Margin="0,8,0,0" Style="{StaticResource GscTabControl}">
                                 <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource GscTabItem}"/></TabControl.Resources>
                                 <TabItem Header="待归类">
                                     <Grid Margin="0,12,0,0">
@@ -1556,9 +1593,9 @@
                             <Grid Margin="0,12,0,0">
                                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                 <WrapPanel Margin="0,0,0,10">
-                                    <ComboBox Width="150" ItemsSource="{Binding TaskStatusFilterOptions}" SelectedItem="{Binding TaskStatusFilter}" ToolTip="任务状态" Margin="0,0,8,0"/>
-                                    <ComboBox Width="190" ItemsSource="{Binding TaskGameFilterOptions}" SelectedItem="{Binding TaskGameFilter}" ToolTip="游戏筛选" Margin="0,0,8,0"/>
-                                    <ComboBox Width="160" ItemsSource="{Binding TaskTypeFilterOptions}" SelectedItem="{Binding TaskTypeFilter}" ToolTip="任务类型" Margin="0"/>
+                                    <ComboBox Width="150" ItemsSource="{Binding TaskStatusFilterOptions}" SelectedItem="{Binding TaskStatusFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="任务状态" Margin="0,0,8,0"/>
+                                    <ComboBox Width="190" ItemsSource="{Binding TaskGameFilterOptions}" SelectedItem="{Binding TaskGameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="游戏筛选" Margin="0,0,8,0"/>
+                                    <ComboBox Width="160" ItemsSource="{Binding TaskTypeFilterOptions}" SelectedItem="{Binding TaskTypeFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="任务类型" Margin="0"/>
                                 </WrapPanel>
                                 <Border Grid.Row="1" Style="{StaticResource GscTableFrame}">
                                     <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding TasksView}" SelectedItem="{Binding SelectedTask}" RowHeight="46" ColumnHeaderHeight="40">
@@ -1583,15 +1620,15 @@
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
                                             </DataGridTemplateColumn>
-                                            <DataGridTemplateColumn Header="进度" Width="132">
+                                            <DataGridTemplateColumn Header="进度" Width="170" MinWidth="150" CellStyle="{StaticResource GscStretchDataGridCell}">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
-                                                        <Grid Margin="2,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                            <Grid.ColumnDefinitions><ColumnDefinition Width="82"/><ColumnDefinition Width="40"/></Grid.ColumnDefinitions>
-                                                            <ProgressBar Height="6" Width="76" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                        <Grid Margin="8,0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*" MinWidth="68"/><ColumnDefinition Width="44"/></Grid.ColumnDefinitions>
+                                                            <ProgressBar Height="8" MinWidth="68" HorizontalAlignment="Stretch" VerticalAlignment="Center"
                                                                          Minimum="0" Maximum="100" Value="{Binding ProgressPercent, Mode=OneWay}"/>
                                                             <TextBlock Grid.Column="1" Text="{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0}%}"
-                                                                       HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11"
+                                                                       HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center" FontSize="11"
                                                                        Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                                                         </Grid>
                                                     </DataTemplate>
@@ -1637,12 +1674,12 @@
                             <Grid Margin="0,12,0,0">
                                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                                 <WrapPanel>
-                                    <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding RefreshDiagnosticsCommand}" Content="刷新诊断"/>
-                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding CopyDiagnosticsCommand}" Content="复制诊断"/>
-                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding OpenDataDirectoryCommand}" Content="打开数据目录"/>
-                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding OpenBackupDirectoryCommand}" Content="打开存档目录"/>
-                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding OpenMediaDirectoryCommand}" Content="打开媒体目录"/>
-                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding OpenWorkerLogCommand}" Content="Worker 日志"/>
+                                    <Button Style="{StaticResource GscToolbarPrimaryButton}" Command="{Binding RefreshDiagnosticsCommand}" Content="刷新诊断" Margin="0,0,8,8"/>
+                                    <Button Style="{StaticResource GscToolbarButton}" Command="{Binding CopyDiagnosticsCommand}" Content="复制诊断" Margin="0,0,8,8"/>
+                                    <Button Style="{StaticResource GscToolbarButton}" Command="{Binding OpenDataDirectoryCommand}" Content="打开数据目录" Margin="0,0,8,8"/>
+                                    <Button Style="{StaticResource GscToolbarButton}" Command="{Binding OpenBackupDirectoryCommand}" Content="打开存档目录" Margin="0,0,8,8"/>
+                                    <Button Style="{StaticResource GscToolbarButton}" Command="{Binding OpenMediaDirectoryCommand}" Content="打开媒体目录" Margin="0,0,8,8"/>
+                                    <Button Style="{StaticResource GscToolbarButton}" Command="{Binding OpenWorkerLogCommand}" Content="Worker 日志" Margin="0,0,0,8"/>
                                 </WrapPanel>
                                 <Grid Grid.Row="1" Margin="0,4,0,10">
                                     <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
@@ -1677,7 +1714,7 @@
                             </Grid>
                         </TabItem>
 
-                        <TabItem Header="设备状态">
+                        <TabItem x:Name="DeviceStatusTab" Header="设备状态">
                             <Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                 <WrapPanel>
                                     <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding SyncDeviceStatesCommand}" Content="刷新设备状态"/>

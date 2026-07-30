@@ -1,6 +1,6 @@
 # 已知限制与风险
 
-## 1. 最新 0.6.13 尚未完成全部 Windows/Playnite 业务回归
+## 1. 最新 0.6.14 尚未完成全部 Windows/Playnite 业务回归
 
 - 当前 Windows 开发环境已经能够执行 Release 编译和 Core 测试，用户也已确认构建、安装和 Git 推送链路可用。
 - 本轮仍未自动操控 Playnite 完成真实 UI、Ludusavi、Rclone、游戏进程和安全软件交互回归，因此不能把“编译通过”等同于“所有业务真机验证完成”。

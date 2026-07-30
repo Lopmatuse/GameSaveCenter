@@ -222,9 +222,15 @@ namespace GameSaveCenter.Playnite.Views
             SetVisibility(MediaTab, workspace == WorkspaceKind.Media);
             SetVisibility(TaskTab, workspace == WorkspaceKind.Tasks);
             SetVisibility(DiagnosticTab, workspace == WorkspaceKind.Maintenance);
+            SetVisibility(DeviceStatusTab, workspace == WorkspaceKind.Maintenance);
             SetVisibility(LogsTab, workspace == WorkspaceKind.Maintenance);
 
             var saves = workspace == WorkspaceKind.Saves;
+            // Game-scoped pages need breathing room between the selected-game identity and
+            // the first module pill. Save pages already have their safety banner in between.
+            DetailsTabControl.Margin = workspace == WorkspaceKind.Trainers || workspace == WorkspaceKind.Media
+                ? new Thickness(0, 12, 0, 0)
+                : new Thickness(0);
             SetVisibility(SelectedGameHeader, workspace != WorkspaceKind.Tasks && workspace != WorkspaceKind.Maintenance && workspace != WorkspaceKind.Overview);
             SetVisibility(BackupSelectedButton, saves);
             SetVisibility(ValidateButton, saves);

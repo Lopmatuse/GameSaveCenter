@@ -1335,8 +1335,16 @@ namespace GameSaveCenter.Playnite.ViewModels
             var selectedType = TaskTypeFilter;
             Replace(TaskGameFilterOptions, new[] { "全部" }.Concat(Tasks.Select(x => x.GameName).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x)));
             Replace(TaskTypeFilterOptions, new[] { "全部" }.Concat(Tasks.Select(x => x.TaskTypeDisplay).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x => x)));
-            TaskGameFilter = TaskGameFilterOptions.Contains(selectedGame) ? selectedGame : "全部";
-            TaskTypeFilter = TaskTypeFilterOptions.Contains(selectedType) ? selectedType : "全部";
+
+            // Replacing ObservableCollection contents makes WPF clear ComboBox.SelectedItem.
+            // Force a real property notification even when the logical value remains “全部”,
+            // otherwise the two dynamic filters render as empty until the user selects them.
+            var nextGame = TaskGameFilterOptions.Contains(selectedGame) ? selectedGame : "全部";
+            var nextType = TaskTypeFilterOptions.Contains(selectedType) ? selectedType : "全部";
+            taskGameFilter = string.Empty;
+            taskTypeFilter = string.Empty;
+            TaskGameFilter = nextGame;
+            TaskTypeFilter = nextType;
             TasksView.Refresh();
         }
 
