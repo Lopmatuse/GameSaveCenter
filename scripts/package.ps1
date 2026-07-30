@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [ValidateSet('Debug','Release')][string]$Configuration = 'Release',
     [bool]$SelfContainedWorker = $true,
@@ -33,20 +33,69 @@ function Invoke-DotNet {
     }
 }
 
+function Assert-PackageContents {
+    param(
+        [Parameter(Mandatory = $true)][string]$PackagePath,
+        [Parameter(Mandatory = $true)][string]$ExpectedVersion
+    )
+
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $archive = [System.IO.Compression.ZipFile]::OpenRead($PackagePath)
+    try {
+        # Compress-Archive writes backslashes on Windows. Normalize names so
+        # this verification has the same result on Windows and PowerShell 7.
+        $entries = @($archive.Entries | ForEach-Object { $_.FullName.Replace('\', '/') })
+        $requiredEntries = @(
+            'extension.yaml',
+            'GameSaveCenter.Playnite.dll',
+            'GameSaveCenter.Contracts.dll',
+            'Worker/GameSaveCenter.Worker.dll',
+            'Worker/GameSaveCenter.Worker.runtimeconfig.json'
+        )
+        $missing = @($requiredEntries | Where-Object { $_ -notin $entries })
+        if ($missing.Count -gt 0) {
+            throw "安装包缺少必需文件：$($missing -join ', ')"
+        }
+
+        $manifestEntry = $archive.Entries | Where-Object { $_.FullName.Replace('\', '/') -eq 'extension.yaml' } | Select-Object -First 1
+        $reader = [System.IO.StreamReader]::new($manifestEntry.Open())
+        try {
+            $manifestContent = $reader.ReadToEnd()
+        }
+        finally {
+            $reader.Dispose()
+        }
+
+        if ($manifestContent -notmatch '(?m)^Version\s*:\s*(.+?)\s*$' -or $Matches[1].Trim() -ne $ExpectedVersion) {
+            throw "安装包 extension.yaml 版本与预期不一致：预期 $ExpectedVersion。"
+        }
+    }
+    finally {
+        $archive.Dispose()
+    }
+}
+
 # 默认先完整构建；一键开发安装已单独完成构建时可显式跳过，避免重复编译。
 if (-not $SkipBuild) {
     & (Join-Path $PSScriptRoot 'build.ps1') -Configuration $Configuration
 }
+
+# A normal solution restore does not necessarily contain the runtime-specific
+# assets needed by a self-contained Worker publish. Restore this target here
+# so package.ps1 remains reproducible after either build path.
+$workerProject = Join-Path $root 'src\GameSaveCenter.Worker\GameSaveCenter.Worker.csproj'
+Invoke-DotNet -StepName "还原 Worker 发布运行时（$Runtime）" -Arguments @('restore', $workerProject, '-r', $Runtime)
 
 Remove-Item $stage -Recurse -Force -ErrorAction SilentlyContinue
 New-Item $workerStage -ItemType Directory -Force | Out-Null
 
 $publishArgs = @(
     'publish',
-    (Join-Path $root 'src\GameSaveCenter.Worker\GameSaveCenter.Worker.csproj'),
+    $workerProject,
     '-c', $Configuration,
     '-r', $Runtime,
     '-o', $workerStage,
+    '--no-restore',
     '--self-contained', $(if ($SelfContainedWorker) { 'true' } else { 'false' })
 )
 Invoke-DotNet -StepName "发布 Worker（$Runtime）" -Arguments $publishArgs
@@ -97,6 +146,7 @@ Get-ChildItem $artifacts -File -ErrorAction SilentlyContinue |
 Remove-Item $zip,$pext -Force -ErrorAction SilentlyContinue
 Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -CompressionLevel Optimal
 Copy-Item $zip $pext
+Assert-PackageContents -PackagePath $pext -ExpectedVersion $packageVersion
 
 Write-Host "`n打包成功：$zip" -ForegroundColor Green
 Write-Host "Playnite 安装包：$pext" -ForegroundColor Green

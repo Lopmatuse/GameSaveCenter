@@ -1,10 +1,12 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.17
+  - Version: 0.6.18
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-07-30
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.17/GameSaveCenter-0.6.17.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.18/GameSaveCenter-0.6.18.pext
     Changelog:
+      - Worker 任务变化通过独立的当前用户事件管道实时推送到已打开的面板。
+      - 事件断线、Worker 重启或事件积压时自动回退到 SQLite 快照与有界长轮询。
       - 修复超大游戏库、任务和日志列表中滚动滑块缩成尖点的问题。
       - 多设备冲突支持远端 Ludusavi 备份库隔离下载。
       - 下载后和恢复前均执行哈希与 Backup ID 校验。

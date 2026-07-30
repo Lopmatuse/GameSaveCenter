@@ -14,6 +14,13 @@ namespace GameSaveCenter.Contracts
         public const string PipeName = "GameSaveCenter.Worker.v1";
 
         /// <summary>
+        /// Best-effort event pipe used by an open management panel to receive task
+        /// changes immediately. The normal request pipe and SQLite snapshots remain
+        /// authoritative when this transient connection is unavailable.
+        /// </summary>
+        public const string EventPipeName = "GameSaveCenter.Worker.Events.v1";
+
+        /// <summary>
         /// Current JSON envelope protocol version.
         /// </summary>
         public const int ProtocolVersion = 1;

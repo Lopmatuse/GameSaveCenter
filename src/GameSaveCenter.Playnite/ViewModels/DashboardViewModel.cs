@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -28,6 +29,8 @@ namespace GameSaveCenter.Playnite.ViewModels
         private bool isCancellingTask;
         private bool taskSnapshotInitialized;
         private long lastTaskEventSequence;
+        private CancellationTokenSource? taskEventSubscription;
+        private Task? taskEventListener;
         private DateTime lastFullDashboardRefreshUtc=DateTime.MinValue;
         private string statusMessage = "准备就绪";
         private GameStatusDto selectedGame = null!;
@@ -533,6 +536,59 @@ namespace GameSaveCenter.Playnite.ViewModels
         }
 
         public event EventHandler? AttentionCenterRequested;
+
+        /// <summary>
+        /// Enables the optional Worker event connection while the WPF dashboard is visible.
+        /// Normal task polling remains active as the durable fallback after a Worker restart,
+        /// missed event, or temporarily unavailable event pipe.
+        /// </summary>
+        public void StartTaskEventSubscription()
+        {
+            if (taskEventSubscription != null) return;
+            taskEventSubscription = new CancellationTokenSource();
+            taskEventListener = plugin.ListenForTaskEventsAsync(ApplyTaskEventAsync, taskEventSubscription.Token);
+        }
+
+        public void StopTaskEventSubscription()
+        {
+            var subscription = taskEventSubscription;
+            taskEventSubscription = null;
+            if (subscription == null) return;
+            try { subscription.Cancel(); }
+            finally { subscription.Dispose(); }
+            taskEventListener = null;
+        }
+
+        private Task ApplyTaskEventAsync(TaskChangeEventDto change)
+        {
+            if (change == null || change.Task == null) return Task.CompletedTask;
+            ApplyOnUi(() =>
+            {
+                MergeTaskChange(Tasks, change.Task);
+                Replace(OverviewTasks, Tasks.OrderByDescending(x => x.CreatedUtc).Take(8));
+                knownTaskStates[change.Task.TaskId] = change.Task.State;
+                taskSnapshotInitialized = true;
+                if (SelectedTask == null || string.Equals(SelectedTask.TaskId, change.Task.TaskId, StringComparison.OrdinalIgnoreCase))
+                    SelectedTask = Tasks.FirstOrDefault(x => string.Equals(x.TaskId, change.Task.TaskId, StringComparison.OrdinalIgnoreCase));
+                RaiseCommandStates();
+            });
+
+            if (change.Task.State == TaskState.Succeeded || change.Task.State == TaskState.Failed || change.Task.State == TaskState.Cancelled)
+            {
+                // A terminal event can change backup/media counts and findings. Request the normal
+                // cached snapshot refresh; the event itself only updates the task rows immediately.
+                RequestBackgroundRefresh();
+            }
+            return Task.CompletedTask;
+        }
+
+        private static void MergeTaskChange(ObservableCollection<TaskStatusDto> target, TaskStatusDto change)
+        {
+            var index = target.ToList().FindIndex(x => string.Equals(x.TaskId, change.TaskId, StringComparison.OrdinalIgnoreCase));
+            if (index >= 0) target[index] = change;
+            else target.Insert(0, change);
+            while (target.Count > 200) target.RemoveAt(target.Count - 1);
+        }
 
         private async Task InitializeAsync()
         {

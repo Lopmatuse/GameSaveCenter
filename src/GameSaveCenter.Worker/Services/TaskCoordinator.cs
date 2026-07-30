@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using GameSaveCenter.Contracts;
+using GameSaveCenter.Worker.Ipc;
 using GameSaveCenter.Worker.Persistence;
 using Microsoft.Extensions.Logging;
 
@@ -10,6 +11,7 @@ public sealed class TaskCoordinator
 {
     private readonly SqliteStateStore _store;
     private readonly ILogger<TaskCoordinator> _logger;
+    private readonly TaskEventBroadcaster _events;
     private readonly ConcurrentDictionary<string, SemaphoreSlim> _gameLocks = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, CancellationTokenSource> _taskTokens = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentQueue<TaskChangeEventDto> _changes = new();
@@ -18,8 +20,8 @@ public sealed class TaskCoordinator
     private long _changeSequence;
     private const int ChangeRetention = 500;
 
-    public TaskCoordinator(SqliteStateStore store, ILogger<TaskCoordinator> logger)
-    { _store=store; _logger=logger; }
+    public TaskCoordinator(SqliteStateStore store, TaskEventBroadcaster events, ILogger<TaskCoordinator> logger)
+    { _store=store; _events=events; _logger=logger; }
 
     public async Task<TaskStatusDto> RunAsync(
         string taskType,
@@ -127,8 +129,10 @@ public sealed class TaskCoordinator
     {
         await _store.AddOrUpdateTaskAsync(task,token).ConfigureAwait(false);
         var sequence=Interlocked.Increment(ref _changeSequence);
-        _changes.Enqueue(new TaskChangeEventDto{Sequence=sequence,Task=Clone(task)});
+        var change = new TaskChangeEventDto { Sequence = sequence, Task = Clone(task) };
+        _changes.Enqueue(change);
         while(_changes.Count>ChangeRetention && _changes.TryDequeue(out _)) { }
+        _events.Publish(change);
         TaskCompletionSource<bool> signal;
         lock(_changeSignalGate)
         {

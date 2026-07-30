@@ -40,7 +40,7 @@ GameSaveCenter.Worker (net8.0-windows)
 - 每条请求包含 `requestId`、`type`、`timestampUtc`、`payload`；
 - 响应复用相同 `requestId`；
 - 协议版本和最大消息大小由 Contracts 固定；
-- 当前实现以请求/响应为主；`tasks.changes` 提供 Worker 内存中的增量任务变化拉取，避免面板每次轮询重建完整首页。Worker 主动持续推送尚未完成。
+- 正常命令仍使用请求/响应；已打开的管理面板额外连接 `GameSaveCenter.Worker.Events.v1`，接收 Worker 的最佳努力任务事件。`tasks.changes` 与 `tasks.changes.wait` 仍是可恢复的增量拉取兜底，Worker 重启、事件断线或订阅缓冲溢出后以 SQLite 快照重新对齐。
 
 长任务由 Worker 写入 SQLite 任务表；Playnite 以 `tasks.changes` 获取立即增量，并以 `tasks.changes.wait` 建立最长 25 秒的信号唤醒长轮询。Worker 重启、事件窗口溢出、管道中断或面板首次打开时回退到 SQLite 全量快照；近实时事件只增强体验，不能成为任务正确性的唯一依赖。
 
@@ -135,4 +135,4 @@ Failed
 - 不调用 `sync`、`delete`、`purge`；
 - 本地副本是主副本，云端失败只记录任务错误；
 - 多设备默认使用不同设备子目录；
-- 完整多设备冲突闭环仍需远端设备摘要 sidecar 和摄取逻辑。
+- 多设备状态使用每设备独立 sidecar，并已支持人工决策、远端备份隔离下载与受保护恢复；仍需在两个真实设备与 Rclone 后端完成断线、远端变化和恢复回归。

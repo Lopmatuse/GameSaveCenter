@@ -1,7 +1,13 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-29
-当前版本：`0.6.17-development-preview`
+当前版本：`0.6.18-development-preview`
+
+### 0.6.18 任务事件推送边界
+
+- Worker 通过独立、当前用户范围的 `GameSaveCenter.Worker.Events.v1` 向已打开的管理面板推送任务状态。
+- 该事件通道只是最佳努力体验增强：每个订阅者仅有 128 条有界队列，过慢的 UI 丢弃最旧进度，绝不反压真实任务。
+- 正确性仍来自 SQLite、`tasks.changes` 与 `tasks.changes.wait`。Worker 重启、事件管道关闭或错过事件后必须重新对齐快照，禁止将事件流当作唯一事实来源。
 
 本文档用于跨会话、上下文压缩或更换开发者时恢复完整项目意图。修改需求、架构、完成状态或安全边界时，必须同步更新本文档和 `DEVELOPMENT_PROGRESS.md`。
 

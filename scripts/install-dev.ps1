@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
     [string]$PlayniteExtensionsPath = (Join-Path $env:APPDATA 'Playnite\Extensions'),
     [switch]$BuildFirst

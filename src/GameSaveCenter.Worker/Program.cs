@@ -32,6 +32,7 @@ internal static class Program
         builder.Services.AddSingleton<DeviceStateService>();
         builder.Services.AddSingleton<RemoteBackupStagingService>();
         builder.Services.AddSingleton<GameCatalogService>();
+        builder.Services.AddSingleton<TaskEventBroadcaster>();
         builder.Services.AddSingleton<TaskCoordinator>();
         builder.Services.AddSingleton<BackupOrchestrator>();
         builder.Services.AddSingleton<RestoreOrchestrator>();
@@ -43,6 +44,7 @@ internal static class Program
         builder.Services.AddSingleton<IpcRequestDispatcher>();
         builder.Services.AddHostedService<WorkerInitializationService>();
         builder.Services.AddHostedService<NamedPipeServerService>();
+        builder.Services.AddHostedService<TaskEventPipeServerService>();
         builder.Services.AddSingleton<GameSessionCoordinator>();
         builder.Services.AddHostedService(provider => provider.GetRequiredService<GameSessionCoordinator>());
         builder.Services.AddHostedService<ExternalGameProcessDetector>();

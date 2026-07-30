@@ -132,6 +132,10 @@ namespace GameSaveCenter.Playnite
 
         public Task<T> RequestAsync<T>(string type, object payload, TimeSpan? timeout = null) => client.RequestAsync<T>(type, payload, timeout);
 
+        /// <summary>Starts a best-effort task-event listener for an open dashboard.</summary>
+        public Task ListenForTaskEventsAsync(Func<TaskChangeEventDto, Task> onEvent, CancellationToken token)
+            => client.ListenForTaskEventsAsync(onEvent, token);
+
         public void ShowError(string message)
         {
             logger.Error(message);

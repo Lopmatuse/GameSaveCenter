@@ -1,3 +1,9 @@
+# 0.6.18 Development Preview
+
+- Worker task changes now use a separate current-user event pipe for an open dashboard, so progress appears without waiting for the periodic refresh interval.
+- Event delivery is best-effort and bounded; normal IPC, long-polling, and SQLite snapshots remain the authoritative recovery path after reconnects or Worker restarts.
+- Added regression coverage for task-event fan-out, event snapshot isolation, subscription disposal, and source validation guards.
+
 # 0.6.17 Development Preview
 
 - 修复超大列表和长日志中滚动滑块缩成尖点的问题。

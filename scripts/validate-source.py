@@ -528,11 +528,12 @@ def check_windows_launchers() -> None:
         if b"\n" in data.replace(b"\r\n", b""):
             fail(f"Windows launcher must use CRLF line endings: {path.relative_to(ROOT)}")
 
-    runner = ROOT / "scripts/dev-install-run.ps1"
-    if not runner.exists():
-        fail("Missing scripts/dev-install-run.ps1")
-    elif not runner.read_bytes().startswith(b"\xef\xbb\xbf"):
-        fail("scripts/dev-install-run.ps1 must include a UTF-8 BOM for Windows PowerShell 5.1")
+    scripts = sorted((ROOT / "scripts").glob("*.ps1"))
+    if not scripts:
+        fail("Missing PowerShell automation scripts")
+    for path in scripts:
+        if not path.read_bytes().startswith(b"\xef\xbb\xbf"):
+            fail(f"PowerShell script must include a UTF-8 BOM for Windows PowerShell 5.1: {path.relative_to(ROOT)}")
 
 def check_large_library_performance_guards() -> None:
     plugin = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenterPlugin.cs").read_text(encoding="utf-8")
@@ -754,6 +755,43 @@ def check_0613_remote_restore_guards() -> None:
     if not test.exists() or "DeviceName_RejectsTraversalAndSeparators" not in test.read_text(encoding="utf-8"):
         fail("Remote staging traversal tests are missing")
 
+def check_0618_task_event_guards() -> None:
+    """The optional push channel must stay isolated from durable task synchronization."""
+    protocol = (ROOT / "src/GameSaveCenter.Contracts/ProtocolConstants.cs").read_text(encoding="utf-8")
+    coordinator = (ROOT / "src/GameSaveCenter.Worker/Services/TaskCoordinator.cs").read_text(encoding="utf-8")
+    broadcaster = (ROOT / "src/GameSaveCenter.Worker/Ipc/TaskEventBroadcaster.cs").read_text(encoding="utf-8")
+    event_server = (ROOT / "src/GameSaveCenter.Worker/Ipc/TaskEventPipeServerService.cs").read_text(encoding="utf-8")
+    program = (ROOT / "src/GameSaveCenter.Worker/Program.cs").read_text(encoding="utf-8")
+    ipc_client = (ROOT / "src/GameSaveCenter.Playnite/Ipc/WorkerIpcClient.cs").read_text(encoding="utf-8")
+    view_model = read_dashboard_view_model()
+    view = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml.cs").read_text(encoding="utf-8")
+    test = ROOT / "tests/GameSaveCenter.Worker.Tests/TaskEventBroadcasterTests.cs"
+    for token in ("EventPipeName", "GameSaveCenter.Worker.Events.v1"):
+        if token not in protocol:
+            fail(f"Task event pipe protocol guard missing: {token}")
+    for token in ("TaskEventBroadcaster", "_events.Publish(change)"):
+        if token not in coordinator:
+            fail(f"Task event publish guard missing: {token}")
+    for token in ("BoundedChannelFullMode.DropOldest", "PerSubscriberCapacity", "TaskEventSubscription"):
+        if token not in broadcaster:
+            fail(f"Task event bounded fan-out guard missing: {token}")
+    for token in ("ProtocolConstants.EventPipeName", "PipeOptions.CurrentUserOnly", "MessageTypes.TaskEvent"):
+        if token not in event_server:
+            fail(f"Task event server isolation guard missing: {token}")
+    if "AddHostedService<TaskEventPipeServerService>" not in program:
+        fail("Task event pipe server must be hosted by the Worker")
+    for token in ("ListenForTaskEventsAsync", "retryDelay", "MessageTypes.TaskEvent"):
+        if token not in ipc_client:
+            fail(f"Task event client reconnect guard missing: {token}")
+    for token in ("StartTaskEventSubscription", "StopTaskEventSubscription", "ApplyTaskEventAsync"):
+        if token not in view_model:
+            fail(f"Dashboard task event view-model guard missing: {token}")
+    for token in ("StartTaskEventSubscription", "StopTaskEventSubscription"):
+        if token not in view:
+            fail(f"Dashboard task event view lifecycle guard missing: {token}")
+    if not test.exists() or "Publish_FansOutIndependentTaskSnapshots" not in test.read_text(encoding="utf-8"):
+        fail("Task event broadcaster regression tests are missing")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -777,6 +815,7 @@ def main() -> int:
     check_068_media_batch_guards()
     check_069_device_decision_guards()
     check_0613_remote_restore_guards()
+    check_0618_task_event_guards()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:

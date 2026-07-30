@@ -1,8 +1,8 @@
 # GameSaveCenter Codex 完整开发交接
 
-更新时间：2026-07-29
-交接版本：`0.6.9-development-preview`
-仓库：`https://github.com/Lopmatuse/GameSaveCenter.git`
+更新时间：2026-07-30
+交接版本：`0.6.18-development-preview`
+仓库：`https://github.com/Nikilua/GameSaveCenter.git`
 主分支：`main`
 插件 ID：`66e9f2d7-67bb-43ef-b62a-b8e60734fcec`
 Git 作者：`Sable Drift`
@@ -324,11 +324,11 @@ git fsck --full
    - `docs/KNOWN_ISSUES.md`
    - `docs/WINDOWS_TEST_PLAN.md`
    - 三份 UI 规范。
-3. 先运行 Release 构建、13 项测试和源码门禁。
-4. 优先协助用户完成 0.6.1–0.6.7 Windows 真机回归；发现真实错误时停止扩功能，先修复。
+3. 先运行 Release 构建、35 项测试和源码门禁。
+4. 优先协助用户完成 0.6.1–0.6.18 Windows 真机回归；发现真实错误时停止扩功能，先修复。
 5. 若继续安全源码开发，推荐：
-   - 媒体虚拟化缩略图缓存和批量收藏/备注；
-   - 多设备冲突“决策记录”与审计，但不要声称已恢复远端版本；
+   - 媒体、远端恢复与任务事件链路的真实 Windows/Rclone 回归；
+   - 多设备冲突的人工决策、隔离下载与受保护恢复，但不要自动选择或覆盖；
    - 将 Dashboard 按工作区逐步拆分；
    - SQLite 集成测试和设置迁移测试已完成；继续扩展高风险路径的隔离测试。
 6. 删除/覆盖类能力最后处理，并先设计回收站或显式恢复路径。
@@ -372,7 +372,7 @@ dotnet test tests\GameSaveCenter.Core.Tests\GameSaveCenter.Core.Tests.csproj -c 
 本仓库保存了完整提交历史。新机器执行：
 
 ```powershell
-git clone https://github.com/Lopmatuse/GameSaveCenter.git
+git clone https://github.com/Nikilua/GameSaveCenter.git
 cd GameSaveCenter
 git log --oneline --decorate --graph --all
 ```
