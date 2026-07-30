@@ -1,10 +1,11 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.16
+  - Version: 0.6.17
     RequiredApiVersion: 6.16.0
-    ReleaseDate: 2026-07-29
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.16/GameSaveCenter-0.6.16.pext
+    ReleaseDate: 2026-07-30
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.17/GameSaveCenter-0.6.17.pext
     Changelog:
+      - 修复超大游戏库、任务和日志列表中滚动滑块缩成尖点的问题。
       - 多设备冲突支持远端 Ludusavi 备份库隔离下载。
       - 下载后和恢复前均执行哈希与 Backup ID 校验。
       - 远端恢复强制创建本机 PreRestore，并保留失败回滚。

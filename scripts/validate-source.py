@@ -359,6 +359,13 @@ def check_dashboard_regressions() -> None:
             fail(f"{name} scrollbar Thumb must not use overlapping ellipse caps")
         if thumb.count('<Rectangle') != 1 or 'RadiusX="4"' not in thumb or 'RadiusY="4"' not in thumb:
             fail(f"{name} scrollbar Thumb must use one rounded Rectangle")
+    for token in (
+        'xmlns:sys="clr-namespace:System;assembly=mscorlib"',
+        'x:Key="{x:Static SystemParameters.VerticalScrollBarButtonHeightKey}">72',
+        'x:Key="{x:Static SystemParameters.HorizontalScrollBarButtonWidthKey}">72',
+    ):
+        if token not in tokens:
+            fail(f"Scrollbar minimum Thumb resource guard is missing: {token}")
     coordinator = (ROOT / "src/GameSaveCenter.Worker/Services/GameSessionCoordinator.cs").read_text(encoding="utf-8")
     plugin = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenterPlugin.cs").read_text(encoding="utf-8")
     if "Math.Max(1, policy.DuringPlayIntervalMinutes)" not in coordinator:

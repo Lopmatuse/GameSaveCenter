@@ -1,5 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <!-- Shared defaults. Runtime palette adaptation replaces the theme-sensitive brushes locally. -->
     <SolidColorBrush x:Key="GscAccentBrush" Color="#7C5CFC"/>
     <SolidColorBrush x:Key="GscAccentHoverBrush" Color="#6A49EE"/>
@@ -405,6 +406,14 @@
                                Maximum="{TemplateBinding Maximum}"
                                Value="{TemplateBinding Value}"
                                ViewportSize="{TemplateBinding ViewportSize}">
+                            <Track.Resources>
+                                <!-- WPF Track does not use Thumb.MinHeight/MinWidth as the proportional
+                                     scroll-thumb floor. Its minimum is half of these system metrics.
+                                     Override them locally so huge collections still render a usable
+                                     36-DIP capsule rather than a one-pixel spike. -->
+                                <sys:Double x:Key="{x:Static SystemParameters.VerticalScrollBarButtonHeightKey}">72</sys:Double>
+                                <sys:Double x:Key="{x:Static SystemParameters.HorizontalScrollBarButtonWidthKey}">72</sys:Double>
+                            </Track.Resources>
                             <Track.DecreaseRepeatButton>
                                 <RepeatButton x:Name="DecreaseButton"
                                               Command="ScrollBar.PageUpCommand"

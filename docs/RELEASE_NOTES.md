@@ -1,3 +1,9 @@
+# 0.6.17 Development Preview
+
+- 修复超大列表和长日志中滚动滑块缩成尖点的问题。
+- 使用 WPF Track 官方最小 Thumb 系统资源机制，将纵向和横向滑块最小长度统一为 36 DIP。
+- 保留单形状圆角胶囊绘制，避免端帽重叠和裁切。
+
 # 0.6.16 Development Preview
 
 - 滚动滑块改为单一圆角 Rectangle，不再使用重叠半透明端帽。

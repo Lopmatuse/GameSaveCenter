@@ -1,7 +1,15 @@
 # 开发实现进度
 
 更新时间：2026-07-29
-当前版本：`0.6.16-development-preview`
+当前版本：`0.6.17-development-preview`
+
+## 2026-07-30 0.6.17 大数据量滚动滑块最小尺寸修复
+
+- 修复内容数量极大时纵向 Thumb 被 WPF `Track` 压缩成尖点的问题。
+- 在滚动 Track 的局部资源中覆盖 `VerticalScrollBarButtonHeightKey` 与 `HorizontalScrollBarButtonWidthKey`。
+- WPF 使用上述系统参数的一半作为比例 Thumb 的最小长度，因此设置为 72 DIP 后，纵向和横向 Thumb 的最小可见长度均稳定为 36 DIP。
+- 保留 0.6.16 的单一圆角 Rectangle，避免半透明端帽叠加、亮斑或上下端不对称。
+
 
 ## 2026-07-30 0.6.16 滚动滑块单形状修复
 
