@@ -1,9 +1,9 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.15
+  - Version: 0.6.16
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-07-29
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.15/GameSaveCenter-0.6.15.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.16/GameSaveCenter-0.6.16.pext
     Changelog:
       - 多设备冲突支持远端 Ludusavi 备份库隔离下载。
       - 下载后和恢复前均执行哈希与 Backup ID 校验。

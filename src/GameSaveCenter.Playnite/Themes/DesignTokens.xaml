@@ -322,54 +322,42 @@
         </Setter>
     </Style>
 
-    <!-- Overlay scrollbars: the visible capsule is drawn from two circular caps plus a
-         rectangular body. This avoids the DPI/layout clipping that can make a Border-based
-         Thumb render with one rounded end and one flat end in Playnite-hosted ScrollViewers. -->
+    <!-- Overlay scrollbars use one rounded Rectangle per Thumb. Do not compose the
+         capsule from overlapping semi-transparent shapes: overlapping alpha produces
+         bright cap artifacts, while a single inset shape keeps both ends symmetric. -->
     <ControlTemplate x:Key="GscVerticalScrollThumbTemplate" TargetType="Thumb">
-        <Grid Margin="2,1"
+        <Grid MinWidth="12"
+              MinHeight="36"
               Background="Transparent"
-              ClipToBounds="False"
-              SnapsToDevicePixels="False"
-              UseLayoutRounding="False">
-            <Rectangle Width="8"
-                       Margin="0,4"
-                       HorizontalAlignment="Center"
+              ClipToBounds="True"
+              SnapsToDevicePixels="True"
+              UseLayoutRounding="True">
+            <Rectangle x:Name="ThumbChrome"
+                       Margin="2,1"
+                       HorizontalAlignment="Stretch"
                        VerticalAlignment="Stretch"
-                       Fill="{TemplateBinding Background}"/>
-            <Ellipse Width="8"
-                     Height="8"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Top"
-                     Fill="{TemplateBinding Background}"/>
-            <Ellipse Width="8"
-                     Height="8"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Bottom"
-                     Fill="{TemplateBinding Background}"/>
+                       Fill="{TemplateBinding Background}"
+                       RadiusX="4"
+                       RadiusY="4"
+                       SnapsToDevicePixels="True"/>
         </Grid>
     </ControlTemplate>
 
     <ControlTemplate x:Key="GscHorizontalScrollThumbTemplate" TargetType="Thumb">
-        <Grid Margin="1,2"
+        <Grid MinWidth="36"
+              MinHeight="12"
               Background="Transparent"
-              ClipToBounds="False"
-              SnapsToDevicePixels="False"
-              UseLayoutRounding="False">
-            <Rectangle Height="8"
-                       Margin="4,0"
+              ClipToBounds="True"
+              SnapsToDevicePixels="True"
+              UseLayoutRounding="True">
+            <Rectangle x:Name="ThumbChrome"
+                       Margin="1,2"
                        HorizontalAlignment="Stretch"
-                       VerticalAlignment="Center"
-                       Fill="{TemplateBinding Background}"/>
-            <Ellipse Width="8"
-                     Height="8"
-                     HorizontalAlignment="Left"
-                     VerticalAlignment="Center"
-                     Fill="{TemplateBinding Background}"/>
-            <Ellipse Width="8"
-                     Height="8"
-                     HorizontalAlignment="Right"
-                     VerticalAlignment="Center"
-                     Fill="{TemplateBinding Background}"/>
+                       VerticalAlignment="Stretch"
+                       Fill="{TemplateBinding Background}"
+                       RadiusX="4"
+                       RadiusY="4"
+                       SnapsToDevicePixels="True"/>
         </Grid>
     </ControlTemplate>
 
@@ -378,9 +366,9 @@
         <Setter Property="Focusable" Value="False"/>
         <Setter Property="Background" Value="{DynamicResource GscScrollThumbBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="ClipToBounds" Value="False"/>
-        <Setter Property="SnapsToDevicePixels" Value="False"/>
-        <Setter Property="UseLayoutRounding" Value="False"/>
+        <Setter Property="ClipToBounds" Value="True"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource GscScrollThumbHoverBrush}"/>
@@ -398,16 +386,16 @@
         <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="Transparent"/>
-        <Setter Property="SnapsToDevicePixels" Value="False"/>
-        <Setter Property="UseLayoutRounding" Value="False"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ScrollBar">
                     <Grid x:Name="Root"
                           Background="Transparent"
-                          ClipToBounds="False"
-                          SnapsToDevicePixels="False"
-                          UseLayoutRounding="False">
+                          ClipToBounds="True"
+                          SnapsToDevicePixels="True"
+                          UseLayoutRounding="True">
                         <Track x:Name="PART_Track"
                                Margin="0,4"
                                Focusable="False"
@@ -435,6 +423,10 @@
                             <Track.Thumb>
                                 <Thumb x:Name="ScrollThumb"
                                        Style="{StaticResource GscScrollThumb}"
+                                       Width="12"
+                                       MinHeight="36"
+                                       HorizontalAlignment="Stretch"
+                                       VerticalAlignment="Stretch"
                                        Template="{StaticResource GscVerticalScrollThumbTemplate}"/>
                             </Track.Thumb>
                             <Track.IncreaseRepeatButton>
@@ -460,6 +452,8 @@
                             <Setter Property="MinWidth" Value="12"/>
                             <Setter TargetName="PART_Track" Property="Margin" Value="0,4"/>
                             <Setter TargetName="ScrollThumb" Property="Width" Value="12"/>
+                            <Setter TargetName="ScrollThumb" Property="Height" Value="Auto"/>
+                            <Setter TargetName="ScrollThumb" Property="MinWidth" Value="12"/>
                             <Setter TargetName="ScrollThumb" Property="MinHeight" Value="36"/>
                             <Setter TargetName="ScrollThumb" Property="HorizontalAlignment" Value="Stretch"/>
                             <Setter TargetName="ScrollThumb" Property="VerticalAlignment" Value="Stretch"/>
@@ -472,9 +466,10 @@
                             <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False"/>
                             <Setter TargetName="DecreaseButton" Property="Command" Value="ScrollBar.PageLeftCommand"/>
                             <Setter TargetName="IncreaseButton" Property="Command" Value="ScrollBar.PageRightCommand"/>
+                            <Setter TargetName="ScrollThumb" Property="Width" Value="Auto"/>
                             <Setter TargetName="ScrollThumb" Property="Height" Value="12"/>
                             <Setter TargetName="ScrollThumb" Property="MinWidth" Value="36"/>
-                            <Setter TargetName="ScrollThumb" Property="MinHeight" Value="0"/>
+                            <Setter TargetName="ScrollThumb" Property="MinHeight" Value="12"/>
                             <Setter TargetName="ScrollThumb" Property="HorizontalAlignment" Value="Stretch"/>
                             <Setter TargetName="ScrollThumb" Property="VerticalAlignment" Value="Stretch"/>
                             <Setter TargetName="ScrollThumb" Property="Template" Value="{StaticResource GscHorizontalScrollThumbTemplate}"/>

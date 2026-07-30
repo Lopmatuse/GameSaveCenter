@@ -352,6 +352,13 @@ def check_dashboard_regressions() -> None:
     for token in ('x:Key="GscSharedFocusVisual"', 'x:Key="GscCheckBox"', 'x:Key="GscScrollThumb"'):
         if token not in tokens:
             fail(f"Shared control template guard is missing: {token}")
+    vertical_thumb = tokens.split('x:Key="GscVerticalScrollThumbTemplate"', 1)[1].split('</ControlTemplate>', 1)[0]
+    horizontal_thumb = tokens.split('x:Key="GscHorizontalScrollThumbTemplate"', 1)[1].split('</ControlTemplate>', 1)[0]
+    for name, thumb in (("vertical", vertical_thumb), ("horizontal", horizontal_thumb)):
+        if '<Ellipse' in thumb:
+            fail(f"{name} scrollbar Thumb must not use overlapping ellipse caps")
+        if thumb.count('<Rectangle') != 1 or 'RadiusX="4"' not in thumb or 'RadiusY="4"' not in thumb:
+            fail(f"{name} scrollbar Thumb must use one rounded Rectangle")
     coordinator = (ROOT / "src/GameSaveCenter.Worker/Services/GameSessionCoordinator.cs").read_text(encoding="utf-8")
     plugin = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenterPlugin.cs").read_text(encoding="utf-8")
     if "Math.Max(1, policy.DuringPlayIntervalMinutes)" not in coordinator:
