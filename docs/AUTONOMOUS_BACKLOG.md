@@ -65,6 +65,17 @@
 - **验收标准**：真实 Playnite 加载、页面打开关闭与缩放均无 XAML/绑定/Dispatcher 异常；所有真机未覆盖条件在 Windows 测试计划中明确记录，不伪造完成。
 - **当前证据与阻塞**：2026-08-01 已完成源代码层修复：侧栏导航获得有限高度内的键盘可达滚动；紧凑模式把顶部操作压缩为带 Automation Name/Tooltip 的图标；Settings 加入横向访问通道、窄屏边距/副标题降级、滑块 Automation Name；环境光与焦点环不再用负 Margin。源码门禁、Release 构建（0 警告/错误）、50 项测试与 UI Skill 审查（0 errors）通过。任务仍要求真实 Playnite 的加载/主题/DPI/键盘验证；`.tmp/playnite-ui-test` 不能证明独立 AppData/单实例边界，且用户实例正在运行，故不得启动它或覆盖用户扩展。需先完成 ENV-001。
 
+### UI-004：WPF-UI 成熟控件的生产迁移与宿主回归
+
+- **优先级**：P0
+- **状态**：PROPOSED
+- **前置条件**：ENV-001 已证明独立数据根和进程边界；UI-001 与 UI-003 的隔离 Playnite 验收通过；必须保留插件 ID、业务命令、绑定、虚拟化和共享主题令牌。
+- **根因与影响**：当前 WPF-UI 4.3.0 仅以惰性“界面探针”验证程序集、资源隔离与异常恢复。生产 Dashboard/Settings 仍主要使用自定义模板，尚未达到以成熟框架控件替换生产交互的完整目标；未经宿主验证直接替换会造成资源键冲突、XAML 加载失败或 Playnite 默认主题泄漏。
+- **范围**：在隔离 Playnite 中将适用的输入、下拉、导航、信息卡、对话框和通知迁移到 WPF-UI 的局部资源体系；DataGrid、游戏列表和性能敏感虚拟化区保留经验证的 WPF 模板，不能以统一框架为由牺牲虚拟化或键盘访问。每类控件保留原有命令、主题、错误/取消状态与宿主回退。
+- **非目标**：不注入 Playnite 全局资源；不修改窗口 Chrome；不以探针或截图替代生产交互；不删除现有安全错误处理、数据或备份。
+- **验收标准**：真实隔离 Playnite 中 Dashboard、Settings、Dialog/Snackbar 正常加载；Light/Dark/Follow/高对比度、关闭透明/动画、100%–200% DPI 和 1600×900–980×640 无新增资源、绑定或 Dispatcher 异常；大库 ListBox/DataGrid 保持 Recycling；框架控件创建失败时页面可恢复且不污染宿主。
+- **阻塞条件**：无法证明 WPF-UI 局部资源在 Playnite 10/net462 中稳定、可回退且无宿主污染时，保持自定义共享令牌方案并改为 `BLOCKED_ENVIRONMENT`，不得强行替换生产控件。
+
 ## 本次审计证据
 
 - 2026-08-01：本次只读审计确认用户进程仍为 `D:\\software\\Playnite\\Playnite\\Playnite.DesktopApp.exe`（PID 28708）及用户 AppData 扩展下的 Worker（PID 31444）。工作区 `.tmp/playnite-ui-test/Playnite` 仅声明 `DatabasePath: library`，未提供可审计的 portable/独立配置根证明；其扩展目录已含本次测试插件。已登记 ENV-001，未启动该副本，`.tmp/` 保持未跟踪。
@@ -73,6 +84,8 @@
 - 2026-08-01：UI-002 完成共享 WPF 控件和主题令牌复审。使用 Codex 附带 Python 运行 `scripts/validate-source.py` 退出码 0；UI Skill 审查退出码 0（0 errors、32 warnings、111 info，其中 `.tmp/` 的复制宿主占 17 条警告，其余为既有 Dashboard/环境光布局审查项）；`dotnet restore`、Release build（0 警告/错误）和 50 项测试通过。`scripts/package.ps1 -Configuration Release -SkipBuild` 生成 0.6.22 PEXT/ZIP，`scripts/verify.ps1 -Worker <打包 Worker>` 报告 0.6.22.0；`git diff --check`、`git fsck --full` 均为退出码 0，后者仅报告既有 dangling 对象。未启动 `.tmp/` 副本或用户 Playnite，隔离视觉回归移交 UI-003/ENV-001。
 
 - 2026-08-01：UI-003 已完成可自动验证的 Dashboard/Settings 响应式与可访问性收口：项目自身 UI Skill 告警从 15 降至 11（总数从 32 降至 28；17 条仍来自未跟踪 `.tmp/` 的 Playnite 复制主题）。剩余项目提示均需真机在有限 `Grid` 行中复查，并不等同于已经确认的布局缺陷。源码门禁、Release build 和 50 项测试均通过；实际 Playnite 验收被 ENV-001 阻塞。
+
+- 2026-08-01：无 READY 项时的只读审计确认，现有 WPF-UI 仅为惰性 POC，尚未迁移生产控件；已登记 UI-004。由于 UI-001/UI-003/ENV-001 尚无独立 Playnite 证据，本次没有修改 XAML、程序集、安装或用户数据。
 
 - 2026-08-01：GOV-001 已补齐 `AUTONOMOUS_DEVELOPMENT_RULES.md` 与 `QUALITY_GATES.md`，并建立了 UI-001/002/003 的依赖、范围、非目标、验收条件和阻塞规则。UI-001 曾按依赖顺序登记为 `READY`，现因真机隔离证据不足转为 `BLOCKED_ENVIRONMENT`；不会推送或合并 `origin/main`。
 - 2026-08-01：使用 Codex 附带解释器 `C:\\Users\\lopmatuse\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe` 执行 `scripts/validate-source.py`，退出码为 `1`，原样输出为：`XAML GameSaveCenter resource missing: ...GameSaveCenterSettingsView.xaml -> GscButtonBase`、`...DesignTokens.xaml -> GscErrorTintBrush`、`Numeric input must commit complete values on LostFocus: DashboardView.xaml DuringPlayIntervalMinutes`。这是 GOV-001 发现的 UI-001 基线缺陷，未在治理任务中修改代码。`git diff --check` 通过；`git fsck --full` 仅报告既有 dangling tree，不是对象损坏。
