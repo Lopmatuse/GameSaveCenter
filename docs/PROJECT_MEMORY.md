@@ -3,6 +3,12 @@
 更新时间：2026-07-31
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 治理与 UI 基线
+
+- 无人值守工作必须由 `docs/AUTONOMOUS_BACKLOG.md` 中可追踪的条目驱动，并遵守 `docs/AUTONOMOUS_DEVELOPMENT_RULES.md` 和 `docs/QUALITY_GATES.md`；没有 `READY` 条目时先审计和登记，不能隐式扩大实现范围。
+- UI-001 的首个基线缺陷是 Settings 不能依赖 DashboardView 的局部资源或代码后置事件。通用 `GscButtonBase` 应迁入共享字典且不得携带 View 专属 `EventSetter`；Dashboard 可保留动画专用局部样式。
+- `GscErrorTintBrush` 是 `GscTextBox` 的直接错误填充资源，必须存在于共享主题令牌中。数值输入门禁应匹配嵌套属性路径（如 `SelectedGame.Policy.DuringPlayIntervalMinutes`）而非仅裸字段名。该问题待 UI-001 处理。
+
 ### 0.6.22 主题令牌边界
 
 - 页面不得重新引入 `#RRGGBB` 或 `#AARRGGBB` 装饰色；语义状态、环境光、图标容器、提示面、主按钮和阴影必须从 `Themes/DesignTokens.xaml` 获取。

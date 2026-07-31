@@ -3,6 +3,13 @@
 更新时间：2026-07-31
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 无人值守治理与 UI 迁移基线
+
+- [x] 建立 `AUTONOMOUS_DEVELOPMENT_RULES.md` 与 `QUALITY_GATES.md`，将任务状态流转、单项领取、安全边界、UI Skill、最低验证与真机证据要求固化为仓库规则。
+- [x] 将 WPF-UI 兼容性 POC 登记为下一项 `UI-001`；后续共享控件、页面迁移和真机回归都有明确依赖与验收条件，不会直接替换 Playnite 宿主或业务层。
+- [x] 使用 Codex 附带 Python 重现 UI 基线门禁失败：Settings 对 Dashboard 局部 `GscButtonBase` 的跨视图依赖、`GscErrorTintBrush` 缺失，以及数值门禁对嵌套属性路径的误匹配。GOV-001 不修改 UI 代码，以上问题已移交 UI-001。
+- [x] GOV-001 的文档、`git diff --check` 和对象完整性检查已完成；由于 UI 基线门禁当前返回退出码 1，本轮不引用此前构建/测试记录冒充这一次的 UI 验证。Playnite/UI 真机重构回归尚未开始。
+
 ## 2026-07-31 0.6.22 共享主题令牌收口
 
 - [x] Dashboard、设置页已无页面级颜色常量；环境光、信息/成功/警告/错误图标底色、安全提示、主按钮、悬停行、状态点和阴影都由 `DesignTokens.xaml` 提供。
