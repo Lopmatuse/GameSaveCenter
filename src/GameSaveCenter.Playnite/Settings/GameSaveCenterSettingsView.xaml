@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:contracts="clr-namespace:GameSaveCenter.Contracts;assembly=GameSaveCenter.Contracts"
              xmlns:settings="clr-namespace:GameSaveCenter.Playnite.Settings"
+             xmlns:infra="clr-namespace:GameSaveCenter.Playnite.Infrastructure"
              Foreground="{DynamicResource GscPrimaryTextBrush}"
              UseLayoutRounding="True" SnapsToDevicePixels="True"
              TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"
@@ -32,48 +33,9 @@
         <Style TargetType="ComboBox" BasedOn="{StaticResource GscComboBox}"/>
         <Style TargetType="ComboBoxItem" BasedOn="{StaticResource GscComboBoxItem}"/>
         <Style TargetType="CheckBox" BasedOn="{StaticResource GscCheckBox}"/>
-        <Style x:Key="SettingsActionButton" TargetType="Button">
-            <Setter Property="OverridesDefaultStyle" Value="True"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
-            <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource GscDividerBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="15,8"/>
+        <Style x:Key="SettingsActionButton" TargetType="Button" BasedOn="{StaticResource GscButtonBase}">
             <Setter Property="MinHeight" Value="40"/>
             <Setter Property="Margin" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Chrome" CornerRadius="11" Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
-                                Padding="{TemplateBinding Padding}" RenderTransformOrigin="0.5,0.5">
-                            <Border.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1"/></Border.RenderTransform>
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                              RecognizesAccessKey="True"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Chrome" Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="0.97" ScaleY="0.97"/></Setter.Value></Setter>
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
-                                <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.4"/></Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
         </Style>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -141,12 +103,12 @@
                         </ComboBox>
 
                         <TextBlock Grid.Row="1" Text="完整版本数" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding FullBackupLimit, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="允许 1–255；离开输入框后提交。"><TextBox.Text><Binding Path="FullBackupLimit" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="1" Maximum="255"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
                         <TextBlock Grid.Row="1" Grid.Column="3" Text="每组差异版本数" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="1" Grid.Column="4" Text="{Binding DifferentialBackupLimit, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                        <TextBox Grid.Row="1" Grid.Column="4" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="允许 0–255；离开输入框后提交。"><TextBox.Text><Binding Path="DifferentialBackupLimit" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="0" Maximum="255"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
 
                         <TextBlock Grid.Row="2" Text="压缩等级" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CompressionLevel, UpdateSourceTrigger=PropertyChanged}" Margin="0,4" ToolTip="zstd 推荐 3；范围 -7 到 22"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="zstd 推荐 3；允许 -7 到 22；离开输入框后提交。"><TextBox.Text><Binding Path="CompressionLevel" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="-7" Maximum="22"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
                     </Grid>
                 </StackPanel>
             </Border>
@@ -200,11 +162,11 @@
                         <Grid.ColumnDefinitions><ColumnDefinition Width="210"/><ColumnDefinition Width="120"/></Grid.ColumnDefinitions>
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                         <TextBlock Text="默认游玩中备份间隔（分钟）" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Column="1" Text="{Binding DefaultBackupIntervalMinutes, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                        <TextBox Grid.Column="1" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="允许 1–1440 分钟；离开输入框后提交。"><TextBox.Text><Binding Path="DefaultBackupIntervalMinutes" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="1" Maximum="1440"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
                         <TextBlock Grid.Row="1" Text="进程检测间隔（秒）" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ProcessPollingSeconds, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="允许 2–60 秒；离开输入框后提交。"><TextBox.Text><Binding Path="ProcessPollingSeconds" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="2" Maximum="60"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
                         <TextBlock Grid.Row="2" Text="管理面板刷新间隔（秒）" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding DashboardRefreshSeconds, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="允许 5–300 秒；离开输入框后提交。"><TextBox.Text><Binding Path="DashboardRefreshSeconds" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="5" Maximum="300"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
                     </Grid>
                     <Border Background="#14FF9F0A" BorderBrush="#38FF9F0A" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,13,0,0">
                         <TextBlock Text="自动恢复始终关闭。恢复必须经过当前快照、游戏关闭确认、预览、恢复后校验和可撤销快照。" TextWrapping="Wrap"/>

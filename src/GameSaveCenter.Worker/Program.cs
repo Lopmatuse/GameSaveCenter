@@ -43,6 +43,7 @@ internal static class Program
         builder.Services.AddSingleton<GameToolService>();
         builder.Services.AddSingleton<IpcRequestDispatcher>();
         builder.Services.AddHostedService<WorkerInitializationService>();
+        builder.Services.AddHostedService<CloudRetryService>();
         builder.Services.AddHostedService<NamedPipeServerService>();
         builder.Services.AddHostedService<TaskEventPipeServerService>();
         builder.Services.AddSingleton<GameSessionCoordinator>();

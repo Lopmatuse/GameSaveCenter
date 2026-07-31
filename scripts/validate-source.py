@@ -817,6 +817,50 @@ def check_0620_wpf_thread_guards() -> None:
     if "await viewModel.RequestBackgroundRefreshAsync()" not in view:
         fail("Dashboard refresh timer must await the controlled background refresh Task")
 
+
+def check_0621_cloud_retry_and_numeric_ui_guards() -> None:
+    """Keep durable cloud recovery and complete-value numeric editing from regressing."""
+    store = read_state_store()
+    policy = (ROOT / "src/GameSaveCenter.Worker/Services/CloudRetryPolicy.cs").read_text(encoding="utf-8")
+    retry_service = (ROOT / "src/GameSaveCenter.Worker/Services/CloudRetryService.cs").read_text(encoding="utf-8")
+    backup = (ROOT / "src/GameSaveCenter.Worker/Services/BackupOrchestrator.cs").read_text(encoding="utf-8")
+    dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    settings = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml").read_text(encoding="utf-8")
+    tokens = (ROOT / "src/GameSaveCenter.Playnite/Themes/DesignTokens.xaml").read_text(encoding="utf-8")
+    agents = ROOT / "AGENTS.md"
+
+    for token in ("cloud_retry_queue", "attempt_count", "next_attempt_utc", "ix_cloud_retry_due"):
+        if token not in store:
+            fail(f"Cloud retry durable storage guard missing: {token}")
+    for token in ("MaximumAutomaticRetries", "TimeSpan.FromMinutes(1)", "TimeSpan.FromMinutes(5)",
+                  "TimeSpan.FromMinutes(15)", "TimeSpan.FromHours(1)", "TimeSpan.FromHours(4)", "TimeSpan.FromHours(12)"):
+        if token not in policy:
+            fail(f"Cloud retry backoff guard missing: {token}")
+    for token in ("EnableCloudUpload && _rclone.IsConfigured", "Directory.Exists(_options.LudusaviBackupDirectory)",
+                  "DeferCloudRetryAsync", "CLOUD_GAME_NOT_FOUND"):
+        if token not in retry_service:
+            fail(f"Cloud retry storm-prevention guard missing: {token}")
+    for token in ("ScheduleCloudRetryAsync", "RemoveCloudRetryAsync", "RetryScheduled", "MaximumAutomaticRetries"):
+        if token not in backup:
+            fail(f"Cloud retry orchestration guard missing: {token}")
+    if "Width=\"58\"" in dashboard or "DuringPlayIntervalMinutes, UpdateSourceTrigger=PropertyChanged" in dashboard:
+        fail("Backup policy interval must not use the narrow per-keystroke numeric editor")
+    for text, file_name, field in ((dashboard, "DashboardView.xaml", "DuringPlayIntervalMinutes"),
+                                   (settings, "GameSaveCenterSettingsView.xaml", "DefaultBackupIntervalMinutes"),
+                                   (settings, "GameSaveCenterSettingsView.xaml", "ProcessPollingSeconds"),
+                                   (settings, "GameSaveCenterSettingsView.xaml", "DashboardRefreshSeconds"),
+                                   (settings, "GameSaveCenterSettingsView.xaml", "FullBackupLimit"),
+                                   (settings, "GameSaveCenterSettingsView.xaml", "DifferentialBackupLimit"),
+                                   (settings, "GameSaveCenterSettingsView.xaml", "CompressionLevel")):
+        marker = f'Path=\"{field}\" UpdateSourceTrigger=\"LostFocus\"'
+        if marker not in text:
+            fail(f"Numeric input must commit complete values on LostFocus: {file_name} {field}")
+    for token in ("GscNumericTextBox", "Validation.ErrorTemplate"):
+        if token not in tokens:
+            fail(f"Shared numeric UI guard missing: {token}")
+    if not agents.exists() or "wpf-apple-desktop-ui" not in agents.read_text(encoding="utf-8"):
+        fail("Repository AGENTS.md must require the WPF Apple desktop UI skill")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -842,6 +886,7 @@ def main() -> int:
     check_0613_remote_restore_guards()
     check_0618_task_event_guards()
     check_0620_wpf_thread_guards()
+    check_0621_cloud_retry_and_numeric_ui_guards()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:

@@ -197,12 +197,13 @@ public sealed class BackupOrchestrator
                             .ConfigureAwait(false);
                         if (!cloud.Success)
                         {
-                            await _store.UpdateGameCloudStateAsync(game.PlayniteId,"Failed",ct).ConfigureAwait(false);
+                            await ScheduleCloudRetryAsync(game.PlayniteId, cloud.StandardError, ct).ConfigureAwait(false);
                             throw new WorkerOperationException(
                                 "RCLONE_COPY_FAILED",
                                 "本地备份成功，但云端复制失败。",
                                 cloud.StandardError);
                         }
+                        await _store.RemoveCloudRetryAsync(game.PlayniteId,ct).ConfigureAwait(false);
                         await _store.UpdateGameCloudStateAsync(game.PlayniteId,"Uploaded",ct).ConfigureAwait(false);
                     }
 
@@ -239,7 +240,7 @@ public sealed class BackupOrchestrator
     {
         var game=await _catalog.GetGameAsync(playniteId,token).ConfigureAwait(false)
                  ??throw new WorkerOperationException("CLOUD_GAME_NOT_FOUND","找不到需要重试云端上传的游戏。",playniteId);
-        return await _tasks.RunAsync("CloudUpload",game.PlayniteId,game.Name,async(progress,ct)=>
+        var result = await _tasks.RunAsync("CloudUpload",game.PlayniteId,game.Name,async(progress,ct)=>
         {
             if(!_options.EnableCloudUpload||!_rclone.IsConfigured)
                 throw new WorkerOperationException("RCLONE_NOT_CONFIGURED","云端复制尚未启用或 Rclone 配置不可用。",_options.RcloneDestination);
@@ -252,12 +253,38 @@ public sealed class BackupOrchestrator
                 _options.LudusaviBackupDirectory,Path.Combine(Environment.MachineName,"Saves"),transferToken),ct).ConfigureAwait(false);
             if(!cloud.Success)
             {
-                await _store.UpdateGameCloudStateAsync(game.PlayniteId,"Failed",ct).ConfigureAwait(false);
+                await ScheduleCloudRetryAsync(game.PlayniteId,cloud.StandardError,ct).ConfigureAwait(false);
                 throw new WorkerOperationException("RCLONE_COPY_FAILED","云端复制重试失败。",cloud.StandardError);
             }
+            await _store.RemoveCloudRetryAsync(game.PlayniteId,ct).ConfigureAwait(false);
             await _store.UpdateGameCloudStateAsync(game.PlayniteId,"Uploaded",ct).ConfigureAwait(false);
             await progress.ReportAsync(100,"云端复制重试完成").ConfigureAwait(false);
         },token).ConfigureAwait(false);
+        return result;
+    }
+
+    private async Task ScheduleCloudRetryAsync(string playniteId, string error, CancellationToken token)
+    {
+        var now = DateTime.UtcNow;
+        var existing = await _store.GetCloudRetryAsync(playniteId, token).ConfigureAwait(false);
+        var retryCount = (existing?.RetryCount ?? 0) + 1;
+        if (retryCount > CloudRetryPolicy.MaximumAutomaticRetries)
+        {
+            await _store.RemoveCloudRetryAsync(playniteId, token).ConfigureAwait(false);
+            await _store.UpdateGameCloudStateAsync(playniteId, "Failed", token).ConfigureAwait(false);
+            await _store.AppendAuditAsync("CloudRetry", $"云端复制的 {CloudRetryPolicy.MaximumAutomaticRetries} 次自动重试均失败，已停止自动重试", error, token).ConfigureAwait(false);
+            return;
+        }
+
+        var entry = new CloudRetryQueueEntry
+        {
+            PlayniteId = playniteId, RetryCount = retryCount,
+            NextAttemptUtc = CloudRetryPolicy.GetNextAttemptUtc(retryCount, now),
+            LastError = error, CreatedUtc = existing?.CreatedUtc ?? now, UpdatedUtc = now
+        };
+        await _store.UpsertCloudRetryAsync(entry, token).ConfigureAwait(false);
+        await _store.UpdateGameCloudStateAsync(playniteId, "RetryScheduled", token).ConfigureAwait(false);
+        await _store.AppendAuditAsync("CloudRetry", $"云端复制失败，已排程第 {retryCount} 次自动重试", error, token).ConfigureAwait(false);
     }
 
     public async Task RefreshBackupHistoryAsync(string playniteId, string ludusaviName, CancellationToken token)

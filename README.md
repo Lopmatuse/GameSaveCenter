@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.6.20-development-preview`。** 修复 Worker 任务事件和自动刷新在后台线程触发 `PropertyChanged` 后访问 WPF 控件造成的崩溃；所有 Dashboard 动画与绑定状态都先回到 Playnite UI Dispatcher。
+> **当前状态：`0.6.21-development-preview`。** 云端复制失败会持久化退避重试；数值策略输入改为完整编辑后提交，并完成共享 WPF 控件与大列表虚拟化复审。
 
 ## 核心原则
 

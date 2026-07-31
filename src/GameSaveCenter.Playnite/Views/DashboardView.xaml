@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:contracts="clr-namespace:GameSaveCenter.Contracts;assembly=GameSaveCenter.Contracts"
              xmlns:converters="clr-namespace:GameSaveCenter.Playnite.Converters"
+             xmlns:infra="clr-namespace:GameSaveCenter.Playnite.Infrastructure"
              Foreground="{DynamicResource GscPrimaryTextBrush}" TextElement.Foreground="{DynamicResource GscPrimaryTextBrush}" Background="Transparent"
              TextElement.FontFamily="Segoe UI Variable Text, Segoe UI"
              UseLayoutRounding="True" SnapsToDevicePixels="True"
@@ -669,7 +670,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.20" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.21" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -877,7 +878,8 @@
                         </UniformGrid>
                     </Grid>
                     <Grid Grid.Row="2">
-                    <ListBox ItemsSource="{Binding GamesView}" SelectedItem="{Binding SelectedGame}" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox ItemsSource="{Binding GamesView}" SelectedItem="{Binding SelectedGame}" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="OverridesDefaultStyle" Value="True"/>
@@ -995,7 +997,10 @@
                             <CheckBox Content="退出后备份" IsChecked="{Binding SelectedGame.Policy.BackupOnGameStop}" Margin="0,3,18,3"/>
                             <CheckBox Content="游玩中备份" IsChecked="{Binding SelectedGame.Policy.BackupDuringPlay}" Margin="0,3,12,3"/>
                             <TextBlock Text="间隔" VerticalAlignment="Center"/>
-                            <TextBox Style="{StaticResource GscTextBox}" Width="58" Text="{Binding SelectedGame.Policy.DuringPlayIntervalMinutes, UpdateSourceTrigger=PropertyChanged}" ToolTip="允许 1–1440 分钟；Worker 会在到期后 5 秒内开始排队备份。" Margin="7,0,7,0"/>
+                            <TextBox Style="{StaticResource GscNumericTextBox}" Width="88" infra:SelectAllOnKeyboardFocus.Enabled="True"
+                                     ToolTip="允许 1–1440 分钟；输入完成后离开输入框或点击“保存策略”提交。" Margin="7,0,7,0">
+                                <TextBox.Text><Binding Path="SelectedGame.Policy.DuringPlayIntervalMinutes" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="1" Maximum="1440"/></Binding.ValidationRules></Binding></TextBox.Text>
+                            </TextBox>
                             <TextBlock Text="分钟" VerticalAlignment="Center" Margin="0,0,18,0"/>
                             <CheckBox Content="退出后归档媒体" IsChecked="{Binding SelectedGame.Policy.SyncMediaOnGameStop}" Margin="0,3,18,3"/>
                             <CheckBox Content="游玩中归档媒体" IsChecked="{Binding SelectedGame.Policy.SyncMediaDuringPlay}" Margin="0,3,18,3"/>
@@ -1162,7 +1167,8 @@
                                         </Border>
                                         <Grid Grid.Row="2" Grid.Column="0" Margin="0,12,0,0">
                                             <ListBox ItemsSource="{Binding GameTools}" SelectedItem="{Binding SelectedGameTool}" BorderThickness="0"
-                                                     Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                                     Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                                     VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True">
                                                 <ListBox.ItemContainerStyle>
                                                     <Style TargetType="ListBoxItem">
                                                         <Setter Property="Padding" Value="0"/><Setter Property="Margin" Value="0,0,0,8"/>
@@ -1249,8 +1255,9 @@
                                                     <CheckBox Content="管理员权限" IsChecked="{Binding SelectedGameTool.RequiresAdmin}" Margin="0,0,0,12"/>
                                                     <DockPanel LastChildFill="False">
                                                         <TextBlock Text="启动延迟" VerticalAlignment="Center"/>
-                                                        <TextBox DockPanel.Dock="Right" Style="{StaticResource GscTextBox}" Width="62"
-                                                                 Text="{Binding SelectedGameTool.LaunchDelaySeconds}" ToolTip="启动延迟（秒）"/>
+                                                        <TextBox DockPanel.Dock="Right" Style="{StaticResource GscNumericTextBox}" Width="84" infra:SelectAllOnKeyboardFocus.Enabled="True" ToolTip="允许 0–300 秒；离开输入框后提交。">
+                                                            <TextBox.Text><Binding Path="SelectedGameTool.LaunchDelaySeconds" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="0" Maximum="300"/></Binding.ValidationRules></Binding></TextBox.Text>
+                                                        </TextBox>
                                                     </DockPanel>
                                                 </StackPanel>
                                                 <WrapPanel Grid.Row="2" VerticalAlignment="Bottom" Margin="0,18,0,0">
@@ -1336,6 +1343,7 @@
                                                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                                     <TextBlock Text="搜索结果" FontWeight="SemiBold" Margin="2,0,0,9"/>
                                                     <ListBox Grid.Row="1" ItemsSource="{Binding TrainerCatalogResults}" SelectedItem="{Binding SelectedTrainerCatalogItem}" Background="Transparent" BorderThickness="0"
+                                                             VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True"
                                                              SelectionChanged="OnTrainerCatalogSelectionChanged">
                                                         <ListBox.ItemTemplate><DataTemplate>
                                                             <StackPanel Margin="5,6">
@@ -1353,7 +1361,8 @@
                                                 <Grid>
                                                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                                     <TextBlock Text="可下载版本" FontWeight="SemiBold" Margin="2,0,0,9"/>
-                                                    <ListBox Grid.Row="1" ItemsSource="{Binding TrainerReleases}" SelectedItem="{Binding SelectedTrainerRelease}" Background="Transparent" BorderThickness="0">
+                                                    <ListBox Grid.Row="1" ItemsSource="{Binding TrainerReleases}" SelectedItem="{Binding SelectedTrainerRelease}" Background="Transparent" BorderThickness="0"
+                                                             VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True">
                                                         <ListBox.ItemTemplate><DataTemplate>
                                                             <Grid Margin="5,7" ToolTip="{Binding DisplayName}">
                                                                 <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>

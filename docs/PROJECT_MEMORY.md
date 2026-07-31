@@ -1,7 +1,14 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-29
-当前版本：`0.6.20-development-preview`
+当前版本：`0.6.21-development-preview`
+
+### 0.6.21 云端重试与 WPF 数值编辑边界
+
+- 只有本地备份已成功、后续安全单向 Rclone copy 失败才进入 `cloud_retry_queue`；恢复、删除、覆盖和远端镜像不属于该队列。
+- 原始失败后最多自动重试六次，退避为 1、5、15、60、240、720 分钟；成功必须移除队列，耗尽后保留游戏失败状态和审计记录，手动云端重试仍可重新开始安全链路。
+- Rclone 未配置或本地备份目录不可用时 Worker 不应创建反复失败任务；意外的配置竞态至少延后五分钟再检查。
+- 绑定到整数的 WPF 数值输入必须使用完整值提交（`LostFocus`）和 `IntegerRangeValidationRule`，不能恢复成 `UpdateSourceTrigger=PropertyChanged`；策略分钟框最小宽度为 84 DIP 以上。
 
 ### 0.6.20 Dashboard UI 线程边界
 

@@ -884,6 +884,7 @@ CREATE TABLE IF NOT EXISTS trainer_catalog(catalog_id TEXT PRIMARY KEY,title TEX
 CREATE TABLE IF NOT EXISTS trainer_releases(release_id TEXT PRIMARY KEY,catalog_id TEXT NOT NULL REFERENCES trainer_catalog(catalog_id) ON DELETE CASCADE,display_name TEXT NOT NULL,download_url TEXT NOT NULL,size_bytes INTEGER NOT NULL DEFAULT 0,published_utc TEXT,last_synced_utc TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS process_mappings(executable_name TEXT PRIMARY KEY,playnite_id TEXT NOT NULL,game_name TEXT NOT NULL,enabled INTEGER NOT NULL DEFAULT 1,created_utc TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS device_conflict_decisions(playnite_id TEXT NOT NULL,remote_device TEXT NOT NULL,local_backup_id TEXT,remote_backup_id TEXT,decision TEXT NOT NULL,comment TEXT,decided_utc TEXT NOT NULL,PRIMARY KEY(playnite_id,remote_device));
+CREATE TABLE IF NOT EXISTS cloud_retry_queue(playnite_id TEXT PRIMARY KEY,attempt_count INTEGER NOT NULL,next_attempt_utc TEXT NOT NULL,last_error TEXT,created_utc TEXT NOT NULL,updated_utc TEXT NOT NULL);
 CREATE INDEX IF NOT EXISTS ix_tasks_created ON tasks(created_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_backup_versions_game_time ON backup_versions(playnite_id,created_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_media_game ON media(playnite_id,captured_utc DESC);
@@ -892,6 +893,7 @@ CREATE INDEX IF NOT EXISTS ix_save_candidates_game_path ON save_candidates(playn
 CREATE INDEX IF NOT EXISTS ix_game_tools_game ON game_tools(playnite_id,tool_type);
 CREATE INDEX IF NOT EXISTS ix_game_tool_versions_tool ON game_tool_versions(tool_id,created_utc DESC);
 CREATE INDEX IF NOT EXISTS ix_trainer_catalog_title ON trainer_catalog(normalized_title);
+CREATE INDEX IF NOT EXISTS ix_cloud_retry_due ON cloud_retry_queue(next_attempt_utc);
 ";
 }
 

@@ -186,6 +186,23 @@
         </Setter>
     </Style>
 
+    <!-- Numeric editors commit after a complete value is entered, avoiding per-keystroke Int32 conversion. -->
+    <Style x:Key="GscNumericTextBox" TargetType="TextBox" BasedOn="{StaticResource GscTextBox}">
+        <Setter Property="MinWidth" Value="84"/>
+        <Setter Property="Padding" Value="9,7"/>
+        <Setter Property="TextAlignment" Value="Right"/>
+        <Setter Property="ToolTipService.ShowDuration" Value="12000"/>
+        <Setter Property="Validation.ErrorTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border BorderBrush="{DynamicResource GscErrorBrush}" BorderThickness="2" CornerRadius="10" IsHitTestVisible="False">
+                        <AdornedElementPlaceholder/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="GscSearchClearButton" TargetType="Button">
         <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="Width" Value="26"/>
