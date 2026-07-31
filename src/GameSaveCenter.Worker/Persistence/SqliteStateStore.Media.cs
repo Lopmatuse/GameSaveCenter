@@ -141,6 +141,10 @@ INSERT INTO media_sources(source_id,playnite_id,source_kind,root_path,include_pa
 ON CONFLICT(source_id) DO UPDATE SET playnite_id=excluded.playnite_id,source_kind=excluded.source_kind,root_path=excluded.root_path,include_pattern=excluded.include_pattern,enabled=excluded.enabled,shared_directory=excluded.shared_directory;",
         new Dictionary<string,object?>{["$id"]=string.IsNullOrWhiteSpace(source.SourceId)?Guid.NewGuid().ToString("N"):source.SourceId,["$game"]=source.PlayniteId,["$kind"]=(int)source.SourceKind,["$root"]=source.RootPath,["$pattern"]=source.IncludePattern,["$enabled"]=source.Enabled?1:0,["$shared"]=source.SharedDirectory?1:0},token);
 
+    public Task DeleteMediaSourceAsync(string sourceId,CancellationToken token) => ExecuteAsync(
+        "DELETE FROM media_sources WHERE source_id=$id;",
+        new Dictionary<string,object?>{["$id"]=sourceId},token);
+
     public async Task<List<MediaSourceRuleDto>> GetMediaSourcesAsync(string playniteId,CancellationToken token)
     {
         var result=new List<MediaSourceRuleDto>();

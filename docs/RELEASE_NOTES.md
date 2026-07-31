@@ -1,3 +1,11 @@
+# 0.6.19 Development Preview
+
+- Media collection can now be disabled by source: Steam, Xbox Game Bar, Windows Screenshots, game-adjacent directories, and custom rules.
+- Each game can independently disable automatic tasks, exit-time media archiving, and during-play media archiving without disabling manual operations.
+- Custom media rules now support pause/resume and safe removal; removing a rule never deletes source files or archived media.
+- During-play media scheduling no longer depends on enabling timed backups.
+- Backup retention remains a transparent preview only until Ludusavi exposes a stable single-version deletion API; the plugin will not guess its vault layout.
+
 # 0.6.18 Development Preview
 
 - Worker task changes now use a separate current-user event pipe for an open dashboard, so progress appears without waiting for the periodic refresh interval.

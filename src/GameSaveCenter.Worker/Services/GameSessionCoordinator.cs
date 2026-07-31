@@ -37,8 +37,8 @@ public sealed class GameSessionCoordinator : BackgroundService
         incoming.StartedUtc=incoming.StartedUtc==default?DateTime.UtcNow:incoming.StartedUtc.ToUniversalTime();
         var policy=await _store.GetPolicyAsync(incoming.PlayniteId,token).ConfigureAwait(false);
         var intervalMinutes = Math.Max(1, policy.DuringPlayIntervalMinutes);
-        var timedBackupEnabled=policy.Enabled&&policy.BackupDuringPlay;
-        var active=new ActiveSession(incoming,DateTime.UtcNow.AddMinutes(intervalMinutes),intervalMinutes,timedBackupEnabled);
+        var timedAutomationEnabled=policy.Enabled&&(policy.BackupDuringPlay||policy.SyncMediaDuringPlay);
+        var active=new ActiveSession(incoming,DateTime.UtcNow.AddMinutes(intervalMinutes),intervalMinutes,timedAutomationEnabled);
         _active[incoming.PlayniteId]=active;await _store.AddSessionAsync(incoming,token).ConfigureAwait(false);
         _detection.BeginSessionCapture(incoming);
         _=RunSafeAsync(()=>_gameTools.StartAutomaticAsync(incoming,CancellationToken.None),"automatic game tools",incoming.GameName);
@@ -70,31 +70,33 @@ public sealed class GameSessionCoordinator : BackgroundService
                 var policy=await _store.GetPolicyAsync(pair.Key,stoppingToken).ConfigureAwait(false);
                 var intervalMinutes = Math.Max(1, policy.DuringPlayIntervalMinutes);
                 var timedBackupEnabled=policy.Enabled&&policy.BackupDuringPlay;
+                var timedMediaEnabled=policy.Enabled&&policy.SyncMediaDuringPlay;
+                var timedAutomationEnabled=timedBackupEnabled||timedMediaEnabled;
                 if(pair.Value.IntervalMinutes!=intervalMinutes)
                 {
                     pair.Value.IntervalMinutes=intervalMinutes;
                     pair.Value.NextBackupUtc=DateTime.UtcNow.AddMinutes(intervalMinutes);
                     _logger.LogInformation("Timed backup schedule changed for {Game}; next run is in {IntervalMinutes} minute(s)",pair.Value.Event.GameName,intervalMinutes);
                 }
-                if(pair.Value.TimedBackupEnabled!=timedBackupEnabled)
+                if(pair.Value.TimedAutomationEnabled!=timedAutomationEnabled)
                 {
-                    pair.Value.TimedBackupEnabled=timedBackupEnabled;
-                    if(timedBackupEnabled)pair.Value.NextBackupUtc=DateTime.UtcNow.AddMinutes(intervalMinutes);
-                    _logger.LogInformation("Timed backup schedule {State} for {Game}; next UTC {NextUtc}",timedBackupEnabled?"enabled":"disabled",pair.Value.Event.GameName,timedBackupEnabled?pair.Value.NextBackupUtc:null);
+                    pair.Value.TimedAutomationEnabled=timedAutomationEnabled;
+                    if(timedAutomationEnabled)pair.Value.NextBackupUtc=DateTime.UtcNow.AddMinutes(intervalMinutes);
+                    _logger.LogInformation("Timed automation schedule {State} for {Game}; next UTC {NextUtc}",timedAutomationEnabled?"enabled":"disabled",pair.Value.Event.GameName,timedAutomationEnabled?pair.Value.NextBackupUtc:null);
                 }
-                if(!timedBackupEnabled||DateTime.UtcNow<pair.Value.NextBackupUtc)continue;
+                if(!timedAutomationEnabled||DateTime.UtcNow<pair.Value.NextBackupUtc)continue;
                 var scheduledUtc=pair.Value.NextBackupUtc;
                 do pair.Value.NextBackupUtc=pair.Value.NextBackupUtc.AddMinutes(intervalMinutes);
                 while(pair.Value.NextBackupUtc<=DateTime.UtcNow);
-                _logger.LogInformation("Timed backup cadence reached for {Game}; scheduled UTC {ScheduledUtc:o}, next UTC {NextUtc:o}",pair.Value.Event.GameName,scheduledUtc,pair.Value.NextBackupUtc);
-                if(Interlocked.CompareExchange(ref pair.Value.BackupPending,1,0)==0)
+                _logger.LogInformation("Timed automation cadence reached for {Game}; scheduled UTC {ScheduledUtc:o}, next UTC {NextUtc:o}",pair.Value.Event.GameName,scheduledUtc,pair.Value.NextBackupUtc);
+                if(timedBackupEnabled&&Interlocked.CompareExchange(ref pair.Value.BackupPending,1,0)==0)
                 {
                     _logger.LogInformation("Starting timed backup for {Game}",pair.Value.Event.GameName);
                     _=RunTimedBackupAsync(pair.Key,pair.Value);
                 }
-                else
+                else if(timedBackupEnabled)
                     _logger.LogWarning("Skipped overlapping timed backup for {Game}; the previous backup is still pending",pair.Value.Event.GameName);
-                if(policy.SyncMediaDuringPlay)
+                if(timedMediaEnabled)
                     _=RunSafeAsync(()=>_media.SyncAsync(new MediaSyncRequestDto{PlayniteIds=new(){pair.Key},SessionId=pair.Value.Event.SessionId,UploadAfterSync=false},CancellationToken.None),"timed media sync",pair.Value.Event.GameName);
             }
             // Keep a one-minute policy reasonably precise without running any file work on this loop.
@@ -124,11 +126,11 @@ public sealed class GameSessionCoordinator : BackgroundService
 
     private sealed class ActiveSession
     {
-        public ActiveSession(GameSessionEventDto @event,DateTime nextBackupUtc,int intervalMinutes,bool timedBackupEnabled){Event=@event;NextBackupUtc=nextBackupUtc;IntervalMinutes=intervalMinutes;TimedBackupEnabled=timedBackupEnabled;}
+        public ActiveSession(GameSessionEventDto @event,DateTime nextBackupUtc,int intervalMinutes,bool timedAutomationEnabled){Event=@event;NextBackupUtc=nextBackupUtc;IntervalMinutes=intervalMinutes;TimedAutomationEnabled=timedAutomationEnabled;}
         public GameSessionEventDto Event{get;}
         public DateTime NextBackupUtc{get;set;}
         public int IntervalMinutes{get;set;}
-        public bool TimedBackupEnabled{get;set;}
+        public bool TimedAutomationEnabled{get;set;}
         public int BackupPending;
     }
 }

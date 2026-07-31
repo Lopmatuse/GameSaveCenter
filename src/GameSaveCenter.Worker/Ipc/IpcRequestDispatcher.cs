@@ -66,6 +66,8 @@ public sealed class IpcRequestDispatcher
                 MessageTypes.ReassignMedia=>await _media.ReassignAsync(Read<ReassignMediaRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.IgnoreMedia=>await _media.IgnoreAsync(Read<IgnoreMediaRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.AddMediaSource=>await AddMediaSourceAsync(Read<MediaSourceRuleDto>(request),token).ConfigureAwait(false),
+                MessageTypes.UpdateMediaSource=>await UpdateMediaSourceAsync(Read<MediaSourceRuleDto>(request),token).ConfigureAwait(false),
+                MessageTypes.DeleteMediaSource=>await DeleteMediaSourceAsync(Read<MediaSourceRuleDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ListMediaSources=>await _store.GetMediaSourcesAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
                 MessageTypes.DetectSavePaths=>await _detection.DetectAsync(Read<DetectionRequestDto>(request),token).ConfigureAwait(false),
                 MessageTypes.ListSaveCandidates=>await _store.GetSaveCandidatesAsync(Read<GameQueryDto>(request).PlayniteId,token).ConfigureAwait(false),
@@ -240,8 +242,22 @@ public sealed class IpcRequestDispatcher
         source.RootPath=Path.GetFullPath(Environment.ExpandEnvironmentVariables(source.RootPath));
         if(!Directory.Exists(source.RootPath))throw new DirectoryNotFoundException(source.RootPath);
         if(string.IsNullOrWhiteSpace(source.SourceId))source.SourceId=Guid.NewGuid().ToString("N");
+        source.IncludePattern=string.IsNullOrWhiteSpace(source.IncludePattern)?"*":source.IncludePattern;
         await _store.AddMediaSourceAsync(source,token).ConfigureAwait(false);
         return source;
+    }
+
+    private async Task<object> UpdateMediaSourceAsync(MediaSourceRuleDto source,CancellationToken token)
+    {
+        if(string.IsNullOrWhiteSpace(source.SourceId))throw new InvalidOperationException("媒体来源 ID 不能为空。");
+        return await AddMediaSourceAsync(source,token).ConfigureAwait(false);
+    }
+
+    private async Task<object> DeleteMediaSourceAsync(MediaSourceRuleDto source,CancellationToken token)
+    {
+        if(string.IsNullOrWhiteSpace(source.SourceId))throw new InvalidOperationException("媒体来源 ID 不能为空。");
+        await _store.DeleteMediaSourceAsync(source.SourceId,token).ConfigureAwait(false);
+        return new{deleted=true};
     }
 
     private async Task<BackupDiffDto> CompareBackupsAsync(BackupCompareRequestDto request,CancellationToken token)
@@ -335,6 +351,11 @@ public sealed class IpcRequestDispatcher
         EnableProcessDetection=_options.EnableProcessDetection,
         EnableSessionSavePathDetection=_options.EnableSessionSavePathDetection,
         EnableMediaSync=_options.EnableMediaSync,
+        EnableSteamMedia=_options.EnableSteamMedia,
+        EnableXboxGameBarMedia=_options.EnableXboxGameBarMedia,
+        EnableWindowsScreenshotMedia=_options.EnableWindowsScreenshotMedia,
+        EnablePlatformAdjacentMedia=_options.EnablePlatformAdjacentMedia,
+        EnableCustomMedia=_options.EnableCustomMedia,
         EnableCloudUpload=_options.EnableCloudUpload,
         BackupFormat=_options.BackupFormat,
         Compression=_options.Compression,

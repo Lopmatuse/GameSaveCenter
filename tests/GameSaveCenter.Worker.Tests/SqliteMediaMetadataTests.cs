@@ -70,6 +70,31 @@ public sealed class SqliteMediaMetadataTests : IDisposable
         Assert.Equal("manual review",loaded.Comment);
     }
 
+    [Fact]
+    public async Task MediaSourceRule_CanBePausedAndDeletedWithoutTouchingArchivedMedia()
+    {
+        var source=new MediaSourceRuleDto
+        {
+            SourceId="custom-source",
+            PlayniteId="game",
+            SourceKind=MediaSourceKind.Custom,
+            RootPath=root,
+            IncludePattern="*.png",
+            Enabled=true
+        };
+        await store.AddMediaSourceAsync(source,CancellationToken.None);
+        source.Enabled=false;
+        await store.AddMediaSourceAsync(source,CancellationToken.None);
+
+        var paused=await store.GetMediaSourcesAsync("game",CancellationToken.None);
+        Assert.Single(paused);
+        Assert.False(paused[0].Enabled);
+
+        await store.DeleteMediaSourceAsync(source.SourceId,CancellationToken.None);
+        Assert.Empty(await store.GetMediaSourcesAsync("game",CancellationToken.None));
+        Assert.True(Directory.Exists(root));
+    }
+
     public void Dispose()
     {
         SqliteConnection.ClearAllPools();

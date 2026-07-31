@@ -36,6 +36,11 @@ namespace GameSaveCenter.Playnite.Settings
         public bool EnableProcessDetection { get; set; } = true;
         public bool EnableSessionSavePathDetection { get; set; } = true;
         public bool EnableMediaSync { get; set; } = true;
+        public bool EnableSteamMedia { get; set; } = true;
+        public bool EnableXboxGameBarMedia { get; set; } = true;
+        public bool EnableWindowsScreenshotMedia { get; set; } = true;
+        public bool EnablePlatformAdjacentMedia { get; set; } = true;
+        public bool EnableCustomMedia { get; set; } = true;
         public bool EnableCloudUpload { get; set; }
         public bool EnableDashboardAutoRefresh { get; set; } = true;
         public bool EnableTaskNotifications { get; set; } = true;
@@ -139,6 +144,11 @@ namespace GameSaveCenter.Playnite.Settings
             EnableProcessDetection = EnableProcessDetection,
             EnableSessionSavePathDetection = EnableSessionSavePathDetection,
             EnableMediaSync = EnableMediaSync,
+            EnableSteamMedia = EnableSteamMedia,
+            EnableXboxGameBarMedia = EnableXboxGameBarMedia,
+            EnableWindowsScreenshotMedia = EnableWindowsScreenshotMedia,
+            EnablePlatformAdjacentMedia = EnablePlatformAdjacentMedia,
+            EnableCustomMedia = EnableCustomMedia,
             EnableCloudUpload = EnableCloudUpload,
             BackupFormat = BackupFormat,
             Compression = Compression,
@@ -195,6 +205,11 @@ namespace GameSaveCenter.Playnite.Settings
             EnableProcessDetection = other.EnableProcessDetection;
             EnableSessionSavePathDetection = other.EnableSessionSavePathDetection;
             EnableMediaSync = other.EnableMediaSync;
+            EnableSteamMedia = other.EnableSteamMedia;
+            EnableXboxGameBarMedia = other.EnableXboxGameBarMedia;
+            EnableWindowsScreenshotMedia = other.EnableWindowsScreenshotMedia;
+            EnablePlatformAdjacentMedia = other.EnablePlatformAdjacentMedia;
+            EnableCustomMedia = other.EnableCustomMedia;
             EnableCloudUpload = other.EnableCloudUpload;
             EnableDashboardAutoRefresh = other.EnableDashboardAutoRefresh;
             EnableTaskNotifications = other.EnableTaskNotifications;

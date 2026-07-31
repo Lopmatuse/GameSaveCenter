@@ -25,6 +25,11 @@ public sealed class WorkerOptions
     public bool EnableProcessDetection { get; set; } = true;
     public bool EnableSessionSavePathDetection { get; set; } = true;
     public bool EnableMediaSync { get; set; } = true;
+    public bool EnableSteamMedia { get; set; } = true;
+    public bool EnableXboxGameBarMedia { get; set; } = true;
+    public bool EnableWindowsScreenshotMedia { get; set; } = true;
+    public bool EnablePlatformAdjacentMedia { get; set; } = true;
+    public bool EnableCustomMedia { get; set; } = true;
     public bool EnableCloudUpload { get; set; }
     public BackupStorageFormat BackupFormat { get; set; } = BackupStorageFormat.Zip;
     public string Compression { get; set; } = "zstd";
@@ -60,6 +65,11 @@ public sealed class WorkerOptions
         EnableProcessDetection = settings.EnableProcessDetection;
         EnableSessionSavePathDetection = settings.EnableSessionSavePathDetection;
         EnableMediaSync = settings.EnableMediaSync;
+        EnableSteamMedia = settings.EnableSteamMedia;
+        EnableXboxGameBarMedia = settings.EnableXboxGameBarMedia;
+        EnableWindowsScreenshotMedia = settings.EnableWindowsScreenshotMedia;
+        EnablePlatformAdjacentMedia = settings.EnablePlatformAdjacentMedia;
+        EnableCustomMedia = settings.EnableCustomMedia;
         EnableCloudUpload = settings.EnableCloudUpload;
         BackupFormat = settings.BackupFormat;
         Compression = NormalizeCompression(settings.Compression);
@@ -82,6 +92,11 @@ public sealed class WorkerOptions
         EnableProcessDetection = EnableProcessDetection,
         EnableSessionSavePathDetection = EnableSessionSavePathDetection,
         EnableMediaSync = EnableMediaSync,
+        EnableSteamMedia = EnableSteamMedia,
+        EnableXboxGameBarMedia = EnableXboxGameBarMedia,
+        EnableWindowsScreenshotMedia = EnableWindowsScreenshotMedia,
+        EnablePlatformAdjacentMedia = EnablePlatformAdjacentMedia,
+        EnableCustomMedia = EnableCustomMedia,
         EnableCloudUpload = EnableCloudUpload,
         BackupFormat = BackupFormat,
         Compression = Compression,

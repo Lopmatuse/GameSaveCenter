@@ -186,6 +186,13 @@
                     <CheckBox Content="检测从 Steam、Xbox、启动器和 MOD 管理器外部启动的游戏" IsChecked="{Binding EnableProcessDetection}" Margin="0,5"/>
                     <CheckBox Content="对未匹配游戏记录启动前/退出后文件差异，生成存档路径候选" IsChecked="{Binding EnableSessionSavePathDetection}" Margin="0,5"/>
                     <CheckBox Content="同步新增截图和录像（源文件删除不会删除归档）" IsChecked="{Binding EnableMediaSync}" Margin="0,5"/>
+                    <WrapPanel Margin="22,1,0,5" IsEnabled="{Binding EnableMediaSync}">
+                        <CheckBox Content="Steam 截图" IsChecked="{Binding EnableSteamMedia}" Margin="0,4,14,4"/>
+                        <CheckBox Content="Xbox Game Bar" IsChecked="{Binding EnableXboxGameBarMedia}" Margin="0,4,14,4"/>
+                        <CheckBox Content="Windows 截图" IsChecked="{Binding EnableWindowsScreenshotMedia}" Margin="0,4,14,4"/>
+                        <CheckBox Content="游戏相邻目录" IsChecked="{Binding EnablePlatformAdjacentMedia}" Margin="0,4,14,4"/>
+                        <CheckBox Content="自定义来源" IsChecked="{Binding EnableCustomMedia}" Margin="0,4,14,4"/>
+                    </WrapPanel>
                     <CheckBox Content="完成本地任务后允许单向云端复制" IsChecked="{Binding EnableCloudUpload}" Margin="0,5"/>
                     <CheckBox Content="管理面板打开时自动刷新任务与状态" IsChecked="{Binding EnableDashboardAutoRefresh}" Margin="0,5"/>
                     <CheckBox Content="任务完成或失败时显示 Playnite 通知（管理面板关闭时也会监测）" IsChecked="{Binding EnableTaskNotifications}" Margin="0,5"/>

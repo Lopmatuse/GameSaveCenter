@@ -39,9 +39,6 @@ namespace GameSaveCenter.Playnite.ViewModels
         private SavePathCandidateDto selectedCandidate = null!;
         private string backupComment = string.Empty;
         private bool lockSelectedBackup;
-        private string customMediaSourcePath = string.Empty;
-        private string customMediaPattern = "*";
-        private bool customMediaShared;
         private MediaItemDto selectedMedia = null!;
         private MediaStorageSummaryDto mediaSummary = new MediaStorageSummaryDto();
         private string mediaComment = string.Empty;
@@ -111,6 +108,8 @@ namespace GameSaveCenter.Playnite.ViewModels
             CompareBackupCommand = new RelayCommand(_ => Run(CompareBackupAsync), _ => !IsBusy && SelectedGame != null && SelectedBackup != null && Backups.IndexOf(SelectedBackup) >= 0 && Backups.IndexOf(SelectedBackup) + 1 < Backups.Count);
             PreviewRetentionCommand = new RelayCommand(_ => Run(PreviewRetentionAsync), _ => !IsBusy && SelectedGame != null && Backups.Count > 0);
             AddMediaSourceCommand = new RelayCommand(_ => Run(AddMediaSourceAsync), _ => !IsBusy && SelectedGame != null);
+            UpdateMediaSourceCommand = new RelayCommand(value => Run(() => UpdateMediaSourceAsync(value as MediaSourceRuleDto)), _ => !IsBusy);
+            DeleteMediaSourceCommand = new RelayCommand(value => Run(() => DeleteMediaSourceAsync(value as MediaSourceRuleDto)), _ => !IsBusy);
             AcceptCandidateCommand = new RelayCommand(_ => Run(AcceptCandidateAsync), _ => !IsBusy && SelectedGame != null && SelectedCandidate != null && !string.Equals(SelectedCandidate.Status, "Accepted", StringComparison.OrdinalIgnoreCase));
             RejectCandidateCommand = new RelayCommand(_ => Run(RejectCandidateAsync), _ => !IsBusy && SelectedGame != null && SelectedCandidate != null && !string.Equals(SelectedCandidate.Status, "Accepted", StringComparison.OrdinalIgnoreCase));
             ReassignMediaCommand = new RelayCommand(_ => Run(ReassignMediaAsync), _ => !IsBusy && SelectedMedia != null && MediaTargetGame != null);
@@ -354,9 +353,6 @@ namespace GameSaveCenter.Playnite.ViewModels
         }
         public string BackupComment { get => backupComment; set => SetValue(ref backupComment, value); }
         public bool LockSelectedBackup { get => lockSelectedBackup; set => SetValue(ref lockSelectedBackup, value); }
-        public string CustomMediaSourcePath { get => customMediaSourcePath; set => SetValue(ref customMediaSourcePath, value); }
-        public string CustomMediaPattern { get => customMediaPattern; set => SetValue(ref customMediaPattern, value); }
-        public bool CustomMediaShared { get => customMediaShared; set => SetValue(ref customMediaShared, value); }
         public MediaItemDto SelectedMedia
         {
             get => selectedMedia;
@@ -425,6 +421,8 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand CompareBackupCommand { get; }
         public ICommand PreviewRetentionCommand { get; }
         public ICommand AddMediaSourceCommand { get; }
+        public ICommand UpdateMediaSourceCommand { get; }
+        public ICommand DeleteMediaSourceCommand { get; }
         public ICommand AcceptCandidateCommand { get; }
         public ICommand RejectCandidateCommand { get; }
         public ICommand ReassignMediaCommand { get; }

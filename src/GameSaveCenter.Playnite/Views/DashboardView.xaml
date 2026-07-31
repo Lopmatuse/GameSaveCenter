@@ -669,7 +669,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.18" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.19" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -991,11 +991,14 @@
 
                     <Border x:Name="BackupPolicyPanel" Grid.Row="2" Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,0,0,12" Visibility="Collapsed">
                         <WrapPanel VerticalAlignment="Center">
+                            <CheckBox Content="启用当前游戏自动任务" IsChecked="{Binding SelectedGame.Policy.Enabled}" Margin="0,3,18,3" ToolTip="关闭后不会因启动、退出或游玩间隔自动备份或归档媒体；手动操作仍可使用。"/>
                             <CheckBox Content="退出后备份" IsChecked="{Binding SelectedGame.Policy.BackupOnGameStop}" Margin="0,3,18,3"/>
                             <CheckBox Content="游玩中备份" IsChecked="{Binding SelectedGame.Policy.BackupDuringPlay}" Margin="0,3,12,3"/>
                             <TextBlock Text="间隔" VerticalAlignment="Center"/>
                             <TextBox Style="{StaticResource GscTextBox}" Width="58" Text="{Binding SelectedGame.Policy.DuringPlayIntervalMinutes, UpdateSourceTrigger=PropertyChanged}" ToolTip="允许 1–1440 分钟；Worker 会在到期后 5 秒内开始排队备份。" Margin="7,0,7,0"/>
                             <TextBlock Text="分钟" VerticalAlignment="Center" Margin="0,0,18,0"/>
+                            <CheckBox Content="退出后归档媒体" IsChecked="{Binding SelectedGame.Policy.SyncMediaOnGameStop}" Margin="0,3,18,3"/>
+                            <CheckBox Content="游玩中归档媒体" IsChecked="{Binding SelectedGame.Policy.SyncMediaDuringPlay}" Margin="0,3,18,3"/>
                             <CheckBox Content="上传云端" IsChecked="{Binding SelectedGame.Policy.UploadAfterBackup}" Margin="0,3,12,3"/>
                             <Button Style="{StaticResource GscButtonBase}" Command="{Binding SavePolicyCommand}" Content="保存策略" Margin="0"/>
                         </WrapPanel>
@@ -1545,7 +1548,14 @@
                                                     <DataTemplate>
                                                         <Border Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="10" Padding="10,7" Margin="0,0,8,8">
                                                             <StackPanel>
-                                                                <TextBlock Text="{Binding SourceKindDisplay, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                                <WrapPanel>
+                                                                    <CheckBox Content="启用" IsChecked="{Binding Enabled, Mode=TwoWay}" Command="{Binding DataContext.UpdateMediaSourceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,10,0"/>
+                                                                    <TextBlock Text="{Binding SourceKindDisplay, Mode=OneWay}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                                                    <TextBlock Text="共享" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="8,0,0,0" VerticalAlignment="Center">
+                                                                        <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding SharedDirectory}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                                                    </TextBlock>
+                                                                    <Button Style="{StaticResource GscContextButton}" Command="{Binding DataContext.DeleteMediaSourceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Content="移除" Margin="10,0,0,0"/>
+                                                                </WrapPanel>
                                                                 <TextBlock Text="{Binding RootPath, Mode=OneWay}" Foreground="{DynamicResource GscSecondaryTextBrush}" MaxWidth="460" TextTrimming="CharacterEllipsis" ToolTip="{Binding RootPath, Mode=OneWay}"/>
                                                             </StackPanel>
                                                         </Border>

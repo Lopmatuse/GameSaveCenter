@@ -251,7 +251,7 @@ public sealed class MediaSyncService
     private async Task<List<MediaSource>> DiscoverGameSourcesAsync(GameDescriptorDto game,CancellationToken token)
     {
         var output=new List<MediaSource>();
-        if(game.Platform==GamePlatformKind.Steam&&!string.IsNullOrWhiteSpace(game.PlatformGameId))
+        if(_options.EnableSteamMedia&&game.Platform==GamePlatformKind.Steam&&!string.IsNullOrWhiteSpace(game.PlatformGameId))
         {
             foreach(var steamRoot in SteamRoots())
             {
@@ -261,9 +261,10 @@ public sealed class MediaSyncService
                     output.Add(new MediaSource(Path.Combine(user,"760","remote",game.PlatformGameId,"screenshots"),MediaSourceKind.Steam));
             }
         }
-        if(!string.IsNullOrWhiteSpace(game.InstallDirectory))
+        if(_options.EnablePlatformAdjacentMedia&&!string.IsNullOrWhiteSpace(game.InstallDirectory))
             foreach(var child in new[]{"Screenshots","Screenshot","Captures","Capture","Media"})
                 output.Add(new MediaSource(Path.Combine(game.InstallDirectory,child),PlatformSource(game.Platform)));
+        if(_options.EnablePlatformAdjacentMedia)
         foreach(var action in game.Actions)
         {
             var basePath=string.IsNullOrWhiteSpace(action.WorkingDirectory)?Path.GetDirectoryName(action.Path):action.WorkingDirectory;
@@ -271,6 +272,7 @@ public sealed class MediaSyncService
             foreach(var child in new[]{"Screenshots","Captures"})
                 output.Add(new MediaSource(Path.Combine(basePath,child),action.IsModLoader?MediaSourceKind.Custom:PlatformSource(game.Platform)));
         }
+        if(_options.EnableCustomMedia)
         foreach(var custom in await _store.GetMediaSourcesAsync(game.PlayniteId,token).ConfigureAwait(false))
             if(custom.Enabled&&!custom.SharedDirectory&&!string.IsNullOrWhiteSpace(custom.RootPath))
                 output.Add(new MediaSource(custom.RootPath,custom.SourceKind,string.IsNullOrWhiteSpace(custom.IncludePattern)?"*":custom.IncludePattern));
@@ -281,9 +283,10 @@ public sealed class MediaSyncService
     {
         var output=new List<MediaSource>();
         var captures=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyVideos),"Captures");
-        if(Directory.Exists(captures))output.Add(new MediaSource(captures,MediaSourceKind.XboxGameBar));
+        if(_options.EnableXboxGameBarMedia&&Directory.Exists(captures))output.Add(new MediaSource(captures,MediaSourceKind.XboxGameBar));
         var windowsScreens=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyPictures),"Screenshots");
-        if(Directory.Exists(windowsScreens))output.Add(new MediaSource(windowsScreens,MediaSourceKind.WindowsScreenshot));
+        if(_options.EnableWindowsScreenshotMedia&&Directory.Exists(windowsScreens))output.Add(new MediaSource(windowsScreens,MediaSourceKind.WindowsScreenshot));
+        if(_options.EnableCustomMedia)
         foreach(var custom in await _store.GetSharedMediaSourcesAsync(token).ConfigureAwait(false))
             if(!string.IsNullOrWhiteSpace(custom.RootPath))
                 output.Add(new MediaSource(custom.RootPath,custom.SourceKind,string.IsNullOrWhiteSpace(custom.IncludePattern)?"*":custom.IncludePattern));

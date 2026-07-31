@@ -30,6 +30,8 @@ namespace GameSaveCenter.Playnite.Tests
             Assert.Equal(source.BackupFormat, imported.BackupFormat);
             Assert.Equal(source.CompressionLevel, imported.CompressionLevel);
             Assert.Equal(source.DifferentialBackupLimit, imported.DifferentialBackupLimit);
+            Assert.Equal(source.EnableXboxGameBarMedia, imported.EnableXboxGameBarMedia);
+            Assert.Equal(source.EnableCustomMedia, imported.EnableCustomMedia);
         }
 
         [Fact]
@@ -54,6 +56,11 @@ namespace GameSaveCenter.Playnite.Tests
             Assert.Equal(10, imported.DashboardRefreshSeconds);
             Assert.Equal(BackupStorageFormat.Zip, imported.BackupFormat);
             Assert.Equal("zstd", imported.Compression);
+            Assert.True(imported.EnableSteamMedia);
+            Assert.True(imported.EnableXboxGameBarMedia);
+            Assert.True(imported.EnableWindowsScreenshotMedia);
+            Assert.True(imported.EnablePlatformAdjacentMedia);
+            Assert.True(imported.EnableCustomMedia);
         }
 
         [Fact]
@@ -115,6 +122,11 @@ namespace GameSaveCenter.Playnite.Tests
             EnableProcessDetection = true,
             EnableSessionSavePathDetection = false,
             EnableMediaSync = true,
+            EnableSteamMedia = false,
+            EnableXboxGameBarMedia = true,
+            EnableWindowsScreenshotMedia = false,
+            EnablePlatformAdjacentMedia = true,
+            EnableCustomMedia = false,
             EnableCloudUpload = true,
             EnableDashboardAutoRefresh = false,
             EnableTaskNotifications = true,

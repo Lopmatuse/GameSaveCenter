@@ -36,20 +36,18 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         private async Task SyncMediaAsync()
         {
+            if (!plugin.Settings.EnableMediaSync)
+            {
+                StatusMessage = "全局媒体归档已关闭；请在插件设置中启用后再同步。";
+                return;
+            }
+
             var ids = SelectedGame == null ? new string[0] : new[] { SelectedGame.PlayniteId };
             var request = new MediaSyncRequestDto { UploadAfterSync = plugin.Settings.EnableCloudUpload };
             foreach (var id in ids) request.PlayniteIds.Add(id);
             var tasks = await plugin.RequestAsync<TaskStatusDto[]>(MessageTypes.SyncMedia, request, TimeSpan.FromMinutes(60));
             await RefreshCoreAsync(false);
             NotifyTaskResults(tasks);
-        }
-
-        private async Task AddMediaSourceAsync()
-        {
-            if (string.IsNullOrWhiteSpace(CustomMediaSourcePath)) throw new InvalidOperationException("请输入截图或录像目录。");
-            await plugin.RequestAsync<MediaSourceRuleDto>(MessageTypes.AddMediaSource, new MediaSourceRuleDto { PlayniteId = CustomMediaShared ? string.Empty : SelectedGame.PlayniteId, RootPath = CustomMediaSourcePath, IncludePattern = string.IsNullOrWhiteSpace(CustomMediaPattern) ? "*" : CustomMediaPattern, SharedDirectory = CustomMediaShared, SourceKind = MediaSourceKind.Custom });
-            ConfirmSuccess("自定义媒体来源已添加");
-            await LoadDetailsAsync();
         }
 
         private async Task ReassignMediaAsync()

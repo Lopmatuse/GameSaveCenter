@@ -258,6 +258,11 @@ namespace GameSaveCenter.Contracts
         public bool EnableProcessDetection { get; set; } = true;
         public bool EnableSessionSavePathDetection { get; set; } = true;
         public bool EnableMediaSync { get; set; } = true;
+        public bool EnableSteamMedia { get; set; } = true;
+        public bool EnableXboxGameBarMedia { get; set; } = true;
+        public bool EnableWindowsScreenshotMedia { get; set; } = true;
+        public bool EnablePlatformAdjacentMedia { get; set; } = true;
+        public bool EnableCustomMedia { get; set; } = true;
         public bool EnableCloudUpload { get; set; }
         public BackupStorageFormat BackupFormat { get; set; } = BackupStorageFormat.Zip;
         public string Compression { get; set; } = "zstd";
@@ -306,6 +311,11 @@ namespace GameSaveCenter.Contracts
         public bool EnableProcessDetection { get; set; } = true;
         public bool EnableSessionSavePathDetection { get; set; } = true;
         public bool EnableMediaSync { get; set; } = true;
+        public bool EnableSteamMedia { get; set; } = true;
+        public bool EnableXboxGameBarMedia { get; set; } = true;
+        public bool EnableWindowsScreenshotMedia { get; set; } = true;
+        public bool EnablePlatformAdjacentMedia { get; set; } = true;
+        public bool EnableCustomMedia { get; set; } = true;
         public bool EnableCloudUpload { get; set; }
         public BackupStorageFormat BackupFormat { get; set; } = BackupStorageFormat.Zip;
         public string Compression { get; set; } = "zstd";

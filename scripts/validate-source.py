@@ -376,8 +376,8 @@ def check_dashboard_regressions() -> None:
         fail("During-play backup cadence must remain anchored instead of accumulating polling drift")
     if "BackupPending" not in coordinator or "Interlocked.CompareExchange" not in coordinator:
         fail("During-play backup scheduler must prevent overlapping backup requests")
-    if "TimedBackupEnabled" not in coordinator:
-        fail("During-play backup scheduler must re-anchor when the policy is enabled during a session")
+    if "TimedAutomationEnabled" not in coordinator:
+        fail("During-play automation scheduler must re-anchor when its policy is enabled during a session")
     if "taskNotificationTimer" not in plugin or "MessageTypes.GetTasks" not in plugin:
         fail("Application-lifetime task notification monitor is missing")
     if "notifiedTaskIds.TryAdd(task.TaskId" not in plugin:
