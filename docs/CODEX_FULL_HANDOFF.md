@@ -26,6 +26,7 @@ Git 作者：`Sable Drift`
 
 - 云端 `rclone copy` 失败不会重跑 Ludusavi 本地备份：只会在 `cloud_retry_queue` 中排队安全单向 copy，并跨 Worker 重启恢复。
 - 退避顺序为 1、5、15、60、240、720 分钟，最多六次自动尝试；成功清队列，耗尽后审计并停止。Rclone 或备份目录未就绪时必须暂停，禁止任务风暴。
+- `CloudRetryPersistenceTests` 覆盖退避策略、六次上限、旧 SQLite 数据库保留既有表并添加队列表/索引、跨 Store 重启读写、成功清队列和延后扫描；真实 Rclone 后端仍只能用隔离目标回归。
 - `GscNumericTextBox` 与 `IntegerRangeValidationRule` 用于所有整数设置；完整输入后失焦提交。不要恢复 58 DIP 策略框或逐字符整数绑定。
 
 ## 1. 用户的最终目标

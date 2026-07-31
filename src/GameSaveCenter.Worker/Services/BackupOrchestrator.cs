@@ -267,8 +267,8 @@ public sealed class BackupOrchestrator
     {
         var now = DateTime.UtcNow;
         var existing = await _store.GetCloudRetryAsync(playniteId, token).ConfigureAwait(false);
-        var retryCount = (existing?.RetryCount ?? 0) + 1;
-        if (retryCount > CloudRetryPolicy.MaximumAutomaticRetries)
+        var completedAutomaticRetries = existing?.RetryCount ?? 0;
+        if (CloudRetryPolicy.IsAutomaticRetryLimitReached(completedAutomaticRetries))
         {
             await _store.RemoveCloudRetryAsync(playniteId, token).ConfigureAwait(false);
             await _store.UpdateGameCloudStateAsync(playniteId, "Failed", token).ConfigureAwait(false);
@@ -276,6 +276,7 @@ public sealed class BackupOrchestrator
             return;
         }
 
+        var retryCount = completedAutomaticRetries + 1;
         var entry = new CloudRetryQueueEntry
         {
             PlayniteId = playniteId, RetryCount = retryCount,

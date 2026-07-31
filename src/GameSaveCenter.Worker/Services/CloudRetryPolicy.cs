@@ -15,6 +15,13 @@ public static class CloudRetryPolicy
     /// <summary>Number of automatic retry attempts after the original upload has failed.</summary>
     public static int MaximumAutomaticRetries => Delays.Length;
 
+    /// <summary>
+    /// Returns whether a failed upload has already consumed every automatic retry.
+    /// Manual retry remains possible after this becomes true; only automatic scheduling stops.
+    /// </summary>
+    public static bool IsAutomaticRetryLimitReached(int completedAutomaticRetries)
+        => completedAutomaticRetries >= MaximumAutomaticRetries;
+
     public static DateTime GetNextAttemptUtc(int retryAttempt, DateTime nowUtc)
     {
         if (retryAttempt < 1 || retryAttempt > MaximumAutomaticRetries)

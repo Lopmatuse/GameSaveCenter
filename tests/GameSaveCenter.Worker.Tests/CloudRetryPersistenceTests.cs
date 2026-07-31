@@ -37,6 +37,10 @@ public sealed class CloudRetryPersistenceTests : IDisposable
 
         Assert.Throws<ArgumentOutOfRangeException>(() => CloudRetryPolicy.GetNextAttemptUtc(0, now));
         Assert.Throws<ArgumentOutOfRangeException>(() => CloudRetryPolicy.GetNextAttemptUtc(7, now));
+
+        Assert.False(CloudRetryPolicy.IsAutomaticRetryLimitReached(expectedMinutes.Length - 1));
+        Assert.True(CloudRetryPolicy.IsAutomaticRetryLimitReached(expectedMinutes.Length));
+        Assert.True(CloudRetryPolicy.IsAutomaticRetryLimitReached(expectedMinutes.Length + 1));
     }
 
     [Fact]
@@ -58,6 +62,43 @@ public sealed class CloudRetryPersistenceTests : IDisposable
 
         await restarted.RemoveCloudRetryAsync("game-1", CancellationToken.None);
         Assert.Null(await restarted.GetCloudRetryAsync("game-1", CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task QueueSchema_IsAddedWithoutReplacingAnExistingDatabase()
+    {
+        var migrationRoot = Path.Combine(root, "pre-cloud-retry-schema");
+        Directory.CreateDirectory(migrationRoot);
+        var migrationOptions = new WorkerOptions
+        {
+            DataDirectory = migrationRoot,
+            LudusaviBackupDirectory = Path.Combine(migrationRoot, "Saves"),
+            MediaArchiveDirectory = Path.Combine(migrationRoot, "Media")
+        };
+
+        await using (var legacy = new SqliteConnection($"Data Source={migrationOptions.DatabasePath}"))
+        {
+            await legacy.OpenAsync();
+            var command = legacy.CreateCommand();
+            command.CommandText = "CREATE TABLE legacy_marker(marker TEXT NOT NULL); INSERT INTO legacy_marker(marker) VALUES ('keep');";
+            await command.ExecuteNonQueryAsync();
+        }
+
+        var migrated = new SqliteStateStore(migrationOptions, NullLogger<SqliteStateStore>.Instance);
+        await migrated.InitializeAsync(CancellationToken.None);
+        var now = DateTime.UtcNow;
+        await migrated.UpsertCloudRetryAsync(new CloudRetryQueueEntry
+        {
+            PlayniteId = "migrated-game", RetryCount = 1, NextAttemptUtc = now,
+            LastError = "offline", CreatedUtc = now, UpdatedUtc = now
+        }, CancellationToken.None);
+
+        Assert.NotNull(await migrated.GetCloudRetryAsync("migrated-game", CancellationToken.None));
+        await using var verification = new SqliteConnection($"Data Source={migrationOptions.DatabasePath}");
+        await verification.OpenAsync();
+        var preserved = verification.CreateCommand();
+        preserved.CommandText = "SELECT marker FROM legacy_marker;";
+        Assert.Equal("keep", await preserved.ExecuteScalarAsync());
     }
 
     [Fact]

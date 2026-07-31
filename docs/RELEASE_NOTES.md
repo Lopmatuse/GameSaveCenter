@@ -2,7 +2,7 @@
 
 - 将 Dashboard 与设置页残留的环境光、图标底色、安全提示、主按钮渐变、状态点和浮层阴影迁移到 `DesignTokens.xaml`，不再让主题相关颜色散落在页面中。
 - 保持半透明侧栏、浮层和环境光；大列表、表格与普通内容面仍为清晰近不透明表面，不新增逐行模糊。
-- 再次通过 Release 构建、44 项自动测试、源码/XAML 门禁与 WPF UI Skill 静态审查。
+- 再次通过 Release 构建、45 项自动测试、源码/XAML 门禁与 WPF UI Skill 静态审查；新增旧 SQLite 数据库升级、队列跨重启和六次上限的云端重试回归覆盖。
 
 # 0.6.21 Development Preview
 
