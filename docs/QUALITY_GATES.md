@@ -2,7 +2,7 @@
 
 更新时间：2026-08-01
 
-本门禁适用于每个 `IN_PROGRESS` 工作项。它补充但不替代 `AGENTS.md`、`docs/AUTONOMOUS_DEVELOPMENT_RULES.md`、`docs/design/UI_CHANGE_GATE.md` 与 `docs/WINDOWS_TEST_PLAN.md`。
+本门禁适用于 `docs/AUTONOMOUS_BACKLOG.md` 中每个 `IN_PROGRESS` 工作项；任务领取、状态转换与验收记录以该清单为准。它补充但不替代 `AGENTS.md`、`docs/AUTONOMOUS_DEVELOPMENT_RULES.md`、`docs/design/UI_CHANGE_GATE.md` 与 `docs/WINDOWS_TEST_PLAN.md`。
 
 ## 最低自动化门禁
 
