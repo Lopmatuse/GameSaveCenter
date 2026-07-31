@@ -1,7 +1,13 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-29
-当前版本：`0.6.19-development-preview`
+当前版本：`0.6.20-development-preview`
+
+### 0.6.20 Dashboard UI 线程边界
+
+- Worker 任务事件、定时器和其他异步续体可以在非 UI 线程触发 `DashboardViewModel.PropertyChanged`；View 订阅者必须先执行 `Dispatcher.CheckAccess()`，不得先读 `IsLoaded`、控件或依赖属性。
+- `RequestBackgroundRefreshAsync` 与 `RefreshAfterSynchronizationAsync` 必须返回 `Task`。定时器和 Worker 事件回调负责等待任务，不能把这两条后台路径改回 `async void`。
+- 后台刷新对 `IsBackgroundRefreshing`、`StatusMessage` 及其他绑定属性的读写必须经 `ApplyOnUi`；这条约束不因当前调用者恰好来自 DispatcherTimer 而放松。
 
 ### 0.6.19 媒体控制与保留清理边界
 

@@ -1,3 +1,10 @@
+# 0.6.20 Development Preview
+
+- 修复 Worker 任务事件或自动刷新从后台线程触发 `PropertyChanged` 时，Dashboard View 先读取 `IsLoaded` 而导致 Playnite 崩溃的问题。
+- `OnViewModelPropertyChanged` 现在首先检查并切回 WPF Dispatcher，随后才读取控件状态或安排动画。
+- 自动刷新与后台同步由 `async void` 改为 `Task`；定时器与任务事件订阅会等待并观察该任务，异常通过受控路径处理。
+- ViewModel 的后台刷新标志与状态文本只通过 UI Dispatcher 修改。
+
 # 0.6.19 Development Preview
 
 - Media collection can now be disabled by source: Steam, Xbox Game Bar, Windows Screenshots, game-adjacent directories, and custom rules.

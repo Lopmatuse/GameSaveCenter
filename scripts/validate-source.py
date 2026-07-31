@@ -792,6 +792,31 @@ def check_0618_task_event_guards() -> None:
     if not test.exists() or "Publish_FansOutIndependentTaskSnapshots" not in test.read_text(encoding="utf-8"):
         fail("Task event broadcaster regression tests are missing")
 
+def check_0620_wpf_thread_guards() -> None:
+    """PropertyChanged listeners must never read WPF controls from Worker callbacks."""
+    view = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml.cs").read_text(encoding="utf-8")
+    view_model = read_dashboard_view_model()
+    handler = re.search(
+        r"private void OnViewModelPropertyChanged\(.*?\n        \}", view, re.DOTALL)
+    if handler is None:
+        fail("Dashboard PropertyChanged handler is missing")
+    else:
+        body = handler.group(0)
+        dispatcher_index = body.find("Dispatcher.CheckAccess()")
+        loaded_index = body.find("IsLoaded")
+        if dispatcher_index < 0 or loaded_index < 0 or dispatcher_index > loaded_index:
+            fail("Dashboard must check Dispatcher access before reading IsLoaded")
+        if "OnViewModelPropertyChanged(sender, e)" not in body or "Dispatcher.BeginInvoke" not in body:
+            fail("Dashboard background PropertyChanged must be reposted to its Dispatcher")
+    for forbidden in ("async void RequestBackgroundRefresh", "async void RefreshAfterSynchronization"):
+        if forbidden in view_model:
+            fail(f"Dashboard background operation must return Task: {forbidden}")
+    for token in ("RequestBackgroundRefreshAsync", "RefreshAfterSynchronizationAsync", "ApplyOnUi(() => IsBackgroundRefreshing = false)"):
+        if token not in view_model:
+            fail(f"Dashboard UI-thread refresh guard missing: {token}")
+    if "await viewModel.RequestBackgroundRefreshAsync()" not in view:
+        fail("Dashboard refresh timer must await the controlled background refresh Task")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -816,6 +841,7 @@ def main() -> int:
     check_069_device_decision_guards()
     check_0613_remote_restore_guards()
     check_0618_task_event_guards()
+    check_0620_wpf_thread_guards()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:

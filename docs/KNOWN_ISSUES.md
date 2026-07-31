@@ -1,7 +1,7 @@
 # 已知缺陷与回归状态
 
 更新时间：2026-07-29
-目标版本：`0.6.19-development-preview`
+目标版本：`0.6.20-development-preview`
 
 本文档是持续缺陷台账。任何修复必须同步更新 `DEVELOPMENT_PROGRESS.md` 与 `PROJECT_MEMORY.md`。
 
@@ -71,6 +71,7 @@
 | GSC-073 | 云端复制失败只能重跑完整 Backup | 已修复待 Rclone 回归 | `CloudUpload` 重试只重复安全的单向复制，不新增本地历史 |
 | GSC-074 | 后台通知固定读取完整任务历史 | 已修复待 Playnite 回归 | Worker 状态写入后唤醒长轮询；重启/超时回退 SQLite 快照 |
 | GSC-075 | 多 EXE 修改器包静默选择最大文件且无法切换版本 | 已修复待修改器回归 | 导入时用户选择主程序；Inspector 可选择并保存活动版本 |
+| GSC-076 | Worker 任务刷新在后台线程触发 Dashboard PropertyChanged 后访问 WPF 控件而导致插件崩溃 | 已修复待 Playnite 回归 | View 先检查 Dispatcher 后再读取 IsLoaded；定时器和事件回调等待 Task；循环任务完成/取消/慢 Worker 时日志无跨线程异常 |
 
 ## 当前安全边界
 

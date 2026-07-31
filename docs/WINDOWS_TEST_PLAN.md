@@ -1,3 +1,10 @@
+## 0.6.20 Dashboard 跨线程刷新崩溃回归
+
+- [ ] 安装后确认扩展管理器为 `0.6.20`，主 DLL 文件版本为 `0.6.20.0`。
+- [ ] 保持 Dashboard 打开，分别完成、失败和取消备份/媒体同步/修改器下载任务各至少十次；不得弹出插件崩溃窗口。
+- [ ] 将自动刷新设为最短间隔，并在 Worker 响应缓慢时反复切换页面、关闭重开 Dashboard；`extensions.log` 不得出现“调用线程无法访问此对象”、`DashboardView.OnViewModelPropertyChanged` 或 `AsyncMethodBuilderCore.ThrowAsync`。
+- [ ] Worker 重启、事件通道短暂重连、后台同步失败时，状态提示仍可显示且 Playnite 保持可操作。
+
 ## 0.6.18 Worker 任务事件推送回归
 
 - [ ] 安装后确认扩展管理器为 `0.6.18`，主 DLL 文件版本为 `0.6.18.0`。

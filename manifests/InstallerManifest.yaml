@@ -1,14 +1,14 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.19
+  - Version: 0.6.20
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-07-30
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.19/GameSaveCenter-0.6.19.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.20/GameSaveCenter-0.6.20.pext
     Changelog:
       - 可独立关闭 Steam、Xbox Game Bar、Windows 截图、游戏相邻目录和自定义媒体来源扫描。
       - 每个游戏可独立关闭自动备份与自动媒体归档；自定义来源支持暂停和移除，不会删除已归档媒体。
       - 事件断线、Worker 重启或事件积压时自动回退到 SQLite 快照与有界长轮询。
       - 修复超大游戏库、任务和日志列表中滚动滑块缩成尖点的问题。
-      - 多设备冲突支持远端 Ludusavi 备份库隔离下载。
-      - 下载后和恢复前均执行哈希与 Backup ID 校验。
-      - 远端恢复强制创建本机 PreRestore，并保留失败回滚。
+      - 修复后台任务刷新跨线程访问 WPF 控件导致的 Playnite 崩溃。
+      - View 属性变更先切回 Dispatcher，再读取任何 WPF 状态。
+      - 自动刷新与初始化同步均改用可观察的 Task 流程。

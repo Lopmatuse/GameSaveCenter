@@ -1,7 +1,16 @@
 # 开发实现进度
 
 更新时间：2026-07-29
-当前版本：`0.6.19-development-preview`
+当前版本：`0.6.20-development-preview`
+
+## 2026-07-31 0.6.20 Dashboard 跨线程崩溃修复
+
+- [x] 根据 0.6.18 真机 `extensions.log` 调用栈确认：后台 `PropertyChanged` 进入 `DashboardView.OnViewModelPropertyChanged` 时访问 `IsLoaded` 导致跨线程异常。
+- [x] View 事件处理器先以 `Dispatcher.CheckAccess()` 回到 UI 线程，再读取 WPF 控件、ViewModel 状态或执行动画。
+- [x] 自动刷新改为 `RequestBackgroundRefreshAsync`；DispatcherTimer 与 Worker 任务事件均等待其受控 Task，不再让异常逃逸至 `async void`。
+- [x] 初始化后的后台同步改为 `Task`，失败状态通过 UI Dispatcher 写入。
+- [x] 新增源码门禁，要求 Dispatcher 检查位于 `IsLoaded` 之前，并禁止两个后台入口回退为 `async void`。
+- [ ] 在 Playnite 中保持 Dashboard 打开，完成/取消任务、慢 Worker、关闭重开面板各循环至少十次；日志不得再出现跨线程 `InvalidOperationException`。
 
 ## 2026-07-31 0.6.19 媒体控制与来源管理
 

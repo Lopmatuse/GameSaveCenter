@@ -557,9 +557,9 @@ namespace GameSaveCenter.Playnite.ViewModels
             taskEventListener = null;
         }
 
-        private Task ApplyTaskEventAsync(TaskChangeEventDto change)
+        private async Task ApplyTaskEventAsync(TaskChangeEventDto change)
         {
-            if (change == null || change.Task == null) return Task.CompletedTask;
+            if (change == null || change.Task == null) return;
             ApplyOnUi(() =>
             {
                 MergeTaskChange(Tasks, change.Task);
@@ -575,9 +575,8 @@ namespace GameSaveCenter.Playnite.ViewModels
             {
                 // A terminal event can change backup/media counts and findings. Request the normal
                 // cached snapshot refresh; the event itself only updates the task rows immediately.
-                RequestBackgroundRefresh();
+                await RequestBackgroundRefreshAsync();
             }
-            return Task.CompletedTask;
         }
 
         private static void MergeTaskChange(ObservableCollection<TaskStatusDto> target, TaskStatusDto change)
@@ -593,10 +592,10 @@ namespace GameSaveCenter.Playnite.ViewModels
             // Render durable SQLite state first. The library synchronization runs separately, so
             // opening the panel never waits for a large Playnite library to be rematched.
             await RefreshCoreAsync(false);
-            RefreshAfterSynchronization();
+            _ = RefreshAfterSynchronizationAsync();
         }
 
-        private async void RefreshAfterSynchronization()
+        private async Task RefreshAfterSynchronizationAsync()
         {
             try
             {
@@ -605,17 +604,23 @@ namespace GameSaveCenter.Playnite.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = "已显示本地缓存；后台同步暂不可用：" + ex.Message;
+                ApplyOnUi(() => StatusMessage = "已显示本地缓存；后台同步暂不可用：" + ex.Message);
             }
         }
 
         /// <summary>Lightweight polling entry used by the view timer. It remains active while a manual task is running.</summary>
-        public async void RequestBackgroundRefresh()
+        public async Task RequestBackgroundRefreshAsync()
         {
-            if (!plugin.Settings.EnableDashboardAutoRefresh || IsBackgroundRefreshing) return;
-            IsBackgroundRefreshing = true;
+            var started = false;
             try
             {
+                ApplyOnUi(() =>
+                {
+                    if (!plugin.Settings.EnableDashboardAutoRefresh || IsBackgroundRefreshing) return;
+                    IsBackgroundRefreshing = true;
+                    started = true;
+                });
+                if (!started) return;
                 await plugin.EnsureWorkerAsync();
                 var taskChanges=await plugin.RequestAsync<TaskChangeFeedDto>(MessageTypes.GetTaskChanges,
                     new TaskChangeRequestDto{AfterSequence=lastTaskEventSequence,Limit=100});
@@ -624,16 +629,23 @@ namespace GameSaveCenter.Playnite.ViewModels
                     DateTime.UtcNow-lastFullDashboardRefreshUtc>=TimeSpan.FromMinutes(1);
                 if(!refreshDashboard)return;
                 var refreshDetails = await RefreshDashboardAsync(false, true);
-                if (CurrentWorkspace == WorkspaceKind.Media) await LoadInboxAsync();
-                if (refreshDetails && !IsBusy && SelectedGame != null) await LoadDetailsAsync();
+                var loadInbox = false;
+                var loadDetails = false;
+                ApplyOnUi(() =>
+                {
+                    loadInbox = CurrentWorkspace == WorkspaceKind.Media;
+                    loadDetails = refreshDetails && !IsBusy && SelectedGame != null;
+                });
+                if (loadInbox) await LoadInboxAsync();
+                if (loadDetails) await LoadDetailsAsync();
             }
             catch (Exception ex)
             {
-                StatusMessage = "自动刷新暂不可用：" + ex.Message;
+                ApplyOnUi(() => StatusMessage = "自动刷新暂不可用：" + ex.Message);
             }
             finally
             {
-                IsBackgroundRefreshing = false;
+                if (started) ApplyOnUi(() => IsBackgroundRefreshing = false);
             }
         }
 
@@ -1486,7 +1498,12 @@ namespace GameSaveCenter.Playnite.ViewModels
             }
         }
 
-        private void ApplyOnUi(Action action) => plugin.PlayniteApi.MainView.UIDispatcher.Invoke(action);
+        private void ApplyOnUi(Action action)
+        {
+            var dispatcher = plugin.PlayniteApi.MainView.UIDispatcher;
+            if (dispatcher.CheckAccess()) action();
+            else dispatcher.Invoke(action);
+        }
         private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> source)
         {
             target.Clear();

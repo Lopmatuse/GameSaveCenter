@@ -1,7 +1,7 @@
 # GameSaveCenter Codex 完整开发交接
 
-更新时间：2026-07-30
-交接版本：`0.6.19-development-preview`
+更新时间：2026-07-31
+交接版本：`0.6.20-development-preview`
 仓库：`https://github.com/Nikilua/GameSaveCenter.git`
 主分支：`main`
 插件 ID：`66e9f2d7-67bb-43ef-b62a-b8e60734fcec`
@@ -9,6 +9,13 @@ Git 作者：`Sable Drift`
 提交说明：使用中文
 
 这份文件用于把此前多个 ChatGPT/Codex 会话中的关键上下文完整转移到另一台电脑。它不是逐字聊天导出，而是可执行的工程交接：包含用户目标、架构、版本演进、已完成能力、真实验证、安全边界、剩余工作和继续开发指令。下一位 Codex 不应依赖旧聊天记录，必须以本文件和仓库当前源码为准。
+
+### 0.6.20 跨线程崩溃交接
+
+- 2026-07-31 的真实 `extensions.log` 显示 `DashboardView.OnViewModelPropertyChanged` 在 Worker 任务刷新后从非 UI 线程访问 `IsLoaded`，抛出 WPF `InvalidOperationException` 并使 Playnite 插件崩溃。
+- `OnViewModelPropertyChanged` 的首个控件相关操作必须是 `Dispatcher.CheckAccess()`；后台回调只重新投递自身，之后才允许读取 `IsLoaded` 或 ViewModel 属性、安排动画。
+- `RequestBackgroundRefreshAsync` 和 `RefreshAfterSynchronizationAsync` 必须保持为 `Task`，禁止恢复为 `async void`。定时器和任务事件均须等待刷新任务，绑定状态必须经 `ApplyOnUi` 写入。
+- 必须在真实 Playnite 中保持面板打开，循环完成/取消任务、慢 Worker 和卸载重开面板，确认 `extensions.log` 无跨线程异常。
 
 ## 1. 用户的最终目标
 

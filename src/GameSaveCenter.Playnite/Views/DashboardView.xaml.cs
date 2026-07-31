@@ -175,7 +175,11 @@ namespace GameSaveCenter.Playnite.Views
             }
         }
 
-        private void OnRefreshTimerTick(object sender, EventArgs e) => viewModel?.RequestBackgroundRefresh();
+        private async void OnRefreshTimerTick(object sender, EventArgs e)
+        {
+            if (viewModel == null) return;
+            await viewModel.RequestBackgroundRefreshAsync();
+        }
 
 
         private void OnClearTextBoxClick(object sender, RoutedEventArgs e)
@@ -316,6 +320,13 @@ namespace GameSaveCenter.Playnite.Views
 
         private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            // PropertyChanged may originate from the Worker event pipe or another background
+            // continuation. Do not read any View state until this View is back on its owner thread.
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(new Action(() => OnViewModelPropertyChanged(sender, e)), DispatcherPriority.Background);
+                return;
+            }
             if (!IsLoaded) return;
             if (e.PropertyName == nameof(DashboardViewModel.SelectedGame) && !viewModel.IsBackgroundRefreshing)
             {
