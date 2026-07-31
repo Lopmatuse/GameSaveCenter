@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:contracts="clr-namespace:GameSaveCenter.Contracts;assembly=GameSaveCenter.Contracts"
              xmlns:converters="clr-namespace:GameSaveCenter.Playnite.Converters"
-             xmlns:development="clr-namespace:GameSaveCenter.Playnite.Views.Development"
              xmlns:infra="clr-namespace:GameSaveCenter.Playnite.Infrastructure"
              Foreground="{DynamicResource GscPrimaryTextBrush}" TextElement.Foreground="{DynamicResource GscPrimaryTextBrush}" Background="Transparent"
              TextElement.FontFamily="Segoe UI Variable Text, Segoe UI"
@@ -1807,7 +1806,25 @@
                         </TabItem>
 
                         <TabItem x:Name="UiFrameworkProbeTab" Header="界面探针">
-                            <development:UiFrameworkProbeView/>
+                            <Grid Margin="0,12,0,0">
+                                <ContentControl x:Name="UiFrameworkProbeHost" Visibility="Collapsed"/>
+                                <Border x:Name="UiFrameworkProbeRecoveryPanel" Style="{StaticResource GscSurface}">
+                                    <StackPanel MaxWidth="760">
+                                        <TextBlock Text="界面兼容性探针" FontSize="16" FontWeight="SemiBold"/>
+                                        <TextBlock Margin="0,8,0,0" TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource GscSecondaryTextBrush}"
+                                                   Text="此可选诊断页仅在你主动加载时才解析 WPF-UI 资源；不会执行备份、恢复、云端或媒体操作。加载失败不会影响维护中心，可查看错误后重试或切换到其他诊断页。"/>
+                                        <Button x:Name="LoadUiFrameworkProbeButton" Margin="0,14,0,0" HorizontalAlignment="Left"
+                                                Style="{StaticResource GscButtonBase}" Content="加载界面探针"
+                                                Click="OnLoadUiFrameworkProbeClick"/>
+                                        <Border x:Name="UiFrameworkProbeLoadFailurePanel" Margin="0,12,0,0" Padding="12"
+                                                Background="{DynamicResource GscErrorTintBrush}" CornerRadius="10" Visibility="Collapsed">
+                                            <TextBlock x:Name="UiFrameworkProbeLoadFailureText" TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource GscPrimaryTextBrush}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
                         </TabItem>
                     </TabControl>
                 </Grid>

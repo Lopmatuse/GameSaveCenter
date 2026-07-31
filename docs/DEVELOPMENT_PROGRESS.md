@@ -16,6 +16,7 @@
 - [x] 维护中心增加临时“界面探针”页，覆盖 WPF-UI Button、ToggleSwitch、TextBox、NumberBox、ComboBox、Card、SymbolIcon、ProgressRing、ContentDialogHost、SnackbarPresenter 与列表焦点；不绑定任何备份、恢复、云端或媒体业务状态。
 - [x] UI-001 修复基线门禁：Settings 不再依赖未声明的 Dashboard 局部 `GscButtonBase`、`GscTextBox` 的错误填充令牌存在，数值编辑门禁能识别嵌套绑定路径。Dialog/Snackbar 的构造和显示位于受保护委托内；失败会记录日志并在 POC 内显示真实错误。新增 3 个专项回归测试。
 - [x] 打包补齐 Wpf.Ui、Wpf.Ui.Abstractions、System.Memory、System.Buffers、Unsafe 和 ValueTuple，PEXT 内部断言这些依赖存在。Release 构建 0 警告/错误，Core 13、Worker 21、Playnite 14 项测试通过；源码门禁与 UI Skill 静态检查通过（后者仍报告既有布局警告）。
+- [x] 复核修复：探针不再内联于 Dashboard XAML。维护中心仅在显式点击后通过反射构造控件；构造、资源解析或宿主失败会记录日志，显示可重试的恢复面板且不影响 Dashboard。新增构造成功/失败回归后，Core 13、Worker 21、Playnite 16 项测试通过。
 - [ ] 真实 Playnite POC 验证被安全隔离条件阻塞：检测到用户现有 Playnite 与 Worker 正在运行，未关闭它们、未替换用户插件目录。需独立测试实例后验证加载、资源作用域、Popup、Dialog/Snackbar、浅/深/高对比度、关闭透明与 DPI。
 
 ## 2026-07-31 0.6.22 共享主题令牌收口

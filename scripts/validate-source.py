@@ -889,6 +889,15 @@ def check_wpf_ui_probe_guards() -> None:
     for token in ("UserControl.Resources", "WpfUiBase.xaml", "ContentDialogHost", "SnackbarPresenter", "UiFrameworkProbeView"):
         if token not in probe and token not in dashboard:
             fail(f"WPF-UI probe surface guard missing: {token}")
+    if "<development:UiFrameworkProbeView" in dashboard:
+        fail("WPF-UI probe must not be constructed while Dashboard XAML is parsed")
+    for token in ("UiFrameworkProbeHost", "UiFrameworkProbeRecoveryPanel", "OnLoadUiFrameworkProbeClick"):
+        if token not in dashboard:
+            fail(f"WPF-UI lazy probe boundary missing: {token}")
+    loader = (ROOT / "src/GameSaveCenter.Playnite/Infrastructure/UiFrameworkProbeLoader.cs").read_text(encoding="utf-8")
+    for token in ("TryCreate", "维护中心仍可继续使用", "Trace.TraceError"):
+        if token not in loader:
+            fail(f"WPF-UI lazy probe recovery guard missing: {token}")
     executable_source = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenterPlugin.cs").read_text(encoding="utf-8")
     if "Application.Current.Resources" in executable_source:
         fail("WPF-UI resources must not be injected into Playnite Application.Current.Resources")

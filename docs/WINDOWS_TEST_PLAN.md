@@ -3,6 +3,7 @@
 ## UI-001 WPF-UI 局部兼容性 POC
 
 - [ ] 在独立 Playnite 测试实例安装本次 PEXT，不停止或覆盖用户日常实例；确认扩展加载时无 `FileNotFoundException`、XAML 资源或程序集绑定错误。
+- [ ] 在不点击“加载界面探针”时确认 Dashboard 与维护中心正常打开；随后点击加载，若 WPF-UI 资源或宿主不可用，确认恢复面板和“加载界面探针”重试入口仍可见，且可切换到其他维护页。
 - [ ] 打开维护中心“界面探针”，依次验证 Button、ToggleSwitch、TextBox、NumberBox、ComboBox Popup、列表键盘焦点、ProgressRing 与标准 DataGrid 不影响宿主页面。
 - [ ] 触发 POC Dialog 和 Snackbar，分别使用 Esc/关闭按钮关闭；模拟宿主不支持时确认在插件内部显示错误且 `playnite.log` 有诊断，而非未处理异常。
 - [ ] 测试浅色、深色、跟随 Playnite、100%/125%/150%/200% DPI、关闭透明和高对比度；关闭 POC 后打开 Playnite 其他页面，确认不存在全局样式污染。

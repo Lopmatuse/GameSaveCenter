@@ -8,13 +8,16 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using GameSaveCenter.Playnite.Infrastructure;
 using GameSaveCenter.Playnite.ViewModels;
+using Playnite.SDK;
 
 namespace GameSaveCenter.Playnite.Views
 {
     public partial class DashboardView : UserControl
     {
+        private static readonly ILogger Logger = LogManager.GetLogger();
         private readonly GameSaveCenterPlugin plugin;
         private readonly DispatcherTimer refreshTimer;
+        private readonly UiFrameworkProbeLoader uiFrameworkProbeLoader;
         private DashboardViewModel viewModel;
         private bool hasPlayedEntrance;
         private bool visualSettingsSubscribed;
@@ -26,6 +29,7 @@ namespace GameSaveCenter.Playnite.Views
         {
             this.plugin = plugin;
             InitializeComponent();
+            uiFrameworkProbeLoader = new UiFrameworkProbeLoader(exception => Logger.Error(exception, "GameSaveCenter WPF-UI probe could not be loaded."));
 
             viewModel = new DashboardViewModel(plugin);
             viewModel.PropertyChanged += OnViewModelPropertyChanged;
@@ -188,6 +192,39 @@ namespace GameSaveCenter.Playnite.Views
             textBox.Clear();
             textBox.Focus();
             Keyboard.Focus(textBox);
+        }
+
+        private void OnLoadUiFrameworkProbeClick(object sender, RoutedEventArgs e)
+        {
+            if (UiFrameworkProbeHost.Content != null)
+            {
+                UiFrameworkProbeHost.Visibility = Visibility.Visible;
+                UiFrameworkProbeRecoveryPanel.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            if (!uiFrameworkProbeLoader.TryCreate(CreateUiFrameworkProbe, out var probe, out var failure))
+            {
+                UiFrameworkProbeLoadFailureText.Text = failure;
+                UiFrameworkProbeLoadFailurePanel.Visibility = Visibility.Visible;
+                UiFrameworkProbeRecoveryPanel.Visibility = Visibility.Visible;
+                UiFrameworkProbeHost.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            UiFrameworkProbeHost.Content = probe;
+            UiFrameworkProbeHost.Visibility = Visibility.Visible;
+            UiFrameworkProbeRecoveryPanel.Visibility = Visibility.Collapsed;
+        }
+
+        private static UIElement CreateUiFrameworkProbe()
+        {
+            var probeType = typeof(DashboardView).Assembly.GetType(
+                "GameSaveCenter.Playnite.Views.Development.UiFrameworkProbeView",
+                throwOnError: true);
+            var probe = Activator.CreateInstance(probeType!);
+            return probe as UIElement
+                ?? throw new InvalidOperationException("WPF-UI 探针未创建可显示的 WPF 控件。");
         }
 
         private void OnNavigationChecked(object sender, RoutedEventArgs e)

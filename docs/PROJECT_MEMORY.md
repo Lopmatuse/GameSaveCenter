@@ -15,6 +15,7 @@
 - POC 的 Dialog/Snackbar 构造与显示必须整体处于可测试的异常边界内；异常记录到 Playnite 日志并显示局部错误面板，记录/显示回调再次失败时退化到 `Trace`，不得从 `async void` UI 事件逃逸。
 - 打包必须显式包含 Wpf.Ui、Wpf.Ui.Abstractions、System.Memory、System.Buffers、System.Runtime.CompilerServices.Unsafe 与 System.ValueTuple；否则实际 Playnite 会在加载资源时缺程序集。
 - 当前只完成静态、构建、测试和包内容验证。用户现有 Playnite 正在运行，未经独立实例和隔离目录许可不得停止进程或覆盖插件，故 POC 的实际宿主加载尚未验证。
+- 任何可选 UI 框架探针均不得作为 Dashboard XAML 的即时子控件；必须由明确的用户操作惰性创建，并在构造或资源解析失败时记录错误、保留主页面和可见的重试入口。
 
 ### 0.6.22 主题令牌边界
 

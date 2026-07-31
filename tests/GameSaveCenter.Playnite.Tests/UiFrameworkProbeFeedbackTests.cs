@@ -47,4 +47,34 @@ public sealed class UiFrameworkProbeFeedbackTests
 
         Assert.False(result);
     }
+
+    [Fact]
+    public void LazyProbeConstructionFailureLeavesARecoverableFailureMessage()
+    {
+        Exception? logged = null;
+        var loader = new UiFrameworkProbeLoader(exception => logged = exception);
+
+        var result = loader.TryCreate<object>(
+            () => throw new InvalidOperationException("WPF-UI resource unavailable"),
+            out var probe,
+            out var failure);
+
+        Assert.False(result);
+        Assert.Null(probe);
+        Assert.IsType<InvalidOperationException>(logged);
+        Assert.Contains("WPF-UI resource unavailable", failure);
+        Assert.Contains("维护中心仍可继续使用", failure);
+    }
+
+    [Fact]
+    public void LazyProbeConstructionReturnsTheOptInControlOnlyAfterSuccessfulCreation()
+    {
+        var loader = new UiFrameworkProbeLoader(_ => { });
+
+        var result = loader.TryCreate(() => new object(), out var probe, out var failure);
+
+        Assert.True(result);
+        Assert.NotNull(probe);
+        Assert.Equal(string.Empty, failure);
+    }
 }
