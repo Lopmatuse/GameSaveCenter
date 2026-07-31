@@ -10,6 +10,7 @@
     <SolidColorBrush x:Key="GscSuccessBrush" Color="#30D158"/>
     <SolidColorBrush x:Key="GscWarningBrush" Color="#FF9F0A"/>
     <SolidColorBrush x:Key="GscErrorBrush" Color="#FF453A"/>
+    <SolidColorBrush x:Key="GscErrorTintBrush" Color="#24FF453A"/>
     <SolidColorBrush x:Key="GscInfoBrush" Color="#0A84FF"/>
     <SolidColorBrush x:Key="GscOnAccentTextBrush" Color="#FFFFFFFF"/>
     <SolidColorBrush x:Key="GscAccentIconFillBrush" Color="#247C5CFC"/>
@@ -69,6 +70,54 @@
                 <ControlTemplate>
                     <Border Margin="-2" CornerRadius="11" BorderThickness="2"
                             BorderBrush="{StaticResource GscAccentBrush}" Opacity="0.72"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- This fallback deliberately has no EventSetter. Views may specialize it locally,
+         but Settings and future views must not rely on DashboardView code-behind. -->
+    <Style x:Key="GscButtonBase" TargetType="Button">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GscSharedFocusVisual}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscDividerBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="15,8"/>
+        <Setter Property="MinHeight" Value="38"/>
+        <Setter Property="Margin" Value="0,0,8,8"/>
+        <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome"
+                            CornerRadius="11"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          RecognizesAccessKey="True"
+                                          SnapsToDevicePixels="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.84"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.4"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

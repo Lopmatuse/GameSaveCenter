@@ -10,6 +10,14 @@
 - [x] 使用 Codex 附带 Python 重现 UI 基线门禁失败：Settings 对 Dashboard 局部 `GscButtonBase` 的跨视图依赖、`GscErrorTintBrush` 缺失，以及数值门禁对嵌套属性路径的误匹配。GOV-001 不修改 UI 代码，以上问题已移交 UI-001。
 - [x] GOV-001 的文档、`git diff --check` 和对象完整性检查已完成；由于 UI 基线门禁当前返回退出码 1，本轮不引用此前构建/测试记录冒充这一次的 UI 验证。Playnite/UI 真机重构回归尚未开始。
 
+## 2026-08-01 UI-001 WPF-UI 4.3.0 局部兼容性 POC
+
+- [x] 通过中央包版本管理引入 WPF-UI 4.3.0；NuGet 包含 net462 资产。新增 `Themes/WpfUiBase.xaml`，只由 `UiFrameworkProbeView` 的 `UserControl.Resources` 合并，不写入 Playnite 全局资源。
+- [x] 维护中心增加临时“界面探针”页，覆盖 WPF-UI Button、ToggleSwitch、TextBox、NumberBox、ComboBox、Card、SymbolIcon、ProgressRing、ContentDialogHost、SnackbarPresenter 与列表焦点；不绑定任何备份、恢复、云端或媒体业务状态。
+- [x] UI-001 修复基线门禁：Settings 不再依赖未声明的 Dashboard 局部 `GscButtonBase`、`GscTextBox` 的错误填充令牌存在，数值编辑门禁能识别嵌套绑定路径。Dialog/Snackbar 的构造和显示位于受保护委托内；失败会记录日志并在 POC 内显示真实错误。新增 3 个专项回归测试。
+- [x] 打包补齐 Wpf.Ui、Wpf.Ui.Abstractions、System.Memory、System.Buffers、Unsafe 和 ValueTuple，PEXT 内部断言这些依赖存在。Release 构建 0 警告/错误，Core 13、Worker 21、Playnite 14 项测试通过；源码门禁与 UI Skill 静态检查通过（后者仍报告既有布局警告）。
+- [ ] 真实 Playnite POC 验证被安全隔离条件阻塞：检测到用户现有 Playnite 与 Worker 正在运行，未关闭它们、未替换用户插件目录。需独立测试实例后验证加载、资源作用域、Popup、Dialog/Snackbar、浅/深/高对比度、关闭透明与 DPI。
+
 ## 2026-07-31 0.6.22 共享主题令牌收口
 
 - [x] Dashboard、设置页已无页面级颜色常量；环境光、信息/成功/警告/错误图标底色、安全提示、主按钮、悬停行、状态点和阴影都由 `DesignTokens.xaml` 提供。

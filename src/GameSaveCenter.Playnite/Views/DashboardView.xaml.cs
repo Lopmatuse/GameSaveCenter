@@ -230,6 +230,7 @@ namespace GameSaveCenter.Playnite.Views
             SetVisibility(DiagnosticTab, workspace == WorkspaceKind.Maintenance);
             SetVisibility(DeviceStatusTab, workspace == WorkspaceKind.Maintenance);
             SetVisibility(LogsTab, workspace == WorkspaceKind.Maintenance);
+            SetVisibility(UiFrameworkProbeTab, workspace == WorkspaceKind.Maintenance);
 
             var saves = workspace == WorkspaceKind.Saves;
             // Game-scoped pages need breathing room between the selected-game identity and

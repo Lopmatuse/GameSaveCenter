@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:contracts="clr-namespace:GameSaveCenter.Contracts;assembly=GameSaveCenter.Contracts"
              xmlns:converters="clr-namespace:GameSaveCenter.Playnite.Converters"
+             xmlns:development="clr-namespace:GameSaveCenter.Playnite.Views.Development"
              xmlns:infra="clr-namespace:GameSaveCenter.Playnite.Infrastructure"
              Foreground="{DynamicResource GscPrimaryTextBrush}" TextElement.Foreground="{DynamicResource GscPrimaryTextBrush}" Background="Transparent"
              TextElement.FontFamily="Segoe UI Variable Text, Segoe UI"
@@ -1803,6 +1804,10 @@
                                     </DataGrid>
                                 </Border>
                             </Grid>
+                        </TabItem>
+
+                        <TabItem x:Name="UiFrameworkProbeTab" Header="界面探针">
+                            <development:UiFrameworkProbeView/>
                         </TabItem>
                     </TabControl>
                 </Grid>

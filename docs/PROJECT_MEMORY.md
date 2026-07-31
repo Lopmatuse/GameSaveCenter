@@ -9,6 +9,13 @@
 - UI-001 的首个基线缺陷是 Settings 不能依赖 DashboardView 的局部资源或代码后置事件。通用 `GscButtonBase` 应迁入共享字典且不得携带 View 专属 `EventSetter`；Dashboard 可保留动画专用局部样式。
 - `GscErrorTintBrush` 是 `GscTextBox` 的直接错误填充资源，必须存在于共享主题令牌中。数值输入门禁应匹配嵌套属性路径（如 `SelectedGame.Policy.DuringPlayIntervalMinutes`）而非仅裸字段名。该问题待 UI-001 处理。
 
+### 2026-08-01 WPF-UI POC 约束
+
+- WPF-UI 4.3.0 具备 net462 资产并通过 Release 构建；资源只能由 GameSaveCenter 子树的 `UserControl.Resources` 合并，禁止注入 Playnite 全局资源或修改宿主 Chrome。
+- POC 的 Dialog/Snackbar 构造与显示必须整体处于可测试的异常边界内；异常记录到 Playnite 日志并显示局部错误面板，记录/显示回调再次失败时退化到 `Trace`，不得从 `async void` UI 事件逃逸。
+- 打包必须显式包含 Wpf.Ui、Wpf.Ui.Abstractions、System.Memory、System.Buffers、System.Runtime.CompilerServices.Unsafe 与 System.ValueTuple；否则实际 Playnite 会在加载资源时缺程序集。
+- 当前只完成静态、构建、测试和包内容验证。用户现有 Playnite 正在运行，未经独立实例和隔离目录许可不得停止进程或覆盖插件，故 POC 的实际宿主加载尚未验证。
+
 ### 0.6.22 主题令牌边界
 
 - 页面不得重新引入 `#RRGGBB` 或 `#AARRGGBB` 装饰色；语义状态、环境光、图标容器、提示面、主按钮和阴影必须从 `Themes/DesignTokens.xaml` 获取。

@@ -1,0 +1,90 @@
+<UserControl x:Class="GameSaveCenter.Playnite.Views.Development.UiFrameworkProbeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiBase.xaml"/>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource GscBackdropBrush}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="20" MaxWidth="980" HorizontalAlignment="Left">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <StackPanel>
+                    <TextBlock Text="WPF-UI 4.3.0 兼容性探针" FontSize="22" FontWeight="SemiBold"
+                               Foreground="{DynamicResource GscPrimaryTextBrush}"/>
+                    <TextBlock Margin="0,5,0,18"
+                               Text="仅验证控件、资源作用域、焦点和插件内浮层；不代表备份、恢复、云端或媒体任务状态。"
+                               TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                </StackPanel>
+
+                <ui:Card Grid.Row="1" Padding="20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="24"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="输入与选择" FontSize="16" FontWeight="SemiBold"/>
+                            <ui:Button Margin="0,12,0,0" Appearance="Primary" Content="带图标的框架按钮" ToolTip="WPF-UI Button">
+                                <ui:Button.Icon><ui:SymbolIcon Symbol="Save24"/></ui:Button.Icon>
+                            </ui:Button>
+                            <ui:ToggleSwitch Margin="0,12,0,0" Content="测试开关" IsChecked="True" OnContent="开" OffContent="关"/>
+                            <TextBox Margin="0,12,0,0" Text="可编辑文本" ToolTip="标准 TextBox 使用局部 WPF-UI 字典"/>
+                            <ui:NumberBox Margin="0,12,0,0" Value="30" Minimum="1" Maximum="1440" MaxDecimalPlaces="0"
+                                          ToolTip="WPF-UI NumberBox：1–1440"/>
+                            <ComboBox Margin="0,12,0,0" SelectedIndex="0" ToolTip="Popup 必须保持在插件局部主题作用域">
+                                <ComboBoxItem Content="全部项目"/>
+                                <ComboBoxItem Content="已就绪"/>
+                                <ComboBoxItem Content="需要处理"/>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="列表、进度与反馈" FontSize="16" FontWeight="SemiBold"/>
+                            <ListBox Margin="0,12,0,0" Height="132" SelectedIndex="0">
+                                <ListBoxItem Content="焦点与方向键"/>
+                                <ListBoxItem Content="局部资源隔离"/>
+                                <ListBoxItem Content="缩放与滚动检查"/>
+                            </ListBox>
+                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                                <ui:ProgressRing Width="28" Height="28" IsIndeterminate="True" Margin="0,0,10,0"/>
+                                <ProgressBar Width="170" Height="6" Value="62" Maximum="100" VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <WrapPanel Margin="0,18,0,0">
+                                <ui:Button Appearance="Secondary" Content="显示 Dialog" Click="OnShowDialogClick" Margin="0,0,8,8"/>
+                                <ui:Button Appearance="Secondary" Content="显示 Snackbar" Click="OnShowSnackbarClick" Margin="0,0,8,8"/>
+                            </WrapPanel>
+                            <TextBlock Text="DataGrid 继续由 GameSaveCenter 模板接管；后续阶段会在保留虚拟化和列宽行为的前提下迁移。"
+                                       TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                        </StackPanel>
+                    </Grid>
+                </ui:Card>
+                <TextBlock Grid.Row="2" Margin="0,14,0,0" TextWrapping="Wrap"
+                           Foreground="{DynamicResource GscSecondaryTextBrush}"
+                           Text="资源由此视图的 UserControl.Resources 合并，不写入 Playnite Application.Current.Resources。此页面将在全量迁移后移除或转换为正式诊断组件。"/>
+            </Grid>
+        </ScrollViewer>
+        <Border x:Name="ProbeFailurePanel" Panel.ZIndex="10" Visibility="Collapsed" HorizontalAlignment="Stretch"
+                VerticalAlignment="Bottom" Margin="20" Padding="12" CornerRadius="12"
+                Background="{DynamicResource GscErrorTintBrush}" BorderBrush="{DynamicResource GscErrorBrush}" BorderThickness="1">
+            <TextBlock x:Name="ProbeFailureText" TextWrapping="Wrap" Foreground="{DynamicResource GscPrimaryTextBrush}"/>
+        </Border>
+        <ui:ContentDialogHost x:Name="DialogHost" Panel.ZIndex="20"/>
+        <ui:SnackbarPresenter x:Name="SnackbarHost" Panel.ZIndex="21" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20"/>
+    </Grid>
+</UserControl>

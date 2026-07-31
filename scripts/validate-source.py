@@ -852,8 +852,8 @@ def check_0621_cloud_retry_and_numeric_ui_guards() -> None:
                                    (settings, "GameSaveCenterSettingsView.xaml", "FullBackupLimit"),
                                    (settings, "GameSaveCenterSettingsView.xaml", "DifferentialBackupLimit"),
                                    (settings, "GameSaveCenterSettingsView.xaml", "CompressionLevel")):
-        marker = f'Path=\"{field}\" UpdateSourceTrigger=\"LostFocus\"'
-        if marker not in text:
+        marker = rf'Path="[^"]*{re.escape(field)}"[^>]*UpdateSourceTrigger="LostFocus"'
+        if not re.search(marker, text):
             fail(f"Numeric input must commit complete values on LostFocus: {file_name} {field}")
     for token in ("GscNumericTextBox", "Validation.ErrorTemplate", "Validation.HasError"):
         if token not in tokens:
@@ -863,6 +863,38 @@ def check_0621_cloud_retry_and_numeric_ui_guards() -> None:
             fail(f"Theme colors must be declared in DesignTokens.xaml, not {file_name}")
     if not agents.exists() or "wpf-apple-desktop-ui" not in agents.read_text(encoding="utf-8"):
         fail("Repository AGENTS.md must require the WPF Apple desktop UI skill")
+
+
+def check_wpf_ui_probe_guards() -> None:
+    """Keep the experimental WPF-UI integration local to GameSaveCenter's visual tree."""
+    packages = (ROOT / "Directory.Packages.props").read_text(encoding="utf-8")
+    project = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenter.Playnite.csproj").read_text(encoding="utf-8")
+    base = (ROOT / "src/GameSaveCenter.Playnite/Themes/WpfUiBase.xaml").read_text(encoding="utf-8")
+    probe = (ROOT / "src/GameSaveCenter.Playnite/Views/Development/UiFrameworkProbeView.xaml").read_text(encoding="utf-8")
+    dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    package = (ROOT / "scripts/package.ps1").read_text(encoding="utf-8")
+
+    for description, token, text in (("WPF-UI central version", "WPF-UI", packages),
+                                     ("WPF-UI plugin reference", "WPF-UI", project),
+                                     ("WPF-UI resource dictionary", "ui:ThemesDictionary", base),
+                                     ("WPF-UI probe", "UiFrameworkProbeView", probe)):
+        if token not in text:
+            fail(f"{description} guard missing")
+    for token in ("Version=\"4.3.0\"", "<PackageReference Include=\"WPF-UI\" />"):
+        if token not in packages and token not in project:
+            fail(f"WPF-UI 4.3.0 package guard missing: {token}")
+    for token in ("ResourceDictionary.MergedDictionaries", "ui:ThemesDictionary", "ui:ControlsDictionary"):
+        if token not in base:
+            fail(f"WPF-UI local resource guard missing: {token}")
+    for token in ("UserControl.Resources", "WpfUiBase.xaml", "ContentDialogHost", "SnackbarPresenter", "UiFrameworkProbeView"):
+        if token not in probe and token not in dashboard:
+            fail(f"WPF-UI probe surface guard missing: {token}")
+    executable_source = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenterPlugin.cs").read_text(encoding="utf-8")
+    if "Application.Current.Resources" in executable_source:
+        fail("WPF-UI resources must not be injected into Playnite Application.Current.Resources")
+    for token in ("Wpf.Ui.dll", "Wpf.Ui.Abstractions.dll", "System.Memory.dll", "System.ValueTuple.dll"):
+        if token not in package:
+            fail(f"WPF-UI package dependency guard missing: {token}")
 
 def main() -> int:
     check_structured_files()
@@ -890,6 +922,7 @@ def main() -> int:
     check_0618_task_event_guards()
     check_0620_wpf_thread_guards()
     check_0621_cloud_retry_and_numeric_ui_guards()
+    check_wpf_ui_probe_guards()
     if ERRORS:
         print("Source validation failed:")
         for item in ERRORS:

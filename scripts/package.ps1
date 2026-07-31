@@ -49,6 +49,12 @@ function Assert-PackageContents {
             'extension.yaml',
             'GameSaveCenter.Playnite.dll',
             'GameSaveCenter.Contracts.dll',
+            'Wpf.Ui.dll',
+            'Wpf.Ui.Abstractions.dll',
+            'System.Memory.dll',
+            'System.Buffers.dll',
+            'System.Runtime.CompilerServices.Unsafe.dll',
+            'System.ValueTuple.dll',
             'Worker/GameSaveCenter.Worker.dll',
             'Worker/GameSaveCenter.Worker.runtimeconfig.json'
         )
@@ -113,6 +119,12 @@ $required = @(
     'GameSaveCenter.Playnite.dll',
     'GameSaveCenter.Contracts.dll',
     'Newtonsoft.Json.dll',
+    'Wpf.Ui.dll',
+    'Wpf.Ui.Abstractions.dll',
+    'System.Memory.dll',
+    'System.Buffers.dll',
+    'System.Runtime.CompilerServices.Unsafe.dll',
+    'System.ValueTuple.dll',
     'extension.yaml',
     'icon.png'
 )

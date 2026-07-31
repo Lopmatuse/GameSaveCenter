@@ -13,6 +13,7 @@
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net462" PrivateAssets="all" />
     <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="PlayniteSDK" PrivateAssets="all" />
+    <PackageReference Include="WPF-UI" />
   </ItemGroup>
   <ItemGroup>
     <None Include="extension.yaml" CopyToOutputDirectory="PreserveNewest" />

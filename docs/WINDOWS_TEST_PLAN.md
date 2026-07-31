@@ -1,5 +1,12 @@
 ## 0.6.22 主题令牌与最终 UI 回归
 
+## UI-001 WPF-UI 局部兼容性 POC
+
+- [ ] 在独立 Playnite 测试实例安装本次 PEXT，不停止或覆盖用户日常实例；确认扩展加载时无 `FileNotFoundException`、XAML 资源或程序集绑定错误。
+- [ ] 打开维护中心“界面探针”，依次验证 Button、ToggleSwitch、TextBox、NumberBox、ComboBox Popup、列表键盘焦点、ProgressRing 与标准 DataGrid 不影响宿主页面。
+- [ ] 触发 POC Dialog 和 Snackbar，分别使用 Esc/关闭按钮关闭；模拟宿主不支持时确认在插件内部显示错误且 `playnite.log` 有诊断，而非未处理异常。
+- [ ] 测试浅色、深色、跟随 Playnite、100%/125%/150%/200% DPI、关闭透明和高对比度；关闭 POC 后打开 Playnite 其他页面，确认不存在全局样式污染。
+
 - [x] 2026-07-31 本地开发安装报告确认 `extension.yaml` 为 `0.6.22`、主 DLL 为 `0.6.22.0`；Playnite `playnite.log` 已记录加载 `GameSaveCenter, version 0.6.22`，Dashboard 侧栏也显示 `v0.6.22`。
 - [x] 2026-07-31 在真实 Playnite 的匹配游戏策略中将分钟框临时编辑为 `1440`（完整显示），再输入 `0` 验证共享输入框立刻显示红色范围错误边框，最后恢复 `30`；全程未点击保存策略、未执行备份、恢复、删除或云端操作。
 - [ ] 在浅色、深色和跟随 Playnite 中检查 Dashboard/设置页的状态图标、环境光、安全提示、浮层和主按钮；关闭毛玻璃或启用高对比度时，页面不能保留高成本环境光或失去文字对比度。
