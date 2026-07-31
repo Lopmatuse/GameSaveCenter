@@ -1,5 +1,12 @@
 ## 0.6.22 主题令牌与最终 UI 回归
 
+## UI-002 共享控件与主题回归
+
+- [ ] 在独立 Playnite 测试实例中确认设置卡片、普通/主按钮、文本与数值输入、ComboBox、CheckBox、Slider、Tooltip、ProgressBar、DataGrid、ListBox、TabControl、Popup 和滚动条均未回退到宿主默认样式。
+- [ ] 分别以鼠标和键盘验证 Normal、Hover、Pressed、Disabled、Focus、选择和验证错误状态；Tab 焦点环应可见，长路径/错误文本应能通过 Tooltip 或详情读取。
+- [ ] 在浅色、深色、跟随 Playnite、高对比度、关闭透明与关闭动画条件下复验；环境光应在降级条件下隐藏，列表/表格滚动不得存在大型 BlurEffect 或失去 Recycling 虚拟化。
+- [ ] 在 1600×900 至 980×640 与 100%/125%/150%/200% DPI 检查设置页滑块、策略数值框、Dashboard 页签/表格与弹层，记录任何裁切、重叠或文字对比不足。
+
 ## UI-001 WPF-UI 局部兼容性 POC
 
 - [ ] 在独立 Playnite 测试实例安装本次 PEXT，不停止或覆盖用户日常实例；确认扩展加载时无 `FileNotFoundException`、XAML 资源或程序集绑定错误。

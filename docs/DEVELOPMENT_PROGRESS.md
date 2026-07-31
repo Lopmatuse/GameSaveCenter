@@ -1,7 +1,14 @@
 # 开发实现进度
 
-更新时间：2026-07-31
+更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
+
+## 2026-08-01 UI-002 共享 WPF 控件与主题令牌复审
+
+- [x] 设置卡片改为基于共享 `GscSurface`，避免每个设置区重建玻璃材质、边框与阴影；主/普通按钮、TextBox、数值输入、ComboBox、CheckBox、Slider、ScrollBar、Tooltip、ProgressBar 和焦点环均有共享主题入口。
+- [x] 新增圆角 Tooltip 模板、可见的 ComboBox 键盘焦点、滑块 Hover/Dragging/Disabled 状态，以及进度不确定状态的真实说明；状态色和材质继续从动态令牌解析，不影响 Playnite 宿主窗口。
+- [x] `validate-source.py` 新增共享控件存在性与设置卡片复用门禁；已通过。Release build 为 0 警告/0 错误，Core 13、Worker 21、Playnite 16 项测试通过；非破坏性包与 Worker 文件版本 smoke 均通过（0.6.22.0）。
+- [ ] 真实 Playnite 渲染、100%–200% DPI、窄窗口、键盘导航和高对比度仍需要可审计的独立数据根。没有启动 `.tmp` 副本或用户日常 Playnite；这些验证由 READY 的 UI-003 与 ENV-001 处理。
 
 ## 2026-08-01 无人值守治理与 UI 迁移基线
 

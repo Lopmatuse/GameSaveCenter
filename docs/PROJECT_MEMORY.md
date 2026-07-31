@@ -1,7 +1,14 @@
 # 项目记忆与不可丢失约束
 
-更新时间：2026-07-31
+更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
+
+### 2026-08-01 UI-002 共享控件边界
+
+- 通用阅读表面必须基于 `GscSurface`，设置页不得重新复制玻璃、描边和阴影；页面只保留布局性 Padding/Margin。
+- `GscSlider`、`GscPrimaryButton`、`GscButtonBase`、输入、下拉、复选框、滚动条、Tooltip、ProgressBar 与焦点环由 `DesignTokens.xaml` 集中提供。新增或改动这些控件时必须同步维护 `check_shared_wpf_control_guards()`，并保持主题资源为 `DynamicResource`。
+- 按压反馈仅在模板实例的 `RenderTransform` 上缩放；不能把可动画的 Transform 放到 Style Setter 中。不要为静态验证使用假进度或 `Task.Delay`。
+- UI-002 只有源码、构建、自动化和包内容证据；UI Skill 的项目级静态审查仍列出既有 Dashboard 布局提示。实际 Playnite/DPI/主题/键盘渲染须由独立数据根完成，不能以 `.tmp` 安装副本或用户实例替代。
 
 ### 2026-08-01 治理与 UI 基线
 

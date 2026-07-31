@@ -64,6 +64,22 @@
     <CornerRadius x:Key="GscCornerPanel">22</CornerRadius>
     <Thickness x:Key="GscFocusThickness">2</Thickness>
 
+    <!-- Stable, mostly opaque reading surface. Views may add their own layout-only padding
+         but must not recreate a different card material for every settings section. -->
+    <Style x:Key="GscSurface" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource GscGlassFillBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{StaticResource GscCornerCard}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect Color="{StaticResource GscSoftShadowColor}" BlurRadius="14" ShadowDepth="2" Opacity="0.28"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="GscSharedFocusVisual" TargetType="Control">
         <Setter Property="Template">
             <Setter.Value>
@@ -100,7 +116,9 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            Padding="{TemplateBinding Padding}">
+                            Padding="{TemplateBinding Padding}"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1"/></Border.RenderTransform>
                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                           RecognizesAccessKey="True"
@@ -112,11 +130,99 @@
                             <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="RenderTransform">
+                                <Setter.Value><ScaleTransform ScaleX="0.98" ScaleY="0.98"/></Setter.Value>
+                            </Setter>
                             <Setter TargetName="Chrome" Property="Opacity" Value="0.84"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Chrome" Property="Opacity" Value="0.4"/>
                         </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GscPrimaryButton" TargetType="Button" BasedOn="{StaticResource GscButtonBase}">
+        <Setter Property="Foreground" Value="{StaticResource GscOnAccentTextBrush}"/>
+        <Setter Property="Background" Value="{StaticResource GscPrimaryButtonBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource GscPrimaryButtonBorderBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome" CornerRadius="12" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
+                            Padding="{TemplateBinding Padding}" RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1"/></Border.RenderTransform>
+                        <Border.Effect><DropShadowEffect Color="{StaticResource GscAccentShadowColor}" BlurRadius="12" ShadowDepth="2" Opacity="0.34"/></Border.Effect>
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          RecognizesAccessKey="True" SnapsToDevicePixels="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="Opacity" Value="0.9"/></Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="0.98" ScaleY="0.98"/></Setter.Value></Setter>
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.78"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.38"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="GscSlider" TargetType="Slider">
+        <Setter Property="FocusVisualStyle" Value="{StaticResource GscSharedFocusVisual}"/>
+        <Setter Property="Foreground" Value="{StaticResource GscAccentBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GscDividerBrush}"/>
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="MinWidth" Value="140"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid Margin="0,8">
+                        <Track x:Name="PART_Track" Focusable="False">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Command="Slider.DecreaseLarge" Background="{TemplateBinding Foreground}" IsTabStop="False" Focusable="False">
+                                    <RepeatButton.Template>
+                                        <ControlTemplate TargetType="RepeatButton">
+                                            <Border Height="4" CornerRadius="2" Background="{TemplateBinding Background}"/>
+                                        </ControlTemplate>
+                                    </RepeatButton.Template>
+                                </RepeatButton>
+                            </Track.DecreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Width="16" Height="16" Focusable="False">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Border x:Name="ThumbChrome" CornerRadius="8" Background="{TemplateBinding Background}"
+                                                    BorderBrush="{DynamicResource GscControlStrokeBrush}" BorderThickness="1">
+                                                <Border.Effect><DropShadowEffect Color="{StaticResource GscSoftShadowColor}" BlurRadius="6" ShadowDepth="1" Opacity="0.32"/></Border.Effect>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ThumbChrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/></Trigger>
+                                                <Trigger Property="IsDragging" Value="True"><Setter TargetName="ThumbChrome" Property="Background" Value="{StaticResource GscAccentBrush}"/></Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                    <Thumb.Background>{DynamicResource GscControlFillBrush}</Thumb.Background>
+                                </Thumb>
+                            </Track.Thumb>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Command="Slider.IncreaseLarge" Background="{TemplateBinding Background}" IsTabStop="False" Focusable="False">
+                                    <RepeatButton.Template>
+                                        <ControlTemplate TargetType="RepeatButton">
+                                            <Border Height="4" CornerRadius="2" Background="{TemplateBinding Background}"/>
+                                        </ControlTemplate>
+                                    </RepeatButton.Template>
+                                </RepeatButton>
+                            </Track.IncreaseRepeatButton>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.42"/></Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -367,8 +473,9 @@
                                             </Path>
                                         </Grid>
                                     </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentTintStrongBrush}"/></Trigger>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentTintStrongBrush}"/></Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True"><Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/></Trigger>
                                         <Trigger Property="IsChecked" Value="True">
                                             <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
                                             <Setter TargetName="Chevron" Property="RenderTransform"><Setter.Value><RotateTransform Angle="180"/></Setter.Value></Setter>
@@ -594,6 +701,18 @@
         <Setter Property="Padding" Value="10,8"/>
         <Setter Property="MaxWidth" Value="620"/>
         <Setter Property="HasDropShadow" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToolTip">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8"
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          ContentStringFormat="{TemplateBinding ContentStringFormat}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style TargetType="ProgressBar">
@@ -605,10 +724,18 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ProgressBar">
                     <Border CornerRadius="4" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
-                        <Grid ClipToBounds="True"><Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" CornerRadius="4" HorizontalAlignment="Left"/></Grid>
+                        <Grid ClipToBounds="True">
+                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" CornerRadius="4" HorizontalAlignment="Left"/>
+                        </Grid>
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsIndeterminate" Value="True">
+                <Setter Property="ToolTip" Value="正在进行；完成时间取决于实际任务。"/>
+                <Setter Property="Foreground" Value="{DynamicResource GscInfoBrush}"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 </ResourceDictionary>

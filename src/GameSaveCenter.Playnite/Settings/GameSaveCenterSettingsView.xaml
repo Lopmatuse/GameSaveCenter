@@ -20,14 +20,9 @@
             <Setter Property="TextOptions.TextHintingMode" Value="Fixed"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
-        <Style x:Key="SettingsCard" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource GscGlassFillBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="18"/>
+        <Style x:Key="SettingsCard" TargetType="Border" BasedOn="{StaticResource GscSurface}">
             <Setter Property="Padding" Value="16"/>
             <Setter Property="Margin" Value="0,0,0,16"/>
-            <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="{StaticResource GscSoftShadowColor}" BlurRadius="16" ShadowDepth="2" Opacity="0.3"/></Setter.Value></Setter>
         </Style>
         <Style TargetType="TextBox" BasedOn="{StaticResource GscTextBox}"/>
         <Style TargetType="ComboBox" BasedOn="{StaticResource GscComboBox}"/>
@@ -135,7 +130,7 @@
                     <Grid Margin="0,10,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="260"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                         <TextBlock Text="毛玻璃强度" VerticalAlignment="Center"/>
-                        <Slider x:Name="GlassStrengthSlider" Grid.Column="1" Minimum="20" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="False" Value="{Binding GlassEffectStrength, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ValueChanged="OnGlassStrengthChanged" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        <Slider x:Name="GlassStrengthSlider" Grid.Column="1" Style="{StaticResource GscSlider}" Minimum="20" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="False" Value="{Binding GlassEffectStrength, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ValueChanged="OnGlassStrengthChanged" Margin="0,0,12,0" VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="2" VerticalAlignment="Center"><Run Text="{Binding ElementName=GlassStrengthSlider, Path=Value, StringFormat={}{0:0}, Mode=OneWay}"/><Run Text="%"/></TextBlock>
                     </Grid>
                 </StackPanel>

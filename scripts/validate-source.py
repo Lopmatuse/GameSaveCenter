@@ -905,6 +905,18 @@ def check_wpf_ui_probe_guards() -> None:
         if token not in package:
             fail(f"WPF-UI package dependency guard missing: {token}")
 
+def check_shared_wpf_control_guards() -> None:
+    """Keep the production WPF primitives centralized and theme-safe."""
+    tokens = (ROOT / "src/GameSaveCenter.Playnite/Themes/DesignTokens.xaml").read_text(encoding="utf-8")
+    settings = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml").read_text(encoding="utf-8")
+    for token in ("GscSurface", "GscButtonBase", "GscPrimaryButton", "GscTextBox", "GscNumericTextBox",
+                  "GscComboBox", "GscCheckBox", "GscSlider", "GscScrollThumb", "TargetType=\"ToolTip\"",
+                  "TargetType=\"ProgressBar\"", "IsIndeterminate"):
+        if token not in tokens:
+            fail(f"Shared WPF control guard missing: {token}")
+    if "BasedOn=\"{StaticResource GscSurface}\"" not in settings:
+        fail("Settings cards must use the shared GscSurface material")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -931,6 +943,7 @@ def main() -> int:
     check_0618_task_event_guards()
     check_0620_wpf_thread_guards()
     check_0621_cloud_retry_and_numeric_ui_guards()
+    check_shared_wpf_control_guards()
     check_wpf_ui_probe_guards()
     if ERRORS:
         print("Source validation failed:")

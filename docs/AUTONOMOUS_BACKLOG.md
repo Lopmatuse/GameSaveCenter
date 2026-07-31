@@ -50,15 +50,16 @@
 ### UI-002：共享设计令牌与控件模板全量复审
 
 - **优先级**：P0
-- **状态**：PROPOSED
+- **状态**：IMPLEMENTED
 - **前置条件**：UI-001 结论已记录；若 POC 不兼容，则使用现有资源体系的等价实现。
 - **范围**：统一 Button、TextBox、数值输入、ComboBox、CheckBox、ScrollBar、TabControl、DataGrid、ListBox、Popup、Tooltip、Toast 和焦点环；补齐浅/深/跟随 Playnite、高对比度、关闭透明和关闭动画的安全降级。
 - **验收标准**：所有共享控件 Normal/Hover/Pressed/Disabled/Focus 状态可用；大列表保持 Recycling 虚拟化；不出现页面级硬编码主题色、默认宿主白色控件、冻结 Transform 动画或大型区域 BlurEffect。
+- **当前证据**：2026-08-01 已将设置卡片收敛至共享 `GscSurface`；共享令牌覆盖主/普通按钮、数值/文本输入、ComboBox、CheckBox、Slider、滚动条、Tooltip、ProgressBar、焦点环和进度不确定状态。新增 `validate-source.py` 共享控件门禁并实际执行。Release 构建为 0 警告/0 错误，Core 13、Worker 21、Playnite 16 项测试通过；打包产生 0.6.22 ZIP/PEXT，Worker smoke 为 0.6.22.0。UI Skill 静态审查为 0 errors（项目现有的布局提示和未跟踪 `.tmp/` 中的宿主主题提示未隐藏）。
 
 ### UI-003：Dashboard 与 Settings 自适应布局、可访问性及真机视觉回归
 
 - **优先级**：P0
-- **状态**：PROPOSED
+- **状态**：READY
 - **前置条件**：UI-002 已实现并通过自动化门禁。
 - **范围**：修复所有工作区的裁切、长文本 Tooltip、窄窗口重排、数值输入完整编辑、表格/页签/弹层对齐与真实状态反馈；在隔离目录验证 100%–200% DPI、1600×900 至 980×640、键盘导航、主题及减少动画。
 - **验收标准**：真实 Playnite 加载、页面打开关闭与缩放均无 XAML/绑定/Dispatcher 异常；所有真机未覆盖条件在 Windows 测试计划中明确记录，不伪造完成。
@@ -67,6 +68,8 @@
 
 - 2026-08-01：本次只读审计确认用户进程仍为 `D:\\software\\Playnite\\Playnite\\Playnite.DesktopApp.exe`（PID 28708）及用户 AppData 扩展下的 Worker（PID 31444）。工作区 `.tmp/playnite-ui-test/Playnite` 仅声明 `DatabasePath: library`，未提供可审计的 portable/独立配置根证明；其扩展目录已含本次测试插件。已登记 ENV-001，未启动该副本，`.tmp/` 保持未跟踪。
 - 2026-08-01：只读审计确认 `docs/FEATURE_COMPLETION_ASSESSMENT.md` 仍为 `0.6.20-development-preview`，与当前 0.6.22 交接文档不一致；已登记 DOC-001，不在没有 READY 条目的本次运行中直接改写评估。
+
+- 2026-08-01：UI-002 完成共享 WPF 控件和主题令牌复审。使用 Codex 附带 Python 运行 `scripts/validate-source.py` 退出码 0；UI Skill 审查退出码 0（0 errors、32 warnings、111 info，其中 `.tmp/` 的复制宿主占 17 条警告，其余为既有 Dashboard/环境光布局审查项）；`dotnet restore`、Release build（0 警告/错误）和 50 项测试通过。`scripts/package.ps1 -Configuration Release -SkipBuild` 生成 0.6.22 PEXT/ZIP，`scripts/verify.ps1 -Worker <打包 Worker>` 报告 0.6.22.0；`git diff --check`、`git fsck --full` 均为退出码 0，后者仅报告既有 dangling 对象。未启动 `.tmp/` 副本或用户 Playnite，隔离视觉回归移交 UI-003/ENV-001。
 
 - 2026-08-01：GOV-001 已补齐 `AUTONOMOUS_DEVELOPMENT_RULES.md` 与 `QUALITY_GATES.md`，并建立了 UI-001/002/003 的依赖、范围、非目标、验收条件和阻塞规则。UI-001 曾按依赖顺序登记为 `READY`，现因真机隔离证据不足转为 `BLOCKED_ENVIRONMENT`；不会推送或合并 `origin/main`。
 - 2026-08-01：使用 Codex 附带解释器 `C:\\Users\\lopmatuse\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\python.exe` 执行 `scripts/validate-source.py`，退出码为 `1`，原样输出为：`XAML GameSaveCenter resource missing: ...GameSaveCenterSettingsView.xaml -> GscButtonBase`、`...DesignTokens.xaml -> GscErrorTintBrush`、`Numeric input must commit complete values on LostFocus: DashboardView.xaml DuringPlayIntervalMinutes`。这是 GOV-001 发现的 UI-001 基线缺陷，未在治理任务中修改代码。`git diff --check` 通过；`git fsck --full` 仅报告既有 dangling tree，不是对象损坏。
