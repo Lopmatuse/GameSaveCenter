@@ -11,6 +11,29 @@
     <SolidColorBrush x:Key="GscWarningBrush" Color="#FF9F0A"/>
     <SolidColorBrush x:Key="GscErrorBrush" Color="#FF453A"/>
     <SolidColorBrush x:Key="GscInfoBrush" Color="#0A84FF"/>
+    <SolidColorBrush x:Key="GscOnAccentTextBrush" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="GscAccentIconFillBrush" Color="#247C5CFC"/>
+    <SolidColorBrush x:Key="GscInfoIconFillBrush" Color="#220A84FF"/>
+    <SolidColorBrush x:Key="GscSuccessIconFillBrush" Color="#2030D158"/>
+    <SolidColorBrush x:Key="GscErrorIconFillBrush" Color="#20FF453A"/>
+    <SolidColorBrush x:Key="GscWarningIconFillBrush" Color="#20FF9F0A"/>
+    <SolidColorBrush x:Key="GscRestoreInfoFillBrush" Color="#140A84FF"/>
+    <SolidColorBrush x:Key="GscRestoreInfoStrokeBrush" Color="#330A84FF"/>
+    <SolidColorBrush x:Key="GscSafetyFillBrush" Color="#14FF9F0A"/>
+    <SolidColorBrush x:Key="GscSafetyStrokeBrush" Color="#38FF9F0A"/>
+    <SolidColorBrush x:Key="GscRowHoverStrongBrush" Color="#0CFFFFFF"/>
+    <SolidColorBrush x:Key="GscAmbientAccentBrush" Color="#267C5CFC"/>
+    <SolidColorBrush x:Key="GscAmbientInfoBrush" Color="#1E0A84FF"/>
+    <SolidColorBrush x:Key="GscAmbientSuccessBrush" Color="#1830D158"/>
+    <SolidColorBrush x:Key="GscPrimaryButtonBorderBrush" Color="#8A72FF"/>
+    <SolidColorBrush x:Key="GscMutedStatusBrush" Color="#8E8E93"/>
+    <LinearGradientBrush x:Key="GscPrimaryButtonBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#8B6BFF" Offset="0"/>
+        <GradientStop Color="#6848EE" Offset="1"/>
+    </LinearGradientBrush>
+    <Color x:Key="GscSoftShadowColor">#22000000</Color>
+    <Color x:Key="GscPopupShadowColor">#52000000</Color>
+    <Color x:Key="GscAccentShadowColor">#487C5CFC</Color>
 
     <SolidColorBrush x:Key="GscGlassFillBrush" Color="#D8FFFFFF"/>
     <SolidColorBrush x:Key="GscGlassStrongBrush" Color="#F0FFFFFF"/>
@@ -303,7 +326,7 @@
                         <Popup x:Name="PART_Popup" Placement="Bottom" AllowsTransparency="True" IsOpen="{TemplateBinding IsDropDownOpen}" Focusable="False" PopupAnimation="Fade">
                             <Border MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="320" Margin="0,6,0,8" Padding="5"
                                     Background="{DynamicResource GscPopupBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}" BorderThickness="1" CornerRadius="11">
-                                <Border.Effect><DropShadowEffect Color="#52000000" BlurRadius="20" ShadowDepth="5" Opacity="0.42"/></Border.Effect>
+                                <Border.Effect><DropShadowEffect Color="{StaticResource GscPopupShadowColor}" BlurRadius="20" ShadowDepth="5" Opacity="0.42"/></Border.Effect>
                                 <ScrollViewer CanContentScroll="True" VerticalScrollBarVisibility="Auto"><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/></ScrollViewer>
                             </Border>
                         </Popup>

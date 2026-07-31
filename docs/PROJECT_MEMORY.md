@@ -1,7 +1,12 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-07-29
-当前版本：`0.6.21-development-preview`
+当前版本：`0.6.22-development-preview`
+
+### 0.6.22 主题令牌边界
+
+- 页面不得重新引入 `#RRGGBB` 或 `#AARRGGBB` 装饰色；语义状态、环境光、图标容器、提示面、主按钮和阴影必须从 `Themes/DesignTokens.xaml` 获取。
+- Playnite 页面级环境光只允许少量固定 Ellipse，且高对比度或关闭毛玻璃时由现有主题逻辑隐藏；列表、表格和滚动行不得新增 `BlurEffect`。
 
 ### 0.6.21 云端重试与 WPF 数值编辑边界
 

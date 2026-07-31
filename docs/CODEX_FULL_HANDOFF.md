@@ -1,7 +1,7 @@
 # GameSaveCenter Codex 完整开发交接
 
 更新时间：2026-07-31
-交接版本：`0.6.21-development-preview`
+交接版本：`0.6.22-development-preview`
 仓库：`https://github.com/Nikilua/GameSaveCenter.git`
 主分支：`main`
 插件 ID：`66e9f2d7-67bb-43ef-b62a-b8e60734fcec`
@@ -16,6 +16,11 @@ Git 作者：`Sable Drift`
 - `OnViewModelPropertyChanged` 的首个控件相关操作必须是 `Dispatcher.CheckAccess()`；后台回调只重新投递自身，之后才允许读取 `IsLoaded` 或 ViewModel 属性、安排动画。
 - `RequestBackgroundRefreshAsync` 和 `RefreshAfterSynchronizationAsync` 必须保持为 `Task`，禁止恢复为 `async void`。定时器和任务事件均须等待刷新任务，绑定状态必须经 `ApplyOnUi` 写入。
 - 必须在真实 Playnite 中保持面板打开，循环完成/取消任务、慢 Worker 和卸载重开面板，确认 `extensions.log` 无跨线程异常。
+
+### 0.6.22 共享主题令牌交接
+
+- Dashboard 与设置页禁止重新添加页面级硬编码颜色；所有语义材质、环境光、图标底色、安全提示、主按钮和阴影均使用 `Themes/DesignTokens.xaml`。
+- 页面环境光不是实时窗口模糊：保持少量静态 Ellipse，且高对比度或关闭玻璃时必须隐藏；禁止对列表/表格添加 BlurEffect。
 
 ### 0.6.21 云端重试与 UI 交接
 

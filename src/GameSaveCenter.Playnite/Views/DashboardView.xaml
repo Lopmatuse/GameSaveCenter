@@ -51,7 +51,7 @@
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect Color="#22000000" BlurRadius="14" ShadowDepth="2" Opacity="0.32"/>
+                    <DropShadowEffect Color="{StaticResource GscSoftShadowColor}" BlurRadius="14" ShadowDepth="2" Opacity="0.32"/>
                 </Setter.Value>
             </Setter>
         </Style>
@@ -133,16 +133,9 @@
         </Style>
 
         <Style x:Key="GscPrimaryButton" TargetType="Button" BasedOn="{StaticResource GscButtonBase}">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background">
-                <Setter.Value>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#8B6BFF" Offset="0"/>
-                        <GradientStop Color="#6848EE" Offset="1"/>
-                    </LinearGradientBrush>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="BorderBrush" Value="#8A72FF"/>
+            <Setter Property="Foreground" Value="{StaticResource GscOnAccentTextBrush}"/>
+            <Setter Property="Background" Value="{StaticResource GscPrimaryButtonBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource GscPrimaryButtonBorderBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -152,7 +145,7 @@
                             <Border.RenderTransform>
                                 <ScaleTransform ScaleX="1" ScaleY="1"/>
                             </Border.RenderTransform>
-                            <Border.Effect><DropShadowEffect Color="#487C5CFC" BlurRadius="12" ShadowDepth="2" Opacity="0.38"/></Border.Effect>
+                            <Border.Effect><DropShadowEffect Color="{StaticResource GscAccentShadowColor}" BlurRadius="12" ShadowDepth="2" Opacity="0.38"/></Border.Effect>
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               RecognizesAccessKey="True"
@@ -558,7 +551,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="ItemChrome" Property="Background" Value="#0CFFFFFF"/>
+                                <Setter TargetName="ItemChrome" Property="Background" Value="{StaticResource GscRowHoverStrongBrush}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter TargetName="ItemChrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
@@ -631,13 +624,13 @@
 
     <Grid x:Name="RootShell" Background="{DynamicResource GscBackdropBrush}" ClipToBounds="True">
         <Grid x:Name="AmbientGlowLayer" IsHitTestVisible="False" Opacity="0.9">
-            <Ellipse Width="360" Height="360" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-95,-130,0,0" Fill="#267C5CFC">
+            <Ellipse Width="360" Height="360" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-95,-130,0,0" Fill="{DynamicResource GscAmbientAccentBrush}">
                 <Ellipse.Effect><BlurEffect Radius="82"/></Ellipse.Effect>
             </Ellipse>
-            <Ellipse Width="320" Height="320" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,35,-105,0" Fill="#1E0A84FF">
+            <Ellipse Width="320" Height="320" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,35,-105,0" Fill="{DynamicResource GscAmbientInfoBrush}">
                 <Ellipse.Effect><BlurEffect Radius="90"/></Ellipse.Effect>
             </Ellipse>
-            <Ellipse Width="300" Height="300" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,20,-165" Fill="#1830D158">
+            <Ellipse Width="300" Height="300" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,20,-165" Fill="{DynamicResource GscAmbientSuccessBrush}">
                 <Ellipse.Effect><BlurEffect Radius="96"/></Ellipse.Effect>
             </Ellipse>
         </Grid>
@@ -650,7 +643,7 @@
             </Grid.ColumnDefinitions>
 
             <Border x:Name="SidebarChrome" Grid.Column="0" Background="{DynamicResource GscSidebarBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}" BorderThickness="1" CornerRadius="22" Padding="15">
-                <Border.Effect><DropShadowEffect Color="#26000000" BlurRadius="24" ShadowDepth="3" Opacity="0.35"/></Border.Effect>
+                <Border.Effect><DropShadowEffect Color="{StaticResource GscSoftShadowColor}" BlurRadius="24" ShadowDepth="3" Opacity="0.35"/></Border.Effect>
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                     <StackPanel x:Name="SidebarBrandContainer" Margin="0,2,0,20" HorizontalAlignment="Stretch">
@@ -670,7 +663,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.21" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.22" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -755,19 +748,19 @@
         <UniformGrid x:Name="MetricsPanel" Grid.Row="1" Columns="6" Margin="0,0,0,18">
             <Border Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="#247C5CFC"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscAccentIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="管理游戏" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.ManagedGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </Border>
             <Border Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="#220A84FF"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscInfoIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="已匹配存档" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.MatchedGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </Border>
             <Border Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="#2030D158"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE768;" Foreground="{StaticResource GscSuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscSuccessIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE768;" Foreground="{StaticResource GscSuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="正在运行" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.RunningGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </Border>
@@ -778,20 +771,20 @@
                         HorizontalContentAlignment="Stretch"
                         Padding="0" Margin="0" Background="Transparent" BorderBrush="Transparent">
                     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                        <Border Width="36" Height="36" CornerRadius="18" Background="#20FF453A"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB52;" Foreground="{StaticResource GscErrorBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                        <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscErrorIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB52;" Foreground="{StaticResource GscErrorBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                         <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="需要关注" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.WarningGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                     </Grid>
                 </Button>
             </Border>
             <Border Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="#220A84FF"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscInfoIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="云端任务" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.PendingCloudTasks}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </Border>
             <Border Style="{StaticResource GscMetricCard}" Margin="0">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="#20FF9F0A"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE91B;" Foreground="{StaticResource GscWarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscWarningIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE91B;" Foreground="{StaticResource GscWarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="待归类媒体" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </Border>
@@ -906,7 +899,7 @@
                                                     <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
                                                     <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
                                                 </Trigger>
-                                                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Row" Property="Background" Value="#0CFFFFFF"/></Trigger>
+                                                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Row" Property="Background" Value="{StaticResource GscRowHoverStrongBrush}"/></Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
                                     </Setter.Value>
@@ -917,7 +910,7 @@
                             <DataTemplate>
                                 <Grid>
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <Border Width="34" Height="34" CornerRadius="10" Background="#247C5CFC" VerticalAlignment="Center">
+                                    <Border Width="34" Height="34" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" VerticalAlignment="Center">
                                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -984,7 +977,7 @@
                         </StackPanel>
                     </Grid>
 
-                    <Border x:Name="RestoreSafetyBanner" Grid.Row="1" Background="#140A84FF" BorderBrush="#330A84FF" BorderThickness="1" CornerRadius="11" Padding="12" Margin="0,14,0,12">
+                    <Border x:Name="RestoreSafetyBanner" Grid.Row="1" Background="{DynamicResource GscRestoreInfoFillBrush}" BorderBrush="{DynamicResource GscRestoreInfoStrokeBrush}" BorderThickness="1" CornerRadius="11" Padding="12" Margin="0,14,0,12">
                         <DockPanel>
                             <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE946;" Foreground="{StaticResource GscInfoBrush}" FontSize="16" Margin="0,0,9,0" DockPanel.Dock="Left"/>
                             <TextBlock Text="自动恢复默认关闭。恢复前会创建并锁定当前快照，恢复后校验，失败时尝试回滚。" TextWrapping="Wrap"/>
@@ -1094,7 +1087,7 @@
                                     </Grid>
                                 </Border>
                                 <StackPanel Grid.Row="1" Margin="0,12,0,0">
-                                    <Border Background="#14FF9F0A" BorderBrush="#38FF9F0A" BorderThickness="1" CornerRadius="9" Padding="10" Margin="0,0,0,10">
+                                    <Border Background="{DynamicResource GscSafetyFillBrush}" BorderBrush="{DynamicResource GscSafetyStrokeBrush}" BorderThickness="1" CornerRadius="9" Padding="10" Margin="0,0,0,10">
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
@@ -1634,7 +1627,7 @@
                                                             <DataTrigger Binding="{Binding State}" Value="Succeeded"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger>
                                                             <DataTrigger Binding="{Binding State}" Value="Failed"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscErrorBrush}"/></DataTrigger>
                                                             <DataTrigger Binding="{Binding State}" Value="Running"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscInfoBrush}"/></DataTrigger>
-                                                            <DataTrigger Binding="{Binding State}" Value="Cancelled"><Setter TargetName="TaskDot" Property="Background" Value="#8E8E93"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding State}" Value="Cancelled"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscMutedStatusBrush}"/></DataTrigger>
                                                         </DataTemplate.Triggers>
                                                     </DataTemplate>
                                                 </DataGridTemplateColumn.CellTemplate>
@@ -1874,7 +1867,7 @@
                     Padding="22"
                     Opacity="0">
                 <Border.Effect>
-                    <DropShadowEffect Color="#52000000" BlurRadius="34" ShadowDepth="8" Opacity="0.48"/>
+                    <DropShadowEffect Color="{StaticResource GscPopupShadowColor}" BlurRadius="34" ShadowDepth="8" Opacity="0.48"/>
                 </Border.Effect>
                 <Grid>
                     <Grid.RowDefinitions>

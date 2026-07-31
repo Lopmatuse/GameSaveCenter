@@ -27,7 +27,7 @@
             <Setter Property="CornerRadius" Value="18"/>
             <Setter Property="Padding" Value="16"/>
             <Setter Property="Margin" Value="0,0,0,16"/>
-            <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="#20000000" BlurRadius="16" ShadowDepth="2" Opacity="0.3"/></Setter.Value></Setter>
+            <Setter Property="Effect"><Setter.Value><DropShadowEffect Color="{StaticResource GscSoftShadowColor}" BlurRadius="16" ShadowDepth="2" Opacity="0.3"/></Setter.Value></Setter>
         </Style>
         <Style TargetType="TextBox" BasedOn="{StaticResource GscTextBox}"/>
         <Style TargetType="ComboBox" BasedOn="{StaticResource GscComboBox}"/>
@@ -42,8 +42,8 @@
 
     <Grid Background="{DynamicResource GscBackdropBrush}" ClipToBounds="True">
         <Grid x:Name="SettingsAmbientLayer" IsHitTestVisible="False">
-            <Ellipse Width="330" Height="330" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-95,-120,0,0" Fill="#247C5CFC"><Ellipse.Effect><BlurEffect Radius="84"/></Ellipse.Effect></Ellipse>
-            <Ellipse Width="280" Height="280" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-80,-120" Fill="#180A84FF"><Ellipse.Effect><BlurEffect Radius="92"/></Ellipse.Effect></Ellipse>
+            <Ellipse Width="330" Height="330" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-95,-120,0,0" Fill="{DynamicResource GscAccentIconFillBrush}"><Ellipse.Effect><BlurEffect Radius="84"/></Ellipse.Effect></Ellipse>
+            <Ellipse Width="280" Height="280" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,-80,-120" Fill="{DynamicResource GscAmbientInfoBrush}"><Ellipse.Effect><BlurEffect Radius="92"/></Ellipse.Effect></Ellipse>
         </Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel x:Name="SettingsShell" Opacity="0" Margin="28,22,32,30" MaxWidth="980" HorizontalAlignment="Left">
@@ -61,7 +61,7 @@
 
             <Border Style="{StaticResource SettingsCard}">
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12"><Border Width="30" Height="30" CornerRadius="10" Background="#247C5CFC" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="核心工具" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="核心工具" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
@@ -86,7 +86,7 @@
 
             <Border Style="{StaticResource SettingsCard}">
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal"><Border Width="30" Height="30" CornerRadius="10" Background="#220A84FF" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="#0A84FF" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="存档格式与历史版本" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
+                    <StackPanel Orientation="Horizontal"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscInfoIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="存档格式与历史版本" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
                     <TextBlock Text="推荐 ZIP + Zstandard。Simple 模式只维护一个当前副本，不适合作为多版本恢复历史。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,13" TextWrapping="Wrap"/>
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="180"/><ColumnDefinition Width="28"/><ColumnDefinition Width="150"/><ColumnDefinition Width="180"/></Grid.ColumnDefinitions>
@@ -116,7 +116,7 @@
             <Border Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <Border Width="30" Height="30" CornerRadius="10" Background="#247C5CFC" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE790;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE790;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
                         <TextBlock Text="外观与动态效果" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                     <TextBlock Text="毛玻璃采用主题自适应的半透明表面和模糊环境光，不会修改 Playnite 外层窗口。系统高对比度或关闭动画时会自动降级。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>
@@ -143,7 +143,7 @@
 
             <Border Style="{StaticResource SettingsCard}">
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10"><Border Width="30" Height="30" CornerRadius="10" Background="#2030D158" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72E;" Foreground="#30D158" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="自动化与安全" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscSuccessIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72E;" Foreground="{StaticResource GscSuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="自动化与安全" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
                     <CheckBox Content="随 Playnite 启动 Worker" IsChecked="{Binding AutoStartWorker}" Margin="0,5"/>
                     <CheckBox Content="检测从 Steam、Xbox、启动器和 MOD 管理器外部启动的游戏" IsChecked="{Binding EnableProcessDetection}" Margin="0,5"/>
                     <CheckBox Content="对未匹配游戏记录启动前/退出后文件差异，生成存档路径候选" IsChecked="{Binding EnableSessionSavePathDetection}" Margin="0,5"/>
@@ -168,7 +168,7 @@
                         <TextBlock Grid.Row="2" Text="管理面板刷新间隔（秒）" VerticalAlignment="Center" Margin="0,6"/>
                         <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="允许 5–300 秒；离开输入框后提交。"><TextBox.Text><Binding Path="DashboardRefreshSeconds" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="5" Maximum="300"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
                     </Grid>
-                    <Border Background="#14FF9F0A" BorderBrush="#38FF9F0A" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,13,0,0">
+                    <Border Background="{DynamicResource GscSafetyFillBrush}" BorderBrush="{DynamicResource GscSafetyStrokeBrush}" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,13,0,0">
                         <TextBlock Text="自动恢复始终关闭。恢复必须经过当前快照、游戏关闭确认、预览、恢复后校验和可撤销快照。" TextWrapping="Wrap"/>
                     </Border>
                 </StackPanel>

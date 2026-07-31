@@ -1,3 +1,8 @@
+## 0.6.22 主题令牌与最终 UI 回归
+
+- [x] 2026-07-31 本地开发安装报告确认 `extension.yaml` 为 `0.6.22`、主 DLL 为 `0.6.22.0`；Playnite `playnite.log` 已记录加载 `GameSaveCenter, version 0.6.22`，Dashboard 侧栏也显示 `v0.6.22`。
+- [ ] 在浅色、深色和跟随 Playnite 中检查 Dashboard/设置页的状态图标、环境光、安全提示、浮层和主按钮；关闭毛玻璃或启用高对比度时，页面不能保留高成本环境光或失去文字对比度。
+
 ## 0.6.21 云端退避、数值输入与完整 WPF UI 回归
 
 - [x] 2026-07-31 本地开发安装报告已确认 extension.yaml 为 `0.6.21`、主 DLL 为 `0.6.21.0`；Playnite `playnite.log` 也记录 `Loaded plugin: GameSaveCenter, version 0.6.21`。

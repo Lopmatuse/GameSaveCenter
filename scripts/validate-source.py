@@ -858,6 +858,9 @@ def check_0621_cloud_retry_and_numeric_ui_guards() -> None:
     for token in ("GscNumericTextBox", "Validation.ErrorTemplate"):
         if token not in tokens:
             fail(f"Shared numeric UI guard missing: {token}")
+    for text, file_name in ((dashboard, "DashboardView.xaml"), (settings, "GameSaveCenterSettingsView.xaml")):
+        if re.search(r"#[0-9A-Fa-f]{3,8}", text):
+            fail(f"Theme colors must be declared in DesignTokens.xaml, not {file_name}")
     if not agents.exists() or "wpf-apple-desktop-ui" not in agents.read_text(encoding="utf-8"):
         fail("Repository AGENTS.md must require the WPF Apple desktop UI skill")
 
