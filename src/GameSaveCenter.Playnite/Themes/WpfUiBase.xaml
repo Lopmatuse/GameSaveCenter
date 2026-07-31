@@ -1,8 +1,9 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
-    <!-- This dictionary is merged only by GameSaveCenter probe/migration views. GameSaveCenter
-         tokens merged after it remain final and the Playnite host stays outside this scope. -->
+    <!-- This dictionary is merged only by GameSaveCenter probe/migration views. WpfUiThemeScope
+         changes its local ThemesDictionary for each view; GameSaveCenter tokens merged after it
+         remain final and the Playnite host stays outside this scope. -->
     <ResourceDictionary.MergedDictionaries>
         <ui:ThemesDictionary Theme="Dark"/>
         <ui:ControlsDictionary/>

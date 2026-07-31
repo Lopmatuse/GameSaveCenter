@@ -942,6 +942,27 @@ def check_responsive_ui_layout_guards() -> None:
         if token not in dashboard_code:
             fail(f"Dashboard responsive behavior guard missing: {token}")
 
+def check_wpf_ui_production_scope_guards() -> None:
+    """Keep production WPF-UI resources view-local and preserve host isolation."""
+    dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    dashboard_code = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml.cs").read_text(encoding="utf-8")
+    settings = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml").read_text(encoding="utf-8")
+    settings_code = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml.cs").read_text(encoding="utf-8")
+    theme_scope = (ROOT / "src/GameSaveCenter.Playnite/Infrastructure/WpfUiThemeScope.cs").read_text(encoding="utf-8")
+    for source, label, required in (
+        (dashboard, "Dashboard WPF-UI production scope", ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiBase.xaml", "<ui:Button")),
+        (settings, "Settings WPF-UI production scope", ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiBase.xaml", "<ui:ToggleSwitch", "<ui:Button")),
+        (theme_scope, "WPF-UI theme scope", ("ThemesDictionary", "ApplicationTheme.HighContrast", "ApplyMergedDictionaries")),
+    ):
+        for token in required:
+            if token not in source:
+                fail(f"{label} guard missing: {token}")
+    for source, label in ((dashboard_code, "Dashboard"), (settings_code, "Settings")):
+        if "WpfUiThemeScope.Apply(Resources, palette.IsDark)" not in source:
+            fail(f"{label} must apply WPF-UI theme only through its local resource scope")
+    if "Application.Current.Resources" in theme_scope:
+        fail("WPF-UI production theme scope must never mutate Playnite application resources")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -970,6 +991,7 @@ def main() -> int:
     check_0621_cloud_retry_and_numeric_ui_guards()
     check_shared_wpf_control_guards()
     check_responsive_ui_layout_guards()
+    check_wpf_ui_production_scope_guards()
     check_wpf_ui_probe_guards()
     if ERRORS:
         print("Source validation failed:")

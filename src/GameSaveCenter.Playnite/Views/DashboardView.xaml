@@ -4,6 +4,7 @@
              xmlns:contracts="clr-namespace:GameSaveCenter.Contracts;assembly=GameSaveCenter.Contracts"
              xmlns:converters="clr-namespace:GameSaveCenter.Playnite.Converters"
              xmlns:infra="clr-namespace:GameSaveCenter.Playnite.Infrastructure"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              Foreground="{DynamicResource GscPrimaryTextBrush}" TextElement.Foreground="{DynamicResource GscPrimaryTextBrush}" Background="Transparent"
              TextElement.FontFamily="Segoe UI Variable Text, Segoe UI"
              UseLayoutRounding="True" SnapsToDevicePixels="True"
@@ -13,6 +14,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiBase.xaml"/>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <converters:MediaThumbnailConverter x:Key="MediaThumbnailConverter"/>
@@ -729,18 +731,18 @@
             <WrapPanel x:Name="TopActionsPanel" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="14,0,0,0">
                 <!-- Background refresh never inserts an element into this WrapPanel. Keeping the toolbar's
                      measured width stable prevents timer-driven page movement when actions would wrap. -->
-                <Button x:Name="TopRefreshButton" Style="{StaticResource GscToolbarButton}" AutomationProperties.Name="刷新全部状态" ToolTip="刷新全部状态" Command="{Binding RefreshCommand}" Margin="0,0,8,0">
+                <ui:Button x:Name="TopRefreshButton" Appearance="Secondary" MinHeight="40" AutomationProperties.Name="刷新全部状态" ToolTip="刷新全部状态" Command="{Binding RefreshCommand}" Margin="0,0,8,0">
                     <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72C;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock x:Name="TopRefreshLabel" Grid.Column="1" Text="刷新" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
-                </Button>
-                <Button x:Name="TopBackupAllButton" Style="{StaticResource GscToolbarButton}" AutomationProperties.Name="备份全部游戏" ToolTip="备份全部游戏" Command="{Binding BackupAllCommand}" Margin="0,0,8,0">
+                </ui:Button>
+                <ui:Button x:Name="TopBackupAllButton" Appearance="Secondary" MinHeight="40" AutomationProperties.Name="备份全部游戏" ToolTip="备份全部游戏" Command="{Binding BackupAllCommand}" Margin="0,0,8,0">
                     <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock x:Name="TopBackupAllLabel" Grid.Column="1" Text="全部备份" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
-                </Button>
-                <Button x:Name="TopMediaSyncButton" Style="{StaticResource GscToolbarButton}" AutomationProperties.Name="同步媒体" ToolTip="同步媒体" Command="{Binding SyncMediaCommand}" Margin="0,0,8,0">
+                </ui:Button>
+                <ui:Button x:Name="TopMediaSyncButton" Appearance="Secondary" MinHeight="40" AutomationProperties.Name="同步媒体" ToolTip="同步媒体" Command="{Binding SyncMediaCommand}" Margin="0,0,8,0">
                     <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock x:Name="TopMediaSyncLabel" Grid.Column="1" Text="同步媒体" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
-                </Button>
-                <Button x:Name="TopTrainerImportButton" Style="{StaticResource GscToolbarButton}" Command="{Binding ImportTrainerCommand}" Visibility="Collapsed" Content="导入修改器"/>
-                <Button x:Name="TopTrainerCatalogButton" Style="{StaticResource GscToolbarButton}" Margin="8,0,0,0" Command="{Binding SyncTrainerCatalogCommand}" Visibility="Collapsed" Content="刷新目录"/>
-                <Button x:Name="TopDiagnosticsButton" Style="{StaticResource GscToolbarButton}" Command="{Binding RefreshDiagnosticsCommand}" Visibility="Collapsed" Content="刷新诊断"/>
+                </ui:Button>
+                <ui:Button x:Name="TopTrainerImportButton" Appearance="Secondary" MinHeight="40" Command="{Binding ImportTrainerCommand}" Visibility="Collapsed" Content="导入修改器"/>
+                <ui:Button x:Name="TopTrainerCatalogButton" Appearance="Secondary" MinHeight="40" Margin="8,0,0,0" Command="{Binding SyncTrainerCatalogCommand}" Visibility="Collapsed" Content="刷新目录"/>
+                <ui:Button x:Name="TopDiagnosticsButton" Appearance="Secondary" MinHeight="40" Command="{Binding RefreshDiagnosticsCommand}" Visibility="Collapsed" Content="刷新诊断"/>
             </WrapPanel>
         </Grid>
 

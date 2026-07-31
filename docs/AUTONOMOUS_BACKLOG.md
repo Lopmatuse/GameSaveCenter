@@ -68,13 +68,14 @@
 ### UI-004：WPF-UI 成熟控件的生产迁移与宿主回归
 
 - **优先级**：P0
-- **状态**：PROPOSED
-- **前置条件**：ENV-001 已证明独立数据根和进程边界；UI-001 与 UI-003 的隔离 Playnite 验收通过；必须保留插件 ID、业务命令、绑定、虚拟化和共享主题令牌。
+- **状态**：IN_PROGRESS
+- **前置条件**：用户已明确授权继续源码层生产迁移；真实 Playnite 验收仍以 ENV-001 证明独立数据根和进程边界为前置。必须保留插件 ID、业务命令、绑定、虚拟化和共享主题令牌。
 - **根因与影响**：当前 WPF-UI 4.3.0 仅以惰性“界面探针”验证程序集、资源隔离与异常恢复。生产 Dashboard/Settings 仍主要使用自定义模板，尚未达到以成熟框架控件替换生产交互的完整目标；未经宿主验证直接替换会造成资源键冲突、XAML 加载失败或 Playnite 默认主题泄漏。
 - **范围**：在隔离 Playnite 中将适用的输入、下拉、导航、信息卡、对话框和通知迁移到 WPF-UI 的局部资源体系；DataGrid、游戏列表和性能敏感虚拟化区保留经验证的 WPF 模板，不能以统一框架为由牺牲虚拟化或键盘访问。每类控件保留原有命令、主题、错误/取消状态与宿主回退。
 - **非目标**：不注入 Playnite 全局资源；不修改窗口 Chrome；不以探针或截图替代生产交互；不删除现有安全错误处理、数据或备份。
 - **验收标准**：真实隔离 Playnite 中 Dashboard、Settings、Dialog/Snackbar 正常加载；Light/Dark/Follow/高对比度、关闭透明/动画、100%–200% DPI 和 1600×900–980×640 无新增资源、绑定或 Dispatcher 异常；大库 ListBox/DataGrid 保持 Recycling；框架控件创建失败时页面可恢复且不污染宿主。
 - **阻塞条件**：无法证明 WPF-UI 局部资源在 Playnite 10/net462 中稳定、可回退且无宿主污染时，保持自定义共享令牌方案并改为 `BLOCKED_ENVIRONMENT`，不得强行替换生产控件。
+- **当前证据**：2026-08-01 已将 Dashboard 顶部操作迁移到局部 WPF-UI Button，Settings 的自动化/安全开关及导入/导出迁移到局部 ToggleSwitch/Button。两页都只在自己的 `UserControl.Resources` 合并框架资源，并通过 `WpfUiThemeScope` 更新本地 ThemesDictionary；源码门禁禁止改写 Playnite `Application.Current.Resources`。Release 构建、50 个单元测试、源码/XAML 门禁和 WPF UI 静态审查均通过。真实加载、主题/DPI、Dialog/Snackbar 与宿主污染验证仍未执行。
 
 ## 本次审计证据
 

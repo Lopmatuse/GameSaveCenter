@@ -4,6 +4,7 @@
              xmlns:contracts="clr-namespace:GameSaveCenter.Contracts;assembly=GameSaveCenter.Contracts"
              xmlns:settings="clr-namespace:GameSaveCenter.Playnite.Settings"
              xmlns:infra="clr-namespace:GameSaveCenter.Playnite.Infrastructure"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              Foreground="{DynamicResource GscPrimaryTextBrush}"
              UseLayoutRounding="True" SnapsToDevicePixels="True"
              TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"
@@ -11,6 +12,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiBase.xaml"/>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
@@ -127,8 +129,10 @@
                         </ComboBox>
                         <TextBlock Grid.Column="2" Text="第三方主题可读性不佳时，可固定为浅色或深色。" Foreground="{DynamicResource GscMutedTextBrush}" VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap"/>
                     </Grid>
-                    <CheckBox Content="启用界面动画（淡入、滑动、悬停与按钮按压反馈）" IsChecked="{Binding EnableUiAnimations}" Margin="0,5" Checked="OnVisualSettingChanged" Unchecked="OnVisualSettingChanged"/>
-                    <CheckBox Content="启用毛玻璃与环境光效果" IsChecked="{Binding EnableGlassEffects}" Margin="0,5" Checked="OnVisualSettingChanged" Unchecked="OnVisualSettingChanged"/>
+                    <ui:ToggleSwitch Content="启用界面动画（淡入、滑动、悬停与按钮按压反馈）" OnContent="开" OffContent="关"
+                                     IsChecked="{Binding EnableUiAnimations}" Margin="0,5" Checked="OnVisualSettingChanged" Unchecked="OnVisualSettingChanged"/>
+                    <ui:ToggleSwitch Content="启用毛玻璃与环境光效果" OnContent="开" OffContent="关"
+                                     IsChecked="{Binding EnableGlassEffects}" Margin="0,5" Checked="OnVisualSettingChanged" Unchecked="OnVisualSettingChanged"/>
                     <Grid Margin="0,10,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="260"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                         <TextBlock Text="毛玻璃强度" VerticalAlignment="Center"/>
@@ -141,20 +145,20 @@
             <Border Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscSuccessIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72E;" Foreground="{StaticResource GscSuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="自动化与安全" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
-                    <CheckBox Content="随 Playnite 启动 Worker" IsChecked="{Binding AutoStartWorker}" Margin="0,5"/>
-                    <CheckBox Content="检测从 Steam、Xbox、启动器和 MOD 管理器外部启动的游戏" IsChecked="{Binding EnableProcessDetection}" Margin="0,5"/>
-                    <CheckBox Content="对未匹配游戏记录启动前/退出后文件差异，生成存档路径候选" IsChecked="{Binding EnableSessionSavePathDetection}" Margin="0,5"/>
-                    <CheckBox Content="同步新增截图和录像（源文件删除不会删除归档）" IsChecked="{Binding EnableMediaSync}" Margin="0,5"/>
+                    <ui:ToggleSwitch Content="随 Playnite 启动 Worker" OnContent="开" OffContent="关" IsChecked="{Binding AutoStartWorker}" Margin="0,5"/>
+                    <ui:ToggleSwitch Content="检测从 Steam、Xbox、启动器和 MOD 管理器外部启动的游戏" OnContent="开" OffContent="关" IsChecked="{Binding EnableProcessDetection}" Margin="0,5"/>
+                    <ui:ToggleSwitch Content="对未匹配游戏记录启动前/退出后文件差异，生成存档路径候选" OnContent="开" OffContent="关" IsChecked="{Binding EnableSessionSavePathDetection}" Margin="0,5"/>
+                    <ui:ToggleSwitch Content="同步新增截图和录像（源文件删除不会删除归档）" OnContent="开" OffContent="关" IsChecked="{Binding EnableMediaSync}" Margin="0,5"/>
                     <WrapPanel Margin="22,1,0,5" IsEnabled="{Binding EnableMediaSync}">
-                        <CheckBox Content="Steam 截图" IsChecked="{Binding EnableSteamMedia}" Margin="0,4,14,4"/>
-                        <CheckBox Content="Xbox Game Bar" IsChecked="{Binding EnableXboxGameBarMedia}" Margin="0,4,14,4"/>
-                        <CheckBox Content="Windows 截图" IsChecked="{Binding EnableWindowsScreenshotMedia}" Margin="0,4,14,4"/>
-                        <CheckBox Content="游戏相邻目录" IsChecked="{Binding EnablePlatformAdjacentMedia}" Margin="0,4,14,4"/>
-                        <CheckBox Content="自定义来源" IsChecked="{Binding EnableCustomMedia}" Margin="0,4,14,4"/>
+                        <ui:ToggleSwitch Content="Steam 截图" OnContent="开" OffContent="关" IsChecked="{Binding EnableSteamMedia}" Margin="0,4,14,4"/>
+                        <ui:ToggleSwitch Content="Xbox Game Bar" OnContent="开" OffContent="关" IsChecked="{Binding EnableXboxGameBarMedia}" Margin="0,4,14,4"/>
+                        <ui:ToggleSwitch Content="Windows 截图" OnContent="开" OffContent="关" IsChecked="{Binding EnableWindowsScreenshotMedia}" Margin="0,4,14,4"/>
+                        <ui:ToggleSwitch Content="游戏相邻目录" OnContent="开" OffContent="关" IsChecked="{Binding EnablePlatformAdjacentMedia}" Margin="0,4,14,4"/>
+                        <ui:ToggleSwitch Content="自定义来源" OnContent="开" OffContent="关" IsChecked="{Binding EnableCustomMedia}" Margin="0,4,14,4"/>
                     </WrapPanel>
-                    <CheckBox Content="完成本地任务后允许单向云端复制" IsChecked="{Binding EnableCloudUpload}" Margin="0,5"/>
-                    <CheckBox Content="管理面板打开时自动刷新任务与状态" IsChecked="{Binding EnableDashboardAutoRefresh}" Margin="0,5"/>
-                    <CheckBox Content="任务完成或失败时显示 Playnite 通知（管理面板关闭时也会监测）" IsChecked="{Binding EnableTaskNotifications}" Margin="0,5"/>
+                    <ui:ToggleSwitch Content="完成本地任务后允许单向云端复制" OnContent="开" OffContent="关" IsChecked="{Binding EnableCloudUpload}" Margin="0,5"/>
+                    <ui:ToggleSwitch Content="管理面板打开时自动刷新任务与状态" OnContent="开" OffContent="关" IsChecked="{Binding EnableDashboardAutoRefresh}" Margin="0,5"/>
+                    <ui:ToggleSwitch Content="任务完成或失败时显示 Playnite 通知（管理面板关闭时也会监测）" OnContent="开" OffContent="关" IsChecked="{Binding EnableTaskNotifications}" Margin="0,5"/>
                     <Grid Margin="0,10,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="210"/><ColumnDefinition Width="120"/></Grid.ColumnDefinitions>
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -182,8 +186,8 @@
                     <TextBlock Text="导出文件包含非敏感插件设置、本地路径和云端目标名称，不包含 Rclone 密码。导入后先显示缺失路径报告，点击 Playnite 的保存按钮后才会生效。"
                                Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button Style="{StaticResource SettingsActionButton}" MinWidth="112" Content="导出设置" Click="OnExportSettingsClick" Margin="0,0,10,0"/>
-                        <Button Style="{StaticResource SettingsActionButton}" MinWidth="112" Content="导入设置" Click="OnImportSettingsClick"/>
+                        <ui:Button Appearance="Secondary" MinHeight="40" MinWidth="112" Content="导出设置" Click="OnExportSettingsClick" Margin="0,0,10,0"/>
+                        <ui:Button Appearance="Primary" MinHeight="40" MinWidth="112" Content="导入设置" Click="OnImportSettingsClick"/>
                     </StackPanel>
                 </StackPanel>
             </Border>

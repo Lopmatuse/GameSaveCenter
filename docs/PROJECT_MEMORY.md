@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 UI-004 生产 WPF-UI 资源范围
+
+- WPF-UI 生产资源只能在 Dashboard 和 Settings 的 `UserControl.Resources` 内合并。`WpfUiThemeScope.Apply(Resources, palette.IsDark)` 只遍历该视图的合并字典并更新 `ThemesDictionary`；禁止用 `ApplicationThemeManager` 或 `Application.Current.Resources` 影响 Playnite 宿主。
+- Dashboard 顶部操作和 Settings 自动化/安全开关已迁移为局部 WPF-UI Button/ToggleSwitch。不得改变其原有 Command、Binding、Tooltip、Automation Name 或紧凑模式行为；高密度 DataGrid/ListBox 仍保留现有 Recycling 虚拟化模板。
+- 这轮只有源码、构建和单元测试证据。真实框架加载、浅深色/高对比度、DPI、键盘与宿主污染必须在 ENV-001 的隔离 Playnite 数据根验证，不能启动 `.tmp` 副本或用户日常实例代替。
+
 ### 2026-08-01 UI-003 自适应布局与验证边界
 
 - Dashboard 侧栏导航必须位于有限高度的 `ScrollViewer` 内；紧凑模式只隐藏工具栏可见文案，不能隐藏其 Automation Name、Tooltip、命令或键盘激活能力。

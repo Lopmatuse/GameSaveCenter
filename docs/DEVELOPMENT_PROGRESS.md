@@ -3,6 +3,13 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-004 生产控件局部迁移（真机验证待完成）
+
+- [x] Dashboard 和 Settings 在各自 `UserControl.Resources` 中局部合并 WPF-UI 资源；`WpfUiThemeScope` 只更新该视图的 `ThemesDictionary`，按现有色板切换 Light/Dark/HighContrast，绝不触碰 Playnite 的 `Application.Current.Resources`。
+- [x] Dashboard 顶部刷新、全部备份、同步媒体、修改器和诊断操作统一迁移到 WPF-UI `Button`；Settings 的自动化/安全开关迁移到带明确“开/关”状态的 `ToggleSwitch`，导入/导出使用 WPF-UI `Button`。既有 Binding、Command、Tooltip、Automation Name、紧凑模式文本收起和虚拟化保持不变。
+- [x] 新增生产资源范围与主题调用的源码门禁。`validate-source.py`、Release build（0 警告/0 错误）、Core 13、Worker 21、Playnite 16 项测试、`git diff --check`、UI Skill 静态审查（项目 0 errors）均通过。
+- [ ] 尚未把自动化/静态结论写成真机结论：必须先完成 ENV-001，才可在独立 Playnite 进程中验证框架控件资源加载、主题、DPI、键盘、Dialog/Snackbar 及宿主无污染。
+
 ## 2026-08-01 UI-003 响应式布局与可访问性收口（真机阻塞）
 
 - [x] Dashboard 侧栏导航改为有限高度的共享滚动区；紧凑模式把刷新、全部备份和媒体同步操作收为可访问名称与 Tooltip 完整保留的图标按钮，避免标题、游戏选择器和工具栏争夺宽度。

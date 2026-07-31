@@ -757,6 +757,7 @@ namespace GameSaveCenter.Playnite.Views
                 166, 124, 92, 252));
             Resources["GscOverlayBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
                 palette.IsDark ? (byte)138 : (byte)72, 0, 0, 0));
+            WpfUiThemeScope.Apply(Resources, palette.IsDark);
 
             AmbientGlowLayer.Opacity = glassEnabled
                 ? (palette.IsDark ? 0.46 : 0.56) * Math.Max(0.2, Math.Min(1, plugin.Settings.GlassEffectStrength / 100d))

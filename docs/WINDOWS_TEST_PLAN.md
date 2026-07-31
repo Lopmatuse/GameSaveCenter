@@ -79,6 +79,13 @@
 
 每项结果记录为：`通过 / 失败 / 跳过`，并保存错误日志。不要在同一轮同时开启本地备份、恢复和云端双向行为。
 
+## UI-004 生产 WPF-UI 局部迁移回归
+
+- [ ] 仅在 ENV-001 已证明独立 AppData、扩展目录、测试库和 PID 边界后安装本次 PEXT；不停止、覆盖或连接用户日常 Playnite/Worker。
+- [ ] 依次打开 Dashboard 与 Settings，确认顶部 Button、自动化/安全 ToggleSwitch、导入/导出 Button 正常显示和触发原有命令；检查 `playnite.log` 不含程序集、资源、XAML、绑定或 Dispatcher 异常。
+- [ ] 在 Light、Dark、Follow Playnite、高对比度、关闭透明和关闭动画下切换两页；验证控件文本、开/关状态、焦点环、Tooltip、Disabled 状态与现有卡片/表格的主题一致，且切换后打开其他 Playnite 页面不受影响。
+- [ ] 在 1600×900 至 980×640、100%/125%/150%/200% DPI 用键盘 Tab、Enter、Space 验证工具栏与设置开关；检查长中文文本、开关状态、数值输入及横向访问不裁切。
+
 ## 0.6.13 远端隔离下载与恢复回归
 
 - [ ] 两个测试设备分别上传完整 Ludusavi 库，刷新设备状态后远端设备与 Backup ID 显示正确。

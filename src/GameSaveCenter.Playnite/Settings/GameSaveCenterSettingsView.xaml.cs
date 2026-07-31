@@ -151,6 +151,7 @@ namespace GameSaveCenter.Playnite.Settings
             Resources["GscGlassFillBrush"] = AdaptiveThemePaletteFactory.Gradient(palette.SurfaceTop, palette.SurfaceBottom);
             Resources["GscGlassStrokeBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlStroke);
             Resources["GscBackdropBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Backdrop);
+            WpfUiThemeScope.Apply(Resources, palette.IsDark);
 
             SettingsAmbientLayer.Opacity = SystemParameters.HighContrast || !glassEnabled
                 ? 0
