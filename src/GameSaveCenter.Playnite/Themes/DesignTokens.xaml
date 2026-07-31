@@ -84,7 +84,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Border Margin="-2" CornerRadius="11" BorderThickness="2"
+                    <Border CornerRadius="11" BorderThickness="2"
                             BorderBrush="{StaticResource GscAccentBrush}" Opacity="0.72"/>
                 </ControlTemplate>
             </Setter.Value>

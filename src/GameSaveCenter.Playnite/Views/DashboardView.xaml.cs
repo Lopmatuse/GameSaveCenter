@@ -156,6 +156,7 @@ namespace GameSaveCenter.Playnite.Views
             TopChromeSafetyColumn.Width = new GridLength(width < 980 ? 76 : 96);
             ToastHost.Margin = new Thickness(0, height < 760 ? 66 : 78, width < 980 ? 12 : 22, 0);
             SetSidebarLabelsVisible(!iconSidebar);
+            SetToolbarLabelsVisible(mode == LayoutMode.Expanded);
 
             GameBrowserPanel.Visibility = showGameBrowser ? Visibility.Visible : Visibility.Collapsed;
             WorkspaceGutterColumn.Width = new GridLength(showGameBrowser ? 14 : 0);
@@ -177,6 +178,15 @@ namespace GameSaveCenter.Playnite.Views
             {
                 BackupPolicyPanel.Visibility = Visibility.Collapsed;
             }
+        }
+
+        private void SetToolbarLabelsVisible(bool visible)
+        {
+            if (TopRefreshLabel == null || TopBackupAllLabel == null || TopMediaSyncLabel == null) return;
+            var labelVisibility = visible ? Visibility.Visible : Visibility.Collapsed;
+            TopRefreshLabel.Visibility = labelVisibility;
+            TopBackupAllLabel.Visibility = labelVisibility;
+            TopMediaSyncLabel.Visibility = labelVisibility;
         }
 
         private async void OnRefreshTimerTick(object sender, EventArgs e)

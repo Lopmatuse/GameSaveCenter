@@ -3,6 +3,13 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-003 响应式布局与可访问性收口（真机阻塞）
+
+- [x] Dashboard 侧栏导航改为有限高度的共享滚动区；紧凑模式把刷新、全部备份和媒体同步操作收为可访问名称与 Tooltip 完整保留的图标按钮，避免标题、游戏选择器和工具栏争夺宽度。
+- [x] Settings 支持横向访问，窄屏缩小边距、低高度隐藏重复副标题；设置标题能换行，滑块具备 Automation Name。环境光和焦点环改为元素独占 Transform/边框，不再使用负 Margin 修补几何。
+- [x] `validate-source.py` 新增响应式容器、键盘导航、自动化名称与紧凑行为门禁。源码验证、Release build（0 警告/错误）、Core 13、Worker 21、Playnite 16 项测试通过；UI Skill 静态检查为 0 errors、28 warnings（其中 `.tmp` 复制宿主占 17 条）。
+- [ ] UI-003 真机验收被隔离环境阻塞：不能启动未证明数据根独立的 `.tmp` Playnite 副本，也不能影响正在运行的用户 Playnite。需先完成 ENV-001，再按 `WINDOWS_TEST_PLAN.md` 执行主题、DPI、键盘和工作区回归。
+
 ## 2026-08-01 UI-002 共享 WPF 控件与主题令牌复审
 
 - [x] 设置卡片改为基于共享 `GscSurface`，避免每个设置区重建玻璃材质、边框与阴影；主/普通按钮、TextBox、数值输入、ComboBox、CheckBox、Slider、ScrollBar、Tooltip、ProgressBar 和焦点环均有共享主题入口。

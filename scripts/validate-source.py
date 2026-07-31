@@ -917,6 +917,31 @@ def check_shared_wpf_control_guards() -> None:
     if "BasedOn=\"{StaticResource GscSurface}\"" not in settings:
         fail("Settings cards must use the shared GscSurface material")
 
+def check_responsive_ui_layout_guards() -> None:
+    """Keep compact Playnite hosts scrollable without hiding navigation or settings fields."""
+    dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    dashboard_code = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml.cs").read_text(encoding="utf-8")
+    settings = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml").read_text(encoding="utf-8")
+    settings_code = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml.cs").read_text(encoding="utf-8")
+    for token in ("VerticalScrollBarVisibility=\"Auto\"", "KeyboardNavigation.TabNavigation=\"Local\"",
+                  "<Ellipse.RenderTransform><TranslateTransform X=\"-95\" Y=\"-130\"/>",
+                  "<Ellipse.RenderTransform><TranslateTransform X=\"105\" Y=\"0\"/>",
+                  "AutomationProperties.Name=\"刷新全部状态\"", "x:Name=\"TopRefreshLabel\""):
+        if token not in dashboard:
+            fail(f"Dashboard responsive layout guard missing: {token}")
+    for token in ("x:Name=\"SettingsScroller\"", "HorizontalScrollBarVisibility=\"Auto\"",
+                  "x:Name=\"SettingsHeaderSubtitle\"", "AutomationProperties.Name=\"毛玻璃强度\"",
+                  "<Ellipse.RenderTransform><TranslateTransform X=\"-95\" Y=\"-120\"/>"):
+        if token not in settings:
+            fail(f"Settings responsive layout guard missing: {token}")
+    for token in ("SizeChanged += OnSizeChanged", "ApplyResponsiveLayout(ActualWidth, ActualHeight)",
+                  "SettingsHeaderSubtitle.Visibility", "width < 720"):
+        if token not in settings_code:
+            fail(f"Settings responsive behavior guard missing: {token}")
+    for token in ("SetToolbarLabelsVisible(mode == LayoutMode.Expanded)", "TopRefreshLabel.Visibility"):
+        if token not in dashboard_code:
+            fail(f"Dashboard responsive behavior guard missing: {token}")
+
 def main() -> int:
     check_structured_files()
     check_csharp_delimiters()
@@ -944,6 +969,7 @@ def main() -> int:
     check_0620_wpf_thread_guards()
     check_0621_cloud_retry_and_numeric_ui_guards()
     check_shared_wpf_control_guards()
+    check_responsive_ui_layout_guards()
     check_wpf_ui_probe_guards()
     if ERRORS:
         print("Source validation failed:")

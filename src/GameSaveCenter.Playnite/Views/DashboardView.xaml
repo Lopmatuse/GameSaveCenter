@@ -32,16 +32,7 @@
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
-        <Style x:Key="GscFocusVisual" TargetType="Control">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate>
-                        <Border Margin="-2" CornerRadius="11" BorderThickness="2"
-                                BorderBrush="{StaticResource GscAccentBrush}" Opacity="0.72"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <Style x:Key="GscFocusVisual" TargetType="Control" BasedOn="{StaticResource GscSharedFocusVisual}"/>
 
         <Style x:Key="GscSurface" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource GscGlassFillBrush}"/>
@@ -624,13 +615,16 @@
 
     <Grid x:Name="RootShell" Background="{DynamicResource GscBackdropBrush}" ClipToBounds="True">
         <Grid x:Name="AmbientGlowLayer" IsHitTestVisible="False" Opacity="0.9">
-            <Ellipse Width="360" Height="360" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="-95,-130,0,0" Fill="{DynamicResource GscAmbientAccentBrush}">
+            <Ellipse Width="360" Height="360" HorizontalAlignment="Left" VerticalAlignment="Top" Fill="{DynamicResource GscAmbientAccentBrush}">
+                <Ellipse.RenderTransform><TranslateTransform X="-95" Y="-130"/></Ellipse.RenderTransform>
                 <Ellipse.Effect><BlurEffect Radius="82"/></Ellipse.Effect>
             </Ellipse>
-            <Ellipse Width="320" Height="320" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,35,-105,0" Fill="{DynamicResource GscAmbientInfoBrush}">
+            <Ellipse Width="320" Height="320" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,35,0,0" Fill="{DynamicResource GscAmbientInfoBrush}">
+                <Ellipse.RenderTransform><TranslateTransform X="105" Y="0"/></Ellipse.RenderTransform>
                 <Ellipse.Effect><BlurEffect Radius="90"/></Ellipse.Effect>
             </Ellipse>
-            <Ellipse Width="300" Height="300" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,20,-165" Fill="{DynamicResource GscAmbientSuccessBrush}">
+            <Ellipse Width="300" Height="300" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,20,0" Fill="{DynamicResource GscAmbientSuccessBrush}">
+                <Ellipse.RenderTransform><TranslateTransform X="0" Y="165"/></Ellipse.RenderTransform>
                 <Ellipse.Effect><BlurEffect Radius="96"/></Ellipse.Effect>
             </Ellipse>
         </Grid>
@@ -668,7 +662,11 @@
                         </StackPanel>
                     </StackPanel>
                     <Border Grid.Row="1" Height="1" Background="{DynamicResource GscDividerBrush}" Margin="0,0,0,15"/>
-                    <StackPanel Grid.Row="2">
+                    <ScrollViewer Grid.Row="2"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  KeyboardNavigation.TabNavigation="Local">
+                    <StackPanel>
                         <RadioButton x:Name="NavOverview" GroupName="WorkspaceNavigation" Style="{StaticResource GscNavItem}" IsChecked="True" Tag="Overview" Checked="OnNavigationChecked" ToolTip="首页">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><TextBlock VerticalAlignment="Center" FontFamily="Segoe MDL2 Assets" Text="&#xE80F;" Width="27" FontSize="16"/><TextBlock x:Name="NavOverviewLabel" Text="首页" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
                         </RadioButton>
@@ -688,6 +686,7 @@
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center"><TextBlock VerticalAlignment="Center" FontFamily="Segoe MDL2 Assets" Text="&#xE9D9;" Width="27" FontSize="16"/><TextBlock x:Name="NavMaintenanceLabel" Text="维护中心" VerticalAlignment="Center"/></StackPanel>
                         </RadioButton>
                     </StackPanel>
+                    </ScrollViewer>
                     <StackPanel x:Name="SidebarStatusPanel" Grid.Row="3" Margin="4,12,4,2" ToolTip="Worker 与 Ludusavi 运行状态">
                         <Border Height="1" Background="{DynamicResource GscDividerBrush}" Margin="0,0,0,13"/>
                         <StackPanel Orientation="Horizontal">
@@ -730,14 +729,14 @@
             <WrapPanel x:Name="TopActionsPanel" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="14,0,0,0">
                 <!-- Background refresh never inserts an element into this WrapPanel. Keeping the toolbar's
                      measured width stable prevents timer-driven page movement when actions would wrap. -->
-                <Button x:Name="TopRefreshButton" Style="{StaticResource GscToolbarButton}" Command="{Binding RefreshCommand}" Margin="0,0,8,0">
-                    <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72C;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock Grid.Column="1" Text="刷新" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
+                <Button x:Name="TopRefreshButton" Style="{StaticResource GscToolbarButton}" AutomationProperties.Name="刷新全部状态" ToolTip="刷新全部状态" Command="{Binding RefreshCommand}" Margin="0,0,8,0">
+                    <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72C;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock x:Name="TopRefreshLabel" Grid.Column="1" Text="刷新" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
                 </Button>
-                <Button x:Name="TopBackupAllButton" Style="{StaticResource GscToolbarButton}" Command="{Binding BackupAllCommand}" Margin="0,0,8,0">
-                    <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock Grid.Column="1" Text="全部备份" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
+                <Button x:Name="TopBackupAllButton" Style="{StaticResource GscToolbarButton}" AutomationProperties.Name="备份全部游戏" ToolTip="备份全部游戏" Command="{Binding BackupAllCommand}" Margin="0,0,8,0">
+                    <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock x:Name="TopBackupAllLabel" Grid.Column="1" Text="全部备份" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
                 </Button>
-                <Button x:Name="TopMediaSyncButton" Style="{StaticResource GscToolbarButton}" Command="{Binding SyncMediaCommand}" Margin="0,0,8,0">
-                    <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock Grid.Column="1" Text="同步媒体" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
+                <Button x:Name="TopMediaSyncButton" Style="{StaticResource GscToolbarButton}" AutomationProperties.Name="同步媒体" ToolTip="同步媒体" Command="{Binding SyncMediaCommand}" Margin="0,0,8,0">
+                    <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock x:Name="TopMediaSyncLabel" Grid.Column="1" Text="同步媒体" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
                 </Button>
                 <Button x:Name="TopTrainerImportButton" Style="{StaticResource GscToolbarButton}" Command="{Binding ImportTrainerCommand}" Visibility="Collapsed" Content="导入修改器"/>
                 <Button x:Name="TopTrainerCatalogButton" Style="{StaticResource GscToolbarButton}" Margin="8,0,0,0" Command="{Binding SyncTrainerCatalogCommand}" Visibility="Collapsed" Content="刷新目录"/>

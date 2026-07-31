@@ -19,6 +19,7 @@ namespace GameSaveCenter.Playnite.Settings
             InitializeComponent();
             Loaded += OnLoaded;
             IsVisibleChanged += OnIsVisibleChanged;
+            SizeChanged += OnSizeChanged;
         }
 
         private GameSaveCenterSettings? CurrentSettings => DataContext as GameSaveCenterSettings;
@@ -28,6 +29,7 @@ namespace GameSaveCenter.Playnite.Settings
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             ApplyAdaptiveTheme();
+            ApplyResponsiveLayout(ActualWidth, ActualHeight);
             if (entrancePlayed)
             {
                 SettingsShell.Opacity = 1;
@@ -40,8 +42,13 @@ namespace GameSaveCenter.Playnite.Settings
 
         private void OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            if (IsVisible) ApplyAdaptiveTheme();
+            if (!IsVisible) return;
+            ApplyAdaptiveTheme();
+            ApplyResponsiveLayout(ActualWidth, ActualHeight);
         }
+
+        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+            => ApplyResponsiveLayout(e.NewSize.Width, e.NewSize.Height);
 
         private void OnThemeModeChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -95,6 +102,7 @@ namespace GameSaveCenter.Playnite.Settings
                 DataContext = null;
                 DataContext = settings;
                 ApplyAdaptiveTheme();
+                ApplyResponsiveLayout(ActualWidth, ActualHeight);
                 MessageBox.Show(report.Summary, "GameSaveCenter 设置迁移报告",
                     MessageBoxButton.OK, report.MissingPaths.Count == 0 ? MessageBoxImage.Information : MessageBoxImage.Warning);
             }
@@ -147,6 +155,19 @@ namespace GameSaveCenter.Playnite.Settings
             SettingsAmbientLayer.Opacity = SystemParameters.HighContrast || !glassEnabled
                 ? 0
                 : (palette.IsDark ? 0.42 : 0.3) * Math.Max(0.2, Math.Min(1, strength / 100.0));
+        }
+
+        private void ApplyResponsiveLayout(double width, double height)
+        {
+            if (SettingsShell == null || SettingsHeaderSubtitle == null) return;
+
+            var compact = width < 720;
+            SettingsShell.Margin = compact
+                ? new Thickness(16, 16, 20, 24)
+                : new Thickness(28, 22, 32, 30);
+            SettingsShell.HorizontalAlignment = compact ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
+            SettingsShell.MaxWidth = compact ? double.PositiveInfinity : 980;
+            SettingsHeaderSubtitle.Visibility = height < 680 ? Visibility.Collapsed : Visibility.Visible;
         }
     }
 }

@@ -3,6 +3,13 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 UI-003 自适应布局与验证边界
+
+- Dashboard 侧栏导航必须位于有限高度的 `ScrollViewer` 内；紧凑模式只隐藏工具栏可见文案，不能隐藏其 Automation Name、Tooltip、命令或键盘激活能力。
+- Settings 整页可纵向滚动；窄宽度必须提供横向访问而不是裁切固定列。响应式代码只可从 `SizeChanged`/Loaded 等 UI 事件更新依赖对象。
+- 装饰性环境光使用元素自己的 `RenderTransform`，焦点环使用控件边界内的可见 Border；不得以负 Margin 修补布局。Blur 仍只限少量固定环境光，不能进入列表/表格行。
+- UI-003 已有源码/构建/测试证据，但真实 Playnite 的 DPI、主题、键盘、窗口缩放和绑定异常证据尚缺。`.tmp` 复制安装不能证明数据隔离，必须先满足 ENV-001。
+
 ### 2026-08-01 UI-002 共享控件边界
 
 - 通用阅读表面必须基于 `GscSurface`，设置页不得重新复制玻璃、描边和阴影；页面只保留布局性 Padding/Margin。
