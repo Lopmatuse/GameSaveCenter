@@ -855,7 +855,7 @@ def check_0621_cloud_retry_and_numeric_ui_guards() -> None:
         marker = f'Path=\"{field}\" UpdateSourceTrigger=\"LostFocus\"'
         if marker not in text:
             fail(f"Numeric input must commit complete values on LostFocus: {file_name} {field}")
-    for token in ("GscNumericTextBox", "Validation.ErrorTemplate"):
+    for token in ("GscNumericTextBox", "Validation.ErrorTemplate", "Validation.HasError"):
         if token not in tokens:
             fail(f"Shared numeric UI guard missing: {token}")
     for text, file_name in ((dashboard, "DashboardView.xaml"), (settings, "GameSaveCenterSettingsView.xaml")):

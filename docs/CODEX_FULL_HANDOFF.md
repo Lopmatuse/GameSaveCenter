@@ -28,6 +28,7 @@ Git 作者：`Sable Drift`
 - 退避顺序为 1、5、15、60、240、720 分钟，最多六次自动尝试；成功清队列，耗尽后审计并停止。Rclone 或备份目录未就绪时必须暂停，禁止任务风暴。
 - `CloudRetryPersistenceTests` 覆盖退避策略、六次上限、旧 SQLite 数据库保留既有表并添加队列表/索引、跨 Store 重启读写、成功清队列和延后扫描；真实 Rclone 后端仍只能用隔离目标回归。
 - `GscNumericTextBox` 与 `IntegerRangeValidationRule` 用于所有整数设置；完整输入后失焦提交。不要恢复 58 DIP 策略框或逐字符整数绑定。
+- `GscTextBox` 的 `Validation.HasError` 必须直接为 Chrome 设置错误色边框和错误填充；Playnite 中仅有 ErrorTemplate Adorner 不足以构成可见提示。
 
 ## 1. 用户的最终目标
 

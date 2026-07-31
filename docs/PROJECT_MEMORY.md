@@ -15,6 +15,7 @@
 - 自动化回归必须覆盖策略上限、旧 SQLite 数据库的表/索引迁移、跨重启恢复、成功清队列和配置缺失时的延后扫描。
 - Rclone 未配置或本地备份目录不可用时 Worker 不应创建反复失败任务；意外的配置竞态至少延后五分钟再检查。
 - 绑定到整数的 WPF 数值输入必须使用完整值提交（`LostFocus`）和 `IntegerRangeValidationRule`，不能恢复成 `UpdateSourceTrigger=PropertyChanged`；策略分钟框最小宽度为 84 DIP 以上。
+- `GscTextBox` 模板必须对 `Validation.HasError` 提供直接可见的错误色边框与填充；不能只依赖在部分 Playnite 画面中不明显的 Validation Adorner。
 
 ### 0.6.20 Dashboard UI 线程边界
 
