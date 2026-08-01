@@ -239,6 +239,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Name=\"MediaMetadataPanel\"", dashboard);
         Assert.Contains("EnableRowVirtualization=\"True\"", dashboard);
         Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", dashboard);
+        Assert.Contains("Text=\"{Binding MediaSummary.TotalSizeDisplay, Mode=OneWay}\"", dashboard);
+        Assert.DoesNotContain("MediaSummary.TotalSizeDisplay, Mode=TwoWay", dashboard);
         Assert.Contains("var stackMediaInspector = width < 1180", dashboardCode);
         Assert.Contains("Grid.SetRow(MediaMetadataPanel, stackMediaInspector ? 1 : 0)", dashboardCode);
     }
