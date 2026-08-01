@@ -3,6 +3,13 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-039 有限宽度下拉项的长文本访问
+
+- [x] 游戏选择、修改器入口选择、版本选择及媒体归类的有限宽度 ComboBox 统一使用 `GscComboBoxLongText`，保持省略、完整 Tooltip 与主题文字资源；不通过扩大浮层或工具栏来避免裁切。
+- [x] 新增回归测试，锁定六个受限宽度选择器都使用共享模板，并避免回退到无 Tooltip 的 `DisplayMemberPath`。
+- [x] 自动验证：源码门禁、UI Skill 静态审查（0 errors）、Release 下 Core 13 + Worker 21 + Playnite UI 48 = 82 项测试、`git diff --check` 与 `git fsck --full` 通过。
+- [ ] 实际 Popup 的长文本、键盘展开和 DPI 回归仍由 `ENV-001` 阻塞。
+
 ## 2026-08-01 UI-038 高密度表格长文本可访问性
 
 - [x] Dashboard 的近期任务、任务队列、进程映射、设备状态与日志标题改用共享 `GscLongTextCell`：在任意主题下左对齐、省略超长内容，并提供完整文本 Tooltip；不改变列宽、命令、绑定、选择或数据读取时机。

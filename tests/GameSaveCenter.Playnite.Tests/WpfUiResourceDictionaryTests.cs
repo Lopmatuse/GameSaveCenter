@@ -487,6 +487,35 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void FiniteWidthComboBoxesUseTheSharedLongTextTemplate()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+
+        Assert.Contains("x:Key=\"GscComboBoxLongText\"", dashboard);
+        Assert.Contains("<Setter Property=\"TextTrimming\" Value=\"CharacterEllipsis\"/>", dashboard);
+        Assert.Contains("<Setter Property=\"ToolTip\" Value=\"{Binding Text, RelativeSource={RelativeSource Self}}\"/>", dashboard);
+
+        foreach (var template in new[]
+        {
+            "x:Name=\"CompactGameSelector\"",
+            "ItemsSource=\"{Binding ImportEntryCandidates}\"",
+            "ItemsSource=\"{Binding SelectedGameTool.Versions}\"",
+            "SelectedItem=\"{Binding InboxTargetGame}\"",
+            "SelectedItem=\"{Binding MediaTargetGame}\"",
+            "SelectedItem=\"{Binding ProcessMappingTargetGame}\""
+        })
+        {
+            var offset = dashboard.IndexOf(template, StringComparison.Ordinal);
+            Assert.True(offset >= 0, "缺少受限宽度下拉选择：" + template);
+            Assert.Contains("GscComboBoxLongText", dashboard.Substring(offset, Math.Min(540, dashboard.Length - offset)));
+        }
+
+        Assert.DoesNotContain("DisplayMemberPath=\"Display\"", dashboard);
+        Assert.DoesNotContain("DisplayMemberPath=\"VersionName\"", dashboard);
+    }
+
+    [Fact]
     public void EveryDashboardViewModelCommandRemainsReachableFromTheRedesignedDashboard()
     {
         var repositoryRoot = FindRepositoryRoot();

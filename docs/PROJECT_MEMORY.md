@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 有限宽度下拉项的长文本访问
+
+- `GscComboBoxLongText` 是 Dashboard 的受限宽度游戏、修改器和版本选择器的唯一长文本模板：仅用省略与自引用 Tooltip 提供完整内容，不增大 Popup、不更改选择绑定，也不为下拉项加入动画或效果。
+- 禁止回退到没有完整内容入口的 `DisplayMemberPath`；真实 Popup 键盘/DPI 回归仍需要隔离 Playnite。
+
 ### 2026-08-01 高密度表格长文本的统一可达性
 
 - `GscLongTextCell` 只用于 Dashboard 高密度表格中可能被窄列裁切的名字、设备、原因和日志文本；它复用 `GscLeftCellText` 的省略/左对齐，通过绑定自身最终 `Text` 提供完整 Tooltip，不重新读取数据或建立每行动画。
@@ -10,7 +15,7 @@
 
 ### 2026-08-01 当前可复查自动化基线
 
-- 当前基线是 Core 13、Worker 21、Playnite UI 47，共 81 项 Release 测试；并同时通过源码门禁、UI Skill 静态审查（0 errors）、`git diff --check`、`git fsck --full`、PEXT 打包和 Worker `0.6.22.0` smoke。历史提交中记录的较低测试数是当时的快照，不得作为当前完成度。
+- 当前基线是 Core 13、Worker 21、Playnite UI 48，共 82 项 Release 测试；并同时通过源码门禁、UI Skill 静态审查（0 errors）、`git diff --check`、`git fsck --full`、PEXT 打包和 Worker `0.6.22.0` smoke。历史提交中记录的较低测试数是当时的快照，不得作为当前完成度。
 - 这不是实际 Playnite 验收的替代物：`ENV-001` 未证明独立数据根/扩展目录/PID 前，不得启动 `.tmp` 副本或用户实例，也不能宣称多主题、DPI、键盘或滚动真机完成。
 
 ### 2026-08-01 紧凑工具栏必须保留动作可达性
