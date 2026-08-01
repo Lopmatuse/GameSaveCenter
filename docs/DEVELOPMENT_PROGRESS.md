@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-011 恢复源码与 UI 静态门禁
+
+- [x] 已定位系统 `python` 只是 Microsoft Store 占位程序（9009），改用 Codex 随附的固定 Python 运行时后，`scripts/validate-source.py` 通过：JSON/XML/YAML、XAML 资源语义、IPC、版本、SQLite、大库性能与 Windows 启动器门禁均无错误。
+- [x] `wpf-apple-desktop-ui` 静态审查通过，扫描 166 个 XAML：0 errors、27 warnings、111 info。17 项负 Margin/焦点警告及绝大多数颜色信息来自未提交 `.tmp` 中的隔离 Playnite 副本；项目自身保留 9 项“大型可滚动控件邻近 StackPanel”的人工复核提示，未误报为自动通过或自动修复。
+- [x] 后续每个 UI 提交均可使用该固定解释器执行两道静态门禁；真实 Playnite 主题/DPI 验收仍须满足 ENV-001 的隔离单实例边界。
+
 ## 2026-08-01 UI-010 设置页存档策略自适应表单
 
 - [x] 设置页“存档格式与历史版本”从固定五列改为清晰的字段组栅格：常规宽度两列、紧凑宽度一列，避免压缩压缩方式、版本数与等级输入框。
