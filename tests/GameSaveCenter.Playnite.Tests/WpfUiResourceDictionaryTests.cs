@@ -122,6 +122,21 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("&& !SystemParameters.HighContrast", settingsCode);
     }
 
+    [Fact]
+    public void SaveWorkspaceKeepsAllPrimaryCommandsReachableAtHighDpi()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+
+        Assert.Contains("x:Name=\"GameHeaderActions\"", dashboard);
+        Assert.Contains("<WrapPanel x:Name=\"GameHeaderActions\"", dashboard);
+        Assert.Contains("Command=\"{Binding BackupSelectedCommand}\"", dashboard);
+        Assert.Contains("Command=\"{Binding ValidateCommand}\"", dashboard);
+        Assert.Contains("Command=\"{Binding DetectPathsCommand}\"", dashboard);
+        Assert.Contains("Click=\"OnTogglePolicy\"", dashboard);
+        Assert.Contains("Header=\"时间\" Binding=\"{Binding CreatedLocal", dashboard);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]
