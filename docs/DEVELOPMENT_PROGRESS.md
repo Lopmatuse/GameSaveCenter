@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-025 Dashboard Toast 生命周期与性能收口
+
+- [x] Dashboard 现在集中追踪每个浮层通知的 Dispatcher 计时器；超过四条通知时淘汰的旧卡片会立即停止计时器，页面卸载时会停止全部计时器、取消动画并释放容器，避免短暂页面引用和关闭后的 UI 投递。
+- [x] Toast 继续基于真实任务反馈显示，不改变错误详情入口、鼠标悬停暂停、自动关闭时长或 `Opacity` / `TranslateTransform` 动画范围。
+- [x] 自动验证：`validate-source.py` 与 UI Skill 静态审查（0 errors）通过；Release 下 Core 13 + Worker 21 + Playnite UI 37 = 71 项测试通过，`git diff --check`、`git fsck --full`、PEXT 打包及 Worker `0.6.22.0` smoke 通过。真实 Playnite 生命周期回归仍由 `ENV-001` 阻塞。
+
 ## 2026-08-01 UI-024 数值输入焦点关闭态保护
 
 - [x] 共享数值输入的键盘全选行为现先检查 Dispatcher 关闭态，并捕获检查与投递之间的关闭竞态；Playnite 卸载嵌入页面时不会再因非业务性的全选便利功能抛出未处理 UI 异常。

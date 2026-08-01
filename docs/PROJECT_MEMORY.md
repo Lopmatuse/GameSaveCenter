@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 Dashboard Toast 的计时器所有权
+
+- Dashboard 的 Toast 自动关闭计时器必须由页面集中持有并在容量淘汰、显式关闭、动画结束及 `Unloaded` 时停止和移除。不能只清空视觉容器：悬停/自动关闭回调仍会保留卡片和页面，导致关闭后继续向 Dispatcher 投递。
+- 收口只影响视觉资源生命周期；通知仍由真实任务结果触发，错误详情与用户关闭入口不能被删除。真实连续通知/关闭页面回归仍需 `ENV-001`。
+
 ### 2026-08-01 数值输入的 Dispatcher 关闭边界
 
 - `SelectAllOnKeyboardFocus` 的延迟全选只是一项输入便利功能：必须先检查 Dispatcher 的启动/完成关闭态，并捕获守卫后仍可能发生的 `InvalidOperationException`。页面卸载时不可让该投递成为 Playnite Dispatcher 的未处理异常；不能以此改变数值绑定、范围校验或失焦提交。

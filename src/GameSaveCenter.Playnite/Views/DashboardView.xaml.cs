@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,6 +20,7 @@ namespace GameSaveCenter.Playnite.Views
         private static readonly ILogger Logger = LogManager.GetLogger();
         private readonly GameSaveCenterPlugin plugin;
         private readonly DispatcherTimer refreshTimer;
+        private readonly Dictionary<Border, DispatcherTimer> toastTimers = new Dictionary<Border, DispatcherTimer>();
         private readonly UiFrameworkProbeLoader uiFrameworkProbeLoader;
         private DashboardViewModel viewModel;
         private bool hasPlayedEntrance;
@@ -102,7 +104,7 @@ namespace GameSaveCenter.Playnite.Views
             activeConfirmation = null;
             confirmationOpen = false;
             DialogOverlay.Visibility = Visibility.Collapsed;
-            ToastHost.Children.Clear();
+            ClearToasts();
         }
 
         private void OnAttentionCenterRequested(object? sender, EventArgs e)
@@ -852,15 +854,18 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetColumn(close, 2);
             layout.Children.Add(close);
             card.Child = layout;
-            ToastHost.Children.Insert(0, card);
-            while (ToastHost.Children.Count > 4) ToastHost.Children.RemoveAt(ToastHost.Children.Count - 1);
-
             var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(kind == UiNotificationKind.Error ? 7 : 3.8) };
+            toastTimers[card] = timer;
             Action dismiss = () => DismissToast(card, timer);
             timer.Tick += (_, __) => dismiss();
             close.Click += (_, __) => dismiss();
             card.MouseEnter += (_, __) => timer.Stop();
             card.MouseLeave += (_, __) => timer.Start();
+            ToastHost.Children.Insert(0, card);
+            while (ToastHost.Children.Count > 4 && ToastHost.Children[ToastHost.Children.Count - 1] is Border expired)
+            {
+                RemoveToast(expired);
+            }
             timer.Start();
 
             if (MotionEnabled)
@@ -874,21 +879,52 @@ namespace GameSaveCenter.Playnite.Views
 
         private void DismissToast(Border card, DispatcherTimer timer)
         {
-            timer.Stop();
+            StopToastTimer(card, timer);
             if (!ToastHost.Children.Contains(card)) return;
             if (!MotionEnabled)
             {
-                ToastHost.Children.Remove(card);
+                RemoveToast(card);
                 return;
             }
 
             var duration = TimeSpan.FromMilliseconds(180);
             var fade = new DoubleAnimation(card.Opacity, 0, duration);
-            fade.Completed += (_, __) => ToastHost.Children.Remove(card);
+            fade.Completed += (_, __) => RemoveToast(card);
             card.BeginAnimation(OpacityProperty, fade);
             var translate = card.RenderTransform as TranslateTransform ?? new TranslateTransform();
             card.RenderTransform = translate;
             translate.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(0, 16, duration));
+        }
+
+        private void ClearToasts()
+        {
+            foreach (var timer in toastTimers.Values) timer.Stop();
+            toastTimers.Clear();
+            ToastHost.Children.Clear();
+        }
+
+        private void StopToastTimer(Border card, DispatcherTimer? expectedTimer = null)
+        {
+            if (!toastTimers.TryGetValue(card, out var timer))
+            {
+                expectedTimer?.Stop();
+                return;
+            }
+
+            if (expectedTimer != null && !ReferenceEquals(timer, expectedTimer)) return;
+            timer.Stop();
+            toastTimers.Remove(card);
+        }
+
+        private void RemoveToast(Border card)
+        {
+            StopToastTimer(card);
+            card.BeginAnimation(OpacityProperty, null);
+            if (card.RenderTransform is TranslateTransform translate)
+            {
+                translate.BeginAnimation(TranslateTransform.XProperty, null);
+            }
+            ToastHost.Children.Remove(card);
         }
 
         private void ApplyAdaptiveTheme()

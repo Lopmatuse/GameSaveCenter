@@ -518,6 +518,21 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("AutomationIntervalFields.Columns = compact ? 1 : width < 950 ? 2 : 3", settingsCode);
     }
 
+    [Fact]
+    public void DashboardToastTimersAreReleasedOnUnloadAndCapacityEviction()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("private readonly Dictionary<Border, DispatcherTimer> toastTimers", dashboardCode);
+        Assert.Contains("ClearToasts();", dashboardCode);
+        Assert.Contains("while (ToastHost.Children.Count > 4", dashboardCode);
+        Assert.Contains("RemoveToast(expired);", dashboardCode);
+        Assert.Contains("foreach (var timer in toastTimers.Values) timer.Stop();", dashboardCode);
+        Assert.Contains("toastTimers.Clear();", dashboardCode);
+        Assert.Contains("StopToastTimer(card, timer);", dashboardCode);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]
