@@ -921,10 +921,13 @@ def check_shared_wpf_control_guards() -> None:
                   "GscWpfUiToolbarPrimaryButton", "GscWpfUiContextButton", "GscWpfUiToggleSwitch",
                   "GscWpfUiTextBox", "GscWpfUiComboBox",
                   "BasedOn=\"{StaticResource {x:Type ui:Card}}\"",
+                  "<Setter Property=\"Border.CornerRadius\" Value=\"18\"/>",
                   "<Trigger Property=\"IsEnabled\" Value=\"False\">",
                   "<Setter Property=\"Visibility\" Value=\"Collapsed\"/>"):
         if token not in production:
             fail(f"Shared WPF-UI production adapter guard missing: {token}")
+    if '<Setter Property="CornerRadius"' in production:
+        fail("WPF-UI Card must use Border.CornerRadius; Card has no CornerRadius dependency property")
     if production.count('<Setter Property="Margin" Value="0,0,8,8"/>') < 3:
         fail("WPF-UI action/context adapters must preserve the established WrapPanel spacing")
     for token in ("Themes/WpfUiProduction.xaml",

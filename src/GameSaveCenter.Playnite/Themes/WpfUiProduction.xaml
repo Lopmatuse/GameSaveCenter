@@ -8,7 +8,8 @@
            TargetType="{x:Type ui:Card}"
            BasedOn="{StaticResource {x:Type ui:Card}}">
         <Setter Property="Padding" Value="16"/>
-        <Setter Property="CornerRadius" Value="18"/>
+        <!-- WPF-UI 4.3.0 Card exposes rounded corners through the Border.CornerRadius attached property. -->
+        <Setter Property="Border.CornerRadius" Value="18"/>
         <Setter Property="Background" Value="{DynamicResource GscGlassFillBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>

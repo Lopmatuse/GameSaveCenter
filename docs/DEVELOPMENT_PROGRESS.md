@@ -5,6 +5,7 @@
 
 ## 2026-08-01 UI-004 生产 WPF-UI 控件迁移（源码完成，环境阻塞）
 
+- [x] Windows 首次 Release 验证发现 `Wpf.Ui.Controls.Card` 不公开 `CornerRadius` 属性；已按 WPF-UI 4.3.0 模板改用 `Border.CornerRadius` 附加属性，并在 `validate-source.py` 增加回归门禁，防止再次生成 MC4005。
 - [x] 新增 `Themes/WpfUiProduction.xaml`，以视图局部适配样式统一 WPF-UI Card、Button、ToggleSwitch、TextBox 与 ComboBox；资源仍仅由 Dashboard/Settings 的 `UserControl.Resources` 合并，`WpfUiThemeScope` 不触碰 Playnite 全局资源。
 - [x] Dashboard 已迁移 6 个指标卡、59 个生产动作按钮、14 个策略/工具/媒体开关、10 个普通文本输入和 13 个下拉选择；Settings 已迁移 5 个设置卡、2 个动作按钮、14 个开关、6 个路径输入和 3 个下拉选择。数值校验编辑器、DataGrid/ListBox、搜索清除按钮和安全兜底浮层继续使用原生 WPF。
 - [x] 生产通知与确认改为 WPF-UI Snackbar/ContentDialog 优先，异常时回退到插件内 Toast/Dialog 或 MessageBox；错误通知仍保留“查看详情”恢复入口。设置导入/导出文件读写使用 `Task.Run`，没有新增 `async void` UI 事件。
