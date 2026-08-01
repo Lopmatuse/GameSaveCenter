@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 可选 WPF-UI 探针的列表测量边界
+
+- `UiFrameworkProbeView` 的 `ProbeChecklist` 必须在高度为 132 DIP 的 `Grid` 行内，不能重新放回 `StackPanel`。探针仍是惰性 opt-in：其资源或创建失败不能阻止 Dashboard 打开。
+- 这项布局规则只处理探针，不授权将生产 DataGrid/ListBox 移到无限高度容器、取消虚拟化或改动宿主对话边界。
+
 ### 2026-08-01 Settings 主题更新必须合并
 
 - `QueueAdaptiveThemeUpdate` 是设置页所有滑块/主题/玻璃开关事件的唯一延迟主题入口；它只保留最新设置状态，避免每个 `ValueChanged` 都重建局部调色板和 WPF-UI 资源。Loaded、可见与导入后的显式刷新仍可直接调用 `ApplyAdaptiveTheme`。
@@ -20,7 +25,7 @@
 
 ### 2026-08-01 当前可复查自动化基线
 
-- 当前基线是 Core 13、Worker 21、Playnite UI 48，共 82 项 Release 测试；并同时通过源码门禁、UI Skill 静态审查（0 errors）、`git diff --check`、`git fsck --full`、PEXT 打包和 Worker `0.6.22.0` smoke。历史提交中记录的较低测试数是当时的快照，不得作为当前完成度。
+- 当前基线是 Core 13、Worker 21、Playnite UI 49，共 83 项 Release 测试；并同时通过源码门禁、UI Skill 静态审查（0 errors）、`git diff --check`、`git fsck --full`、PEXT 打包和 Worker `0.6.22.0` smoke。历史提交中记录的较低测试数是当时的快照，不得作为当前完成度。
 - 这不是实际 Playnite 验收的替代物：`ENV-001` 未证明独立数据根/扩展目录/PID 前，不得启动 `.tmp` 副本或用户实例，也不能宣称多主题、DPI、键盘或滚动真机完成。
 
 ### 2026-08-01 紧凑工具栏必须保留动作可达性

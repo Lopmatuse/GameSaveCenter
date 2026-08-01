@@ -54,24 +54,31 @@
                                 <ComboBoxItem Content="需要处理"/>
                             </ComboBox>
                         </StackPanel>
-                        <StackPanel Grid.Column="2">
+                        <Grid Grid.Column="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="132"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
                             <TextBlock Text="列表、进度与反馈" FontSize="16" FontWeight="SemiBold"/>
-                            <ListBox Margin="0,12,0,0" Height="132" SelectedIndex="0">
+                            <ListBox x:Name="ProbeChecklist" Grid.Row="1" Margin="0,12,0,0" SelectedIndex="0">
                                 <ListBoxItem Content="焦点与方向键"/>
                                 <ListBoxItem Content="局部资源隔离"/>
                                 <ListBoxItem Content="缩放与滚动检查"/>
                             </ListBox>
-                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,14,0,0">
                                 <ui:ProgressRing Width="28" Height="28" IsIndeterminate="True" Margin="0,0,10,0"/>
                                 <ProgressBar Width="170" Height="6" Value="62" Maximum="100" VerticalAlignment="Center"/>
                             </StackPanel>
-                            <WrapPanel Margin="0,18,0,0">
+                            <WrapPanel Grid.Row="3" Margin="0,18,0,0">
                                 <ui:Button Appearance="Secondary" Content="Dialog 兼容性说明" Click="OnShowDialogClick" Margin="0,0,8,8"/>
                                 <ui:Button Appearance="Secondary" Content="显示 Snackbar" Click="OnShowSnackbarClick" Margin="0,0,8,8"/>
                             </WrapPanel>
-                            <TextBlock Text="DataGrid 继续由 GameSaveCenter 模板接管；后续阶段会在保留虚拟化和列宽行为的前提下迁移。"
+                            <TextBlock Grid.Row="4" Text="DataGrid 继续由 GameSaveCenter 模板接管；后续阶段会在保留虚拟化和列宽行为的前提下迁移。"
                                        TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
-                        </StackPanel>
+                        </Grid>
                     </Grid>
                 </ui:Card>
                 <TextBlock Grid.Row="2" Margin="0,14,0,0" TextWrapping="Wrap"

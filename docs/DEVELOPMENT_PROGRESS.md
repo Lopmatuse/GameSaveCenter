@@ -3,6 +3,13 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-041 可选探针的有限列表布局
+
+- [x] 兼容性探针的固定高度检查列表从 `StackPanel` 移入明确的 132 DIP `Grid` 行，避免无限测量模式和误导性的静态性能告警；按钮、进度、Snackbar 与错误反馈入口不变。
+- [x] 新增 XAML 结构回归测试，锁定列表名称、固定行、Grid 祖先与非 `StackPanel` 路径。
+- [x] 整体源码验收：源码门禁、UI Skill 静态审查（0 errors）、Release 下 Core 13 + Worker 21 + Playnite UI 49 = 83 项测试、`git diff --check`、`git fsck --full`、PEXT 打包与 Worker `0.6.22.0` smoke 通过。
+- [ ] 该可选诊断页的实际宿主加载仍由 `ENV-001` 阻塞；Dashboard 不会在解析时构造它。
+
 ## 2026-08-01 UI-040 设置页主题更新合并
 
 - [x] 毛玻璃强度滑块、视觉开关和主题切换现在通过单一 `QueueAdaptiveThemeUpdate` 合并 Dispatcher 回调；快速拖动只重算最新一份局部调色板/WPF-UI 资源，避免后台回调积压造成设置页卡顿。

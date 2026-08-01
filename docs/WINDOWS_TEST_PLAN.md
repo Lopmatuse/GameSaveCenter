@@ -1,6 +1,6 @@
 ## 0.6.22 主题令牌与最终 UI 回归
 
-源码/自动化当前基线：Core 13、Worker 21、Playnite 35，共 69 项测试；真实 Playnite 主题、DPI、键盘和大库回归仍须在具备独立数据根及 PID 边界的环境执行。
+源码/自动化当前基线：Core 13、Worker 21、Playnite UI 49，共 83 项 Release 测试；真实 Playnite 主题、DPI、键盘和大库回归仍须在具备独立数据根及 PID 边界的环境执行。
 
 ## UI-002 共享控件与主题回归
 

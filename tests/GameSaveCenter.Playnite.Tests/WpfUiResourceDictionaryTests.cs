@@ -426,6 +426,20 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void OptionalWpfUiProbeKeepsItsChecklistInsideAFixedGridRow()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var probe = XDocument.Parse(File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "Development", "UiFrameworkProbeView.xaml")));
+        var checklist = probe.Descendants().Single(element => element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "ProbeChecklist");
+
+        Assert.Equal("ListBox", checklist.Name.LocalName);
+        Assert.Equal("1", checklist.Attribute("Grid.Row")?.Value);
+        Assert.DoesNotContain(checklist.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
+        Assert.Contains(checklist.Ancestors(), ancestor => ancestor.Name.LocalName == "Grid");
+        Assert.Equal("132", checklist.Parent?.Elements().First(element => element.Name.LocalName == "Grid.RowDefinitions").Elements().ElementAt(1).Attribute("Height")?.Value);
+    }
+
+    [Fact]
     public void MediaSourcesKeepPathEditingAndSafetyCommandsReachableInCompactLayouts()
     {
         var repositoryRoot = FindRepositoryRoot();
