@@ -1721,26 +1721,25 @@
                                     <ui:Button Style="{StaticResource GscWpfUiToolbarButton}" Command="{Binding OpenMediaDirectoryCommand}" Content="打开媒体目录" Margin="0,0,8,8"/>
                                     <ui:Button Style="{StaticResource GscWpfUiToolbarButton}" Command="{Binding OpenWorkerLogCommand}" Content="Worker 日志" Margin="0,0,0,8"/>
                                 </WrapPanel>
-                                <Grid Grid.Row="1" Margin="0,4,0,10">
-                                    <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
-                                    <Border Style="{StaticResource GscSurface}" Padding="14" Margin="0,0,8,0">
+                                <UniformGrid x:Name="DiagnosticHealthPanel" Grid.Row="1" Columns="3" Margin="0,4,0,10">
+                                    <Border Style="{StaticResource GscSurface}" Padding="14" Margin="0,0,8,8">
                                         <StackPanel><TextBlock Text="Worker" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.WorkerVersion}" FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0"/><TextBlock Text="{Binding EffectiveSettings.DataDirectory}" TextTrimming="CharacterEllipsis" ToolTip="{Binding EffectiveSettings.DataDirectory}" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0"/></StackPanel>
                                     </Border>
-                                    <Border Grid.Column="1" Style="{StaticResource GscSurface}" Padding="14" Margin="0,0,8,0">
+                                    <Border Style="{StaticResource GscSurface}" Padding="14" Margin="0,0,8,8">
                                         <StackPanel><TextBlock Text="Ludusavi" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.LudusaviVersion}" FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0"/><TextBlock Text="{Binding EffectiveSettings.LudusaviExecutable}" TextTrimming="CharacterEllipsis" ToolTip="{Binding EffectiveSettings.LudusaviExecutable}" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0"/></StackPanel>
                                     </Border>
-                                    <Border Grid.Column="2" Style="{StaticResource GscSurface}" Padding="14">
+                                    <Border Style="{StaticResource GscSurface}" Padding="14" Margin="0,0,8,8">
                                         <StackPanel><TextBlock Text="版本策略" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock FontSize="16" FontWeight="SemiBold" Margin="0,4,0,0"><Run Text="{Binding EffectiveSettings.BackupFormat, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding EffectiveSettings.Compression, Mode=OneWay}"/></TextBlock><TextBlock Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0"><Run Text="完整 "/><Run Text="{Binding EffectiveSettings.FullBackupLimit, Mode=OneWay}"/><Run Text=" · 差异 "/><Run Text="{Binding EffectiveSettings.DifferentialBackupLimit, Mode=OneWay}"/></TextBlock></StackPanel>
                                     </Border>
-                                </Grid>
+                                </UniformGrid>
                                 <Border Grid.Row="2" Style="{StaticResource GscSurface}" Padding="12" Margin="0,0,0,8">
                                     <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="120"/></Grid.RowDefinitions>
                                         <TextBlock FontWeight="SemiBold" Text="学习未知进程 / MOD 启动器"/>
-                                        <Grid Grid.Row="1" Margin="0,8,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                            <TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding ProcessMappingExecutable, UpdateSourceTrigger=PropertyChanged}" ToolTip="输入 EXE 文件名，例如 skse64.exe；不要填写完整路径"/>
-                                            <ComboBox Grid.Column="2" Style="{StaticResource GscWpfUiComboBox}" ItemsSource="{Binding Games}" SelectedItem="{Binding ProcessMappingTargetGame}" DisplayMemberPath="Name"/>
-                                            <ui:Button Grid.Column="3" Style="{StaticResource GscWpfUiActionButton}" Command="{Binding SaveProcessMappingCommand}" Content="绑定" Margin="8,0,0,0"/>
-                                        </Grid>
+                                        <WrapPanel x:Name="ProcessMappingEditor" Grid.Row="1" Margin="0,8,0,8">
+                                            <TextBox Style="{StaticResource GscWpfUiTextBox}" MinWidth="220" MaxWidth="360" Text="{Binding ProcessMappingExecutable, UpdateSourceTrigger=PropertyChanged}" ToolTip="输入 EXE 文件名，例如 skse64.exe；不要填写完整路径" Margin="0,0,8,8"/>
+                                            <ComboBox Style="{StaticResource GscWpfUiComboBox}" MinWidth="220" MaxWidth="360" ItemsSource="{Binding Games}" SelectedItem="{Binding ProcessMappingTargetGame}" DisplayMemberPath="Name" Margin="0,0,8,8"/>
+                                            <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding SaveProcessMappingCommand}" Content="绑定" Margin="0,0,0,8"/>
+                                        </WrapPanel>
                                         <DataGrid Grid.Row="2" Style="{StaticResource GscDataGrid}" ItemsSource="{Binding ProcessMappings}" SelectedItem="{Binding SelectedProcessMapping}">
                                             <DataGrid.Columns><DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="EXE" Binding="{Binding ExecutableName}" Width="180"/><DataGridTextColumn Header="目标游戏" Binding="{Binding GameName}" Width="*"/><DataGridTemplateColumn HeaderStyle="{StaticResource GscLastColumnHeader}" Header="操作" Width="90"><DataGridTemplateColumn.CellTemplate><DataTemplate><ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding DataContext.DeleteProcessMappingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Content="删除"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns>
                                         </DataGrid>

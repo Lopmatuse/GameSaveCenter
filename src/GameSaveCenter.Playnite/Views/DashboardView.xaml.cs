@@ -176,6 +176,13 @@ namespace GameSaveCenter.Playnite.Views
             MetricsPanel.Columns = width >= 1450 ? 6 : 3;
             MetricsPanel.Margin = showMetrics ? new Thickness(0, 0, 0, 18) : new Thickness(0);
 
+            // Maintenance remains readable inside the narrower Playnite content region: health
+            // cards reflow instead of compressing their paths and version information to dots.
+            if (DiagnosticHealthPanel != null)
+            {
+                DiagnosticHealthPanel.Columns = width >= 1280 ? 3 : width >= 980 ? 2 : 1;
+            }
+
             RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves && height >= 700
                 ? Visibility.Visible : Visibility.Collapsed;
             if (viewModel.CurrentWorkspace != WorkspaceKind.Saves)

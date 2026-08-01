@@ -151,6 +151,20 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("筛选不会取消、重排或重新执行后台任务", dashboard);
     }
 
+    [Fact]
+    public void MaintenanceWorkspaceReflowsHealthCardsAndMappingEditor()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("x:Name=\"DiagnosticHealthPanel\"", dashboard);
+        Assert.Contains("x:Name=\"ProcessMappingEditor\"", dashboard);
+        Assert.Contains("MinWidth=\"220\"", dashboard);
+        Assert.Contains("Command=\"{Binding SaveProcessMappingCommand}\"", dashboard);
+        Assert.Contains("DiagnosticHealthPanel.Columns = width >= 1280 ? 3 : width >= 980 ? 2 : 1", dashboardCode);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]
