@@ -1,9 +1,12 @@
 using System;
 using System.IO;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Markup;
+using System.Windows.Media;
+using GameSaveCenter.Playnite.Views;
 using Wpf.Ui.Controls;
 using Xunit;
 
@@ -132,6 +135,53 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("AmbientGlowLayer.Visibility = glassEnabled ? Visibility.Visible : Visibility.Collapsed", dashboardCode);
         Assert.Contains("SettingsAmbientLayer.Visibility = glassEnabled ? Visibility.Visible : Visibility.Collapsed", settingsCode);
         Assert.Contains("&& !SystemParameters.HighContrast", settingsCode);
+    }
+
+    [Fact]
+    public void DashboardAnimationsCloneFrozenTransformsBeforeTheyAreAnimated()
+    {
+        Exception? exception = null;
+
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var translateElement = new System.Windows.Controls.Border { RenderTransform = new TranslateTransform(2, 3) };
+                var frozenTranslate = (TranslateTransform)translateElement.RenderTransform;
+                frozenTranslate.Freeze();
+
+                var scaleElement = new System.Windows.Controls.Border { RenderTransform = new ScaleTransform(1, 1) };
+                var frozenScale = (ScaleTransform)scaleElement.RenderTransform;
+                frozenScale.Freeze();
+
+                var translateMethod = typeof(DashboardView).GetMethod(
+                    "GetMutableTranslateTransform",
+                    BindingFlags.Static | BindingFlags.NonPublic);
+                var scaleMethod = typeof(DashboardView).GetMethod(
+                    "GetMutableScaleTransform",
+                    BindingFlags.Static | BindingFlags.NonPublic);
+
+                var mutableTranslate = Assert.IsType<TranslateTransform>(translateMethod!.Invoke(null, new object[] { translateElement }));
+                var mutableScale = Assert.IsType<ScaleTransform>(scaleMethod!.Invoke(null, new object[] { scaleElement }));
+
+                Assert.NotSame(frozenTranslate, mutableTranslate);
+                Assert.NotSame(frozenScale, mutableScale);
+                Assert.False(mutableTranslate.IsFrozen);
+                Assert.False(mutableScale.IsFrozen);
+                Assert.Same(mutableTranslate, translateElement.RenderTransform);
+                Assert.Same(mutableScale, scaleElement.RenderTransform);
+            }
+            catch (Exception caught)
+            {
+                exception = caught;
+            }
+        });
+
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+
+        Assert.Null(exception);
     }
 
     [Fact]
