@@ -81,6 +81,7 @@
 | GSC-093 | 数值框获得键盘焦点时，宿主关闭可能向已停止 Dispatcher 投递全选操作 | 源码已修复待 Playnite 回归 | 关闭前不再投递；守卫与投递之间的关闭竞态被捕获，保留原有编辑值和业务绑定 |
 | GSC-094 | Dashboard 卸载或 Toast 超出容量后，自动关闭计时器仍可能保持页面引用并延迟投递 | 源码已修复待 Playnite 回归 | 所有 Toast 计时器由页面集中跟踪；淘汰和卸载立即停止并移除动画 |
 | GSC-095 | 品牌图标前景固定为白色，宿主强调色与高对比度下可能失去对比 | 源码已修复待多主题回归 | Dashboard 和 Settings 均使用按宿主强调色计算的 `GscOnAccentTextBrush` |
+| GSC-096 | 语义状态色在运行时高对比度切换后仍引用初始静态资源 | 源码已修复待多主题回归 | 状态点、文本和图标填充均改为页面局部动态资源，并为高对比度计算可读回退 |
 
 ## GSC-093：数值输入焦点全选的 Dispatcher 关闭竞态
 
@@ -102,6 +103,13 @@
 - **根因**：Dashboard 品牌图形和 Settings 标题图标直接写死为白色；用户选择的 Playnite 强调色可能更适合深色前景，高对比度也要求使用系统选中前景。
 - **修复**：三个品牌图形均改用局部动态 `GscOnAccentTextBrush`。该令牌由共享调色板根据当前强调色计算可读前景，并在高对比度时采用 Windows `HighlightText`；未改动画、布局或功能入口。
 - **回归**：自动化测试禁止这些页面重新写死白色品牌前景；隔离 Playnite 中依次验证 Follow、浅色、深色、自定义宿主色和高对比度下图标可读。
+
+## GSC-096：语义状态色的高对比度动态更新
+
+- **状态**：源码已修复，待隔离 Playnite 多主题/高对比度回归。
+- **根因**：成功、警告、失败和信息色的定义虽位于共享资源，但 Dashboard/Settings 的多处状态点与图标用 `StaticResource` 捕获初始 Brush；运行时本地调色板无法覆盖已捕获的对象。
+- **修复**：状态色与图标填充进入 `AdaptiveThemePaletteFactory` 的页面局部资源更新路径，所有实际 Dashboard/Settings 使用点改为 `DynamicResource`。普通主题维持既有语义色；高对比度下采用经过对比度保护的系统色或主前景，并继续依赖状态文字而非颜色单独表达。
+- **回归**：自动化测试禁止两个页面重新使用静态语义色并检查四类动态资源更新；隔离 Playnite 中切换 Follow、浅/深、高对比度时检查任务、健康、图标与错误文字可读。
 | GSC-083 | 0.6.22 Dashboard 解析 WPF-UI Button 类型样式时崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 字典必须先合并 WpfUiBase；STA 资源解析测试通过后，在隔离 Playnite 打开 Dashboard/Settings，日志不得再出现 `Wpf.Ui.Controls.Button` 或 `XamlParseException` |
 | GSC-084 | 0.6.22 Dashboard 在修复类型样式后仍解析不到主题阴影资源而崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 适配器中的 GameSaveCenter 令牌必须使用 `DynamicResource` 从父级 UserControl 作用域解析；打开 Dashboard/Settings 后日志不得再出现 `GscSoftShadowColor`、`StaticResourceHolder` 或 `XamlParseException` |
 | GSC-085 | 0.6.22 动画冻结 Transform 与 WPF-UI `ContentDialogHost` 在 Playnite 共用窗口中导致崩溃 | 源码已修复，待隔离 Playnite 回归 | 回归测试验证冻结的 Translate/Scale Transform 会先克隆为元素私有实例；全插件 XAML/C# 禁止 `ContentDialogHost` 和 `new ContentDialog(...)`；确认使用插件内浮层、设置报告使用 MessageBox，日志不得再出现相应异常 |

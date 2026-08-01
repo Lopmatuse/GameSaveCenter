@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 语义状态色必须可动态重算
+
+- `GscInfo/Success/Warning/ErrorBrush` 与对应图标填充在 Dashboard/Settings 中均由 `ApplyAccentResources` 写入局部资源。需要随主题/高对比度变化的状态点、图标和状态文字必须使用 `DynamicResource`，不能用 `StaticResource` 捕获首次 Brush。
+- 高对比度下状态色可退化为系统可读前景；任务、健康与错误仍保留文字/图形语义，绝不能只依赖颜色。真实切换回归仍需 `ENV-001`。
+
 ### 2026-08-01 品牌图标的动态强调色前景
 
 - 在强调色表面上的 Dashboard/Settings 图标不能写死 `White`；必须使用 `GscOnAccentTextBrush`，由 `AdaptiveThemePaletteFactory` 根据宿主强调色计算，并在高对比度时提供系统 `HighlightText`。该令牌的使用点必须是 `DynamicResource`。

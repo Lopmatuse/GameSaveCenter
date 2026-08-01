@@ -549,6 +549,25 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("resources[\"GscOnAccentTextBrush\"]", palette);
     }
 
+    [Fact]
+    public void SemanticStatusColorsAreLocalDynamicResourcesInHighContrast()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var settings = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml"));
+        var palette = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Infrastructure", "AdaptiveThemePalette.cs"));
+
+        Assert.DoesNotContain("{StaticResource GscInfoBrush}", dashboard + settings);
+        Assert.DoesNotContain("{StaticResource GscSuccessBrush}", dashboard + settings);
+        Assert.DoesNotContain("{StaticResource GscWarningBrush}", dashboard + settings);
+        Assert.DoesNotContain("{StaticResource GscErrorBrush}", dashboard + settings);
+        Assert.Contains("resources[\"GscInfoBrush\"]", palette);
+        Assert.Contains("resources[\"GscSuccessBrush\"]", palette);
+        Assert.Contains("resources[\"GscWarningBrush\"]", palette);
+        Assert.Contains("resources[\"GscErrorBrush\"]", palette);
+        Assert.Contains("highContrast ? primaryText", palette);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]

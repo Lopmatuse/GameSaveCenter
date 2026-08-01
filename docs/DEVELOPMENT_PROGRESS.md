@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-027 语义状态色高对比度动态化
+
+- [x] 信息、成功、警告、失败色及其图标填充已进入 Dashboard/Settings 的本地动态调色板；状态点、表格任务状态、健康反馈与设置卡图标不再捕获首次加载的静态 Brush。
+- [x] 普通主题维持既有 Apple-inspired 低饱和语义色；高对比度会计算 Windows 系统色/主前景的可读降级，状态仍同时通过文字和图标表达。
+- [x] 自动验证：`validate-source.py` 与 UI Skill 静态审查（0 errors）通过；Release 下 Core 13 + Worker 21 + Playnite UI 39 = 73 项测试通过，`git diff --check`、`git fsck --full`、PEXT 打包及 Worker `0.6.22.0` smoke 通过。真实主题/高对比度渲染仍由 `ENV-001` 阻塞。
+
 ## 2026-08-01 UI-026 品牌图标多主题前景收口
 
 - [x] Dashboard 和 Settings 的品牌强调色图标不再固定白色，改用共享的 `GscOnAccentTextBrush`；它会随 Follow Playnite、浅/深色、自定义强调色和高对比度的本地调色板即时变化。

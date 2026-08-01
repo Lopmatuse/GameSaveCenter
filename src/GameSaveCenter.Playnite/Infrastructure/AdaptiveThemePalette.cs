@@ -38,6 +38,14 @@ namespace GameSaveCenter.Playnite.Infrastructure
         public Color AccentTintStrong { get; set; }
         public Color AccentIconFill { get; set; }
         public Color OnAccentText { get; set; }
+        public Color Info { get; set; }
+        public Color Success { get; set; }
+        public Color Warning { get; set; }
+        public Color Error { get; set; }
+        public Color InfoIconFill { get; set; }
+        public Color SuccessIconFill { get; set; }
+        public Color WarningIconFill { get; set; }
+        public Color ErrorIconFill { get; set; }
     }
 
     internal static class AdaptiveThemePaletteFactory
@@ -112,6 +120,14 @@ namespace GameSaveCenter.Playnite.Infrastructure
             var onAccentText = highContrast
                 ? SystemColors.HighlightTextColor
                 : ChooseBestText(accent, Colors.White, Colors.Black, RelativeLuminance(accent) < 0.5);
+            var info = highContrast
+                ? EnsureContrast(SystemColors.HighlightColor, stableBase, isDark)
+                : Color.FromRgb(10, 132, 255);
+            var success = highContrast
+                ? EnsureContrast(SystemColors.HotTrackColor, stableBase, isDark)
+                : Color.FromRgb(48, 209, 88);
+            var warning = highContrast ? primaryText : Color.FromRgb(255, 159, 10);
+            var error = highContrast ? primaryText : Color.FromRgb(255, 69, 58);
 
             var surfaceTop = glassEnabled
                 ? WithAlpha(strongControl, 0.86 * strength)
@@ -151,7 +167,15 @@ namespace GameSaveCenter.Playnite.Infrastructure
                 AccentTint = highContrast ? accent : WithAlpha(accent, isDark ? 0.24 : 0.14),
                 AccentTintStrong = highContrast ? accent : WithAlpha(accent, isDark ? 0.34 : 0.22),
                 AccentIconFill = highContrast ? accent : WithAlpha(accent, isDark ? 0.22 : 0.14),
-                OnAccentText = onAccentText
+                OnAccentText = onAccentText,
+                Info = info,
+                Success = success,
+                Warning = warning,
+                Error = error,
+                InfoIconFill = highContrast ? info : WithAlpha(info, 0.13),
+                SuccessIconFill = highContrast ? success : WithAlpha(success, 0.13),
+                WarningIconFill = highContrast ? warning : WithAlpha(warning, 0.13),
+                ErrorIconFill = highContrast ? error : WithAlpha(error, 0.13)
             };
         }
 
@@ -169,6 +193,14 @@ namespace GameSaveCenter.Playnite.Infrastructure
             resources["GscPrimaryButtonBorderBrush"] = Brush(palette.AccentHover);
             resources["GscAmbientAccentBrush"] = Brush(WithAlpha(palette.Accent, palette.IsDark ? 0.18 : 0.15));
             resources["GscAccentShadowColor"] = WithAlpha(palette.Accent, palette.IsDark ? 0.34 : 0.28);
+            resources["GscInfoBrush"] = Brush(palette.Info);
+            resources["GscSuccessBrush"] = Brush(palette.Success);
+            resources["GscWarningBrush"] = Brush(palette.Warning);
+            resources["GscErrorBrush"] = Brush(palette.Error);
+            resources["GscInfoIconFillBrush"] = Brush(palette.InfoIconFill);
+            resources["GscSuccessIconFillBrush"] = Brush(palette.SuccessIconFill);
+            resources["GscWarningIconFillBrush"] = Brush(palette.WarningIconFill);
+            resources["GscErrorIconFillBrush"] = Brush(palette.ErrorIconFill);
         }
 
         /// <summary>

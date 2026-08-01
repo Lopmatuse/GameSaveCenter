@@ -647,7 +647,7 @@
                                         <Path Data="{StaticResource GscBrandIconGeometry}" Fill="{DynamicResource GscOnAccentTextBrush}" Stretch="None"/>
                                         <Path Data="{StaticResource GscBrandDpadGeometry}" Stroke="{DynamicResource GscAccentBrush}" StrokeThickness="3.2"
                                               StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                        <Ellipse Width="4.5" Height="4.5" Fill="{StaticResource GscInfoBrush}" Margin="30,16,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                        <Ellipse Width="4.5" Height="4.5" Fill="{DynamicResource GscInfoBrush}" Margin="30,16,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                                         <Ellipse Width="4.5" Height="4.5" Fill="{DynamicResource GscAccentBrush}" Margin="35,21,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                                         <Path Data="{StaticResource GscBrandSaveGeometry}" Stroke="{DynamicResource GscOnAccentTextBrush}" StrokeThickness="3"
                                               StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
@@ -690,7 +690,7 @@
                         <Border Height="1" Background="{DynamicResource GscDividerBrush}" Margin="0,0,0,13"/>
                         <StackPanel Orientation="Horizontal">
                             <Border Width="9" Height="9" CornerRadius="5" Margin="0,0,8,0" VerticalAlignment="Center">
-                                <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="{StaticResource GscErrorBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Snapshot.WorkerHealthy}" Value="True"><Setter Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger></Style.Triggers></Style></Border.Style>
+                                <Border.Style><Style TargetType="Border"><Setter Property="Background" Value="{DynamicResource GscErrorBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Snapshot.WorkerHealthy}" Value="True"><Setter Property="Background" Value="{DynamicResource GscSuccessBrush}"/></DataTrigger></Style.Triggers></Style></Border.Style>
                             </Border>
                             <StackPanel x:Name="SidebarWorkerStatusText" Orientation="Horizontal">
                                 <TextBlock Text="Worker" FontSize="12" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
@@ -752,13 +752,13 @@
             </ui:Card>
             <ui:Card Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscInfoIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscInfoIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{DynamicResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="已匹配存档" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.MatchedGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </ui:Card>
             <ui:Card Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscSuccessIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE768;" Foreground="{StaticResource GscSuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscSuccessIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE768;" Foreground="{DynamicResource GscSuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="正在运行" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.RunningGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </ui:Card>
@@ -769,20 +769,20 @@
                         HorizontalContentAlignment="Stretch"
                         Padding="0" Margin="0" Background="Transparent" BorderBrush="Transparent">
                     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                        <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscErrorIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB52;" Foreground="{StaticResource GscErrorBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                        <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscErrorIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB52;" Foreground="{DynamicResource GscErrorBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                         <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="需要关注" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.WarningGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                     </Grid>
                 </Button>
             </ui:Card>
             <ui:Card Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscInfoIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscInfoIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" Foreground="{DynamicResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="云端任务" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.PendingCloudTasks}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </ui:Card>
             <ui:Card Style="{StaticResource GscMetricCard}" Margin="0">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscWarningIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE91B;" Foreground="{StaticResource GscWarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscWarningIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE91B;" Foreground="{DynamicResource GscWarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="待归类媒体" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </ui:Card>
@@ -916,13 +916,13 @@
                                         <TextBlock Text="{Binding PlatformDisplay}" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11" Margin="0,2,0,0"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Border x:Name="StateDot" Width="8" Height="8" CornerRadius="4" Background="{StaticResource GscWarningBrush}" Margin="0,0,7,0"/>
+                                        <Border x:Name="StateDot" Width="8" Height="8" CornerRadius="4" Background="{DynamicResource GscWarningBrush}" Margin="0,0,7,0"/>
                                         <TextBlock Text="{Binding HealthStateDisplay}" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                                     </StackPanel>
                                 </Grid>
                                 <DataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding HealthState}" Value="Ready"><Setter TargetName="StateDot" Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger>
-                                    <DataTrigger Binding="{Binding HealthState}" Value="Attention"><Setter TargetName="StateDot" Property="Background" Value="{StaticResource GscErrorBrush}"/></DataTrigger>
+                                    <DataTrigger Binding="{Binding HealthState}" Value="Ready"><Setter TargetName="StateDot" Property="Background" Value="{DynamicResource GscSuccessBrush}"/></DataTrigger>
+                                    <DataTrigger Binding="{Binding HealthState}" Value="Attention"><Setter TargetName="StateDot" Property="Background" Value="{DynamicResource GscErrorBrush}"/></DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -952,11 +952,11 @@
                                         <Border Width="7" Height="7" CornerRadius="4" Margin="0,0,6,0" VerticalAlignment="Center">
                                             <Border.Style>
                                                 <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="{StaticResource GscWarningBrush}"/>
+                                                    <Setter Property="Background" Value="{DynamicResource GscWarningBrush}"/>
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding SelectedGame.HealthState}" Value="Ready"><Setter Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger>
-                                                        <DataTrigger Binding="{Binding SelectedGame.HealthState}" Value="Attention"><Setter Property="Background" Value="{StaticResource GscErrorBrush}"/></DataTrigger>
-                                                        <DataTrigger Binding="{Binding SelectedGame.HealthState}" Value="LudusaviUnavailable"><Setter Property="Background" Value="{StaticResource GscErrorBrush}"/></DataTrigger>
+                                                        <DataTrigger Binding="{Binding SelectedGame.HealthState}" Value="Ready"><Setter Property="Background" Value="{DynamicResource GscSuccessBrush}"/></DataTrigger>
+                                                        <DataTrigger Binding="{Binding SelectedGame.HealthState}" Value="Attention"><Setter Property="Background" Value="{DynamicResource GscErrorBrush}"/></DataTrigger>
+                                                        <DataTrigger Binding="{Binding SelectedGame.HealthState}" Value="LudusaviUnavailable"><Setter Property="Background" Value="{DynamicResource GscErrorBrush}"/></DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
@@ -980,7 +980,7 @@
 
                     <Border x:Name="RestoreSafetyBanner" Grid.Row="1" Background="{DynamicResource GscRestoreInfoFillBrush}" BorderBrush="{DynamicResource GscRestoreInfoStrokeBrush}" BorderThickness="1" CornerRadius="11" Padding="12" Margin="0,14,0,12">
                         <DockPanel>
-                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE946;" Foreground="{StaticResource GscInfoBrush}" FontSize="16" Margin="0,0,9,0" DockPanel.Dock="Left"/>
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE946;" Foreground="{DynamicResource GscInfoBrush}" FontSize="16" Margin="0,0,9,0" DockPanel.Dock="Left"/>
                             <TextBlock Text="自动恢复默认关闭。恢复前会创建并锁定当前快照，恢复后校验，失败时尝试回滚。" TextWrapping="Wrap"/>
                         </DockPanel>
                     </Border>
@@ -1017,24 +1017,24 @@
                                         <TextBlock Text="需要处理" FontSize="16" FontWeight="SemiBold"/>
                                         <StackPanel Margin="0,10,0,0">
                                             <StackPanel Orientation="Horizontal" Margin="0,3">
-                                                <Border Width="8" Height="8" CornerRadius="4" Background="{StaticResource GscSuccessBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource GscSuccessBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                                 <TextBlock>
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
                                                             <Setter Property="Text" Value="Worker 运行正常"/>
-                                                            <Style.Triggers><DataTrigger Binding="{Binding Snapshot.WorkerHealthy}" Value="False"><Setter Property="Text" Value="Worker 当前不可用"/><Setter Property="Foreground" Value="{StaticResource GscErrorBrush}"/></DataTrigger></Style.Triggers>
+                                                            <Style.Triggers><DataTrigger Binding="{Binding Snapshot.WorkerHealthy}" Value="False"><Setter Property="Text" Value="Worker 当前不可用"/><Setter Property="Foreground" Value="{DynamicResource GscErrorBrush}"/></DataTrigger></Style.Triggers>
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
                                             </StackPanel>
                                             <StackPanel Orientation="Horizontal" Margin="0,3">
                                                 <StackPanel.Style><Style TargetType="StackPanel"><Style.Triggers><DataTrigger Binding="{Binding Snapshot.WarningGames}" Value="0"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></StackPanel.Style>
-                                                <Border Width="8" Height="8" CornerRadius="4" Background="{StaticResource GscWarningBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource GscWarningBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                                 <TextBlock><Run Text="{Binding Snapshot.WarningGames, Mode=OneWay}"/><Run Text=" 个游戏需要关注"/></TextBlock>
                                             </StackPanel>
                                             <StackPanel Orientation="Horizontal" Margin="0,3">
                                                 <StackPanel.Style><Style TargetType="StackPanel"><Style.Triggers><DataTrigger Binding="{Binding Snapshot.UnassignedMediaCount}" Value="0"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></StackPanel.Style>
-                                                <Border Width="8" Height="8" CornerRadius="4" Background="{StaticResource GscWarningBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource GscWarningBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
                                                 <TextBlock><Run Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}"/><Run Text=" 个媒体文件等待归类"/></TextBlock>
                                             </StackPanel>
                                             <StackPanel Orientation="Horizontal" Margin="0,3">
@@ -1052,7 +1052,7 @@
                                                         </Style.Triggers>
                                                     </Style>
                                                 </StackPanel.Style>
-                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE73E;" Foreground="{StaticResource GscSuccessBrush}" Margin="0,0,8,0"/>
+                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE73E;" Foreground="{DynamicResource GscSuccessBrush}" Margin="0,0,8,0"/>
                                                 <TextBlock Text="当前没有需要手工处理的问题" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                                             </StackPanel>
                                         </StackPanel>
@@ -1664,13 +1664,13 @@
                                                     <DataTemplate>
                                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                             <Border x:Name="TaskDot" Width="7" Height="7" CornerRadius="4"
-                                                                    Background="{StaticResource GscWarningBrush}" Margin="0,0,7,0" VerticalAlignment="Center"/>
+                                                                    Background="{DynamicResource GscWarningBrush}" Margin="0,0,7,0" VerticalAlignment="Center"/>
                                                             <TextBlock Text="{Binding StateDisplay, Mode=OneWay}" VerticalAlignment="Center"/>
                                                         </StackPanel>
                                                         <DataTemplate.Triggers>
-                                                            <DataTrigger Binding="{Binding State}" Value="Succeeded"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger>
-                                                            <DataTrigger Binding="{Binding State}" Value="Failed"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscErrorBrush}"/></DataTrigger>
-                                                            <DataTrigger Binding="{Binding State}" Value="Running"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscInfoBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding State}" Value="Succeeded"><Setter TargetName="TaskDot" Property="Background" Value="{DynamicResource GscSuccessBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding State}" Value="Failed"><Setter TargetName="TaskDot" Property="Background" Value="{DynamicResource GscErrorBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding State}" Value="Running"><Setter TargetName="TaskDot" Property="Background" Value="{DynamicResource GscInfoBrush}"/></DataTrigger>
                                                             <DataTrigger Binding="{Binding State}" Value="Cancelled"><Setter TargetName="TaskDot" Property="Background" Value="{StaticResource GscMutedStatusBrush}"/></DataTrigger>
                                                         </DataTemplate.Triggers>
                                                     </DataTemplate>
@@ -1886,7 +1886,7 @@
                 <DockPanel LastChildFill="True">
                     <Border Width="8" Height="8" CornerRadius="4" Margin="0,0,7,0" DockPanel.Dock="Left" VerticalAlignment="Center">
                         <Border.Style>
-                            <Style TargetType="Border"><Setter Property="Background" Value="{StaticResource GscErrorBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Snapshot.WorkerHealthy}" Value="True"><Setter Property="Background" Value="{StaticResource GscSuccessBrush}"/></DataTrigger></Style.Triggers></Style>
+                            <Style TargetType="Border"><Setter Property="Background" Value="{DynamicResource GscErrorBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Snapshot.WorkerHealthy}" Value="True"><Setter Property="Background" Value="{DynamicResource GscSuccessBrush}"/></DataTrigger></Style.Triggers></Style>
                         </Border.Style>
                     </Border>
                     <TextBlock Text="{Binding StatusMessage, Mode=OneWay}" Foreground="{DynamicResource GscSecondaryTextBrush}"
