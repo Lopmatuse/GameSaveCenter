@@ -39,7 +39,7 @@
         <StackPanel x:Name="SettingsShell" Opacity="0" Margin="28,22,32,30" MaxWidth="980" HorizontalAlignment="Left">
             <Grid x:Name="SettingsHeader" Margin="0,0,0,5">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                <Border x:Name="SettingsHeaderIcon" Width="42" Height="42" CornerRadius="13" Background="{StaticResource GscAccentBrush}" Margin="0,0,12,0">
+                <Border x:Name="SettingsHeaderIcon" Width="42" Height="42" CornerRadius="13" Background="{DynamicResource GscAccentBrush}" Margin="0,0,12,0">
                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE713;" Foreground="White" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -52,7 +52,7 @@
 
             <ui:Card Style="{StaticResource SettingsCard}">
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="核心工具" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,12"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="核心工具" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
                     <UniformGrid x:Name="CoreToolFields" Columns="2">
                         <StackPanel Margin="0,0,12,10"><TextBlock Text="Worker" Margin="0,0,0,4"/><TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding WorkerExecutable, UpdateSourceTrigger=PropertyChanged}" ToolTip="Worker 可执行文件路径"/></StackPanel>
                         <StackPanel Margin="0,0,12,10"><TextBlock Text="Ludusavi" Margin="0,0,0,4"/><TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding LudusaviExecutable, UpdateSourceTrigger=PropertyChanged}" ToolTip="例如 D:\GameSaveCenterTools\Ludusavi\ludusavi.exe"/></StackPanel>
@@ -102,7 +102,7 @@
             <ui:Card Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                        <Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE790;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                        <Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE790;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
                         <TextBlock Text="外观与动态效果" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                     <TextBlock Text="毛玻璃采用主题自适应的半透明表面和模糊环境光，不会修改 Playnite 外层窗口。系统高对比度或关闭动画时会自动降级。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>

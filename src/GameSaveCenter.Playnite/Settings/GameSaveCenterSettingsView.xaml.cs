@@ -239,6 +239,7 @@ namespace GameSaveCenter.Playnite.Settings
             var strength = CurrentSettings?.GlassEffectStrength ?? 78;
             var palette = AdaptiveThemePaletteFactory.Create(this, glassEnabled, strength, CurrentSettings?.ThemeMode ?? GameSaveCenterThemeMode.FollowPlaynite);
 
+            AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette);
             Resources["GscPrimaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.PrimaryText);
             Resources["GscSecondaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.SecondaryText);
             Resources["GscMutedTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.MutedText);

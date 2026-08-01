@@ -66,7 +66,7 @@
             <EventSetter Event="MouseLeave" Handler="OnMetricCardMouseLeave"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{StaticResource GscAccentTintStrongBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -102,8 +102,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
+                                <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GscAccentTintBrush}"/>
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GscAccentBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Chrome" Property="RenderTransform">
@@ -126,9 +126,9 @@
         </Style>
 
         <Style x:Key="GscPrimaryButton" TargetType="Button" BasedOn="{StaticResource GscButtonBase}">
-            <Setter Property="Foreground" Value="{StaticResource GscOnAccentTextBrush}"/>
-            <Setter Property="Background" Value="{StaticResource GscPrimaryButtonBrush}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource GscPrimaryButtonBorderBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource GscOnAccentTextBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource GscPrimaryButtonBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GscPrimaryButtonBorderBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -292,13 +292,13 @@
                         </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="TabChrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
-                                <Setter TargetName="TabChrome" Property="BorderBrush" Value="{StaticResource GscAccentTintStrongBrush}"/>
+                                <Setter TargetName="TabChrome" Property="Background" Value="{DynamicResource GscAccentTintBrush}"/>
+                                <Setter TargetName="TabChrome" Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="TabChrome" Property="Background" Value="{StaticResource GscAccentTintStrongBrush}"/>
-                                <Setter TargetName="TabChrome" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
-                                <Setter Property="Foreground" Value="{StaticResource GscAccentBrush}"/>
+                                <Setter TargetName="TabChrome" Property="Background" Value="{DynamicResource GscAccentTintStrongBrush}"/>
+                                <Setter TargetName="TabChrome" Property="BorderBrush" Value="{DynamicResource GscAccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource GscAccentBrush}"/>
                                 <Setter Property="FontWeight" Value="SemiBold"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
@@ -397,7 +397,7 @@
                                                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                                   RecognizesAccessKey="True"/>
                                 <Path x:Name="SortArrow" Data="M 0 5 L 5 0 L 10 5" Stretch="None"
-                                      Stroke="{StaticResource GscAccentBrush}" StrokeThickness="1.5"
+                                      Stroke="{DynamicResource GscAccentBrush}" StrokeThickness="1.5"
                                       StrokeStartLineCap="Round" StrokeEndLineCap="Round"
                                       HorizontalAlignment="Right" VerticalAlignment="Center"
                                       Margin="0,0,9,0" Visibility="Collapsed" RenderTransformOrigin="0.5,0.5">
@@ -509,7 +509,7 @@
                                 <Setter TargetName="RowChrome" Property="Background" Value="{DynamicResource GscRowHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="RowChrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                                <Setter TargetName="RowChrome" Property="Background" Value="{DynamicResource GscAccentTintBrush}"/>
                                 <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
                                 <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
                             </Trigger>
@@ -534,7 +534,7 @@
                         <Border x:Name="ItemChrome" Background="{TemplateBinding Background}" CornerRadius="10">
                             <Grid>
                                 <Border x:Name="SelectionIndicator" Width="2" Margin="3,8,0,8" CornerRadius="1"
-                                        HorizontalAlignment="Left" Background="{StaticResource GscAccentBrush}" Visibility="Collapsed"/>
+                                        HorizontalAlignment="Left" Background="{DynamicResource GscAccentBrush}" Visibility="Collapsed"/>
                                 <ContentPresenter Margin="{TemplateBinding Padding}" VerticalAlignment="Center"
                                                   TextElement.Foreground="{TemplateBinding Foreground}"/>
                             </Grid>
@@ -544,7 +544,7 @@
                                 <Setter TargetName="ItemChrome" Property="Background" Value="{StaticResource GscRowHoverStrongBrush}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="ItemChrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                                <Setter TargetName="ItemChrome" Property="Background" Value="{DynamicResource GscAccentTintBrush}"/>
                                 <Setter TargetName="SelectionIndicator" Property="Visibility" Value="Visible"/>
                                 <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
                                 <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
@@ -576,12 +576,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="NavChrome" Property="Background" Value="{StaticResource GscAccentTintStrongBrush}"/>
-                                <Setter TargetName="NavChrome" Property="BorderBrush" Value="{StaticResource GscAccentTintStrongBrush}"/>
-                                <Setter Property="Foreground" Value="{StaticResource GscAccentBrush}"/>
+                                <Setter TargetName="NavChrome" Property="Background" Value="{DynamicResource GscAccentTintStrongBrush}"/>
+                                <Setter TargetName="NavChrome" Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource GscAccentBrush}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="NavChrome" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                                <Setter TargetName="NavChrome" Property="Background" Value="{DynamicResource GscAccentTintBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -641,14 +641,14 @@
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                     <StackPanel x:Name="SidebarBrandContainer" Margin="0,2,0,20" HorizontalAlignment="Stretch">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                            <Border x:Name="SidebarBrandIcon" Width="42" Height="42" CornerRadius="13" Background="{StaticResource GscAccentBrush}" ToolTip="GameSaveCenter" ClipToBounds="False">
+                            <Border x:Name="SidebarBrandIcon" Width="42" Height="42" CornerRadius="13" Background="{DynamicResource GscAccentBrush}" ToolTip="GameSaveCenter" ClipToBounds="False">
                                 <Viewbox Margin="7" Stretch="Uniform">
                                     <Grid Width="48" Height="48">
                                         <Path Data="{StaticResource GscBrandIconGeometry}" Fill="White" Stretch="None"/>
-                                        <Path Data="{StaticResource GscBrandDpadGeometry}" Stroke="{StaticResource GscAccentBrush}" StrokeThickness="3.2"
+                                        <Path Data="{StaticResource GscBrandDpadGeometry}" Stroke="{DynamicResource GscAccentBrush}" StrokeThickness="3.2"
                                               StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                         <Ellipse Width="4.5" Height="4.5" Fill="{StaticResource GscInfoBrush}" Margin="30,16,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                        <Ellipse Width="4.5" Height="4.5" Fill="{StaticResource GscAccentBrush}" Margin="35,21,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                                        <Ellipse Width="4.5" Height="4.5" Fill="{DynamicResource GscAccentBrush}" Margin="35,21,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                                         <Path Data="{StaticResource GscBrandSaveGeometry}" Stroke="White" StrokeThickness="3"
                                               StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
                                     </Grid>
@@ -746,7 +746,7 @@
         <UniformGrid x:Name="MetricsPanel" Grid.Row="1" Columns="6" Margin="0,0,0,18">
             <ui:Card Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscAccentIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
+                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscAccentIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="管理游戏" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.ManagedGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
             </ui:Card>
@@ -888,11 +888,11 @@
                                                     <ContentPresenter TextElement.Foreground="{TemplateBinding Foreground}"/>
                                                 </Border>
                                                 <Border x:Name="SelectionIndicator" Width="2" Margin="3,9,0,9" CornerRadius="1"
-                                                        HorizontalAlignment="Left" Background="{StaticResource GscAccentBrush}" Visibility="Collapsed"/>
+                                                        HorizontalAlignment="Left" Background="{DynamicResource GscAccentBrush}" Visibility="Collapsed"/>
                                             </Grid>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsSelected" Value="True">
-                                                    <Setter TargetName="Row" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                                                    <Setter TargetName="Row" Property="Background" Value="{DynamicResource GscAccentTintBrush}"/>
                                                     <Setter TargetName="SelectionIndicator" Property="Visibility" Value="Visible"/>
                                                     <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
                                                     <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
@@ -909,7 +909,7 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                     <Border Width="34" Height="34" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" VerticalAlignment="Center">
-                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"/>
@@ -947,7 +947,7 @@
                         <StackPanel Grid.Row="0">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{Binding SelectedGame.Name, TargetNullValue=请选择游戏}" FontSize="19" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                <Border Background="{StaticResource GscAccentTintBrush}" CornerRadius="9" Padding="9,4" Margin="10,0,0,0" VerticalAlignment="Center">
+                                <Border Background="{DynamicResource GscAccentTintBrush}" CornerRadius="9" Padding="9,4" Margin="10,0,0,0" VerticalAlignment="Center">
                                     <StackPanel Orientation="Horizontal">
                                         <Border Width="7" Height="7" CornerRadius="4" Margin="0,0,6,0" VerticalAlignment="Center">
                                             <Border.Style>
@@ -1194,12 +1194,12 @@
                                                                 </Border>
                                                                 <ControlTemplate.Triggers>
                                                                     <Trigger Property="IsSelected" Value="True">
-                                                                        <Setter TargetName="ToolCard" Property="BorderBrush" Value="{StaticResource GscAccentBrush}"/>
-                                                                        <Setter TargetName="ToolCard" Property="Background" Value="{StaticResource GscAccentTintBrush}"/>
+                                                                        <Setter TargetName="ToolCard" Property="BorderBrush" Value="{DynamicResource GscAccentBrush}"/>
+                                                                        <Setter TargetName="ToolCard" Property="Background" Value="{DynamicResource GscAccentTintBrush}"/>
                                                                         <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
                                                                         <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
                                                                     </Trigger>
-                                                                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ToolCard" Property="BorderBrush" Value="{StaticResource GscAccentTintStrongBrush}"/></Trigger>
+                                                                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ToolCard" Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/></Trigger>
                                                                 </ControlTemplate.Triggers>
                                                             </ControlTemplate></Setter.Value>
                                                         </Setter>
@@ -1209,8 +1209,8 @@
                                                     <DataTemplate>
                                                         <Grid>
                                                             <Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                                            <Border Width="36" Height="36" CornerRadius="11" Background="{StaticResource GscAccentTintStrongBrush}">
-                                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Foreground="{StaticResource GscAccentBrush}" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                            <Border Width="36" Height="36" CornerRadius="11" Background="{DynamicResource GscAccentTintStrongBrush}">
+                                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Foreground="{DynamicResource GscAccentBrush}" FontSize="17" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                             </Border>
                                                             <StackPanel Grid.Column="1" Margin="10,0,12,0">
                                                                 <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding DisplayName}"/>
@@ -1893,7 +1893,7 @@
                                TextTrimming="CharacterEllipsis" ToolTip="{Binding StatusMessage, Mode=OneWay}"/>
                 </DockPanel>
             </Border>
-            <Border Grid.Column="1" Background="{StaticResource GscAccentTintBrush}" BorderBrush="{StaticResource GscAccentTintStrongBrush}"
+            <Border Grid.Column="1" Background="{DynamicResource GscAccentTintBrush}" BorderBrush="{DynamicResource GscAccentTintStrongBrush}"
                     BorderThickness="1" CornerRadius="12" Padding="10,6" Margin="12,0,0,0">
                 <Border.Style>
                     <Style TargetType="Border">
@@ -1905,7 +1905,7 @@
                 </Border.Style>
                 <StackPanel Orientation="Horizontal">
                     <ProgressBar Width="38" Height="4" IsIndeterminate="True" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBlock Text="后台更新" Foreground="{StaticResource GscAccentBrush}" FontWeight="SemiBold"/>
+                    <TextBlock Text="后台更新" Foreground="{DynamicResource GscAccentBrush}" FontWeight="SemiBold"/>
                 </StackPanel>
             </Border>
         </Grid>

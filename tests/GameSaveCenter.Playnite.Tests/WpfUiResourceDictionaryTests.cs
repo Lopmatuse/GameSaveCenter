@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Xml.Linq;
+using GameSaveCenter.Playnite.Settings;
 using GameSaveCenter.Playnite.Views;
 using Wpf.Ui.Controls;
 using Xunit;
@@ -16,6 +17,66 @@ namespace GameSaveCenter.Playnite.Tests;
 
 public sealed class WpfUiResourceDictionaryTests
 {
+    [Fact]
+    public void LocalAccentTokensFollowTheHostPaletteWithoutStaticThemeCapture()
+    {
+        Exception? exception = null;
+
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var host = new System.Windows.Controls.Border();
+                var hostAccent = Color.FromRgb(84, 61, 190);
+                host.Resources["WindowBackgroundBrush"] = new SolidColorBrush(Color.FromRgb(248, 249, 252));
+                host.Resources["TextBrush"] = new SolidColorBrush(Colors.Black);
+                host.Resources["TextBrushDark"] = new SolidColorBrush(Colors.White);
+                host.Resources["HighlightGlyphBrush"] = new SolidColorBrush(hostAccent);
+
+                var factoryType = typeof(DashboardView).Assembly.GetType(
+                    "GameSaveCenter.Playnite.Infrastructure.AdaptiveThemePaletteFactory",
+                    throwOnError: true)!;
+                var palette = factoryType.GetMethod("Create", BindingFlags.Public | BindingFlags.Static)!.Invoke(
+                    null,
+                    new object[] { host, true, 78, GameSaveCenterThemeMode.FollowPlaynite })!;
+
+                Assert.Equal(hostAccent, (Color)palette.GetType().GetProperty("Accent")!.GetValue(palette)!);
+                Assert.Equal(Colors.White, (Color)palette.GetType().GetProperty("OnAccentText")!.GetValue(palette)!);
+            }
+            catch (Exception caught)
+            {
+                exception = caught;
+            }
+        });
+
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+
+        Assert.Null(exception);
+
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
+        Assert.Contains("AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette)", dashboardCode);
+        Assert.Contains("AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette)", settingsCode);
+
+        foreach (var xamlPath in new[]
+                 {
+                     Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "DesignTokens.xaml"),
+                     Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"),
+                     Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml")
+                 })
+        {
+            var xaml = File.ReadAllText(xamlPath);
+            Assert.DoesNotContain("{StaticResource GscAccentBrush}", xaml);
+            Assert.DoesNotContain("{StaticResource GscAccentTintBrush}", xaml);
+            Assert.DoesNotContain("{StaticResource GscAccentTintStrongBrush}", xaml);
+            Assert.DoesNotContain("{StaticResource GscPrimaryButtonBrush}", xaml);
+            Assert.Contains("{DynamicResource GscAccentBrush}", xaml);
+        }
+    }
+
     [Fact]
     public void ProductionAdaptersResolveWpfUiButtonDefaultsInsideTheirOwnParseScope()
     {

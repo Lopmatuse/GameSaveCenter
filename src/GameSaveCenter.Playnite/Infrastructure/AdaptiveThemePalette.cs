@@ -31,6 +31,13 @@ namespace GameSaveCenter.Playnite.Infrastructure
         public Color SidebarBottom { get; set; }
         public Color Backdrop { get; set; }
         public Color Highlight { get; set; }
+        public Color Accent { get; set; }
+        public Color AccentHover { get; set; }
+        public Color AccentPressed { get; set; }
+        public Color AccentTint { get; set; }
+        public Color AccentTintStrong { get; set; }
+        public Color AccentIconFill { get; set; }
+        public Color OnAccentText { get; set; }
     }
 
     internal static class AdaptiveThemePaletteFactory
@@ -43,20 +50,30 @@ namespace GameSaveCenter.Playnite.Infrastructure
             "BackgroundBrush"
         };
 
+        private static readonly string[] AccentResourceKeys =
+        {
+            "HighlightGlyphBrush",
+            "AccentBrush",
+            "HoverBrush"
+        };
+
         public static AdaptiveThemePalette Create(FrameworkElement host, bool glassEnabled, int strengthPercent, GameSaveCenterThemeMode themeMode = GameSaveCenterThemeMode.FollowPlaynite)
         {
             var forcedLight = themeMode == GameSaveCenterThemeMode.Light;
             var forcedDark = themeMode == GameSaveCenterThemeMode.Dark;
-            var rawBackground = forcedLight
-                ? Color.FromRgb(243, 244, 248)
-                : forcedDark
-                    ? Color.FromRgb(23, 24, 31)
-                    : ResolveHostBackground(host)
-                        ?? ResolveFirstResourceColor(host, BackgroundResourceKeys)
-                        ?? Color.FromRgb(18, 20, 30);
+            var highContrast = SystemParameters.HighContrast;
+            var rawBackground = highContrast
+                ? SystemColors.WindowColor
+                : forcedLight
+                    ? Color.FromRgb(243, 244, 248)
+                    : forcedDark
+                        ? Color.FromRgb(23, 24, 31)
+                        : ResolveHostBackground(host)
+                            ?? ResolveFirstResourceColor(host, BackgroundResourceKeys)
+                            ?? Color.FromRgb(18, 20, 30);
 
-            var text = forcedLight ? Colors.Black : forcedDark ? Colors.White : ResolveResourceColor(host, "TextBrush");
-            var inverseText = forcedLight ? Colors.White : forcedDark ? Colors.Black : ResolveResourceColor(host, "TextBrushDark");
+            var text = highContrast ? SystemColors.WindowTextColor : forcedLight ? Colors.Black : forcedDark ? Colors.White : ResolveResourceColor(host, "TextBrush");
+            var inverseText = highContrast ? SystemColors.WindowTextColor : forcedLight ? Colors.White : forcedDark ? Colors.Black : ResolveResourceColor(host, "TextBrushDark");
 
             // If a theme uses a transparent/image background, infer a stable local surface from the
             // required text brushes. Otherwise preserve some of the theme's own color character.
@@ -85,6 +102,14 @@ namespace GameSaveCenter.Playnite.Infrastructure
             var strongControl = isDark
                 ? Blend(stableBase, Colors.White, 0.105)
                 : Blend(stableBase, Colors.Black, 0.02);
+            var fallbackAccent = isDark ? Color.FromRgb(139, 114, 255) : Color.FromRgb(115, 87, 255);
+            var hostAccent = !forcedLight && !forcedDark && !highContrast
+                ? ResolveFirstResourceColor(host, AccentResourceKeys)
+                : null;
+            var accent = EnsureContrast(highContrast ? SystemColors.HighlightColor : hostAccent ?? fallbackAccent, stableBase, isDark);
+            var accentHover = Blend(accent, isDark ? Colors.White : Colors.Black, 0.1);
+            var accentPressed = Blend(accent, Colors.Black, isDark ? 0.16 : 0.2);
+            var onAccentText = ChooseBestText(accent, Colors.White, Colors.Black, RelativeLuminance(accent) < 0.5);
 
             var surfaceTop = glassEnabled
                 ? WithAlpha(strongControl, 0.86 * strength)
@@ -117,8 +142,28 @@ namespace GameSaveCenter.Playnite.Infrastructure
                 SidebarTop = glassEnabled ? WithAlpha(strongControl, 0.9 * strength) : WithAlpha(strongControl, 1),
                 SidebarBottom = glassEnabled ? WithAlpha(stableBase, 0.82 * strength) : WithAlpha(stableBase, 1),
                 Backdrop = WithAlpha(stableBase, glassEnabled ? 0.26 : 1),
-                Highlight = WithAlpha(primaryText, isDark ? 0.075 : 0.24)
+                Highlight = WithAlpha(primaryText, isDark ? 0.075 : 0.24),
+                Accent = accent,
+                AccentHover = accentHover,
+                AccentPressed = accentPressed,
+                AccentTint = WithAlpha(accent, isDark ? 0.24 : 0.14),
+                AccentTintStrong = WithAlpha(accent, isDark ? 0.34 : 0.22),
+                AccentIconFill = WithAlpha(accent, isDark ? 0.22 : 0.14),
+                OnAccentText = onAccentText
             };
+        }
+
+        public static void ApplyAccentResources(ResourceDictionary resources, AdaptiveThemePalette palette)
+        {
+            resources["GscAccentBrush"] = Brush(palette.Accent);
+            resources["GscAccentHoverBrush"] = Brush(palette.AccentHover);
+            resources["GscAccentPressedBrush"] = Brush(palette.AccentPressed);
+            resources["GscAccentTintBrush"] = Brush(palette.AccentTint);
+            resources["GscAccentTintStrongBrush"] = Brush(palette.AccentTintStrong);
+            resources["GscAccentIconFillBrush"] = Brush(palette.AccentIconFill);
+            resources["GscOnAccentTextBrush"] = Brush(palette.OnAccentText);
+            resources["GscPrimaryButtonBrush"] = Gradient(palette.Accent, palette.AccentPressed);
+            resources["GscPrimaryButtonBorderBrush"] = Brush(palette.AccentHover);
         }
 
         public static SolidColorBrush Brush(Color color)
@@ -226,6 +271,15 @@ namespace GameSaveCenter.Playnite.Infrastructure
         }
 
         private static Color Opaque(Color color) => Color.FromRgb(color.R, color.G, color.B);
+
+        private static Color EnsureContrast(Color candidate, Color background, bool darkBackground)
+        {
+            candidate = Opaque(candidate);
+            var target = darkBackground ? Colors.White : Colors.Black;
+            for (var attempt = 0; attempt < 6 && ContrastRatio(candidate, background) < 3; attempt++)
+                candidate = Blend(candidate, target, 0.18);
+            return candidate;
+        }
 
         private static Color WithAlpha(Color color, double opacity)
         {
