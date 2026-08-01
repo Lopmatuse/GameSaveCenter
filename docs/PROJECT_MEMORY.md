@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 插件级通知/确认的安全 UI 调度
+
+- `GameSaveCenterPlugin` 的错误、成功、任务通知、宿主通知和确认必须经 `TryInvokeUi`。它检查 Playnite Dispatcher 关闭态并记录竞态；确认无法显示时必须返回取消，尤其不能让恢复等危险操作继续。
+- 通知调度失败不能伪造成功；应保留既有回退/日志。真实关闭中的通知和确认仍需 `ENV-001`。
+
 ### 2026-08-01 Worker 回调更新 Dashboard 集合的 Dispatcher 边界
 
 - `DashboardViewModel.ApplyOnUi` 是 Worker 回调更新 `ObservableCollection`、筛选和选中项的唯一同步 UI 入口。它必须先检查 Playnite Dispatcher 关闭态，并捕获 `Invoke` 与关闭竞态；正常路径继续使用 `DispatcherPriority.DataBind`，禁止后台直接访问绑定集合。

@@ -87,6 +87,7 @@
 | GSC-099 | Dashboard 卸载后仍保留 ViewModel 事件订阅，可能持有页面并触发无效 UI 调度 | 源码已修复待 Playnite 生命周期回归 | ViewModel 事件改为严格 Loaded/Unloaded 对称订阅 |
 | GSC-100 | Toast 在高对比度或关闭毛玻璃时仍无条件创建黑色阴影 | 源码已修复待多主题回归 | 柔和阴影仅在玻璃效果可用时创建，其他模式使用无阴影实体回退 |
 | GSC-101 | Worker 任务回调同步更新 Dashboard 绑定集合时未保护 Dispatcher 关闭竞态 | 源码已修复待 Playnite 生命周期回归 | 集合更新保留顺序，但关闭中的 Dispatcher 会被守卫并写入真实日志 |
+| GSC-102 | 插件级通知与安全确认直接 Invoke Playnite Dispatcher，关闭期间可能向宿主回抛异常 | 源码已修复待 Playnite 生命周期回归 | 统一调度守卫；无法显示的确认默认取消，通知安全回退 |
 
 ## GSC-093：数值输入焦点全选的 Dispatcher 关闭竞态
 
@@ -150,6 +151,13 @@
 - **根因**：Dashboard 长轮询/Worker 回调使用同步 Dispatcher 更新 `ObservableCollection`、筛选与选中项，保证 UI 可见状态的一致顺序；原入口未检查宿主 Dispatcher 已关闭或在检查后关闭的竞态。
 - **修复**：`ApplyOnUi` 现在先检查关闭态，并对同步 `Invoke` 的 `InvalidOperationException` 记录真实日志。正常场景仍使用 DataBind 优先级同步更新，未将集合改为后台线程访问，也未伪造或丢失真实任务状态。
 - **回归**：自动化测试锁定关闭守卫、DataBind 调度和异常日志；隔离 Playnite 中模拟慢 Worker/任务结束后关闭 Dashboard 或 Playnite，日志不得出现跨线程、已关闭 Dispatcher 或未处理集合更新异常。
+
+## GSC-102：插件级通知和确认的 Dispatcher 关闭边界
+
+- **状态**：源码已修复，待隔离 Playnite 生命周期回归。
+- **根因**：`ShowError`、`ShowInfo`、任务通知和安全恢复确认均可能从 Worker/后台续体进入 Playnite UI；原先各自直接 `UIDispatcher.Invoke`，在宿主开始关闭时会抛出未处理异常。
+- **修复**：集中 `TryInvokeUi` 检查 Dispatcher 关闭态并记录不可用竞态。通知在安全调度失败时保留既有宿主回退路径；无法显示的确认返回取消，绝不执行恢复或其他需要用户确认的操作。
+- **回归**：自动化测试锁定确认、通知和宿主通知均通过统一守卫；隔离 Playnite 中在后台任务完成、错误通知和恢复确认期间关闭宿主，确认日志无未处理 Dispatcher 异常且危险操作不会越过确认。
 | GSC-083 | 0.6.22 Dashboard 解析 WPF-UI Button 类型样式时崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 字典必须先合并 WpfUiBase；STA 资源解析测试通过后，在隔离 Playnite 打开 Dashboard/Settings，日志不得再出现 `Wpf.Ui.Controls.Button` 或 `XamlParseException` |
 | GSC-084 | 0.6.22 Dashboard 在修复类型样式后仍解析不到主题阴影资源而崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 适配器中的 GameSaveCenter 令牌必须使用 `DynamicResource` 从父级 UserControl 作用域解析；打开 Dashboard/Settings 后日志不得再出现 `GscSoftShadowColor`、`StaticResourceHolder` 或 `XamlParseException` |
 | GSC-085 | 0.6.22 动画冻结 Transform 与 WPF-UI `ContentDialogHost` 在 Playnite 共用窗口中导致崩溃 | 源码已修复，待隔离 Playnite 回归 | 回归测试验证冻结的 Translate/Scale Transform 会先克隆为元素私有实例；全插件 XAML/C# 禁止 `ContentDialogHost` 和 `new ContentDialog(...)`；确认使用插件内浮层、设置报告使用 MessageBox，日志不得再出现相应异常 |

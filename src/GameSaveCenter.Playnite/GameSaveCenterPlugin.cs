@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using System.Windows.Controls;
 using GameSaveCenter.Contracts;
 using GameSaveCenter.Playnite.Infrastructure;
@@ -149,7 +150,12 @@ namespace GameSaveCenter.Playnite
         public async Task<bool> ConfirmAsync(string title, string message, string confirmText = "确认", string cancelText = "取消", bool isDangerous = false)
         {
             var args = new UiConfirmationEventArgs(title, message, confirmText, cancelText, isDangerous);
-            PlayniteApi.MainView.UIDispatcher.Invoke(() => UiConfirmationRequested?.Invoke(this, args));
+            if (!TryInvokeUi(() => UiConfirmationRequested?.Invoke(this, args), "confirmation request"))
+            {
+                // A destructive or restore action must never proceed when its confirmation UI
+                // cannot be safely displayed during Playnite shutdown.
+                return false;
+            }
             if (args.Handled) return await args.Completion.Task.ConfigureAwait(false);
 
             var result = PlayniteApi.Dialogs.ShowMessage(message, title, System.Windows.MessageBoxButton.YesNo);
@@ -186,14 +192,30 @@ namespace GameSaveCenter.Playnite
             var handler = UiNotificationRequested;
             if (handler == null) return false;
             var args = new UiNotificationEventArgs(title, LimitNotificationText(message), kind);
-            PlayniteApi.MainView.UIDispatcher.Invoke(() => handler(this, args));
+            if (!TryInvokeUi(() => handler(this, args), "notification request")) return false;
             return args.Handled;
         }
 
         private void AddNotification(string category, string message, NotificationType type)
         {
-            PlayniteApi.MainView.UIDispatcher.Invoke(() =>
-                PlayniteApi.Notifications.Add($"GameSaveCenter.{category}", message, type));
+            TryInvokeUi(() => PlayniteApi.Notifications.Add($"GameSaveCenter.{category}", message, type), "Playnite notification");
+        }
+
+        private bool TryInvokeUi(Action action, string operation)
+        {
+            var dispatcher = PlayniteApi.MainView.UIDispatcher;
+            if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished) return false;
+            try
+            {
+                if (dispatcher.CheckAccess()) action();
+                else dispatcher.Invoke(action, DispatcherPriority.DataBind);
+                return true;
+            }
+            catch (InvalidOperationException ex)
+            {
+                logger.Error(ex, $"GameSaveCenter skipped {operation} because the Playnite UI dispatcher is unavailable.");
+                return false;
+            }
         }
 
         private void StartTaskNotificationMonitor()

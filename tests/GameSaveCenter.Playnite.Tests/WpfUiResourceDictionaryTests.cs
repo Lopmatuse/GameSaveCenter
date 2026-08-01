@@ -638,6 +638,21 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("skipped a Dashboard UI collection update because the dispatcher is unavailable", viewModelCode);
     }
 
+    [Fact]
+    public void PluginNotificationAndConfirmationDispatchRespectPlayniteShutdown()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var pluginCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "GameSaveCenterPlugin.cs"));
+
+        Assert.Contains("private bool TryInvokeUi(Action action, string operation)", pluginCode);
+        Assert.Contains("if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished) return false;", pluginCode);
+        Assert.Contains("dispatcher.Invoke(action, DispatcherPriority.DataBind);", pluginCode);
+        Assert.Contains("if (!TryInvokeUi(() => UiConfirmationRequested?.Invoke(this, args), \"confirmation request\"))", pluginCode);
+        Assert.Contains("return false;", pluginCode);
+        Assert.Contains("if (!TryInvokeUi(() => handler(this, args), \"notification request\")) return false;", pluginCode);
+        Assert.Contains("skipped {operation} because the Playnite UI dispatcher is unavailable", pluginCode);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]
