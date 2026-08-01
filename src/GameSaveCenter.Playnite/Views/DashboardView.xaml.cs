@@ -75,7 +75,7 @@ namespace GameSaveCenter.Playnite.Views
             if (!hasPlayedEntrance)
             {
                 hasPlayedEntrance = true;
-                Dispatcher.BeginInvoke(new Action(PlayEntranceAnimation), DispatcherPriority.Loaded);
+                BeginUiSafely(PlayEntranceAnimation, DispatcherPriority.Loaded);
             }
             else
             {
@@ -107,25 +107,27 @@ namespace GameSaveCenter.Playnite.Views
 
         private void OnAttentionCenterRequested(object? sender, EventArgs e)
         {
-            Dispatcher.BeginInvoke(new Action(() =>
+            BeginUiSafely(() =>
             {
+                if (!IsLoaded) return;
                 NavMaintenance.IsChecked = true;
                 UpdateWorkspacePresentation();
                 DetailsTabControl.SelectedItem = LogsTab;
                 FindingsGrid.ScrollIntoView(viewModel.SelectedFinding);
                 FindingsGrid.Focus();
                 AnimateElement(DetailsTabControl, 10, 0, 0.2);
-            }), DispatcherPriority.Background);
+            }, DispatcherPriority.Background);
         }
 
         private void OnVisualSettingsChanged(object sender, EventArgs e)
         {
-            Dispatcher.BeginInvoke(new Action(() =>
+            BeginUiSafely(() =>
             {
+                if (!IsLoaded) return;
                 ApplyAdaptiveTheme();
                 refreshTimer.Interval = TimeSpan.FromSeconds(Math.Max(5, Math.Min(300, plugin.Settings.DashboardRefreshSeconds)));
                 if (plugin.Settings.EnableDashboardAutoRefresh) refreshTimer.Start(); else refreshTimer.Stop();
-            }), DispatcherPriority.Background);
+            }, DispatcherPriority.Background);
         }
 
         private void OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -139,6 +141,19 @@ namespace GameSaveCenter.Playnite.Views
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
             => ApplyResponsiveLayout(e.NewSize.Width, e.NewSize.Height);
+
+        private void BeginUiSafely(Action action, DispatcherPriority priority)
+        {
+            if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished) return;
+            try
+            {
+                Dispatcher.BeginInvoke(action, priority);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Logger.Error(ex, "GameSaveCenter skipped a deferred Dashboard UI callback because the dispatcher is unavailable.");
+            }
+        }
 
         private void ApplyResponsiveLayout(double width, double height)
         {
@@ -454,21 +469,21 @@ namespace GameSaveCenter.Playnite.Views
             // continuation. Do not read any View state until this View is back on its owner thread.
             if (!Dispatcher.CheckAccess())
             {
-                Dispatcher.BeginInvoke(new Action(() => OnViewModelPropertyChanged(sender, e)), DispatcherPriority.Background);
+                BeginUiSafely(() => OnViewModelPropertyChanged(sender, e), DispatcherPriority.Background);
                 return;
             }
             if (!IsLoaded) return;
             if (e.PropertyName == nameof(DashboardViewModel.SelectedGame) && !viewModel.IsBackgroundRefreshing)
             {
-                Dispatcher.BeginInvoke(new Action(() => AnimateElement(GameDetailCard, 13, 0, 0.23)), DispatcherPriority.Background);
+                BeginUiSafely(() => AnimateElement(GameDetailCard, 13, 0, 0.23), DispatcherPriority.Background);
             }
             else if (e.PropertyName == nameof(DashboardViewModel.SelectedTask) && !viewModel.IsBackgroundRefreshing)
             {
-                Dispatcher.BeginInvoke(new Action(() => AnimateElement(TaskDetailCard, 8, 0, 0.2)), DispatcherPriority.Background);
+                BeginUiSafely(() => AnimateElement(TaskDetailCard, 8, 0, 0.2), DispatcherPriority.Background);
             }
             else if (e.PropertyName == nameof(DashboardViewModel.StatusMessage))
             {
-                Dispatcher.BeginInvoke(new Action(() => AnimateStatusPill()), DispatcherPriority.Background);
+                BeginUiSafely(AnimateStatusPill, DispatcherPriority.Background);
             }
         }
 
@@ -724,7 +739,10 @@ namespace GameSaveCenter.Playnite.Views
                 DialogCard.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, duration) { EasingFunction = easing });
                 translate.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(14, 0, duration) { EasingFunction = easing });
             }
-            Dispatcher.BeginInvoke(new Action(() => initialFocus.Focus()), DispatcherPriority.Input);
+            BeginUiSafely(() =>
+            {
+                if (IsLoaded && DialogOverlay.Visibility == Visibility.Visible) initialFocus.Focus();
+            }, DispatcherPriority.Input);
         }
 
         private void OnDialogCancelClick(object sender, RoutedEventArgs e) => CompleteDialog(false);

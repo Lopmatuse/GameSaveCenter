@@ -806,7 +806,13 @@ def check_0620_wpf_thread_guards() -> None:
         loaded_index = body.find("IsLoaded")
         if dispatcher_index < 0 or loaded_index < 0 or dispatcher_index > loaded_index:
             fail("Dashboard must check Dispatcher access before reading IsLoaded")
-        if "OnViewModelPropertyChanged(sender, e)" not in body or "Dispatcher.BeginInvoke" not in body:
+        reposts_directly = "Dispatcher.BeginInvoke" in body
+        reposts_through_lifecycle_guard = (
+            "BeginUiSafely(() => OnViewModelPropertyChanged(sender, e)" in body
+            and "private void BeginUiSafely(Action action, DispatcherPriority priority)" in view
+            and "Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished" in view
+        )
+        if "OnViewModelPropertyChanged(sender, e)" not in body or not (reposts_directly or reposts_through_lifecycle_guard):
             fail("Dashboard background PropertyChanged must be reposted to its Dispatcher")
     for forbidden in ("async void RequestBackgroundRefresh", "async void RefreshAfterSynchronization"):
         if forbidden in view_model:

@@ -3,6 +3,13 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-017 Dashboard Dispatcher 生命周期保护
+
+- [x] Dashboard 的延迟 UI 回调统一经过 `BeginUiSafely`：在 Dispatcher 开始/完成关闭时跳过回调，并捕获不可用 Dispatcher 的异常；Worker 属性通知、视觉设置、注意事项导航、首次进入动画与对话框焦点均不再直接向已卸载宿主投递。
+- [x] 后台刷新本身继续返回 `Task` 并在 ViewModel 内报告真实异常；本轮没有以 `Task.Delay`、假状态或吞异常掩盖 Worker 故障。
+- [x] `validate-source.py` 更新为识别这一更强的转发模式，同时仍要求属性变化先检查 Dispatcher；新增专项回归测试。
+- [x] 自动验证：源码门禁通过，UI 静态审查 0 errors（27 项既有/隔离副本 warnings），Release 构建 0 warning/0 error，13 Core + 21 Worker + 31 Playnite 测试通过；真实 Playnite 的主题、DPI 与键盘回归仍由隔离环境阻塞。
+
 ## 2026-08-01 UI-016 全工作区命令可达性门禁
 
 - [x] 新增回归门禁：自动枚举 `DashboardViewModel` 的每个公开 `ICommand`，要求其在重构后的 Dashboard XAML 中保留普通或相对源绑定入口，防止后续视觉调整遗漏备份、恢复、云端、媒体、任务、修改器、诊断、设备或进程映射功能。

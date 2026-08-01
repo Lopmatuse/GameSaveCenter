@@ -250,6 +250,20 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void DeferredDashboardCallbacksAreProtectedDuringPlayniteUnload()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("private void BeginUiSafely(Action action, DispatcherPriority priority)", dashboardCode);
+        Assert.Contains("Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished", dashboardCode);
+        Assert.Contains("catch (InvalidOperationException ex)", dashboardCode);
+        Assert.Contains("BeginUiSafely(() => OnViewModelPropertyChanged(sender, e)", dashboardCode);
+        Assert.Contains("BeginUiSafely(PlayEntranceAnimation, DispatcherPriority.Loaded)", dashboardCode);
+        Assert.Contains("if (!IsLoaded) return;", dashboardCode);
+    }
+
+    [Fact]
     public void SettingsStoragePolicyFieldsUseASafeCompactSingleColumnLayout()
     {
         var repositoryRoot = FindRepositoryRoot();
