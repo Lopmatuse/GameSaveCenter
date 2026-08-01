@@ -42,7 +42,7 @@ namespace GameSaveCenter.Playnite.Settings
             }
 
             entrancePlayed = true;
-            Dispatcher.BeginInvoke(new Action(PlayEntranceAnimation), DispatcherPriority.Loaded);
+            BeginUiSafely(PlayEntranceAnimation, DispatcherPriority.Loaded);
         }
 
         private void OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -57,17 +57,30 @@ namespace GameSaveCenter.Playnite.Settings
 
         private void OnThemeModeChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (IsLoaded) Dispatcher.BeginInvoke(new Action(ApplyAdaptiveTheme), DispatcherPriority.Background);
+            if (IsLoaded) BeginUiSafely(ApplyAdaptiveTheme, DispatcherPriority.Background);
         }
 
         private void OnVisualSettingChanged(object sender, RoutedEventArgs e)
         {
-            if (IsLoaded) Dispatcher.BeginInvoke(new Action(ApplyAdaptiveTheme), DispatcherPriority.Background);
+            if (IsLoaded) BeginUiSafely(ApplyAdaptiveTheme, DispatcherPriority.Background);
         }
 
         private void OnGlassStrengthChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (IsLoaded) Dispatcher.BeginInvoke(new Action(ApplyAdaptiveTheme), DispatcherPriority.Background);
+            if (IsLoaded) BeginUiSafely(ApplyAdaptiveTheme, DispatcherPriority.Background);
+        }
+
+        private void BeginUiSafely(Action action, DispatcherPriority priority)
+        {
+            if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished) return;
+            try
+            {
+                Dispatcher.BeginInvoke(action, priority);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Logger.Error(ex, "GameSaveCenter skipped a deferred settings UI callback because the dispatcher is unavailable.");
+            }
         }
 
         private void OnExportSettingsClick(object sender, RoutedEventArgs e)
