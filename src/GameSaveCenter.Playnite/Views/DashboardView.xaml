@@ -1796,12 +1796,15 @@
                                     </DataGrid>
                                 </Border>
                                 <Border Grid.Row="3" Style="{StaticResource GscSurface}" Padding="12" Margin="0,8,0,0">
-                                    <WrapPanel>
-                                        <TextBlock Text="记录决策：" VerticalAlignment="Center"/>
-                                        <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="150" ItemsSource="{Binding DeviceDecisionOptions}" SelectedItem="{Binding DeviceDecision}" Margin="8,0"/>
-                                        <TextBox Style="{StaticResource GscWpfUiTextBox}" MinWidth="280" Text="{Binding DeviceDecisionComment, UpdateSourceTrigger=PropertyChanged}" ToolTip="仅记录判断依据，不会执行远端操作"/>
-                                        <ui:Button Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding SaveDeviceDecisionCommand}" Content="保存人工决策"/>
-                                    </WrapPanel>
+                                    <StackPanel>
+                                        <TextBlock Text="记录人工决策" FontWeight="SemiBold"/>
+                                        <TextBlock Text="只保存判断依据，不会执行远端操作或删除远端内容。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,0,10"/>
+                                        <UniformGrid x:Name="DeviceDecisionFields" Columns="3">
+                                            <StackPanel Margin="0,0,12,10"><TextBlock Text="决策" Margin="0,0,0,4"/><ComboBox Style="{StaticResource GscWpfUiComboBox}" ItemsSource="{Binding DeviceDecisionOptions}" SelectedItem="{Binding DeviceDecision}"/></StackPanel>
+                                            <StackPanel Margin="0,0,12,10"><TextBlock Text="判断依据" Margin="0,0,0,4"/><TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding DeviceDecisionComment, UpdateSourceTrigger=PropertyChanged}" ToolTip="仅记录判断依据，不会执行远端操作"/></StackPanel>
+                                            <StackPanel Margin="0,0,12,10"><TextBlock Text="操作" Margin="0,0,0,4"/><ui:Button Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding SaveDeviceDecisionCommand}" Content="保存人工决策" HorizontalAlignment="Left"/></StackPanel>
+                                        </UniformGrid>
+                                    </StackPanel>
                                 </Border>
                                 <Border Grid.Row="4" Style="{StaticResource GscSurface}" Padding="12" Margin="0,8,0,0">
                                     <StackPanel>

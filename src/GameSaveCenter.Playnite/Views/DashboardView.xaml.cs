@@ -249,6 +249,11 @@ namespace GameSaveCenter.Playnite.Views
                 MediaSourceFields.Columns = width < 980 ? 1 : 2;
             }
 
+            if (DeviceDecisionFields != null)
+            {
+                DeviceDecisionFields.Columns = width < 980 ? 1 : width < 1280 ? 2 : 3;
+            }
+
             RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves && height >= 700
                 ? Visibility.Visible : Visibility.Collapsed;
             if (viewModel.CurrentWorkspace != WorkspaceKind.Saves)

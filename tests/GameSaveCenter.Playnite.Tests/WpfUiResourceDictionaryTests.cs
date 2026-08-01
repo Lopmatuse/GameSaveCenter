@@ -215,6 +215,21 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void DeviceDecisionsPreserveProtectedRecoveryAndReadableCompactFields()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var codeBehind = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("x:Name=\"DeviceDecisionFields\" Columns=\"3\"", dashboard);
+        Assert.Contains("Command=\"{Binding SaveDeviceDecisionCommand}\"", dashboard);
+        Assert.Contains("Command=\"{Binding StageRemoteBackupCommand}\"", dashboard);
+        Assert.Contains("Command=\"{Binding RestoreStagedRemoteBackupCommand}\"", dashboard);
+        Assert.Contains("不会执行远端操作或删除远端内容", dashboard);
+        Assert.Contains("DeviceDecisionFields.Columns = width < 980 ? 1 : width < 1280 ? 2 : 3", codeBehind);
+    }
+
+    [Fact]
     public void SettingsStoragePolicyFieldsUseASafeCompactSingleColumnLayout()
     {
         var repositoryRoot = FindRepositoryRoot();
