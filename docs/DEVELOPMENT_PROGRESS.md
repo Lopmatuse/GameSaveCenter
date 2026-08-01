@@ -7,6 +7,7 @@
 
 - [x] Dashboard 顶部的刷新、全部备份、媒体同步、修改器导入/目录和诊断操作在紧凑宽度统一转换为图标优先模式；每个入口仍保留真实 Command、Automation Name 与 Tooltip，只有文字标签会随布局收起。
 - [x] 新增源码回归测试，锁定六个入口的图标、标签、命令、自动化名称、提示与 `Expanded` 断点收放逻辑，防止未来缩放优化误删功能或键盘可达性。
+- [x] 自动验证：源码门禁、UI Skill 静态审查（0 errors）、Release 下 Core 13 + Worker 21 + Playnite UI 46 = 80 项测试、`git diff --check`、`git fsck --full`、PEXT 打包与 Worker `0.6.22.0` smoke 通过。
 - [ ] 隔离 Playnite 的实际缩放、主题与键盘回归仍由 `ENV-001` 阻塞；未启动或操作用户实例。
 
 ## 2026-08-01 UI-036 Popup 的透明与动画无障碍降级

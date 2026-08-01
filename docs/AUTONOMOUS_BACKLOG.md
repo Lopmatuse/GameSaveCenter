@@ -7,7 +7,7 @@
 ### GOV-002：校准积压清单与交付证据状态
 
 - **优先级**：P1
-- **状态**：PROPOSED
+- **状态**：IMPLEMENTED
 - **发现日期**：2026-08-01
 - **根因与影响**：本轮只读审计发现积压清单仍将 DOC-001 标记为 `PROPOSED`，但 `792186f` 已完成该文档一致性修正；部分 UI 条目的自动化测试数量也停留在早期计数。状态和证据漂移会使无人值守代理错误判断可领取任务、重复实现已完成工作，或把源码自动化误当作真机验证。
 - **建议范围**：逐项核对积压条目与提交、`PROJECT_MEMORY.md`、`DEVELOPMENT_PROGRESS.md`、`KNOWN_ISSUES.md` 和 `WINDOWS_TEST_PLAN.md`；仅校准任务状态、当前证据、依赖和阻塞条件，保留可追溯的历史证据；明确 `ENV-001` 是真实 Playnite 回归的唯一环境前置。
@@ -50,7 +50,7 @@
 ### DOC-001：完成度评估版本与证据一致性复核
 
 - **优先级**：P2
-- **状态**：PROPOSED
+- **状态**：IMPLEMENTED
 - **前置条件**：不得提升程序集、插件清单或正式版本；必须以当前提交中的可复查证据更新评估。
 - **根因与影响**：`docs/FEATURE_COMPLETION_ASSESSMENT.md` 仍标记 `0.6.20-development-preview`，而当前程序集、插件清单、`DEVELOPMENT_PROGRESS.md` 和 `PROJECT_MEMORY.md` 已记录 `0.6.22`。版本漂移会使完成度、真机验证范围和交接判断失真。
 - **范围**：核对版本来源、当前源码覆盖和真实 Windows/Playnite 证据；只更新评估文档的版本、日期、百分比说明和未验证边界，不能把静态检查写成真机结论。
@@ -88,6 +88,8 @@
 - **当前证据**：2026-08-01 已完成可在源码层安全落地的生产迁移：新增视图局部 `WpfUiProduction.xaml` 适配层；Dashboard 的 6 个指标卡、59 个生产动作按钮、14 个策略/工具/媒体开关、10 个普通文本输入和 13 个下拉选择，以及 Settings 的 5 个设置卡、2 个动作按钮、14 个开关、6 个路径输入和 3 个下拉选择均使用 WPF-UI 模板。数值校验输入、高密度 DataGrid/ListBox、搜索清除按钮和本地兜底浮层继续保留原生 WPF；59 个 Command、全部 Binding、Recycling 虚拟化和业务事件数量与基线一致。Dashboard/Settings 的 Snackbar 使用框架局部适配；确认和设置导入报告分别使用插件内 Dialog 与 MessageBox，因为真实日志证明 WPF-UI `ContentDialogHost` 是 Playnite Window 级单例，不能放入嵌入式页面。文件导入导出的磁盘读取/写入移出 UI 线程，未引入新的 `async void`。针对真实 `Wpf.Ui.Controls.Button`、`GscSoftShadowColor` 和 `ContentDialogHost.RegisterHost` 崩溃，已分别增加资源作用域/主题令牌/窗口 Host 回归门禁。Windows Release build 为 0 警告/错误，Core 13、Worker 21、Playnite 19 项测试通过；真实 Playnite、DPI、主题、键盘及宿主污染验证仍被 ENV-001 阻塞。
 
 ## 本次审计证据
+
+- 2026-08-01：GOV-002 完成台账校准。`792186f` 已将 `FEATURE_COMPLETION_ASSESSMENT.md` 校准至 `0.6.22-development-preview`，故 DOC-001 从 `PROPOSED` 改为 `IMPLEMENTED`；当前可复查自动化基线为源码门禁通过、Release 0 warning/0 error、Core 13 + Worker 21 + Playnite UI 46 = 80 项测试通过、UI Skill 静态审查 0 errors、`git diff --check`/`git fsck --full`、PEXT 打包和 Worker `0.6.22.0` smoke 通过。历史条目中的较低测试数保留为当时提交的证据，不能误写成当前基线。`ENV-001` 仍是实际 Playnite 加载、多主题、DPI、键盘和滚动验收的唯一环境前置；没有启动 `.tmp` 或用户实例。
 
 - 2026-08-01：本次只读审计确认用户进程仍为 `D:\\software\\Playnite\\Playnite\\Playnite.DesktopApp.exe`（PID 28708）及用户 AppData 扩展下的 Worker（PID 31444）。工作区 `.tmp/playnite-ui-test/Playnite` 仅声明 `DatabasePath: library`，未提供可审计的 portable/独立配置根证明；其扩展目录已含本次测试插件。已登记 ENV-001，未启动该副本，`.tmp/` 保持未跟踪。
 - 2026-08-01：为验证 GSC-083/GSC-084，向 `.tmp/playnite-ui-test/Playnite/Extensions/66e9f2d7-67bb-43ef-b62a-b8e60734fcec` 复制了本次已打包的测试文件；启动副本后，桌面自动化只识别到 `D:\\software\\Playnite\\Playnite\\Playnite.DesktopApp.exe` 的“数据备份错误”窗口和该路径的 PID。未点击、关闭、终止或写入该用户实例，未操作其 Worker、备份、恢复或云端。此现象进一步证明复制目录不能建立 ENV-001 的单实例/数据根边界；真机验收继续保持 `BLOCKED_ENVIRONMENT`，`.tmp/` 不纳入 Git。

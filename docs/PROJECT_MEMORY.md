@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 当前可复查自动化基线
+
+- 当前基线是 Core 13、Worker 21、Playnite UI 46，共 80 项 Release 测试；并同时通过源码门禁、UI Skill 静态审查（0 errors）、`git diff --check`、`git fsck --full`、PEXT 打包和 Worker `0.6.22.0` smoke。历史提交中记录的较低测试数是当时的快照，不得作为当前完成度。
+- 这不是实际 Playnite 验收的替代物：`ENV-001` 未证明独立数据根/扩展目录/PID 前，不得启动 `.tmp` 副本或用户实例，也不能宣称多主题、DPI、键盘或滚动真机完成。
+
 ### 2026-08-01 紧凑工具栏必须保留动作可达性
 
 - Dashboard 顶部操作在非 Expanded 布局只能收起文字标签，不能删除按钮、Command、Automation Name 或 Tooltip。`SetToolbarLabelsVisible` 必须覆盖刷新、全部备份、媒体同步、修改器导入/目录及诊断全部六项，以便窄宽度仍保留鼠标、键盘与屏幕阅读器路径。
