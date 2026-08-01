@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-032 Dashboard Worker 回调 Dispatcher 边界
+
+- [x] Worker 任务监听更新 Dashboard 游戏、任务、筛选和选中绑定集合时，现会检查宿主 Dispatcher 生命周期并捕获关闭竞态；正常情况仍以 `DataBind` 同步顺序更新，绝不在后台线程直接修改 WPF 绑定集合。
+- [x] 关闭中跳过的 UI 更新会写入真实日志；任务、备份、云端、媒体和错误状态的业务结果不被伪造或吞掉。
+- [x] 自动验证：`validate-source.py` 与 UI Skill 静态审查（0 errors）通过；Release 下 Core 13 + Worker 21 + Playnite UI 44 = 78 项测试通过，`git diff --check`、`git fsck --full`、PEXT 打包及 Worker `0.6.22.0` smoke 通过。真实慢 Worker/关闭宿主回归仍由 `ENV-001` 阻塞。
+
 ## 2026-08-01 UI-031 Toast 高对比度与无玻璃回退
 
 - [x] 浮层通知的软阴影只在用户启用玻璃且未使用高对比度时创建；关闭毛玻璃/高对比度使用同一主题资源的实体、无阴影回退，减少不必要的视觉效果与渲染负担。

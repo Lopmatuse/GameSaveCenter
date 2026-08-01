@@ -626,6 +626,18 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("card.SetResourceReference(Border.BackgroundProperty, \"GscGlassStrongBrush\")", dashboardCode);
     }
 
+    [Fact]
+    public void BackgroundWorkerCollectionUpdatesRespectThePlayniteDispatcherLifecycle()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var viewModelCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "ViewModels", "DashboardViewModel.cs"));
+
+        Assert.Contains("if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished) return;", viewModelCode);
+        Assert.Contains("dispatcher.Invoke(action, DispatcherPriority.DataBind);", viewModelCode);
+        Assert.Contains("catch (InvalidOperationException ex)", viewModelCode);
+        Assert.Contains("skipped a Dashboard UI collection update because the dispatcher is unavailable", viewModelCode);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]

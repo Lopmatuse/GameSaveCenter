@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 Worker 回调更新 Dashboard 集合的 Dispatcher 边界
+
+- `DashboardViewModel.ApplyOnUi` 是 Worker 回调更新 `ObservableCollection`、筛选和选中项的唯一同步 UI 入口。它必须先检查 Playnite Dispatcher 关闭态，并捕获 `Invoke` 与关闭竞态；正常路径继续使用 `DispatcherPriority.DataBind`，禁止后台直接访问绑定集合。
+- 关闭时仅跳过无法呈现的 UI 更新并记录原始异常；不能将真实 Worker 状态伪造为成功或用延迟掩盖失败。真实慢 Worker/关闭回归仍需 `ENV-001`。
+
 ### 2026-08-01 Toast 的材质降级
 
 - Dashboard Toast 的阴影只能在玻璃效果已启用且非高对比度时创建；关闭透明或高对比度必须完全省略 `DropShadowEffect`，保留由局部调色板提供的实体背景、边框、文本和关闭路径。

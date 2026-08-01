@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Data;
+using System.Windows.Threading;
 using Microsoft.Win32;
 using GameSaveCenter.Contracts;
 using Playnite.SDK;
@@ -1534,8 +1535,23 @@ namespace GameSaveCenter.Playnite.ViewModels
         private void ApplyOnUi(Action action)
         {
             var dispatcher = plugin.PlayniteApi.MainView.UIDispatcher;
-            if (dispatcher.CheckAccess()) action();
-            else dispatcher.Invoke(action);
+            if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished) return;
+            if (dispatcher.CheckAccess())
+            {
+                action();
+                return;
+            }
+
+            try
+            {
+                // Task event listeners may be on a Worker continuation. Retain synchronous
+                // ordering for collection/filter updates, but never invoke a closing Playnite UI.
+                dispatcher.Invoke(action, DispatcherPriority.DataBind);
+            }
+            catch (InvalidOperationException ex)
+            {
+                Logger.Error(ex, "GameSaveCenter skipped a Dashboard UI collection update because the dispatcher is unavailable.");
+            }
         }
         private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> source)
         {
