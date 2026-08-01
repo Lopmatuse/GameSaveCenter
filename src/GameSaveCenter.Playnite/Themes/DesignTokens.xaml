@@ -75,7 +75,8 @@
     <Thickness x:Key="GscFocusThickness">2</Thickness>
 
     <!-- Stable, mostly opaque reading surface. Views may add their own layout-only padding
-         but must not recreate a different card material for every settings section. -->
+         but must not recreate a different card material for every settings section. It stays
+         effect-free so dense pages do not attach a compositor effect to every small group. -->
     <Style x:Key="GscSurface" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource GscGlassFillBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
@@ -83,6 +84,12 @@
         <Setter Property="CornerRadius" Value="{StaticResource GscCornerCard}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="Effect" Value="{x:Null}"/>
+    </Style>
+
+    <!-- Only primary workspaces use elevation; lists, compact metrics and form groups remain
+         on GscSurface so scrolling and repeated content never accumulate DropShadowEffects. -->
+    <Style x:Key="GscElevatedSurface" TargetType="Border" BasedOn="{StaticResource GscSurface}">
         <Setter Property="Effect" Value="{DynamicResource GscSurfaceEffect}"/>
     </Style>
 

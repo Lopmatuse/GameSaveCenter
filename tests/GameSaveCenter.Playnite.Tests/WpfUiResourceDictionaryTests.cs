@@ -128,6 +128,10 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("{DynamicResource GscDialogEffect}", dashboard);
         Assert.Contains("{DynamicResource GscPopupEffect}", tokens);
         Assert.Contains("{DynamicResource GscSliderThumbEffect}", tokens);
+        Assert.Contains("x:Key=\"GscElevatedSurface\"", tokens);
+        Assert.Contains("x:Key=\"GscElevatedSurface\"", dashboard);
+        Assert.Contains("x:Name=\"GameBrowserPanel\" Style=\"{StaticResource GscElevatedSurface}\"", dashboard);
+        Assert.Contains("x:Name=\"GameDetailCard\" Grid.Column=\"2\" Style=\"{StaticResource GscElevatedSurface}\"", dashboard);
     }
 
     [Fact]

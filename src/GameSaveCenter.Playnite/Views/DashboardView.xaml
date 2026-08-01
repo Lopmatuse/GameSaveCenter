@@ -42,6 +42,13 @@
             <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Effect" Value="{x:Null}"/>
+        </Style>
+
+        <!-- This page uses elevation only for the two permanent work areas. Repeated cards,
+             table frames and form groups stay flat so their content remains inexpensive while
+             scrolling or switching modules. -->
+        <Style x:Key="GscElevatedSurface" TargetType="Border" BasedOn="{StaticResource GscSurface}">
             <Setter Property="Effect" Value="{DynamicResource GscSurfaceEffect}"/>
         </Style>
 
@@ -790,7 +797,7 @@
                 <ColumnDefinition x:Name="GameDetailColumn" Width="2.05*"/>
             </Grid.ColumnDefinitions>
 
-            <Border x:Name="GameBrowserPanel" Style="{StaticResource GscSurface}" Padding="16">
+            <Border x:Name="GameBrowserPanel" Style="{StaticResource GscElevatedSurface}" Padding="16">
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                     <Grid Margin="2,0,0,10">
@@ -934,7 +941,7 @@
                 </Grid>
             </Border>
 
-            <Border x:Name="GameDetailCard" Grid.Column="2" Style="{StaticResource GscSurface}" Padding="18">
+            <Border x:Name="GameDetailCard" Grid.Column="2" Style="{StaticResource GscElevatedSurface}" Padding="18">
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                     <Grid x:Name="SelectedGameHeader">

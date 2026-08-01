@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 Dashboard 的两级材质层级
+
+- `GscSurface` 是无 Effect 的主要阅读面；`GscElevatedSurface` 才绑定动态 `GscSurfaceEffect`。Dashboard 仅把后者用于 `GameBrowserPanel` 和 `GameDetailCard` 两个永久主工作区，避免统计卡、表单、诊断卡和列表附近堆叠阴影。
+- 这条层级规则不能通过给 DataGrid/ListBox 行或滚动内容加阴影来替代；浮层、侧栏和 Dialog 继续走各自受主题/无障碍控制的 Effect 键。真实滚动与主题视觉回归仍需 `ENV-001`。
+
 ### 2026-08-01 共享材质 Effect 的无障碍回退
 
 - `ApplyMaterialResources` 是 Dashboard 与 Settings 的局部阴影资源唯一入口。关闭透明或高对比度时，`GscSurfaceEffect`、`GscPrimaryButtonEffect`、`GscSidebarEffect`、`GscPopupEffect`、`GscDialogEffect` 和 `GscSliderThumbEffect` 必须是真正的 `null`，不能用 `Opacity=0` 保留昂贵的 Effect visual。

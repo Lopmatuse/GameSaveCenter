@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-035 Dashboard 两级材质层级
+
+- [x] `GscSurface` 现为清晰的无阴影阅读面；只有 Dashboard 左侧游戏浏览与右侧详情两个永久工作区使用 `GscElevatedSurface`。统计、表单、诊断与数据表容器不再为每个小分组附加阴影。
+- [x] 侧栏、Popup、Dialog、Toast 与两个主工作区仍在允许的玻璃模式使用轻量提升；关闭透明/高对比度继续通过局部资源回退，无新增大面积模糊、列表效果或布局动画。
+- [x] 自动验证：`validate-source.py` 与 UI Skill 静态审查（0 errors）通过；Release 下 Core 13 + Worker 21 + Playnite UI 45 = 79 项测试通过，`git diff --check`、`git fsck --full`、PEXT 打包及 Worker `0.6.22.0` smoke 通过。真实渲染与滚动性能仍由 `ENV-001` 阻塞。
+
 ## 2026-08-01 UI-034 共享材质 Effect 的辅助功能回退
 
 - [x] Dashboard 与 Settings 的本地调色板现在集中决定 Surface、主按钮、侧栏、Popup、Dialog 和 Slider Thumb 的轻量阴影；关闭透明或高对比度时使用真正的 `null` Effect，而不是透明的效果对象。
