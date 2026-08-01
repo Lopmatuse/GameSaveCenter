@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 全量 UI 源码交付与真机边界
+
+- 已完成的源码重构覆盖 Dashboard 六个工作区（总览、存档、修改器、媒体、任务、维护）及 Settings：共享设计令牌和控件模板、数值输入完整值提交、紧凑布局、命令映射、错误/取消路径、焦点、主题降级和延迟 Dispatcher 回调均有回归覆盖；不得以页面改版为由删除既有功能入口或 Recycling 虚拟化。
+- 本轮自动化证据：`validate-source.py` 通过；UI Skill 静态审查为 0 错误（仍有项目和 `.tmp` 副本的提示，不能忽略）；Release 构建 0 警告/0 错误；Core 13、Worker 21、Playnite 31，共 65 测试通过；PEXT 包检查与 Worker `0.6.22.0` smoke 通过。
+- 以上仅为源码和自动化证据。真实 Playnite 的资源加载、Light/Dark/Follow/High Contrast、透明/动画降级、100%--200% DPI、980×640--1600×900、键盘和大库性能仍受 `ENV-001` 阻塞。没有可审计的独立数据根、扩展目录、测试库和本次启动 PID 边界时，不得启动/关闭/覆盖用户 Playnite 或用户插件目录。
+
 ### 2026-08-01 WPF-UI 生产资源解析边界
 
 - Playnite 的实际 Dashboard 加载已证明：`WpfUiProduction.xaml` 不能把 WPF-UI 默认类型样式仅放在 Dashboard/Settings 的同级 `WpfUiBase.xaml` 合并字典中；该布局会在解析 `BasedOn="{StaticResource {x:Type ui:Button}}"` 时抛出 `XamlParseException`，资源名为 `Wpf.Ui.Controls.Button`。
@@ -18,7 +24,7 @@
 - `GscWpfUiActionButton`、Toolbar、Context 等适配样式必须保留原按钮的 Margin、紧凑高度和“禁用时隐藏”行为；不能把 `ui:Button` 样式应用到原生 `Button`，反之亦然。
 - Playnite 内嵌页面绝不能声明 WPF-UI `ContentDialogHost` 或构造 `ContentDialog`：它是 Window 级单例，Dashboard、Settings、探针或其他扩展的任意重复注册都会令宿主崩溃。通知可使用页面局部 Snackbar；确认必须使用 Dashboard 的插件内 Dialog，设置导入报告使用 MessageBox。错误通知的详情入口不可删除，重叠确认必须安全取消而不能堆叠模态层。
 - 设置导入/导出的文件元数据、读取和写入不得阻塞 UI 线程；UI 依赖对象和 DataContext 更新仍在 Dispatcher 线程。生产事件边界不得新增不可控 `async void`。
-- 本批已具备 Windows/.NET SDK 8.0.423 的 Release build（0 警告/错误）与 53 项自动化测试证据；真实 Playnite、DPI、主题、键盘和宿主污染仍需 ENV-001，不能由构建、STA 资源加载测试或包内容检查替代。
+- 本批已具备 Windows/.NET SDK 8.0.423 的 Release build（0 警告/错误）与 65 项自动化测试证据；真实 Playnite、DPI、主题、键盘和宿主污染仍需 ENV-001，不能由构建、STA 资源加载测试或包内容检查替代。
 
 ### 2026-08-01 UI-003 自适应布局与验证边界
 

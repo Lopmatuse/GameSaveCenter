@@ -73,11 +73,11 @@
 | GSC-075 | 多 EXE 修改器包静默选择最大文件且无法切换版本 | 已修复待修改器回归 | 导入时用户选择主程序；Inspector 可选择并保存活动版本 |
 | GSC-076 | Worker 任务刷新在后台线程触发 Dashboard PropertyChanged 后访问 WPF 控件而导致插件崩溃 | 已修复待 Playnite 回归 | View 先检查 Dispatcher 后再读取 IsLoaded；定时器和事件回调等待 Task；循环任务完成/取消/慢 Worker 时日志无跨线程异常 |
 | GSC-077 | 备份策略分钟输入框过窄且逐字符回写整数，导致多位数输入看似丢失 | 已修复，Playnite 基础回归通过 | 共享数值输入宽度、完整值提交和范围校验；1600×900 真机完成 `30`→`1440`→`30` 未保存编辑验证；隔离 DPI/主题回归仍按测试计划执行 |
-| GSC-078 | Settings 引用 Dashboard 局部按钮资源、输入错误填充资源缺失，且数值静态门禁漏检嵌套路径 | 源码已修复待 Playnite 回归 | UI-001 已将通用无 EventSetter Button 和错误色令牌加入共享资源，门禁已识别嵌套路径；Release 与 48 项测试通过，仍需隔离 Playnite 加载验证 |
+| GSC-078 | Settings 引用 Dashboard 局部按钮资源、输入错误填充资源缺失，且数值静态门禁漏检嵌套路径 | 源码已修复待 Playnite 回归 | UI-001 已将通用无 EventSetter Button 和错误色令牌加入共享资源，门禁已识别嵌套路径；Release 与 65 项测试通过，仍需隔离 Playnite 加载验证 |
 | GSC-079 | WPF-UI POC 尚未在隔离 Playnite 宿主中实际加载 | 环境阻塞 | 现有 Playnite/Worker 是用户实例，不能关闭或覆盖。需要独立插件目录和测试实例后检查资源作用域、Dialog/Snackbar、主题、DPI 与宿主未污染 |
-| GSC-080 | 共享 WPF 控件尚未在隔离 Playnite 中完成多 DPI/主题视觉验证 | 源码与自动化已验收，环境待验证 | UI-002/003 已通过资源门禁、Release 构建、50 项测试与包 smoke；仍需在独立数据根验证按钮、输入、滑块、提示、表格、页签、滚动条和键盘焦点 |
+| GSC-080 | 共享 WPF 控件尚未在隔离 Playnite 中完成多 DPI/主题视觉验证 | 源码与自动化已验收，环境待验证 | 全量 UI 源码重构已通过资源门禁、Release 构建、65 项测试与包 smoke；仍需在独立数据根验证按钮、输入、滑块、提示、表格、页签、滚动条和键盘焦点 |
 | GSC-081 | Dashboard/Settings 的紧凑布局尚未在独立 Playnite 中完成真实缩放验证 | 源码收口，环境阻塞 | 侧栏滚动、图标工具栏、设置页横向访问与可见焦点均已实现；`ENV-001` 证明独立数据根前不得启动 `.tmp` 副本或用户实例 |
-| GSC-082 | 生产 WPF-UI 局部主题与控件尚未经过隔离 Playnite 宿主加载验证 | 自动化已通过，真机环境阻塞 | Card/Button/ToggleSwitch/普通输入、Dialog/Snackbar 已接入局部适配层并保留原生回退；Windows Release build 与 51 项测试通过，仍需以独立实例检查资源加载、Light/Dark/HighContrast、DPI、键盘和宿主无全局污染 |
+| GSC-082 | 生产 WPF-UI 局部主题与控件尚未经过隔离 Playnite 宿主加载验证 | 自动化已通过，真机环境阻塞 | Card/Button/ToggleSwitch/普通输入、Dialog/Snackbar 已接入局部适配层并保留原生回退；Windows Release build 与 65 项测试通过，仍需以独立实例检查资源加载、Light/Dark/HighContrast、DPI、键盘和宿主无全局污染 |
 | GSC-083 | 0.6.22 Dashboard 解析 WPF-UI Button 类型样式时崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 字典必须先合并 WpfUiBase；STA 资源解析测试通过后，在隔离 Playnite 打开 Dashboard/Settings，日志不得再出现 `Wpf.Ui.Controls.Button` 或 `XamlParseException` |
 | GSC-084 | 0.6.22 Dashboard 在修复类型样式后仍解析不到主题阴影资源而崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 适配器中的 GameSaveCenter 令牌必须使用 `DynamicResource` 从父级 UserControl 作用域解析；打开 Dashboard/Settings 后日志不得再出现 `GscSoftShadowColor`、`StaticResourceHolder` 或 `XamlParseException` |
 | GSC-085 | 0.6.22 WPF-UI `ContentDialogHost` 在 Playnite 共用窗口中重复注册导致崩溃 | 源码已修复，待隔离 Playnite 回归 | 所有 Playnite 页面禁止注册 `ContentDialogHost`；确认使用插件内浮层、设置报告使用 MessageBox，日志不得再出现 `Only one ContentDialogHost instance is allowed per Window` |
