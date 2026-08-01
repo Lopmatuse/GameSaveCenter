@@ -42,6 +42,15 @@ public sealed class WpfUiResourceDictionaryTests
 
                 Assert.Equal(hostAccent, (Color)palette.GetType().GetProperty("Accent")!.GetValue(palette)!);
                 Assert.Equal(Colors.White, (Color)palette.GetType().GetProperty("OnAccentText")!.GetValue(palette)!);
+
+                var localResources = new ResourceDictionary();
+                factoryType.GetMethod("ApplyWpfUiResources", BindingFlags.Public | BindingFlags.Static)!.Invoke(
+                    null,
+                    new object[] { localResources, palette });
+                var wpfUiAccent = Assert.IsType<SolidColorBrush>(localResources["AccentFillColorDefaultBrush"]);
+                var wpfUiText = Assert.IsType<SolidColorBrush>(localResources["TextOnAccentFillColorPrimaryBrush"]);
+                Assert.Equal(hostAccent, wpfUiAccent.Color);
+                Assert.Equal(Colors.White, wpfUiText.Color);
             }
             catch (Exception caught)
             {
@@ -60,6 +69,8 @@ public sealed class WpfUiResourceDictionaryTests
         var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
         Assert.Contains("AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette)", dashboardCode);
         Assert.Contains("AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette)", settingsCode);
+        Assert.Contains("AdaptiveThemePaletteFactory.ApplyWpfUiResources(Resources, palette)", dashboardCode);
+        Assert.Contains("AdaptiveThemePaletteFactory.ApplyWpfUiResources(Resources, palette)", settingsCode);
 
         foreach (var xamlPath in new[]
                  {
@@ -122,6 +133,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Null(exception);
         var buttonStyle = Assert.IsType<Style>(resources!["GscWpfUiButton"]);
         Assert.Equal(typeof(Button), buttonStyle.TargetType);
+        Assert.IsAssignableFrom<Brush>(resources["AccentFillColorDefaultBrush"]);
+        Assert.IsAssignableFrom<Brush>(resources["TextOnAccentFillColorPrimaryBrush"]);
     }
 
     [Fact]

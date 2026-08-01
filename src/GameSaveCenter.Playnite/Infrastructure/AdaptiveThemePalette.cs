@@ -171,6 +171,44 @@ namespace GameSaveCenter.Playnite.Infrastructure
             resources["GscAccentShadowColor"] = WithAlpha(palette.Accent, palette.IsDark ? 0.34 : 0.28);
         }
 
+        /// <summary>
+        /// WPF-UI resolves these Fluent token names through dynamic resources. Keep the overrides
+        /// local to an embedded GameSaveCenter view so a Playnite theme (or another extension)
+        /// is never mutated, while WPF-UI controls still share the same palette as native controls.
+        /// </summary>
+        public static void ApplyWpfUiResources(ResourceDictionary resources, AdaptiveThemePalette palette)
+        {
+            var secondaryFill = palette.IsDark
+                ? Blend(palette.ControlFill, Colors.White, 0.045)
+                : Blend(palette.ControlFill, Colors.Black, 0.025);
+            var tertiaryFill = palette.IsDark
+                ? Blend(palette.ControlFill, Colors.White, 0.085)
+                : Blend(palette.ControlFill, Colors.Black, 0.055);
+
+            resources["AccentFillColorDefaultBrush"] = Brush(palette.Accent);
+            resources["AccentFillColorSecondaryBrush"] = Brush(palette.AccentHover);
+            resources["AccentFillColorTertiaryBrush"] = Brush(palette.AccentPressed);
+            resources["AccentFillColorDisabledBrush"] = Brush(WithAlpha(palette.Accent, 0.38));
+            resources["TextOnAccentFillColorPrimaryBrush"] = Brush(palette.OnAccentText);
+            resources["TextOnAccentFillColorSelectedTextBrush"] = Brush(palette.OnAccentText);
+            resources["TextFillColorPrimaryBrush"] = Brush(palette.PrimaryText);
+            resources["TextFillColorSecondaryBrush"] = Brush(palette.SecondaryText);
+            resources["TextFillColorTertiaryBrush"] = Brush(palette.MutedText);
+            resources["TextFillColorDisabledBrush"] = Brush(palette.DisabledText);
+            resources["ControlFillColorDefaultBrush"] = Brush(palette.ControlFill);
+            resources["ControlFillColorSecondaryBrush"] = Brush(secondaryFill);
+            resources["ControlFillColorTertiaryBrush"] = Brush(tertiaryFill);
+            resources["ControlFillColorInputActiveBrush"] = Brush(tertiaryFill);
+            resources["ControlFillColorDisabledBrush"] = Brush(WithAlpha(palette.ControlFill, 0.5));
+            resources["ControlSolidFillColorDefaultBrush"] = Brush(palette.Accent);
+            resources["ControlStrokeColorDefaultBrush"] = Brush(palette.ControlStroke);
+            resources["ControlStrokeColorSecondaryBrush"] = Brush(palette.Divider);
+            resources["CardBackgroundFillColorDefaultBrush"] = Brush(palette.StrongSurfaceTop);
+            resources["CardStrokeColorDefaultBrush"] = Brush(palette.ControlStroke);
+            resources["FocusStrokeColorOuterBrush"] = Brush(palette.Accent);
+            resources["FocusStrokeColorInnerBrush"] = Brush(palette.OnAccentText);
+        }
+
         public static SolidColorBrush Brush(Color color)
         {
             var brush = new SolidColorBrush(color);

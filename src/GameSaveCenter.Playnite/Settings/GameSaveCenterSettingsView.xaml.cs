@@ -240,6 +240,7 @@ namespace GameSaveCenter.Playnite.Settings
             var palette = AdaptiveThemePaletteFactory.Create(this, glassEnabled, strength, CurrentSettings?.ThemeMode ?? GameSaveCenterThemeMode.FollowPlaynite);
 
             AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette);
+            AdaptiveThemePaletteFactory.ApplyWpfUiResources(Resources, palette);
             Resources["GscPrimaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.PrimaryText);
             Resources["GscSecondaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.SecondaryText);
             Resources["GscMutedTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.MutedText);
