@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 Toast 的材质降级
+
+- Dashboard Toast 的阴影只能在玻璃效果已启用且非高对比度时创建；关闭透明或高对比度必须完全省略 `DropShadowEffect`，保留由局部调色板提供的实体背景、边框、文本和关闭路径。
+- 该规则不允许以删除真实错误详情、自动隐藏或动画来换取稳定性；实际多主题 Toast 回归仍需 `ENV-001`。
+
 ### 2026-08-01 Dashboard 的 ViewModel 事件所有权
 
 - Dashboard 的 `PropertyChanged` 与 `AttentionCenterRequested` 只能在页面 Loaded 时订阅，Unloaded 时必须解除；不能仅依靠事件处理器中的 `IsLoaded` 早退，因为该方式仍会持有页面并制造后台回调。

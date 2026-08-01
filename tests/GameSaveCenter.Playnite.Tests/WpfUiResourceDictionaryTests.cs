@@ -615,6 +615,17 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("viewModel.AttentionCenterRequested -= OnAttentionCenterRequested;", dashboardCode);
     }
 
+    [Fact]
+    public void ToastElevationFallsBackToAnOpaqueAccessibleSurface()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("if (plugin.Settings.EnableGlassEffects && !SystemParameters.HighContrast)", dashboardCode);
+        Assert.Contains("card.Effect = new System.Windows.Media.Effects.DropShadowEffect", dashboardCode);
+        Assert.Contains("card.SetResourceReference(Border.BackgroundProperty, \"GscGlassStrongBrush\")", dashboardCode);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]

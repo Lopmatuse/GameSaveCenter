@@ -848,13 +848,16 @@ namespace GameSaveCenter.Playnite.Views
             };
             card.SetResourceReference(Border.BackgroundProperty, "GscGlassStrongBrush");
             card.SetResourceReference(Border.BorderBrushProperty, "GscGlassStrokeBrush");
-            card.Effect = new System.Windows.Media.Effects.DropShadowEffect
+            if (plugin.Settings.EnableGlassEffects && !SystemParameters.HighContrast)
             {
-                Color = Colors.Black,
-                BlurRadius = 22,
-                ShadowDepth = 5,
-                Opacity = 0.24
-            };
+                card.Effect = new System.Windows.Media.Effects.DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 22,
+                    ShadowDepth = 5,
+                    Opacity = 0.24
+                };
+            }
 
             var layout = new Grid();
             layout.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(12) });

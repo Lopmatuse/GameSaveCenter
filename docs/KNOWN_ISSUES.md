@@ -85,6 +85,7 @@
 | GSC-097 | Settings 异步导入/导出在页面卸载后仍可能尝试显示反馈或保留入场动画 | 源码已修复待 Playnite 生命周期回归 | 业务操作保持完成，视觉反馈受页面/Dispatcher 可用性保护，卸载取消动画 |
 | GSC-098 | 连续窗口缩放会对 Dashboard/Settings 重复执行大量响应式布局赋值 | 源码已修复待 DPI/缩放回归 | 同一渲染帧只应用最后一个尺寸，卸载页面不会执行延迟布局 |
 | GSC-099 | Dashboard 卸载后仍保留 ViewModel 事件订阅，可能持有页面并触发无效 UI 调度 | 源码已修复待 Playnite 生命周期回归 | ViewModel 事件改为严格 Loaded/Unloaded 对称订阅 |
+| GSC-100 | Toast 在高对比度或关闭毛玻璃时仍无条件创建黑色阴影 | 源码已修复待多主题回归 | 柔和阴影仅在玻璃效果可用时创建，其他模式使用无阴影实体回退 |
 
 ## GSC-093：数值输入焦点全选的 Dispatcher 关闭竞态
 
@@ -134,6 +135,13 @@
 - **根因**：Dashboard 在构造时订阅 `PropertyChanged` 和关注中心请求事件，但页面卸载时未解除；后台任务更新即使被 `IsLoaded` 过滤，仍会持有视图并产生无效回调/调度。
 - **修复**：事件订阅移至 `Loaded`，并在 `Unloaded` 与任务订阅同步解除；重复 Loaded 不会重复订阅。重新打开 Dashboard 时会恢复真实状态动画与关注中心导航，未改变命令、绑定或 Worker 任务。
 - **回归**：自动化测试锁定订阅守卫、解除逻辑和两个事件处理器；隔离 Playnite 中反复打开/关闭 Dashboard、完成后台任务和打开关注中心，日志不得出现重复回调、页面泄漏或 Dispatcher 异常。
+
+## GSC-100：Toast 材质在辅助功能模式的回退
+
+- **状态**：源码已修复，待隔离 Playnite 多主题/高对比度回归。
+- **根因**：Toast 卡片无条件创建黑色 `DropShadowEffect`。高对比度和关闭毛玻璃时，阴影既不符合实体材质降级，也增加不必要的合成开销。
+- **修复**：仅在用户启用玻璃效果且未开启高对比度时创建轻量阴影；通知内容、真实错误详情、关闭按钮、计时器和主题背景资源不变。其余模式使用已经由调色板提供的清晰不透明表面。
+- **回归**：自动化测试锁定阴影创建条件和主题背景绑定；隔离 Playnite 中分别检查浅/深、关闭玻璃和高对比度的成功/错误 Toast 可读、可关闭且无阴影残影。
 | GSC-083 | 0.6.22 Dashboard 解析 WPF-UI Button 类型样式时崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 字典必须先合并 WpfUiBase；STA 资源解析测试通过后，在隔离 Playnite 打开 Dashboard/Settings，日志不得再出现 `Wpf.Ui.Controls.Button` 或 `XamlParseException` |
 | GSC-084 | 0.6.22 Dashboard 在修复类型样式后仍解析不到主题阴影资源而崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 适配器中的 GameSaveCenter 令牌必须使用 `DynamicResource` 从父级 UserControl 作用域解析；打开 Dashboard/Settings 后日志不得再出现 `GscSoftShadowColor`、`StaticResourceHolder` 或 `XamlParseException` |
 | GSC-085 | 0.6.22 动画冻结 Transform 与 WPF-UI `ContentDialogHost` 在 Playnite 共用窗口中导致崩溃 | 源码已修复，待隔离 Playnite 回归 | 回归测试验证冻结的 Translate/Scale Transform 会先克隆为元素私有实例；全插件 XAML/C# 禁止 `ContentDialogHost` 和 `new ContentDialog(...)`；确认使用插件内浮层、设置报告使用 MessageBox，日志不得再出现相应异常 |
