@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-029 响应式缩放布局合并
+
+- [x] Dashboard 与 Settings 的连续 `SizeChanged` 现在合并为下一渲染帧的最后一个尺寸，避免拖动窗口时重复执行多组列宽、面板可见性和紧凑模式赋值。
+- [x] 页面卸载后不执行排队的响应式布局；现有 980 DIP 紧凑布局、横向访问、虚拟化及所有操作入口保持不变。
+- [x] 自动验证：`validate-source.py` 与 UI Skill 静态审查（0 errors）通过；Release 下 Core 13 + Worker 21 + Playnite UI 41 = 75 项测试通过，`git diff --check`、`git fsck --full`、PEXT 打包及 Worker `0.6.22.0` smoke 通过。真实 DPI/缩放回归仍由 `ENV-001` 阻塞。
+
 ## 2026-08-01 UI-028 Settings 卸载期异步反馈保护
 
 - [x] 设置导入/导出继续在后台完成文件 I/O；续体现在只会在页面仍加载、Dispatcher 可用时刷新绑定或显示 Snackbar/MessageBox，关闭页面不会伪造结果或再触发未处理 UI 回调。

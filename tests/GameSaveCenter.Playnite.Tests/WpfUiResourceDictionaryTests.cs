@@ -582,6 +582,24 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("GameSaveCenter could not present settings feedback.", settingsCode);
     }
 
+    [Fact]
+    public void ResponsiveLayoutsCoalesceResizeStormsWithoutUpdatingUnloadedViews()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
+
+        foreach (var source in new[] { dashboardCode, settingsCode })
+        {
+            Assert.Contains("private bool responsiveLayoutPending;", source);
+            Assert.Contains("private Size pendingResponsiveSize;", source);
+            Assert.Contains("private void QueueResponsiveLayout(Size size)", source);
+            Assert.Contains("if (responsiveLayoutPending) return;", source);
+            Assert.Contains("DispatcherPriority.Render", source);
+            Assert.Contains("if (!IsLoaded) return;", source);
+        }
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]

@@ -18,6 +18,8 @@ namespace GameSaveCenter.Playnite.Settings
         private static readonly ILogger Logger = LogManager.GetLogger();
         private bool entrancePlayed;
         private bool settingsTransferInProgress;
+        private bool responsiveLayoutPending;
+        private Size pendingResponsiveSize;
 
         public GameSaveCenterSettingsView()
         {
@@ -54,7 +56,7 @@ namespace GameSaveCenter.Playnite.Settings
         }
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
-            => ApplyResponsiveLayout(e.NewSize.Width, e.NewSize.Height);
+            => QueueResponsiveLayout(e.NewSize);
 
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
@@ -65,6 +67,20 @@ namespace GameSaveCenter.Playnite.Settings
             {
                 translate.BeginAnimation(TranslateTransform.YProperty, null);
             }
+            responsiveLayoutPending = false;
+        }
+
+        private void QueueResponsiveLayout(Size size)
+        {
+            pendingResponsiveSize = size;
+            if (responsiveLayoutPending) return;
+            responsiveLayoutPending = true;
+            BeginUiSafely(() =>
+            {
+                responsiveLayoutPending = false;
+                if (!IsLoaded) return;
+                ApplyResponsiveLayout(pendingResponsiveSize.Width, pendingResponsiveSize.Height);
+            }, DispatcherPriority.Render);
         }
 
         private void OnThemeModeChanged(object sender, SelectionChangedEventArgs e)

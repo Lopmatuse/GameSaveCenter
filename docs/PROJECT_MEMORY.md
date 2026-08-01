@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 响应式布局的缩放合并
+
+- Dashboard/Settings 不能在每一个 `SizeChanged` 同步重新设置全部响应式属性；必须保存最近 `Size` 并用单次 `DispatcherPriority.Render` 回调合并。回调必须在 `IsLoaded` 为 false 时跳过，卸载要清除挂起标记。
+- 这只是渲染性能优化，不能延迟或丢失首次 Loaded 布局，也不能删改紧凑模式中的横向访问、命令、焦点或虚拟化。
+
 ### 2026-08-01 Settings 页面卸载与异步反馈
 
 - 设置导入/导出可在页面卸载后继续完成真实文件操作，但后续 `DataContext`、Snackbar、MessageBox 和成功提示必须通过 `CanPresentUiFeedback`（已加载且 Dispatcher 可用）边界。无法呈现时记录而不是让视觉反馈异常回流。

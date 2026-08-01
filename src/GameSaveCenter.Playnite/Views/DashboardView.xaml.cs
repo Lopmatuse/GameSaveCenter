@@ -29,6 +29,8 @@ namespace GameSaveCenter.Playnite.Views
         private UiConfirmationEventArgs? activeConfirmation;
         private bool dialogShowsResult;
         private bool confirmationOpen;
+        private bool responsiveLayoutPending;
+        private Size pendingResponsiveSize;
 
         public DashboardView(GameSaveCenterPlugin plugin)
         {
@@ -103,6 +105,7 @@ namespace GameSaveCenter.Playnite.Views
             activeConfirmation?.Completion.TrySetResult(false);
             activeConfirmation = null;
             confirmationOpen = false;
+            responsiveLayoutPending = false;
             DialogOverlay.Visibility = Visibility.Collapsed;
             ClearToasts();
         }
@@ -142,7 +145,20 @@ namespace GameSaveCenter.Playnite.Views
         }
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
-            => ApplyResponsiveLayout(e.NewSize.Width, e.NewSize.Height);
+            => QueueResponsiveLayout(e.NewSize);
+
+        private void QueueResponsiveLayout(Size size)
+        {
+            pendingResponsiveSize = size;
+            if (responsiveLayoutPending) return;
+            responsiveLayoutPending = true;
+            BeginUiSafely(() =>
+            {
+                responsiveLayoutPending = false;
+                if (!IsLoaded) return;
+                ApplyResponsiveLayout(pendingResponsiveSize.Width, pendingResponsiveSize.Height);
+            }, DispatcherPriority.Render);
+        }
 
         private void BeginUiSafely(Action action, DispatcherPriority priority)
         {
