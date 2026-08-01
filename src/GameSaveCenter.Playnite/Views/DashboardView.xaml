@@ -973,6 +973,7 @@
                             <ui:Button x:Name="BackupSelectedButton" Style="{StaticResource GscWpfUiToolbarPrimaryButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份" Margin="0,0,8,0"/>
                             <ui:Button x:Name="ValidateButton" Style="{StaticResource GscWpfUiToolbarButton}" Command="{Binding ValidateCommand}" Content="校验" Margin="0,0,8,0"/>
                             <ui:Button x:Name="DetectPathsButton" Style="{StaticResource GscWpfUiToolbarButton}" Command="{Binding DetectPathsCommand}" Content="侦测路径" Margin="0,0,8,0"/>
+                            <ui:Button Style="{StaticResource GscWpfUiToolbarButton}" Command="{Binding LoadDetailsCommand}" Content="刷新详情" ToolTip="重新读取当前游戏的备份、媒体和策略详情" Margin="0,0,8,0"/>
                             <ui:Button x:Name="PolicyToggleButton" Style="{StaticResource GscWpfUiToolbarButton}" Click="OnTogglePolicy" Content="策略"/>
                         </WrapPanel>
                     </Grid>

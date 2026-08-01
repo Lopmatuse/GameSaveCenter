@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Markup;
@@ -227,6 +228,25 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Command=\"{Binding RestoreStagedRemoteBackupCommand}\"", dashboard);
         Assert.Contains("不会执行远端操作或删除远端内容", dashboard);
         Assert.Contains("DeviceDecisionFields.Columns = width < 980 ? 1 : width < 1280 ? 2 : 3", codeBehind);
+    }
+
+    [Fact]
+    public void EveryDashboardViewModelCommandRemainsReachableFromTheRedesignedDashboard()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var viewModel = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "ViewModels", "DashboardViewModel.cs"));
+        var commands = Regex.Matches(viewModel, @"public ICommand (?<name>[A-Za-z0-9_]+Command) \{ get; \}");
+
+        Assert.NotEmpty(commands);
+        foreach (Match match in commands)
+        {
+            var command = match.Groups["name"].Value;
+            Assert.True(
+                dashboard.Contains("Command=\"{Binding " + command)
+                || dashboard.Contains("Command=\"{Binding DataContext." + command),
+                "重构后的 Dashboard 缺少可访问命令入口：" + command);
+        }
     }
 
     [Fact]
