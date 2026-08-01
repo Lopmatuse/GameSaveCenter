@@ -1617,14 +1617,24 @@
                             </Grid>
                         </TabItem>
 
-                        <TabItem x:Name="TaskTab" Header="任务">
+                        <TabItem x:Name="TaskTab" Header="任务队列">
                             <Grid Margin="0,12,0,0">
                                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                                <WrapPanel Margin="0,0,0,10">
-                                    <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="150" ItemsSource="{Binding TaskStatusFilterOptions}" SelectedItem="{Binding TaskStatusFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="任务状态" Margin="0,0,8,0"/>
-                                    <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="190" ItemsSource="{Binding TaskGameFilterOptions}" SelectedItem="{Binding TaskGameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="游戏筛选" Margin="0,0,8,0"/>
-                                    <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="160" ItemsSource="{Binding TaskTypeFilterOptions}" SelectedItem="{Binding TaskTypeFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="任务类型" Margin="0"/>
-                                </WrapPanel>
+                                <Border Style="{StaticResource GscSurface}" CornerRadius="14" Padding="14" Margin="0,0,0,10">
+                                    <Grid>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="任务队列" FontSize="16" FontWeight="SemiBold"/>
+                                            <TextBlock Text="筛选不会取消、重排或重新执行后台任务；选择一项可查看真实错误与可恢复操作。"
+                                                       Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                        </StackPanel>
+                                        <WrapPanel x:Name="TaskFiltersPanel" Grid.Row="1" Margin="0,12,0,0">
+                                            <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="150" ItemsSource="{Binding TaskStatusFilterOptions}" SelectedItem="{Binding TaskStatusFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="任务状态" Margin="0,0,8,8"/>
+                                            <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="190" ItemsSource="{Binding TaskGameFilterOptions}" SelectedItem="{Binding TaskGameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="游戏筛选" Margin="0,0,8,8"/>
+                                            <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="160" ItemsSource="{Binding TaskTypeFilterOptions}" SelectedItem="{Binding TaskTypeFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="任务类型" Margin="0,0,0,8"/>
+                                        </WrapPanel>
+                                    </Grid>
+                                </Border>
                                 <Border Grid.Row="1" Style="{StaticResource GscTableFrame}">
                                     <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding TasksView}" SelectedItem="{Binding SelectedTask}" RowHeight="46" ColumnHeaderHeight="40">
                                         <DataGrid.Columns>
@@ -1680,17 +1690,19 @@
                                         </Style>
                                     </Border.Style>
                                     <Grid>
-                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                        <StackPanel>
+                                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                        <StackPanel Grid.Row="0">
                                             <TextBlock FontWeight="SemiBold"><Run Text="{Binding SelectedTask.GameName, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding SelectedTask.TaskTypeDisplay, Mode=OneWay}"/></TextBlock>
                                             <TextBlock Text="{Binding SelectedTask.DetailMessage}" TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,5,12,0"/>
                                             <TextBlock Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,5,0,0"><Run Text="耗时 "/><Run Text="{Binding SelectedTask.DurationDisplay, Mode=OneWay}"/><Run Text=" · 任务 ID "/><Run Text="{Binding SelectedTask.TaskId, Mode=OneWay}"/></TextBlock>
                                         </StackPanel>
-                                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding CopyTaskErrorCommand}" Content="复制详情" Margin="8,0,0,0"/>
-                                            <ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding RetryTaskCommand}" Content="安全重试" Margin="8,0,0,0"/>
-                                            <ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding CancelTaskCommand}" Content="取消任务" Margin="8,0,0,0"/>
-                                        </StackPanel>
+                                        <!-- A wrapping action band keeps recovery actions keyboard reachable
+                                             when long technical details or high DPI consume horizontal space. -->
+                                        <WrapPanel x:Name="TaskDetailActions" Grid.Row="1" VerticalAlignment="Center" Margin="0,12,0,0">
+                                            <ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding CopyTaskErrorCommand}" Content="复制详情" Margin="0,0,8,0"/>
+                                            <ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding RetryTaskCommand}" Content="安全重试" Margin="0,0,8,0"/>
+                                            <ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding CancelTaskCommand}" Content="取消任务" Margin="0"/>
+                                        </WrapPanel>
                                     </Grid>
                                 </Border>
                             </Grid>

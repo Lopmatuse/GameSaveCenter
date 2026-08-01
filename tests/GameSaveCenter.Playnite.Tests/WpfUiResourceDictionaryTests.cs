@@ -137,6 +137,20 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Header=\"时间\" Binding=\"{Binding CreatedLocal", dashboard);
     }
 
+    [Fact]
+    public void TaskWorkspaceKeepsRecoveryActionsReachableWhenDetailsWrap()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+
+        Assert.Contains("x:Name=\"TaskFiltersPanel\"", dashboard);
+        Assert.Contains("<WrapPanel x:Name=\"TaskDetailActions\"", dashboard);
+        Assert.Contains("Command=\"{Binding CopyTaskErrorCommand}\"", dashboard);
+        Assert.Contains("Command=\"{Binding RetryTaskCommand}\"", dashboard);
+        Assert.Contains("Command=\"{Binding CancelTaskCommand}\"", dashboard);
+        Assert.Contains("筛选不会取消、重排或重新执行后台任务", dashboard);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]
