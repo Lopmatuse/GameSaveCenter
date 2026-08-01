@@ -79,6 +79,7 @@
 | GSC-081 | Dashboard/Settings 的紧凑布局尚未在独立 Playnite 中完成真实缩放验证 | 源码收口，环境阻塞 | 侧栏滚动、图标工具栏、设置页横向访问与可见焦点均已实现；`ENV-001` 证明独立数据根前不得启动 `.tmp` 副本或用户实例 |
 | GSC-082 | 生产 WPF-UI 局部主题与控件尚未经过隔离 Playnite 宿主加载验证 | 自动化已通过，真机环境阻塞 | Card/Button/ToggleSwitch/普通输入、Dialog/Snackbar 已接入局部适配层并保留原生回退；Windows Release build 与 51 项测试通过，仍需以独立实例检查资源加载、Light/Dark/HighContrast、DPI、键盘和宿主无全局污染 |
 | GSC-083 | 0.6.22 Dashboard 解析 WPF-UI Button 类型样式时崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 字典必须先合并 WpfUiBase；STA 资源解析测试通过后，在隔离 Playnite 打开 Dashboard/Settings，日志不得再出现 `Wpf.Ui.Controls.Button` 或 `XamlParseException` |
+| GSC-084 | 0.6.22 Dashboard 在修复类型样式后仍解析不到主题阴影资源而崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 适配器中的 GameSaveCenter 令牌必须使用 `DynamicResource` 从父级 UserControl 作用域解析；打开 Dashboard/Settings 后日志不得再出现 `GscSoftShadowColor`、`StaticResourceHolder` 或 `XamlParseException` |
 
 ### GSC-083：WPF-UI Button 同级资源字典作用域导致 Dashboard 崩溃
 
@@ -87,6 +88,14 @@
 - **根因**：`WpfUiProduction.xaml` 的按钮适配样式使用 WPF-UI 的类型键作为 `BasedOn`，但默认样式位于 Dashboard/Settings 的同级 `WpfUiBase.xaml`。Playnite 的 BAML 加载在解析 Production 字典时不向该同级字典查找类型键。
 - **修复**：Production 字典直接合并 WpfUiBase，两个页面只保留 DesignTokens + Production 的合并顺序；新增 STA XAML 资源字典测试，确保 `GscWpfUiButton` 的类型样式可实际解析。
 - **回归**：使用独立 Playnite 数据根打开 Dashboard 与 Settings，并显示一次 Dialog/Snackbar；`playnite.log` 不得新增 `Wpf.Ui.Controls.Button`、`StaticResourceHolder` 或 `XamlParseException`。
+
+### GSC-084：WPF-UI 适配器静态主题令牌导致 Dashboard 二次崩溃
+
+- **状态**：源码已修复，待隔离 Playnite 回归。
+- **真机证据**：同一份 2026-08-01 崩溃日志显示，在修复 `Wpf.Ui.Controls.Button` 后再次打开侧栏，`DashboardView.InitializeComponent()` 抛出未处理 `XamlParseException`，内部 `StaticResourceHolder` 找不到 `GscSoftShadowColor`。
+- **根因**：`WpfUiProduction.xaml` 在自身解析期间用 `StaticResource` 查找 `GscSoftShadowColor` 和 `GscSharedFocusVisual`；这两项令牌由宿主 UserControl 的兄弟字典 `DesignTokens.xaml` 提供。Playnite 的 BAML 解析不保证在该时点向父级兄弟字典回溯。
+- **修复**：适配器把上述 GameSaveCenter 令牌改为 `DynamicResource`，延后到控件实际位于 Dashboard/Settings 父级资源树时解析；只保留 WPF-UI 类型默认样式的本字典 `StaticResource`。新增 STA 资源树布局测试与源码门禁，防止把这些令牌恢复为静态查找。
+- **回归**：以独立 Playnite 数据根打开 Dashboard 与 Settings；`playnite.log` 不得新增 `GscSoftShadowColor`、`StaticResourceHolder` 或 `XamlParseException`。该验证不能使用用户日常 Playnite 或其扩展目录。
 
 ## 当前安全边界
 

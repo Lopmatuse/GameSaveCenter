@@ -7,6 +7,7 @@
 
 - Playnite 的实际 Dashboard 加载已证明：`WpfUiProduction.xaml` 不能把 WPF-UI 默认类型样式仅放在 Dashboard/Settings 的同级 `WpfUiBase.xaml` 合并字典中；该布局会在解析 `BasedOn="{StaticResource {x:Type ui:Button}}"` 时抛出 `XamlParseException`，资源名为 `Wpf.Ui.Controls.Button`。
 - `WpfUiProduction.xaml` 必须自行先合并 `WpfUiBase.xaml`，使类型键和适配器在同一字典解析作用域；Dashboard/Settings 仅合并 DesignTokens 后的 Production 字典，避免重复或依赖合并顺序。任何新增的生产 WPF-UI 类型适配器都遵守此边界。
+- `WpfUiProduction.xaml` 不得以 `StaticResource` 使用父级 `DesignTokens.xaml` 的 `Gsc*` 令牌（已证实 `GscSoftShadowColor` 与 `GscSharedFocusVisual` 会在 Playnite BAML 解析期失败）；必须用 `DynamicResource` 让它们在控件加入 Dashboard/Settings 的 UserControl 资源树后解析。不得为了规避此问题把 DesignTokens 合并进 Production，因为会固定或遮蔽宿主的自适应主题调色板。
 - 该规则由 STA `XamlReader.Parse` 回归测试覆盖。测试只证明资源可被 WPF 解析，不能替代隔离 Playnite 的主题、DPI、Dialog/Snackbar 或宿主污染验证；未经授权不得覆盖正在运行的用户插件目录。
 
 ### 2026-08-01 UI-004 生产 WPF-UI 资源与回退边界

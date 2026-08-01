@@ -928,6 +928,12 @@ def check_shared_wpf_control_guards() -> None:
             fail(f"Shared WPF-UI production adapter guard missing: {token}")
     if 'ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiBase.xaml"' not in production:
         fail("WPF-UI production adapters must merge WpfUiBase in their own parse scope")
+    for token in ('{StaticResource GscSoftShadowColor}', '{StaticResource GscSharedFocusVisual}'):
+        if token in production:
+            fail("WPF-UI production adapters must resolve GameSaveCenter theme tokens dynamically from their UserControl scope")
+    for token in ('{DynamicResource GscSoftShadowColor}', '{DynamicResource GscSharedFocusVisual}'):
+        if token not in production:
+            fail(f"WPF-UI production adapter dynamic theme-token guard missing: {token}")
     if '<Setter Property="CornerRadius"' in production:
         fail("WPF-UI Card must use Border.CornerRadius; Card has no CornerRadius dependency property")
     if production.count('<Setter Property="Margin" Value="0,0,8,8"/>') < 3:
