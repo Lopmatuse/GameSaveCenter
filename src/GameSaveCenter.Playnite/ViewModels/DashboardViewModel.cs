@@ -21,6 +21,7 @@ namespace GameSaveCenter.Playnite.ViewModels
     /// <summary>Apple-inspired dashboard state; all file operations remain in the Worker.</summary>
     public sealed partial class DashboardViewModel : ObservableObject
     {
+        private static readonly ILogger Logger = LogManager.GetLogger();
         private readonly GameSaveCenterPlugin plugin;
         private readonly Dictionary<string, TaskState> knownTaskStates = new Dictionary<string, TaskState>(StringComparer.OrdinalIgnoreCase);
         private readonly DateTime dashboardOpenedUtc = DateTime.UtcNow;
@@ -1217,8 +1218,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             }
             catch (Exception ex)
             {
-                StatusMessage = ex.Message;
-                plugin.ShowError(ex.Message);
+                ReportDashboardFailure(ex, true);
             }
             finally
             {
@@ -1287,7 +1287,12 @@ namespace GameSaveCenter.Playnite.ViewModels
             throw new DirectoryNotFoundException(expanded);
         }
 
-        private async void Run(Func<Task> action)
+        private void Run(Func<Task> action)
+        {
+            Observe(RunAsync(action));
+        }
+
+        private async Task RunAsync(Func<Task> action)
         {
             if (IsBusy) return;
             IsBusy = true;
@@ -1302,13 +1307,11 @@ namespace GameSaveCenter.Playnite.ViewModels
             }
             catch (NotifiedTaskException ex)
             {
-                StatusMessage = ex.Message;
-                if (!plugin.Settings.EnableTaskNotifications) plugin.ShowError(ex.Message);
+                ReportDashboardFailure(ex, !plugin.Settings.EnableTaskNotifications);
             }
             catch (Exception ex)
             {
-                StatusMessage = ex.Message;
-                plugin.ShowError(ex.Message);
+                ReportDashboardFailure(ex, true);
             }
             finally
             {
@@ -1321,9 +1324,39 @@ namespace GameSaveCenter.Playnite.ViewModels
             try { action(); }
             catch (Exception ex)
             {
-                StatusMessage = ex.Message;
-                plugin.ShowError(ex.Message);
+                ReportDashboardFailure(ex, true);
             }
+        }
+
+        private void ReportDashboardFailure(Exception error, bool showNotification)
+        {
+            StatusMessage = error.Message;
+            if (!showNotification)
+            {
+                Logger.Error(error, "GameSaveCenter dashboard command failed.");
+                return;
+            }
+
+            try
+            {
+                plugin.ShowError(error.Message);
+            }
+            catch (Exception notificationError)
+            {
+                // A notification failure must not turn a recoverable command failure into a
+                // Playnite Dispatcher crash. Preserve the original failure in the plugin log.
+                Logger.Error(error, "GameSaveCenter dashboard command failed and could not be presented.");
+                Logger.Error(notificationError, "GameSaveCenter failed to present dashboard command error.");
+            }
+        }
+
+        private static void Observe(Task operation)
+        {
+            _ = operation.ContinueWith(
+                task => Logger.Error(task.Exception, "GameSaveCenter dashboard command faulted outside its error boundary."),
+                CancellationToken.None,
+                TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Default);
         }
 
         private void NotifyTaskResults(IEnumerable<TaskStatusDto> tasks)

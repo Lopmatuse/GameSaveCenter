@@ -348,6 +348,11 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("private async Task CancelSelectedTaskAsync()", viewModelCode);
         Assert.DoesNotContain("private async void CancelSelectedTask()", viewModelCode);
         Assert.Contains("catch (Exception ex)", viewModelCode);
+        Assert.DoesNotContain("private async void Run(Func<Task> action)", viewModelCode);
+        Assert.Contains("private async Task RunAsync(Func<Task> action)", viewModelCode);
+        Assert.Contains("Observe(RunAsync(action))", viewModelCode);
+        Assert.Contains("TaskContinuationOptions.OnlyOnFaulted", viewModelCode);
+        Assert.Contains("failed to present dashboard command error", viewModelCode);
     }
 
     [Fact]

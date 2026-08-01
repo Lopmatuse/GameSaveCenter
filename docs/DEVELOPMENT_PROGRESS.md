@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-020 Dashboard 共用命令异常边界保护
+
+- [x] 将覆盖刷新、备份、恢复、校验、路径检测、媒体、任务、云端、诊断和修改器命令的 `Run(Func<Task>)` 从 `async void` 收敛为可观测 `Task`；未预期故障会被记录而非成为未观察任务异常。
+- [x] 统一命令、取消任务和本地操作的失败反馈；如果插件通知层自身失败，保留原始异常及通知异常日志，并继续在页面显示真实失败信息，避免为“显示错误”而造成宿主 Dispatcher 崩溃。
+- [x] 自动验证：`validate-source.py`、UI Skill（0 errors）、`git diff --check` 与 `git fsck --full` 均通过；Release 构建为 0 warning/0 error，Core 13 + Worker 21 + Playnite 33 = 67 项测试通过，PEXT 打包与 Worker `0.6.22.0` smoke 通过。真实 Playnite 仍受 `ENV-001` 隔离环境阻塞。
+
 ## 2026-08-01 UI-019 async-void 事件边界保护
 
 - [x] Dashboard 定时刷新事件增加最终异常边界并记录真实失败；取消任务从 `async void` 改为受保护的 `Task`，确认、Worker IPC 与刷新统一在同一 `try/catch` 内。

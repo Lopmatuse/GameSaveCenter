@@ -14,6 +14,12 @@
 - Dashboard 定时刷新保留为 WPF 事件边界，但在最终 `catch` 中记录真实异常；取消任务命令改为受保护的 `Task`，确认、Worker IPC 和刷新均在同一异常边界内，避免宿主 Dispatcher 收到未处理异常。
 - 新增回归断言覆盖事件入口与取消命令形态；当前验证为 Core 13、Worker 21、Playnite 33，共 67 项测试通过。真实 Playnite 运行时回归仍受 `ENV-001` 阻塞。
 
+### 2026-08-01 Dashboard 共用命令异常边界
+
+- 覆盖 Dashboard 真实业务命令的 `Run(Func<Task>)` 已不再是 `async void`；命令入口观察 `RunAsync` 的最终故障，确保未来异常不会静默成为未观察 Task。
+- 失败反馈为分层降级：页面状态始终更新；正常情况下继续调用插件真实错误通知；通知层异常时记录原始业务异常和通知异常，绝不伪造成功或让异常回流至 Playnite Dispatcher。
+- 本轮验证：Release 0 警告/0 错误，Core 13、Worker 21、Playnite 33，共 67 项测试通过；源码门禁、UI Skill（0 errors）、PEXT 打包与 Worker `0.6.22.0` smoke 通过。隔离 Playnite 加载验证仍需 `ENV-001`。
+
 ### 2026-08-01 WPF-UI 生产资源解析边界
 
 - Playnite 的实际 Dashboard 加载已证明：`WpfUiProduction.xaml` 不能把 WPF-UI 默认类型样式仅放在 Dashboard/Settings 的同级 `WpfUiBase.xaml` 合并字典中；该布局会在解析 `BasedOn="{StaticResource {x:Type ui:Button}}"` 时抛出 `XamlParseException`，资源名为 `Wpf.Ui.Controls.Button`。
