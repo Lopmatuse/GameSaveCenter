@@ -9,7 +9,8 @@ using System.Windows.Threading;
 using GameSaveCenter.Playnite.Infrastructure;
 using Microsoft.Win32;
 using Playnite.SDK;
-using Wpf.Ui.Controls;
+using ContentDialog = Wpf.Ui.Controls.ContentDialog;
+using Snackbar = Wpf.Ui.Controls.Snackbar;
 
 namespace GameSaveCenter.Playnite.Settings
 {

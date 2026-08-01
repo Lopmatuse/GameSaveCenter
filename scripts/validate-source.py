@@ -993,6 +993,17 @@ def check_wpf_ui_production_scope_guards() -> None:
     for source, label in ((dashboard_code, "Dashboard"), (settings_code, "Settings")):
         if "WpfUiThemeScope.Apply(Resources, palette.IsDark)" not in source:
             fail(f"{label} must apply WPF-UI theme only through its local resource scope")
+        if "using Wpf.Ui.Controls;" in source:
+            fail(f"{label} must alias individual WPF-UI feedback controls to avoid native WPF type ambiguity")
+    for token in ("using ContentDialog = Wpf.Ui.Controls.ContentDialog;",
+                  "using ContentDialogResult = Wpf.Ui.Controls.ContentDialogResult;",
+                  "using Snackbar = Wpf.Ui.Controls.Snackbar;"):
+        if token not in dashboard_code:
+            fail(f"Dashboard WPF-UI alias guard missing: {token}")
+    for token in ("using ContentDialog = Wpf.Ui.Controls.ContentDialog;",
+                  "using Snackbar = Wpf.Ui.Controls.Snackbar;"):
+        if token not in settings_code:
+            fail(f"Settings WPF-UI alias guard missing: {token}")
     if "Application.Current.Resources" in theme_scope or "Application.Current.Resources" in production:
         fail("WPF-UI production theme scope must never mutate Playnite application resources")
     for token in ("EnableRowVirtualization=\"True\"", "EnableColumnVirtualization=\"True\"",

@@ -10,7 +10,9 @@ using System.Windows.Threading;
 using GameSaveCenter.Playnite.Infrastructure;
 using GameSaveCenter.Playnite.ViewModels;
 using Playnite.SDK;
-using Wpf.Ui.Controls;
+using ContentDialog = Wpf.Ui.Controls.ContentDialog;
+using ContentDialogResult = Wpf.Ui.Controls.ContentDialogResult;
+using Snackbar = Wpf.Ui.Controls.Snackbar;
 
 namespace GameSaveCenter.Playnite.Views
 {
