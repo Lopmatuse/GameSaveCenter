@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-005 毛玻璃性能与高对比度降级
+
+- [x] Dashboard 的三枚和 Settings 的两枚固定环境光是页面中唯一允许带 `BlurEffect` 的元素；关闭毛玻璃或进入高对比度后，现改为 `Collapsed` 而非仅 `Opacity=0`，避免保留无意义的效果视觉树，同时不影响启用毛玻璃时的环境光层次。
+- [x] Settings 的高对比度路径与 Dashboard 一致地改走不透明主题调色板；新增 Playnite UI 回归测试锁定两个页面的折叠行为与该无障碍条件。Release 构建 0 警告/0 错误，Core 13、Worker 21、Playnite 20 项测试通过。
+- [ ] `python scripts/validate-source.py` 与 UI Skill 静态检查本轮无法运行：系统只解析到 Microsoft Store 占位 `python.exe`，退出码为 9009；未将其记为通过。真实 Playnite 主题/DPI 验收仍由 ENV-001 的隔离单实例条件阻塞。
+
 ## 2026-08-01 UI-004 WPF-UI ContentDialogHost 单例崩溃修复
 
 - [x] 最新 `crash.zip` 证实此前两项资源解析修复后出现第三个独立崩溃：`ContentDialogHost.RegisterHost(Window)` 抛出 `Only one ContentDialogHost instance is allowed per Window.`；这是 WPF-UI 窗口级注册限制，不是 Worker 超时或业务任务失败。

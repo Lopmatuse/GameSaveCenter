@@ -220,7 +220,9 @@ namespace GameSaveCenter.Playnite.Settings
 
         private void ApplyAdaptiveTheme()
         {
-            var glassEnabled = CurrentSettings?.EnableGlassEffects ?? true;
+            // High contrast is an accessibility mode, not merely a visual preference: all
+            // translucent material and its backing blur must take the opaque fallback path.
+            var glassEnabled = (CurrentSettings?.EnableGlassEffects ?? true) && !SystemParameters.HighContrast;
             var strength = CurrentSettings?.GlassEffectStrength ?? 78;
             var palette = AdaptiveThemePaletteFactory.Create(this, glassEnabled, strength, CurrentSettings?.ThemeMode ?? GameSaveCenterThemeMode.FollowPlaynite);
 
@@ -235,9 +237,12 @@ namespace GameSaveCenter.Playnite.Settings
             Resources["GscBackdropBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Backdrop);
             WpfUiThemeScope.Apply(Resources, palette.IsDark);
 
-            SettingsAmbientLayer.Opacity = SystemParameters.HighContrast || !glassEnabled
-                ? 0
-                : (palette.IsDark ? 0.42 : 0.3) * Math.Max(0.2, Math.Min(1, strength / 100.0));
+            // Keep the two fixed background blur elements out of the render tree when glass
+            // is disabled. Opacity=0 alone still leaves an effect-bearing visual alive.
+            SettingsAmbientLayer.Visibility = glassEnabled ? Visibility.Visible : Visibility.Collapsed;
+            SettingsAmbientLayer.Opacity = glassEnabled
+                ? (palette.IsDark ? 0.42 : 0.3) * Math.Max(0.2, Math.Min(1, strength / 100.0))
+                : 0;
         }
 
         private void ApplyResponsiveLayout(double width, double height)

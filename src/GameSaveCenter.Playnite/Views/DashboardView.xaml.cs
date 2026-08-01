@@ -821,6 +821,10 @@ namespace GameSaveCenter.Playnite.Views
                 palette.IsDark ? (byte)138 : (byte)72, 0, 0, 0));
             WpfUiThemeScope.Apply(Resources, palette.IsDark);
 
+            // The ambient ellipses are the only fixed BlurEffect surfaces in the dashboard.
+            // Collapse them instead of merely making them transparent so reduced-transparency
+            // and high-contrast modes do not retain an unnecessary effect visual tree.
+            AmbientGlowLayer.Visibility = glassEnabled ? Visibility.Visible : Visibility.Collapsed;
             AmbientGlowLayer.Opacity = glassEnabled
                 ? (palette.IsDark ? 0.46 : 0.56) * Math.Max(0.2, Math.Min(1, plugin.Settings.GlassEffectStrength / 100d))
                 : 0;
