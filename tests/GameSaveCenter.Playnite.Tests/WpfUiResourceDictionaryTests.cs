@@ -552,12 +552,14 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Name=\"CoreToolFields\" Columns=\"2\"", settings);
         Assert.Contains("x:Name=\"AppearanceFields\" Columns=\"2\"", settings);
         Assert.Contains("x:Name=\"AutomationIntervalFields\" Columns=\"3\"", settings);
+        Assert.Contains("x:Name=\"SettingsScroller\" VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\"", settings);
         Assert.Contains("Path=\"DefaultBackupIntervalMinutes\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("Path=\"ProcessPollingSeconds\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("Path=\"DashboardRefreshSeconds\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("CoreToolFields.Columns = compact ? 1 : 2", settingsCode);
         Assert.Contains("AppearanceFields.Columns = compact ? 1 : 2", settingsCode);
-        Assert.Contains("AutomationIntervalFields.Columns = compact ? 1 : width < 950 ? 2 : 3", settingsCode);
+        Assert.Contains("var contentWidth = width - (compact ? 36 : 60);", settingsCode);
+        Assert.Contains("AutomationIntervalFields.Columns = compact ? 1 : contentWidth < 960 ? 2 : 3", settingsCode);
     }
 
     [Fact]

@@ -316,6 +316,10 @@ namespace GameSaveCenter.Playnite.Settings
             if (SettingsShell == null || SettingsHeaderSubtitle == null) return;
 
             var compact = width < 720;
+            // Use the actual readable width, not the host width. The shell reserves 60 DIP
+            // for its responsive margins, so a three-column form at 950 host DIP was too
+            // narrow and could force the entire settings page into horizontal scrolling.
+            var contentWidth = width - (compact ? 36 : 60);
             SettingsShell.Margin = compact
                 ? new Thickness(16, 16, 20, 24)
                 : new Thickness(28, 22, 32, 30);
@@ -336,7 +340,7 @@ namespace GameSaveCenter.Playnite.Settings
             }
             if (AutomationIntervalFields != null)
             {
-                AutomationIntervalFields.Columns = compact ? 1 : width < 950 ? 2 : 3;
+                AutomationIntervalFields.Columns = compact ? 1 : contentWidth < 960 ? 2 : 3;
             }
         }
     }

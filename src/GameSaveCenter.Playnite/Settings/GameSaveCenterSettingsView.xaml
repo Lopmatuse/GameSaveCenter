@@ -34,7 +34,7 @@
             <Ellipse Width="330" Height="330" HorizontalAlignment="Left" VerticalAlignment="Top" Fill="{DynamicResource GscAccentIconFillBrush}"><Ellipse.RenderTransform><TranslateTransform X="-95" Y="-120"/></Ellipse.RenderTransform><Ellipse.Effect><BlurEffect Radius="84"/></Ellipse.Effect></Ellipse>
             <Ellipse Width="280" Height="280" HorizontalAlignment="Right" VerticalAlignment="Bottom" Fill="{DynamicResource GscAmbientInfoBrush}"><Ellipse.RenderTransform><TranslateTransform X="80" Y="120"/></Ellipse.RenderTransform><Ellipse.Effect><BlurEffect Radius="92"/></Ellipse.Effect></Ellipse>
         </Grid>
-        <ScrollViewer x:Name="SettingsScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+        <ScrollViewer x:Name="SettingsScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                       KeyboardNavigation.TabNavigation="Continue">
         <StackPanel x:Name="SettingsShell" Opacity="0" Margin="28,22,32,30" MaxWidth="980" HorizontalAlignment="Left">
             <Grid x:Name="SettingsHeader" Margin="0,0,0,5">

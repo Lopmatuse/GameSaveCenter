@@ -964,7 +964,7 @@ def check_responsive_ui_layout_guards() -> None:
                   "AutomationProperties.Name=\"刷新全部状态\"", "x:Name=\"TopRefreshLabel\""):
         if token not in dashboard:
             fail(f"Dashboard responsive layout guard missing: {token}")
-    for token in ("x:Name=\"SettingsScroller\"", "HorizontalScrollBarVisibility=\"Auto\"",
+    for token in ("x:Name=\"SettingsScroller\"", "HorizontalScrollBarVisibility=\"Disabled\"",
                   "x:Name=\"SettingsHeaderSubtitle\"", "AutomationProperties.Name=\"毛玻璃强度\"",
                   "<Ellipse.RenderTransform><TranslateTransform X=\"-95\" Y=\"-120\"/>"):
         if token not in settings:
