@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-023 插件生命周期异步异常边界
+
+- [x] 插件的设置同步、库/游戏生命周期回调和任务通知计时器不再依赖 `async void` 运行真实后台操作；统一观察 `Task` 的最终故障，避免异常成为未观察任务或从定时器回调逸出。
+- [x] 保留真实失败通知；若 Playnite 通知或页面反馈本身再次失败，记录原始故障及报告故障，不让“展示错误”引发宿主 Dispatcher 崩溃。任务通知轮询仅在实际取得门闩时释放，保持非重叠轮询。
+- [x] 自动验证：Release 构建 0 warning/0 error，Core 13 + Worker 21 + Playnite 35 = 69 项测试通过；源码门禁与 UI Skill（0 errors）通过。隔离 Playnite 的生命周期真机回归仍由 `ENV-001` 阻塞。
+
 ## 2026-08-01 UI-022 多主题强调色动态令牌
 
 - [x] Dashboard 与 Settings 现在在各自的局部资源树中统一生成 Accent、Hover、Pressed、Tint、图标填充、主按钮与前景文字令牌；跟随 Playnite 时优先读取宿主 `HighlightGlyphBrush`，强制浅色/深色仍使用稳定紫色回退，高对比度改用 Windows 系统颜色。

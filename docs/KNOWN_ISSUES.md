@@ -87,6 +87,7 @@
 | GSC-089 | 跟随 Playnite 切换多种主题色时，局部强调色可能静态保留初始紫色，造成按钮、焦点环与选中态不一致 | 源码已修复，待隔离 Playnite 回归 | Dashboard/Settings 必须从宿主 `HighlightGlyphBrush` 派生动态 Accent/主按钮令牌；在隔离实例切换浅色、深色和两种不同强调色主题，所有按钮、焦点环、选中态与图标容器同步更新且文字仍可读 |
 | GSC-090 | 高对比度下半透明 Accent Tint 或 Accent 前景可能在系统 Highlight 背景上不可读 | 源码已修复，待隔离 Playnite 回归 | 高对比度必须使用不透明 Windows Highlight/HighlightText，验证导航、页签、游戏行和下拉选中项均可见且键盘焦点仍明确 |
 | GSC-091 | WPF-UI 框架控件可能沿用其默认 Fluent 调色板，与动态 GameSaveCenter Accent 产生视觉断层 | 源码已修复，待隔离 Playnite 回归 | 页面局部覆盖已验证的 WPF-UI Accent/Text/Control/Card/Focus 资源键；在隔离 Playnite 切换多色主题时，原生与 WPF-UI 按钮、开关、输入、下拉和 Card 必须同步更新且不污染宿主 |
+| GSC-092 | 插件生命周期、设置同步或后台通知中的 `async void` 在错误反馈再次失败时可能把异常送入宿主 | 源码已修复，待隔离 Playnite 回归 | 生命周期工作必须是可观测 Task；故障及错误呈现故障都写入日志。反复更新设置、导入库、启动/退出游戏和断开 Worker 时不得出现未处理异常 |
 
 ### GSC-083：WPF-UI Button 同级资源字典作用域导致 Dashboard 崩溃
 

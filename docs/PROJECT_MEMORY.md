@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 插件异步事件边界
+
+- `GameSaveCenterPlugin` 的设置同步、应用/库/游戏生命周期和任务通知计时器不得新增 `async void` 业务路径；通过 `FireAndForget` 的可观测 Task continuation 收敛最终故障。WPF 必需的视图事件边界仍必须在入口处完整捕获。
+- `ReportBackgroundFailure` 要先记录业务异常，再尝试真实错误通知；通知层异常只能追加日志，不能重新从 Playnite Dispatcher、Timer 或未观察 Task 逸出。通知轮询门闩只在成功进入后释放。
+
 ### 2026-08-01 多主题强调色与资源生命周期
 
 - `AdaptiveThemePaletteFactory` 是 Dashboard/Settings 局部主题的唯一强调色推导入口：Follow Playnite 优先读取 `HighlightGlyphBrush`，强制浅色/深色保留稳定紫色，高对比度使用 Windows 系统 Window/Highlight 颜色；按钮前景会依强调色计算，不能固定假设白字。

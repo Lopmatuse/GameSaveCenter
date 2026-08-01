@@ -456,6 +456,7 @@ public sealed class WpfUiResourceDictionaryTests
         var repositoryRoot = FindRepositoryRoot();
         var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
         var viewModelCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "ViewModels", "DashboardViewModel.cs"));
+        var pluginCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "GameSaveCenterPlugin.cs"));
 
         // DispatcherTimer is an async-void WPF event boundary, so it must have a final catch even
         // though the current view-model refresh implementation also reports its own failures.
@@ -473,6 +474,16 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Observe(RunAsync(action))", viewModelCode);
         Assert.Contains("TaskContinuationOptions.OnlyOnFaulted", viewModelCode);
         Assert.Contains("failed to present dashboard command error", viewModelCode);
+
+        // Plugin lifecycle hooks and settings persistence are also called from host/timer void
+        // boundaries. Keep their work as observable Tasks so a notification failure cannot
+        // escape from an async-void continuation into Playnite.
+        Assert.DoesNotContain("public async void ApplySettingsAsync()", pluginCode);
+        Assert.DoesNotContain("private async void PollTaskNotifications()", pluginCode);
+        Assert.DoesNotContain("private async void FireAndForget", pluginCode);
+        Assert.Contains("private async Task PollTaskNotificationsAsync()", pluginCode);
+        Assert.Contains("TaskContinuationOptions.OnlyOnFaulted", pluginCode);
+        Assert.Contains("failed to present a background operation error", pluginCode);
     }
 
     [Fact]

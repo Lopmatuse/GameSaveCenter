@@ -124,11 +124,7 @@ namespace GameSaveCenter.Playnite
 
         public void NotifyVisualSettingsChanged() => VisualSettingsChanged?.Invoke(this, EventArgs.Empty);
 
-        public async void ApplySettingsAsync()
-        {
-            try { await SynchronizeAsync(); }
-            catch (Exception ex) { ShowError(ex.Message); }
-        }
+        public void ApplySettingsAsync() => FireAndForget(SynchronizeAsync);
 
         public Task<T> RequestAsync<T>(string type, object payload, TimeSpan? timeout = null) => client.RequestAsync<T>(type, payload, timeout);
 
@@ -206,11 +202,15 @@ namespace GameSaveCenter.Playnite
             taskNotificationTimer = new Timer(_ => PollTaskNotifications(), null, TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(1));
         }
 
-        private async void PollTaskNotifications()
+        private void PollTaskNotifications() => FireAndForget(PollTaskNotificationsAsync);
+
+        private async Task PollTaskNotificationsAsync()
         {
-            if (!await taskNotificationPollGate.WaitAsync(0).ConfigureAwait(false)) return;
+            var gateEntered = false;
             try
             {
+                if (!await taskNotificationPollGate.WaitAsync(0).ConfigureAwait(false)) return;
+                gateEntered = true;
                 if (!taskNotificationSnapshotInitialized)
                 {
                     // Seed durable history once, then switch to the Worker's signalled change feed.
@@ -252,7 +252,7 @@ namespace GameSaveCenter.Playnite
             }
             finally
             {
-                taskNotificationPollGate.Release();
+                if (gateEntered) taskNotificationPollGate.Release();
             }
         }
 
@@ -308,10 +308,41 @@ namespace GameSaveCenter.Playnite
             }
         }
 
-        private async void FireAndForget(Func<Task> operation)
+        private void FireAndForget(Func<Task> operation)
         {
-            try { await operation(); }
-            catch (Exception ex) { ShowError(ex.Message); }
+            if (operation == null) throw new ArgumentNullException(nameof(operation));
+            try
+            {
+                Observe(operation());
+            }
+            catch (Exception ex)
+            {
+                ReportBackgroundFailure(ex);
+            }
+        }
+
+        private void Observe(Task operation)
+        {
+            _ = operation.ContinueWith(
+                task => ReportBackgroundFailure(task.Exception?.GetBaseException() ?? new InvalidOperationException("未知后台任务错误。")),
+                CancellationToken.None,
+                TaskContinuationOptions.OnlyOnFaulted,
+                TaskScheduler.Default);
+        }
+
+        private void ReportBackgroundFailure(Exception exception)
+        {
+            logger.Error(exception, "GameSaveCenter background operation failed.");
+            try
+            {
+                ShowError(exception.Message);
+            }
+            catch (Exception reportingException)
+            {
+                // A broken notification surface must never turn a background operation failure
+                // into an unhandled exception on Playnite's Dispatcher or a timer callback.
+                logger.Error(reportingException, "GameSaveCenter failed to present a background operation error.");
+            }
         }
     }
 }
