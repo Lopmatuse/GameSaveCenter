@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
+using System.Windows.Controls.Primitives;
 using System.Xml.Linq;
 using GameSaveCenter.Playnite.Settings;
 using GameSaveCenter.Playnite.Views;
@@ -54,21 +55,25 @@ public sealed class WpfUiResourceDictionaryTests
                 Assert.Equal(Colors.White, wpfUiText.Color);
 
                 var materialResources = factoryType.GetMethod("ApplyMaterialResources", BindingFlags.Public | BindingFlags.Static)!;
-                materialResources.Invoke(null, new object[] { localResources, palette, false });
+                materialResources.Invoke(null, new object[] { localResources, palette, false, false });
                 Assert.Null(localResources["GscSurfaceEffect"]);
                 Assert.Null(localResources["GscPrimaryButtonEffect"]);
                 Assert.Null(localResources["GscSidebarEffect"]);
                 Assert.Null(localResources["GscPopupEffect"]);
                 Assert.Null(localResources["GscDialogEffect"]);
                 Assert.Null(localResources["GscSliderThumbEffect"]);
+                Assert.False(Assert.IsType<bool>(localResources["GscPopupAllowsTransparency"]));
+                Assert.Equal(PopupAnimation.None, Assert.IsType<PopupAnimation>(localResources["GscPopupAnimation"]));
 
-                materialResources.Invoke(null, new object[] { localResources, palette, true });
+                materialResources.Invoke(null, new object[] { localResources, palette, true, true });
                 Assert.IsType<DropShadowEffect>(localResources["GscSurfaceEffect"]);
                 Assert.IsType<DropShadowEffect>(localResources["GscPrimaryButtonEffect"]);
                 Assert.IsType<DropShadowEffect>(localResources["GscSidebarEffect"]);
                 Assert.IsType<DropShadowEffect>(localResources["GscPopupEffect"]);
                 Assert.IsType<DropShadowEffect>(localResources["GscDialogEffect"]);
                 Assert.IsType<DropShadowEffect>(localResources["GscSliderThumbEffect"]);
+                Assert.True(Assert.IsType<bool>(localResources["GscPopupAllowsTransparency"]));
+                Assert.Equal(PopupAnimation.Fade, Assert.IsType<PopupAnimation>(localResources["GscPopupAnimation"]));
             }
             catch (Exception caught)
             {
@@ -87,8 +92,8 @@ public sealed class WpfUiResourceDictionaryTests
         var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
         Assert.Contains("AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette)", dashboardCode);
         Assert.Contains("AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette)", settingsCode);
-        Assert.Contains("AdaptiveThemePaletteFactory.ApplyMaterialResources(Resources, palette, glassEnabled)", dashboardCode);
-        Assert.Contains("AdaptiveThemePaletteFactory.ApplyMaterialResources(Resources, palette, glassEnabled)", settingsCode);
+        Assert.Contains("AdaptiveThemePaletteFactory.ApplyMaterialResources(Resources, palette, glassEnabled, MotionEnabled)", dashboardCode);
+        Assert.Contains("AdaptiveThemePaletteFactory.ApplyMaterialResources(Resources, palette, glassEnabled, MotionEnabled)", settingsCode);
         Assert.Contains("AdaptiveThemePaletteFactory.ApplyWpfUiResources(Resources, palette)", dashboardCode);
         Assert.Contains("AdaptiveThemePaletteFactory.ApplyWpfUiResources(Resources, palette)", settingsCode);
 
@@ -115,6 +120,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("resources[\"GscSelectionTextBrush\"]", paletteSource);
         Assert.Contains("resources[\"GscSurfaceEffect\"]", paletteSource);
         Assert.Contains("resources[\"GscPrimaryButtonEffect\"]", paletteSource);
+        Assert.Contains("resources[\"GscPopupAllowsTransparency\"] = glassEnabled", paletteSource);
+        Assert.Contains("resources[\"GscPopupAnimation\"] = motionEnabled ? PopupAnimation.Fade : PopupAnimation.None", paletteSource);
         Assert.Contains("if (!enabled) return null;", paletteSource);
         Assert.Contains("highContrast ? accent", paletteSource);
         Assert.DoesNotContain("{StaticResource GscAccentShadowColor}", dashboard);
@@ -128,6 +135,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("{DynamicResource GscDialogEffect}", dashboard);
         Assert.Contains("{DynamicResource GscPopupEffect}", tokens);
         Assert.Contains("{DynamicResource GscSliderThumbEffect}", tokens);
+        Assert.Contains("AllowsTransparency=\"{DynamicResource GscPopupAllowsTransparency}\"", tokens);
+        Assert.Contains("PopupAnimation=\"{DynamicResource GscPopupAnimation}\"", tokens);
         Assert.Contains("x:Key=\"GscElevatedSurface\"", tokens);
         Assert.Contains("x:Key=\"GscElevatedSurface\"", dashboard);
         Assert.Contains("x:Name=\"GameBrowserPanel\" Style=\"{StaticResource GscElevatedSurface}\"", dashboard);

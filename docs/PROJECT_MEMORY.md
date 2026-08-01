@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 Popup 的透明与动画局部资源
+
+- `GscPopupAllowsTransparency` 与 `GscPopupAnimation` 必须由 `ApplyMaterialResources` 随页面局部调色板更新。玻璃模式可用透明/`Fade`，关闭透明、高对比度或 `EnableUiAnimations=false` 时必须分别成为 `false`/`PopupAnimation.None`。
+- 不可为了无障碍降级删除 ComboBox 的 Popup、可访问展开契约、滚动或键盘路径；默认 XAML 资源使用不透明/无动画安全值，避免首次资源解析或宿主不支持时泄漏效果。
+
 ### 2026-08-01 Dashboard 的两级材质层级
 
 - `GscSurface` 是无 Effect 的主要阅读面；`GscElevatedSurface` 才绑定动态 `GscSurfaceEffect`。Dashboard 仅把后者用于 `GameBrowserPanel` 和 `GameDetailCard` 两个永久主工作区，避免统计卡、表单、诊断卡和列表附近堆叠阴影。

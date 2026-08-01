@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                    xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework">
     <!-- Shared defaults. Runtime palette adaptation replaces the theme-sensitive brushes locally. -->
     <SolidColorBrush x:Key="GscAccentBrush" Color="#7C5CFC"/>
     <SolidColorBrush x:Key="GscAccentHoverBrush" Color="#6A49EE"/>
@@ -45,6 +46,8 @@
     <x:Null x:Key="GscPopupEffect"/>
     <x:Null x:Key="GscDialogEffect"/>
     <x:Null x:Key="GscSliderThumbEffect"/>
+    <sys:Boolean x:Key="GscPopupAllowsTransparency">False</sys:Boolean>
+    <x:Static x:Key="GscPopupAnimation" Member="primitives:PopupAnimation.None"/>
 
     <SolidColorBrush x:Key="GscGlassFillBrush" Color="#D8FFFFFF"/>
     <SolidColorBrush x:Key="GscGlassStrongBrush" Color="#F0FFFFFF"/>
@@ -497,7 +500,11 @@
                                 </ControlTemplate>
                             </ToggleButton.Template>
                         </ToggleButton>
-                        <Popup x:Name="PART_Popup" Placement="Bottom" AllowsTransparency="True" IsOpen="{TemplateBinding IsDropDownOpen}" Focusable="False" PopupAnimation="Fade">
+                        <Popup x:Name="PART_Popup" Placement="Bottom"
+                               AllowsTransparency="{DynamicResource GscPopupAllowsTransparency}"
+                               IsOpen="{TemplateBinding IsDropDownOpen}"
+                               Focusable="False"
+                               PopupAnimation="{DynamicResource GscPopupAnimation}">
                             <Border MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="320" Margin="0,6,0,8" Padding="5"
                                     Background="{DynamicResource GscPopupBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}" BorderThickness="1" CornerRadius="11"
                                     Effect="{DynamicResource GscPopupEffect}">

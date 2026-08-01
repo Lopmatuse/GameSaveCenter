@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
 using GameSaveCenter.Playnite.Settings;
@@ -209,7 +210,7 @@ namespace GameSaveCenter.Playnite.Infrastructure
         /// when transparent material is unavailable. An Effect with Opacity=0 still retains an
         /// effect visual, so accessibility and low-cost fallback paths must use a real null.
         /// </summary>
-        public static void ApplyMaterialResources(ResourceDictionary resources, AdaptiveThemePalette palette, bool glassEnabled)
+        public static void ApplyMaterialResources(ResourceDictionary resources, AdaptiveThemePalette palette, bool glassEnabled, bool motionEnabled)
         {
             resources["GscSurfaceEffect"] = CreateShadowEffect(glassEnabled, Colors.Black, 14, 2, palette.IsDark ? 0.34 : 0.24);
             resources["GscPrimaryButtonEffect"] = CreateShadowEffect(glassEnabled, palette.Accent, 12, 2, palette.IsDark ? 0.32 : 0.28);
@@ -217,6 +218,8 @@ namespace GameSaveCenter.Playnite.Infrastructure
             resources["GscPopupEffect"] = CreateShadowEffect(glassEnabled, Colors.Black, 20, 5, palette.IsDark ? 0.46 : 0.38);
             resources["GscDialogEffect"] = CreateShadowEffect(glassEnabled, Colors.Black, 34, 8, palette.IsDark ? 0.52 : 0.44);
             resources["GscSliderThumbEffect"] = CreateShadowEffect(glassEnabled, Colors.Black, 6, 1, 0.26);
+            resources["GscPopupAllowsTransparency"] = glassEnabled;
+            resources["GscPopupAnimation"] = motionEnabled ? PopupAnimation.Fade : PopupAnimation.None;
         }
 
         /// <summary>

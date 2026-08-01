@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-036 Popup 的透明与动画无障碍降级
+
+- [x] 共享 ComboBox Popup 的 `AllowsTransparency` 与 `PopupAnimation` 已改为局部动态资源：玻璃模式可使用透明浮层与 Fade；关闭透明、高对比度或关闭 UI 动画时回退为不透明、无动画 Popup。
+- [x] 下拉选项、滚动、键盘展开/方向键、焦点和 `ExpandCollapse` 契约不变；浮层阴影继续复用已有低成本资源，不为列表项创建视觉效果。
+- [x] 自动验证：`validate-source.py` 与 UI Skill 静态审查（0 errors）通过；Release 下 Core 13 + Worker 21 + Playnite UI 45 = 79 项测试通过，`git diff --check`、`git fsck --full`、PEXT 打包及 Worker `0.6.22.0` smoke 通过。真实 Popup 多主题渲染仍由 `ENV-001` 阻塞。
+
 ## 2026-08-01 UI-035 Dashboard 两级材质层级
 
 - [x] `GscSurface` 现为清晰的无阴影阅读面；只有 Dashboard 左侧游戏浏览与右侧详情两个永久工作区使用 `GscElevatedSurface`。统计、表单、诊断与数据表容器不再为每个小分组附加阴影。
