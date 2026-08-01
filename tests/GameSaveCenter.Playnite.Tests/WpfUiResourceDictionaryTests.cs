@@ -81,9 +81,13 @@ public sealed class WpfUiResourceDictionaryTests
         var tokens = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "DesignTokens.xaml"));
         Assert.Contains("resources[\"GscAmbientAccentBrush\"]", paletteSource);
         Assert.Contains("resources[\"GscAccentShadowColor\"]", paletteSource);
+        Assert.Contains("resources[\"GscSelectionTextBrush\"]", paletteSource);
+        Assert.Contains("highContrast ? accent", paletteSource);
         Assert.DoesNotContain("{StaticResource GscAccentShadowColor}", dashboard);
         Assert.DoesNotContain("{StaticResource GscAccentShadowColor}", tokens);
         Assert.Contains("{DynamicResource GscAmbientAccentBrush}", dashboard);
+        Assert.Contains("{DynamicResource GscSelectionTextBrush}", dashboard);
+        Assert.Contains("{DynamicResource GscSelectionTextBrush}", tokens);
     }
 
     [Fact]

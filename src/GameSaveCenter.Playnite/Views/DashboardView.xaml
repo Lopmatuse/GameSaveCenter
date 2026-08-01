@@ -298,7 +298,7 @@
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter TargetName="TabChrome" Property="Background" Value="{DynamicResource GscAccentTintStrongBrush}"/>
                                 <Setter TargetName="TabChrome" Property="BorderBrush" Value="{DynamicResource GscAccentBrush}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource GscAccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource GscSelectionTextBrush}"/>
                                 <Setter Property="FontWeight" Value="SemiBold"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
@@ -466,8 +466,8 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsSelected" Value="True">
                                 <Setter TargetName="CellChrome" Property="Background" Value="Transparent"/>
-                                <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
-                                <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource GscSelectionTextBrush}"/>
+                                <Setter Property="TextElement.Foreground" Value="{DynamicResource GscSelectionTextBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -578,7 +578,7 @@
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="NavChrome" Property="Background" Value="{DynamicResource GscAccentTintStrongBrush}"/>
                                 <Setter TargetName="NavChrome" Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource GscAccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource GscSelectionTextBrush}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="NavChrome" Property="Background" Value="{DynamicResource GscAccentTintBrush}"/>

@@ -13,6 +13,7 @@
     <SolidColorBrush x:Key="GscErrorTintBrush" Color="#24FF453A"/>
     <SolidColorBrush x:Key="GscInfoBrush" Color="#0A84FF"/>
     <SolidColorBrush x:Key="GscOnAccentTextBrush" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="GscSelectionTextBrush" Color="#F2FFFFFF"/>
     <SolidColorBrush x:Key="GscAccentIconFillBrush" Color="#247C5CFC"/>
     <SolidColorBrush x:Key="GscInfoIconFillBrush" Color="#220A84FF"/>
     <SolidColorBrush x:Key="GscSuccessIconFillBrush" Color="#2030D158"/>
@@ -516,7 +517,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsHighlighted" Value="True"><Setter TargetName="ItemChrome" Property="Background" Value="{DynamicResource GscAccentTintBrush}"/></Trigger>
-                        <Trigger Property="IsSelected" Value="True"><Setter TargetName="ItemChrome" Property="Background" Value="{DynamicResource GscAccentTintStrongBrush}"/><Setter Property="Foreground" Value="{DynamicResource GscAccentBrush}"/></Trigger>
+                        <Trigger Property="IsSelected" Value="True"><Setter TargetName="ItemChrome" Property="Background" Value="{DynamicResource GscAccentTintStrongBrush}"/><Setter Property="Foreground" Value="{DynamicResource GscSelectionTextBrush}"/></Trigger>
                         <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.42"/></Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

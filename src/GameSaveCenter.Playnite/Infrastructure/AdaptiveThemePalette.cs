@@ -109,7 +109,9 @@ namespace GameSaveCenter.Playnite.Infrastructure
             var accent = EnsureContrast(highContrast ? SystemColors.HighlightColor : hostAccent ?? fallbackAccent, stableBase, isDark);
             var accentHover = Blend(accent, isDark ? Colors.White : Colors.Black, 0.1);
             var accentPressed = Blend(accent, Colors.Black, isDark ? 0.16 : 0.2);
-            var onAccentText = ChooseBestText(accent, Colors.White, Colors.Black, RelativeLuminance(accent) < 0.5);
+            var onAccentText = highContrast
+                ? SystemColors.HighlightTextColor
+                : ChooseBestText(accent, Colors.White, Colors.Black, RelativeLuminance(accent) < 0.5);
 
             var surfaceTop = glassEnabled
                 ? WithAlpha(strongControl, 0.86 * strength)
@@ -146,9 +148,9 @@ namespace GameSaveCenter.Playnite.Infrastructure
                 Accent = accent,
                 AccentHover = accentHover,
                 AccentPressed = accentPressed,
-                AccentTint = WithAlpha(accent, isDark ? 0.24 : 0.14),
-                AccentTintStrong = WithAlpha(accent, isDark ? 0.34 : 0.22),
-                AccentIconFill = WithAlpha(accent, isDark ? 0.22 : 0.14),
+                AccentTint = highContrast ? accent : WithAlpha(accent, isDark ? 0.24 : 0.14),
+                AccentTintStrong = highContrast ? accent : WithAlpha(accent, isDark ? 0.34 : 0.22),
+                AccentIconFill = highContrast ? accent : WithAlpha(accent, isDark ? 0.22 : 0.14),
                 OnAccentText = onAccentText
             };
         }
@@ -162,6 +164,7 @@ namespace GameSaveCenter.Playnite.Infrastructure
             resources["GscAccentTintStrongBrush"] = Brush(palette.AccentTintStrong);
             resources["GscAccentIconFillBrush"] = Brush(palette.AccentIconFill);
             resources["GscOnAccentTextBrush"] = Brush(palette.OnAccentText);
+            resources["GscSelectionTextBrush"] = Brush(SystemParameters.HighContrast ? SystemColors.HighlightTextColor : palette.PrimaryText);
             resources["GscPrimaryButtonBrush"] = Gradient(palette.Accent, palette.AccentPressed);
             resources["GscPrimaryButtonBorderBrush"] = Brush(palette.AccentHover);
             resources["GscAmbientAccentBrush"] = Brush(WithAlpha(palette.Accent, palette.IsDark ? 0.18 : 0.15));
