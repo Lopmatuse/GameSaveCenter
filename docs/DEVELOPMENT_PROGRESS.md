@@ -3,6 +3,13 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-012 修改器中心自适应工作流
+
+- [x] “已安装”将导入操作置于独立的自然换行操作行；在 1180 DIP 以下，虚拟化的工具列表与设置检查器改为上下阅读顺序，启动延迟、开关及启动/保存/目录/解除绑定操作不再互相挤压。
+- [x] FLiNG 在线库的搜索、刷新操作独立于搜索输入；在相同断点，虚拟化的搜索结果与可下载版本改为上下布局，下载绑定入口保持可见。
+- [x] 本轮不新增模糊效果或逐行动画，继续只复用固定环境光与现有圆角半透明表面，避免大游戏库滚动负担；新增源码回归测试锁定响应式切换和 Recycling 虚拟化。
+- [x] 自动验证：`validate-source.py` 通过；UI 静态审查为 0 errors（27 项既有/隔离副本 warnings）；Release 构建为 0 warning/0 error，13 Core + 21 Worker + 26 Playnite 测试通过；0.6.22 `.pext` 打包内容检查通过（242 个条目）。`verify.ps1` 在当前调用方式因参数默认值读取空 `PSScriptRoot` 失败，未将其计入 Worker 烟雾测试通过。
+
 ## 2026-08-01 UI-011 恢复源码与 UI 静态门禁
 
 - [x] 已定位系统 `python` 只是 Microsoft Store 占位程序（9009），改用 Codex 随附的固定 Python 运行时后，`scripts/validate-source.py` 通过：JSON/XML/YAML、XAML 资源语义、IPC、版本、SQLite、大库性能与 Windows 启动器门禁均无错误。

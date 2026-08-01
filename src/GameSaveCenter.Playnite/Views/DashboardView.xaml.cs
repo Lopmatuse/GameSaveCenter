@@ -200,6 +200,48 @@ namespace GameSaveCenter.Playnite.Views
                 Grid.SetColumnSpan(MediaMetadataPanel, stackMediaInspector ? 2 : 1);
             }
 
+            // Both trainer workflows retain virtualized result lists, but their two-pane
+            // editors become a reading-order stack before the narrow Playnite content area
+            // can compress a search result, a launch-delay field, or a recovery action.
+            if (TrainerToolsCompactRow != null && TrainerToolsListPanel != null
+                && TrainerToolsInspectorPanel != null && TrainerToolsListColumn != null
+                && TrainerToolsGutterColumn != null && TrainerToolsInspectorColumn != null)
+            {
+                var stackTrainerTools = width < 1180;
+                TrainerToolsCompactRow.Height = stackTrainerTools ? GridLength.Auto : new GridLength(0);
+                TrainerToolsListColumn.Width = stackTrainerTools
+                    ? new GridLength(1, GridUnitType.Star)
+                    : new GridLength(1.25, GridUnitType.Star);
+                TrainerToolsGutterColumn.Width = new GridLength(stackTrainerTools ? 0 : 14);
+                TrainerToolsInspectorColumn.Width = stackTrainerTools ? new GridLength(0) : new GridLength(0.9, GridUnitType.Star);
+                Grid.SetRow(TrainerToolsListPanel, 2);
+                Grid.SetColumn(TrainerToolsListPanel, 0);
+                Grid.SetColumnSpan(TrainerToolsListPanel, stackTrainerTools ? 3 : 1);
+                Grid.SetRow(TrainerToolsInspectorPanel, stackTrainerTools ? 3 : 2);
+                Grid.SetColumn(TrainerToolsInspectorPanel, stackTrainerTools ? 0 : 2);
+                Grid.SetColumnSpan(TrainerToolsInspectorPanel, stackTrainerTools ? 3 : 1);
+            }
+
+            if (TrainerCatalogCompactRow != null && TrainerCatalogResultsPanel != null
+                && TrainerCatalogReleasesPanel != null && TrainerCatalogResultsColumn != null
+                && TrainerCatalogGutterColumn != null && TrainerCatalogReleasesColumn != null)
+            {
+                var stackTrainerCatalog = width < 1180;
+                TrainerCatalogCompactRow.Height = stackTrainerCatalog ? GridLength.Auto : new GridLength(0);
+                TrainerCatalogResultsColumn.Width = new GridLength(1, GridUnitType.Star);
+                TrainerCatalogGutterColumn.Width = new GridLength(stackTrainerCatalog ? 0 : 14);
+                TrainerCatalogReleasesColumn.Width = stackTrainerCatalog ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
+                Grid.SetRow(TrainerCatalogResultsPanel, 0);
+                Grid.SetColumn(TrainerCatalogResultsPanel, 0);
+                Grid.SetColumnSpan(TrainerCatalogResultsPanel, stackTrainerCatalog ? 3 : 1);
+                Grid.SetRow(TrainerCatalogReleasesPanel, stackTrainerCatalog ? 1 : 0);
+                Grid.SetColumn(TrainerCatalogReleasesPanel, stackTrainerCatalog ? 0 : 2);
+                Grid.SetColumnSpan(TrainerCatalogReleasesPanel, stackTrainerCatalog ? 3 : 1);
+                TrainerCatalogReleasesPanel.Margin = stackTrainerCatalog
+                    ? new Thickness(0, 12, 0, 0)
+                    : new Thickness(0);
+            }
+
             RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves && height >= 700
                 ? Visibility.Visible : Visibility.Collapsed;
             if (viewModel.CurrentWorkspace != WorkspaceKind.Saves)

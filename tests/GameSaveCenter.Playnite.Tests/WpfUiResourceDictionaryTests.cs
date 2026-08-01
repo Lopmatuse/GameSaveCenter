@@ -182,6 +182,24 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void TrainerWorkspaceStacksVirtualizedPanesBeforeTheirControlsBecomeUnreadable()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var codeBehind = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("x:Name=\"TrainerToolsPanel\"", dashboard);
+        Assert.Contains("x:Name=\"TrainerToolsListPanel\"", dashboard);
+        Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", dashboard);
+        Assert.Contains("x:Name=\"TrainerCatalogPanel\"", dashboard);
+        Assert.Contains("x:Name=\"TrainerCatalogResultsPanel\"", dashboard);
+        Assert.Contains("x:Name=\"TrainerCatalogReleasesPanel\"", dashboard);
+        Assert.Contains("var stackTrainerTools = width < 1180", codeBehind);
+        Assert.Contains("var stackTrainerCatalog = width < 1180", codeBehind);
+        Assert.Contains("Grid.SetRow(TrainerCatalogReleasesPanel, stackTrainerCatalog ? 1 : 0)", codeBehind);
+    }
+
+    [Fact]
     public void SettingsStoragePolicyFieldsUseASafeCompactSingleColumnLayout()
     {
         var repositoryRoot = FindRepositoryRoot();
