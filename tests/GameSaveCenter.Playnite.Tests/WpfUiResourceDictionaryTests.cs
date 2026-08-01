@@ -213,6 +213,24 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("StoragePolicyFields.Columns = compact ? 1 : 2", settingsCode);
     }
 
+    [Fact]
+    public void SettingsUsesSharedResponsiveFieldGroupsWithoutShrinkingNumericInputs()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var settings = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml"));
+        var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
+
+        Assert.Contains("x:Name=\"CoreToolFields\" Columns=\"2\"", settings);
+        Assert.Contains("x:Name=\"AppearanceFields\" Columns=\"2\"", settings);
+        Assert.Contains("x:Name=\"AutomationIntervalFields\" Columns=\"3\"", settings);
+        Assert.Contains("Path=\"DefaultBackupIntervalMinutes\" UpdateSourceTrigger=\"LostFocus\"", settings);
+        Assert.Contains("Path=\"ProcessPollingSeconds\" UpdateSourceTrigger=\"LostFocus\"", settings);
+        Assert.Contains("Path=\"DashboardRefreshSeconds\" UpdateSourceTrigger=\"LostFocus\"", settings);
+        Assert.Contains("CoreToolFields.Columns = compact ? 1 : 2", settingsCode);
+        Assert.Contains("AppearanceFields.Columns = compact ? 1 : 2", settingsCode);
+        Assert.Contains("AutomationIntervalFields.Columns = compact ? 1 : width < 950 ? 2 : 3", settingsCode);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]

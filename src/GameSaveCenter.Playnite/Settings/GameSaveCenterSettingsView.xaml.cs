@@ -260,6 +260,18 @@ namespace GameSaveCenter.Playnite.Settings
             {
                 StoragePolicyFields.Columns = compact ? 1 : 2;
             }
+            if (CoreToolFields != null)
+            {
+                CoreToolFields.Columns = compact ? 1 : 2;
+            }
+            if (AppearanceFields != null)
+            {
+                AppearanceFields.Columns = compact ? 1 : 2;
+            }
+            if (AutomationIntervalFields != null)
+            {
+                AutomationIntervalFields.Columns = compact ? 1 : width < 950 ? 2 : 3;
+            }
         }
     }
 }

@@ -53,25 +53,14 @@
             <ui:Card Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="核心工具" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Text="Worker" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource GscWpfUiTextBox}" Text="{Binding WorkerExecutable, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
-                        <TextBlock Grid.Row="1" Text="Ludusavi" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource GscWpfUiTextBox}" Text="{Binding LudusaviExecutable, UpdateSourceTrigger=PropertyChanged}" Margin="0,4" ToolTip="例如 D:\GameSaveCenterTools\Ludusavi\ludusavi.exe"/>
-                        <TextBlock Grid.Row="2" Text="存档目录" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource GscWpfUiTextBox}" Text="{Binding LudusaviBackupDirectory, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
-                        <TextBlock Grid.Row="3" Text="Rclone" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource GscWpfUiTextBox}" Text="{Binding RcloneExecutable, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
-                        <TextBlock Grid.Row="4" Text="云端目标" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="4" Grid.Column="1" Style="{StaticResource GscWpfUiTextBox}" Text="{Binding RcloneDestination, UpdateSourceTrigger=PropertyChanged}" Margin="0,4" ToolTip="例如 myremote:GameSaveCenter"/>
-                        <TextBlock Grid.Row="5" Text="媒体目录" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource GscWpfUiTextBox}" Text="{Binding MediaArchiveDirectory, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
-                    </Grid>
+                    <UniformGrid x:Name="CoreToolFields" Columns="2">
+                        <StackPanel Margin="0,0,12,10"><TextBlock Text="Worker" Margin="0,0,0,4"/><TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding WorkerExecutable, UpdateSourceTrigger=PropertyChanged}" ToolTip="Worker 可执行文件路径"/></StackPanel>
+                        <StackPanel Margin="0,0,12,10"><TextBlock Text="Ludusavi" Margin="0,0,0,4"/><TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding LudusaviExecutable, UpdateSourceTrigger=PropertyChanged}" ToolTip="例如 D:\GameSaveCenterTools\Ludusavi\ludusavi.exe"/></StackPanel>
+                        <StackPanel Margin="0,0,12,10"><TextBlock Text="存档目录" Margin="0,0,0,4"/><TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding LudusaviBackupDirectory, UpdateSourceTrigger=PropertyChanged}" ToolTip="Ludusavi 备份目录"/></StackPanel>
+                        <StackPanel Margin="0,0,12,10"><TextBlock Text="Rclone" Margin="0,0,0,4"/><TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding RcloneExecutable, UpdateSourceTrigger=PropertyChanged}" ToolTip="Rclone 可执行文件路径"/></StackPanel>
+                        <StackPanel Margin="0,0,12,10"><TextBlock Text="云端目标" Margin="0,0,0,4"/><TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding RcloneDestination, UpdateSourceTrigger=PropertyChanged}" ToolTip="例如 myremote:GameSaveCenter"/></StackPanel>
+                        <StackPanel Margin="0,0,12,0"><TextBlock Text="媒体目录" Margin="0,0,0,4"/><TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding MediaArchiveDirectory, UpdateSourceTrigger=PropertyChanged}" ToolTip="媒体归档目录"/></StackPanel>
+                    </UniformGrid>
                 </StackPanel>
             </ui:Card>
 
@@ -117,26 +106,28 @@
                         <TextBlock Text="外观与动态效果" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                     <TextBlock Text="毛玻璃采用主题自适应的半透明表面和模糊环境光，不会修改 Playnite 外层窗口。系统高对比度或关闭动画时会自动降级。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,0,0,10"/>
-                    <Grid Margin="0,2,0,10">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="260"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                        <TextBlock Text="界面主题" VerticalAlignment="Center"/>
-                        <ComboBox Grid.Column="1" Style="{StaticResource GscWpfUiComboBox}" SelectedValue="{Binding ThemeMode, Mode=TwoWay}" SelectedValuePath="Tag" SelectionChanged="OnThemeModeChanged">
+                    <UniformGrid x:Name="AppearanceFields" Columns="2" Margin="0,2,0,10">
+                        <StackPanel Margin="0,0,12,10">
+                        <TextBlock Text="界面主题" Margin="0,0,0,4"/>
+                        <ComboBox Style="{StaticResource GscWpfUiComboBox}" SelectedValue="{Binding ThemeMode, Mode=TwoWay}" SelectedValuePath="Tag" SelectionChanged="OnThemeModeChanged">
                             <ComboBoxItem Content="跟随 Playnite" Tag="{x:Static settings:GameSaveCenterThemeMode.FollowPlaynite}"/>
                             <ComboBoxItem Content="浅色" Tag="{x:Static settings:GameSaveCenterThemeMode.Light}"/>
                             <ComboBoxItem Content="深色" Tag="{x:Static settings:GameSaveCenterThemeMode.Dark}"/>
                         </ComboBox>
-                        <TextBlock Grid.Column="2" Text="第三方主题可读性不佳时，可固定为浅色或深色。" Foreground="{DynamicResource GscMutedTextBrush}" VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap"/>
-                    </Grid>
+                        <TextBlock Text="第三方主题可读性不佳时，可固定为浅色或深色。" Foreground="{DynamicResource GscMutedTextBrush}" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,10">
+                            <TextBlock Text="毛玻璃强度" Margin="0,0,0,4"/>
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center" Margin="10,0,0,0"><Run Text="{Binding ElementName=GlassStrengthSlider, Path=Value, StringFormat={}{0:0}, Mode=OneWay}"/><Run Text="%"/></TextBlock>
+                                <Slider x:Name="GlassStrengthSlider" Style="{StaticResource GscSlider}" AutomationProperties.Name="毛玻璃强度" Minimum="20" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="False" Value="{Binding GlassEffectStrength, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ValueChanged="OnGlassStrengthChanged" VerticalAlignment="Center"/>
+                            </DockPanel>
+                        </StackPanel>
+                    </UniformGrid>
                     <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="启用界面动画（淡入、滑动、悬停与按钮按压反馈）" OnContent="开" OffContent="关"
                                      IsChecked="{Binding EnableUiAnimations}" Margin="0,5" Checked="OnVisualSettingChanged" Unchecked="OnVisualSettingChanged"/>
                     <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="启用毛玻璃与环境光效果" OnContent="开" OffContent="关"
                                      IsChecked="{Binding EnableGlassEffects}" Margin="0,5" Checked="OnVisualSettingChanged" Unchecked="OnVisualSettingChanged"/>
-                    <Grid Margin="0,10,0,0">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="260"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <TextBlock Text="毛玻璃强度" VerticalAlignment="Center"/>
-                        <Slider x:Name="GlassStrengthSlider" Grid.Column="1" Style="{StaticResource GscSlider}" AutomationProperties.Name="毛玻璃强度" Minimum="20" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="False" Value="{Binding GlassEffectStrength, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ValueChanged="OnGlassStrengthChanged" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="2" VerticalAlignment="Center"><Run Text="{Binding ElementName=GlassStrengthSlider, Path=Value, StringFormat={}{0:0}, Mode=OneWay}"/><Run Text="%"/></TextBlock>
-                    </Grid>
                 </StackPanel>
             </ui:Card>
 
@@ -157,16 +148,11 @@
                     <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="完成本地任务后允许单向云端复制" OnContent="开" OffContent="关" IsChecked="{Binding EnableCloudUpload}" Margin="0,5"/>
                     <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="管理面板打开时自动刷新任务与状态" OnContent="开" OffContent="关" IsChecked="{Binding EnableDashboardAutoRefresh}" Margin="0,5"/>
                     <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="任务完成或失败时显示 Playnite 通知（管理面板关闭时也会监测）" OnContent="开" OffContent="关" IsChecked="{Binding EnableTaskNotifications}" Margin="0,5"/>
-                    <Grid Margin="0,10,0,0">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="210"/><ColumnDefinition Width="120"/></Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                        <TextBlock Text="默认游玩中备份间隔（分钟）" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Column="1" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="允许 1–1440 分钟；离开输入框后提交。"><TextBox.Text><Binding Path="DefaultBackupIntervalMinutes" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="1" Maximum="1440"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
-                        <TextBlock Grid.Row="1" Text="进程检测间隔（秒）" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="允许 2–60 秒；离开输入框后提交。"><TextBox.Text><Binding Path="ProcessPollingSeconds" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="2" Maximum="60"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
-                        <TextBlock Grid.Row="2" Text="管理面板刷新间隔（秒）" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="允许 5–300 秒；离开输入框后提交。"><TextBox.Text><Binding Path="DashboardRefreshSeconds" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="5" Maximum="300"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
-                    </Grid>
+                    <UniformGrid x:Name="AutomationIntervalFields" Columns="3" Margin="0,10,0,0">
+                        <StackPanel Margin="0,0,12,10"><TextBlock Text="默认游玩中备份间隔（分钟）" Margin="0,0,0,4"/><TextBox Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" ToolTip="允许 1–1440 分钟；离开输入框后提交。"><TextBox.Text><Binding Path="DefaultBackupIntervalMinutes" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="1" Maximum="1440"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox></StackPanel>
+                        <StackPanel Margin="0,0,12,10"><TextBlock Text="进程检测间隔（秒）" Margin="0,0,0,4"/><TextBox Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" ToolTip="允许 2–60 秒；离开输入框后提交。"><TextBox.Text><Binding Path="ProcessPollingSeconds" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="2" Maximum="60"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox></StackPanel>
+                        <StackPanel Margin="0,0,12,10"><TextBlock Text="管理面板刷新间隔（秒）" Margin="0,0,0,4"/><TextBox Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" ToolTip="允许 5–300 秒；离开输入框后提交。"><TextBox.Text><Binding Path="DashboardRefreshSeconds" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="5" Maximum="300"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox></StackPanel>
+                    </UniformGrid>
                     <Border Background="{DynamicResource GscSafetyFillBrush}" BorderBrush="{DynamicResource GscSafetyStrokeBrush}" BorderThickness="1" CornerRadius="10" Padding="12" Margin="0,13,0,0">
                         <TextBlock Text="自动恢复始终关闭。恢复必须经过当前快照、游戏关闭确认、预览、恢复后校验和可撤销快照。" TextWrapping="Wrap"/>
                     </Border>
@@ -183,10 +169,10 @@
                     </StackPanel>
                     <TextBlock Text="导出文件包含非敏感插件设置、本地路径和云端目标名称，不包含 Rclone 密码。导入后先显示缺失路径报告，点击 Playnite 的保存按钮后才会生效。"
                                Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <WrapPanel VerticalAlignment="Center">
                         <ui:Button Style="{StaticResource GscWpfUiSecondaryButton}" MinHeight="40" MinWidth="112" Content="导出设置" Click="OnExportSettingsClick" Margin="0,0,10,0"/>
                         <ui:Button Style="{StaticResource GscWpfUiPrimaryButton}" MinHeight="40" MinWidth="112" Content="导入设置" Click="OnImportSettingsClick"/>
-                    </StackPanel>
+                    </WrapPanel>
                 </StackPanel>
             </ui:Card>
         </StackPanel>
