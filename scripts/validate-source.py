@@ -906,16 +906,31 @@ def check_wpf_ui_probe_guards() -> None:
             fail(f"WPF-UI package dependency guard missing: {token}")
 
 def check_shared_wpf_control_guards() -> None:
-    """Keep the production WPF primitives centralized and theme-safe."""
+    """Keep native high-density primitives and WPF-UI production adapters centralized."""
     tokens = (ROOT / "src/GameSaveCenter.Playnite/Themes/DesignTokens.xaml").read_text(encoding="utf-8")
+    production = (ROOT / "src/GameSaveCenter.Playnite/Themes/WpfUiProduction.xaml").read_text(encoding="utf-8")
     settings = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml").read_text(encoding="utf-8")
     for token in ("GscSurface", "GscButtonBase", "GscPrimaryButton", "GscTextBox", "GscNumericTextBox",
                   "GscComboBox", "GscCheckBox", "GscSlider", "GscScrollThumb", "TargetType=\"ToolTip\"",
                   "TargetType=\"ProgressBar\"", "IsIndeterminate"):
         if token not in tokens:
-            fail(f"Shared WPF control guard missing: {token}")
-    if "BasedOn=\"{StaticResource GscSurface}\"" not in settings:
-        fail("Settings cards must use the shared GscSurface material")
+            fail(f"Shared native WPF control guard missing: {token}")
+    for token in ("GscWpfUiCard", "GscWpfUiButton", "GscWpfUiSecondaryButton",
+                  "GscWpfUiPrimaryButton", "GscWpfUiCompactButton", "GscWpfUiActionButton",
+                  "GscWpfUiPrimaryActionButton", "GscWpfUiToolbarButton",
+                  "GscWpfUiToolbarPrimaryButton", "GscWpfUiContextButton", "GscWpfUiToggleSwitch",
+                  "GscWpfUiTextBox", "GscWpfUiComboBox",
+                  "BasedOn=\"{StaticResource {x:Type ui:Card}}\"",
+                  "<Trigger Property=\"IsEnabled\" Value=\"False\">",
+                  "<Setter Property=\"Visibility\" Value=\"Collapsed\"/>"):
+        if token not in production:
+            fail(f"Shared WPF-UI production adapter guard missing: {token}")
+    if production.count('<Setter Property="Margin" Value="0,0,8,8"/>') < 3:
+        fail("WPF-UI action/context adapters must preserve the established WrapPanel spacing")
+    for token in ("Themes/WpfUiProduction.xaml",
+                  "TargetType=\"{x:Type ui:Card}\" BasedOn=\"{StaticResource GscWpfUiCard}\""):
+        if token not in settings:
+            fail(f"Settings production card guard missing: {token}")
 
 def check_responsive_ui_layout_guards() -> None:
     """Keep compact Playnite hosts scrollable without hiding navigation or settings fields."""
@@ -943,15 +958,30 @@ def check_responsive_ui_layout_guards() -> None:
             fail(f"Dashboard responsive behavior guard missing: {token}")
 
 def check_wpf_ui_production_scope_guards() -> None:
-    """Keep production WPF-UI resources view-local and preserve host isolation."""
+    """Keep production WPF-UI resources view-local, recoverable and virtualization-safe."""
     dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
     dashboard_code = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml.cs").read_text(encoding="utf-8")
     settings = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml").read_text(encoding="utf-8")
     settings_code = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml.cs").read_text(encoding="utf-8")
     theme_scope = (ROOT / "src/GameSaveCenter.Playnite/Infrastructure/WpfUiThemeScope.cs").read_text(encoding="utf-8")
+    production = (ROOT / "src/GameSaveCenter.Playnite/Themes/WpfUiProduction.xaml").read_text(encoding="utf-8")
     for source, label, required in (
-        (dashboard, "Dashboard WPF-UI production scope", ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiBase.xaml", "<ui:Button")),
-        (settings, "Settings WPF-UI production scope", ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiBase.xaml", "<ui:ToggleSwitch", "<ui:Button")),
+        (dashboard, "Dashboard WPF-UI production scope",
+         ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiBase.xaml",
+          "Themes/WpfUiProduction.xaml", "<ui:Card", "<ui:Button", "<ui:ToggleSwitch",
+          "x:Name=\"ContentDialogHost\"", "x:Name=\"SnackbarHost\"")),
+        (settings, "Settings WPF-UI production scope",
+         ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiBase.xaml",
+          "Themes/WpfUiProduction.xaml", "<ui:Card", "<ui:ToggleSwitch", "<ui:Button",
+          "x:Name=\"SettingsDialogHost\"", "x:Name=\"SettingsSnackbarHost\"")),
+        (dashboard_code, "Dashboard production feedback",
+         ("new ContentDialog(ContentDialogHost)", "new Snackbar(SnackbarHost)",
+          "ShowFallbackConfirmation", "ShowToast", "ContentDialogResult.Primary",
+          "if (confirmationOpen)", "fallbackOpened = true",
+          "if (!fallbackOpened) confirmationOpen = false")),
+        (settings_code, "Settings production feedback",
+         ("new ContentDialog(SettingsDialogHost)", "new Snackbar(SettingsSnackbarHost)",
+          "Task.Run", "MessageBox fallback")),
         (theme_scope, "WPF-UI theme scope", ("ThemesDictionary", "ApplicationTheme.HighContrast", "ApplyMergedDictionaries")),
     ):
         for token in required:
@@ -960,8 +990,14 @@ def check_wpf_ui_production_scope_guards() -> None:
     for source, label in ((dashboard_code, "Dashboard"), (settings_code, "Settings")):
         if "WpfUiThemeScope.Apply(Resources, palette.IsDark)" not in source:
             fail(f"{label} must apply WPF-UI theme only through its local resource scope")
-    if "Application.Current.Resources" in theme_scope:
+    if "Application.Current.Resources" in theme_scope or "Application.Current.Resources" in production:
         fail("WPF-UI production theme scope must never mutate Playnite application resources")
+    for token in ("EnableRowVirtualization=\"True\"", "EnableColumnVirtualization=\"True\"",
+                  "VirtualizingPanel.IsVirtualizing=\"True\"", "VirtualizingPanel.VirtualizationMode=\"Recycling\""):
+        if token not in dashboard:
+            fail(f"WPF-UI migration must preserve large-library virtualization: {token}")
+    if "async void" in settings_code:
+        fail("Settings WPF-UI event boundary must not introduce async void handlers")
 
 def main() -> int:
     check_structured_files()

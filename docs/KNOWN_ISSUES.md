@@ -77,7 +77,7 @@
 | GSC-079 | WPF-UI POC 尚未在隔离 Playnite 宿主中实际加载 | 环境阻塞 | 现有 Playnite/Worker 是用户实例，不能关闭或覆盖。需要独立插件目录和测试实例后检查资源作用域、Dialog/Snackbar、主题、DPI 与宿主未污染 |
 | GSC-080 | 共享 WPF 控件尚未在隔离 Playnite 中完成多 DPI/主题视觉验证 | 源码与自动化已验收，环境待验证 | UI-002/003 已通过资源门禁、Release 构建、50 项测试与包 smoke；仍需在独立数据根验证按钮、输入、滑块、提示、表格、页签、滚动条和键盘焦点 |
 | GSC-081 | Dashboard/Settings 的紧凑布局尚未在独立 Playnite 中完成真实缩放验证 | 源码收口，环境阻塞 | 侧栏滚动、图标工具栏、设置页横向访问与可见焦点均已实现；`ENV-001` 证明独立数据根前不得启动 `.tmp` 副本或用户实例 |
-| GSC-082 | 生产 WPF-UI 局部主题与控件尚未经过隔离 Playnite 宿主加载验证 | 源码已迁移，环境待验证 | 本地资源字典、主题范围门禁、Release 构建与 50 项测试通过；需独立实例检查 Button/ToggleSwitch、资源加载、Light/Dark/HighContrast、DPI、键盘与宿主无全局污染 |
+| GSC-082 | 生产 WPF-UI 局部主题与控件尚未经过隔离 Playnite 宿主加载验证 | 源码迁移完成，构建与真机环境阻塞 | Card/Button/ToggleSwitch/普通输入、Dialog/Snackbar 已接入局部适配层并保留原生回退；当前容器无 `dotnet`/MSBuild，需在 Windows 先重跑 Release/50 tests/package，再以独立实例检查资源加载、Light/Dark/HighContrast、DPI、键盘和宿主无全局污染 |
 
 ## 当前安全边界
 

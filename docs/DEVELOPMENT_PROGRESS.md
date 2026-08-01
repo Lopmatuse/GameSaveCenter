@@ -3,12 +3,14 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
-## 2026-08-01 UI-004 生产控件局部迁移（真机验证待完成）
+## 2026-08-01 UI-004 生产 WPF-UI 控件迁移（源码完成，环境阻塞）
 
-- [x] Dashboard 和 Settings 在各自 `UserControl.Resources` 中局部合并 WPF-UI 资源；`WpfUiThemeScope` 只更新该视图的 `ThemesDictionary`，按现有色板切换 Light/Dark/HighContrast，绝不触碰 Playnite 的 `Application.Current.Resources`。
-- [x] Dashboard 顶部刷新、全部备份、同步媒体、修改器和诊断操作统一迁移到 WPF-UI `Button`；Settings 的自动化/安全开关迁移到带明确“开/关”状态的 `ToggleSwitch`，导入/导出使用 WPF-UI `Button`。既有 Binding、Command、Tooltip、Automation Name、紧凑模式文本收起和虚拟化保持不变。
-- [x] 新增生产资源范围与主题调用的源码门禁。`validate-source.py`、Release build（0 警告/0 错误）、Core 13、Worker 21、Playnite 16 项测试、`git diff --check`、UI Skill 静态审查（项目 0 errors）均通过。
-- [ ] 尚未把自动化/静态结论写成真机结论：必须先完成 ENV-001，才可在独立 Playnite 进程中验证框架控件资源加载、主题、DPI、键盘、Dialog/Snackbar 及宿主无污染。
+- [x] 新增 `Themes/WpfUiProduction.xaml`，以视图局部适配样式统一 WPF-UI Card、Button、ToggleSwitch、TextBox 与 ComboBox；资源仍仅由 Dashboard/Settings 的 `UserControl.Resources` 合并，`WpfUiThemeScope` 不触碰 Playnite 全局资源。
+- [x] Dashboard 已迁移 6 个指标卡、59 个生产动作按钮、14 个策略/工具/媒体开关、10 个普通文本输入和 13 个下拉选择；Settings 已迁移 5 个设置卡、2 个动作按钮、14 个开关、6 个路径输入和 3 个下拉选择。数值校验编辑器、DataGrid/ListBox、搜索清除按钮和安全兜底浮层继续使用原生 WPF。
+- [x] 生产通知与确认改为 WPF-UI Snackbar/ContentDialog 优先，异常时回退到插件内 Toast/Dialog 或 MessageBox；错误通知仍保留“查看详情”恢复入口。设置导入/导出文件读写使用 `Task.Run`，没有新增 `async void` UI 事件。
+- [x] 语义复核确认 Dashboard 的 59 个 Command 和 320 个 Binding、Settings 的 26 个 Binding 与基线数量一致；DataGrid/ListBox 的 Recycling、行列虚拟化及业务程序集、数据库、备份、媒体和 Worker 文件均未修改。
+- [x] `scripts/validate-source.py`、XAML XML 解析、`git diff --check` 和 UI Skill 静态审查通过；项目范围为 0 errors、11 warnings、52 info，warnings 是既有的保守 StackPanel 邻近检查。
+- [ ] 当前隔离容器没有 `dotnet`、MSBuild、Mono 或 C# 编译器，无法为这批新 diff 重跑 Release build、50 项测试、package 和 Worker smoke；此前 `ce473c8` 的构建结果只覆盖第一批迁移。UI-004 因此标记 `BLOCKED_ENVIRONMENT`，并继续等待 ENV-001 后的独立 Playnite 主题、DPI、键盘、Dialog/Snackbar 和宿主无污染验证。
 
 ## 2026-08-01 UI-003 响应式布局与可访问性收口（真机阻塞）
 

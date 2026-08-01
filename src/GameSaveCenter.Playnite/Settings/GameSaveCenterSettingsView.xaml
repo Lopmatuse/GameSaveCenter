@@ -14,6 +14,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiBase.xaml"/>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml"/>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiProduction.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
             <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
@@ -22,17 +23,9 @@
             <Setter Property="TextOptions.TextHintingMode" Value="Fixed"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
-        <Style x:Key="SettingsCard" TargetType="Border" BasedOn="{StaticResource GscSurface}">
+        <Style x:Key="SettingsCard" TargetType="{x:Type ui:Card}" BasedOn="{StaticResource GscWpfUiCard}">
             <Setter Property="Padding" Value="16"/>
             <Setter Property="Margin" Value="0,0,0,16"/>
-        </Style>
-        <Style TargetType="TextBox" BasedOn="{StaticResource GscTextBox}"/>
-        <Style TargetType="ComboBox" BasedOn="{StaticResource GscComboBox}"/>
-        <Style TargetType="ComboBoxItem" BasedOn="{StaticResource GscComboBoxItem}"/>
-        <Style TargetType="CheckBox" BasedOn="{StaticResource GscCheckBox}"/>
-        <Style x:Key="SettingsActionButton" TargetType="Button" BasedOn="{StaticResource GscButtonBase}">
-            <Setter Property="MinHeight" Value="40"/>
-            <Setter Property="Margin" Value="0"/>
         </Style>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -58,7 +51,7 @@
             <TextBlock Text="Playnite 管理游戏入口，Worker 执行存档、媒体与云端任务。设置会同时保存在 Playnite 与 Worker 本地配置中。"
                        Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,5,0,20" TextWrapping="Wrap"/>
 
-            <Border Style="{StaticResource SettingsCard}">
+            <ui:Card Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="核心工具" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
                     <Grid>
@@ -68,22 +61,22 @@
                             <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <TextBlock Grid.Row="0" Text="Worker" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding WorkerExecutable, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource GscWpfUiTextBox}" Text="{Binding WorkerExecutable, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
                         <TextBlock Grid.Row="1" Text="Ludusavi" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding LudusaviExecutable, UpdateSourceTrigger=PropertyChanged}" Margin="0,4" ToolTip="例如 D:\GameSaveCenterTools\Ludusavi\ludusavi.exe"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource GscWpfUiTextBox}" Text="{Binding LudusaviExecutable, UpdateSourceTrigger=PropertyChanged}" Margin="0,4" ToolTip="例如 D:\GameSaveCenterTools\Ludusavi\ludusavi.exe"/>
                         <TextBlock Grid.Row="2" Text="存档目录" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding LudusaviBackupDirectory, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource GscWpfUiTextBox}" Text="{Binding LudusaviBackupDirectory, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
                         <TextBlock Grid.Row="3" Text="Rclone" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding RcloneExecutable, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Style="{StaticResource GscWpfUiTextBox}" Text="{Binding RcloneExecutable, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
                         <TextBlock Grid.Row="4" Text="云端目标" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding RcloneDestination, UpdateSourceTrigger=PropertyChanged}" Margin="0,4" ToolTip="例如 myremote:GameSaveCenter"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" Style="{StaticResource GscWpfUiTextBox}" Text="{Binding RcloneDestination, UpdateSourceTrigger=PropertyChanged}" Margin="0,4" ToolTip="例如 myremote:GameSaveCenter"/>
                         <TextBlock Grid.Row="5" Text="媒体目录" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding MediaArchiveDirectory, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
+                        <TextBox Grid.Row="5" Grid.Column="1" Style="{StaticResource GscWpfUiTextBox}" Text="{Binding MediaArchiveDirectory, UpdateSourceTrigger=PropertyChanged}" Margin="0,4"/>
                     </Grid>
                 </StackPanel>
-            </Border>
+            </ui:Card>
 
-            <Border Style="{StaticResource SettingsCard}">
+            <ui:Card Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscInfoIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="存档格式与历史版本" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
                     <TextBlock Text="推荐 ZIP + Zstandard。Simple 模式只维护一个当前副本，不适合作为多版本恢复历史。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,13" TextWrapping="Wrap"/>
@@ -91,12 +84,12 @@
                         <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="180"/><ColumnDefinition Width="28"/><ColumnDefinition Width="150"/><ColumnDefinition Width="180"/></Grid.ColumnDefinitions>
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                         <TextBlock Text="备份格式" VerticalAlignment="Center" Margin="0,6"/>
-                        <ComboBox Grid.Column="1" SelectedValue="{Binding BackupFormat}" SelectedValuePath="Tag" Margin="0,4">
+                        <ComboBox Grid.Column="1" Style="{StaticResource GscWpfUiComboBox}" SelectedValue="{Binding BackupFormat}" SelectedValuePath="Tag" Margin="0,4">
                             <ComboBoxItem Content="ZIP（多版本）" Tag="{x:Static contracts:BackupStorageFormat.Zip}"/>
                             <ComboBoxItem Content="Simple（单副本）" Tag="{x:Static contracts:BackupStorageFormat.Simple}"/>
                         </ComboBox>
                         <TextBlock Grid.Column="3" Text="压缩方式" VerticalAlignment="Center" Margin="0,6"/>
-                        <ComboBox Grid.Column="4" SelectedValue="{Binding Compression}" SelectedValuePath="Tag" Margin="0,4">
+                        <ComboBox Grid.Column="4" Style="{StaticResource GscWpfUiComboBox}" SelectedValue="{Binding Compression}" SelectedValuePath="Tag" Margin="0,4">
                             <ComboBoxItem Content="Zstandard" Tag="zstd"/><ComboBoxItem Content="Deflate" Tag="deflate"/>
                             <ComboBoxItem Content="Bzip2" Tag="bzip2"/><ComboBoxItem Content="不压缩" Tag="none"/>
                         </ComboBox>
@@ -110,9 +103,9 @@
                         <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="zstd 推荐 3；允许 -7 到 22；离开输入框后提交。"><TextBox.Text><Binding Path="CompressionLevel" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="-7" Maximum="22"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
                     </Grid>
                 </StackPanel>
-            </Border>
+            </ui:Card>
 
-            <Border Style="{StaticResource SettingsCard}">
+            <ui:Card Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE790;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
@@ -122,16 +115,16 @@
                     <Grid Margin="0,2,0,10">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="260"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                         <TextBlock Text="界面主题" VerticalAlignment="Center"/>
-                        <ComboBox Grid.Column="1" SelectedValue="{Binding ThemeMode, Mode=TwoWay}" SelectedValuePath="Tag" SelectionChanged="OnThemeModeChanged">
+                        <ComboBox Grid.Column="1" Style="{StaticResource GscWpfUiComboBox}" SelectedValue="{Binding ThemeMode, Mode=TwoWay}" SelectedValuePath="Tag" SelectionChanged="OnThemeModeChanged">
                             <ComboBoxItem Content="跟随 Playnite" Tag="{x:Static settings:GameSaveCenterThemeMode.FollowPlaynite}"/>
                             <ComboBoxItem Content="浅色" Tag="{x:Static settings:GameSaveCenterThemeMode.Light}"/>
                             <ComboBoxItem Content="深色" Tag="{x:Static settings:GameSaveCenterThemeMode.Dark}"/>
                         </ComboBox>
                         <TextBlock Grid.Column="2" Text="第三方主题可读性不佳时，可固定为浅色或深色。" Foreground="{DynamicResource GscMutedTextBrush}" VerticalAlignment="Center" Margin="12,0,0,0" TextWrapping="Wrap"/>
                     </Grid>
-                    <ui:ToggleSwitch Content="启用界面动画（淡入、滑动、悬停与按钮按压反馈）" OnContent="开" OffContent="关"
+                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="启用界面动画（淡入、滑动、悬停与按钮按压反馈）" OnContent="开" OffContent="关"
                                      IsChecked="{Binding EnableUiAnimations}" Margin="0,5" Checked="OnVisualSettingChanged" Unchecked="OnVisualSettingChanged"/>
-                    <ui:ToggleSwitch Content="启用毛玻璃与环境光效果" OnContent="开" OffContent="关"
+                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="启用毛玻璃与环境光效果" OnContent="开" OffContent="关"
                                      IsChecked="{Binding EnableGlassEffects}" Margin="0,5" Checked="OnVisualSettingChanged" Unchecked="OnVisualSettingChanged"/>
                     <Grid Margin="0,10,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="260"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
@@ -140,25 +133,25 @@
                     <TextBlock Grid.Column="2" VerticalAlignment="Center"><Run Text="{Binding ElementName=GlassStrengthSlider, Path=Value, StringFormat={}{0:0}, Mode=OneWay}"/><Run Text="%"/></TextBlock>
                     </Grid>
                 </StackPanel>
-            </Border>
+            </ui:Card>
 
-            <Border Style="{StaticResource SettingsCard}">
+            <ui:Card Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscSuccessIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72E;" Foreground="{StaticResource GscSuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="自动化与安全" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
-                    <ui:ToggleSwitch Content="随 Playnite 启动 Worker" OnContent="开" OffContent="关" IsChecked="{Binding AutoStartWorker}" Margin="0,5"/>
-                    <ui:ToggleSwitch Content="检测从 Steam、Xbox、启动器和 MOD 管理器外部启动的游戏" OnContent="开" OffContent="关" IsChecked="{Binding EnableProcessDetection}" Margin="0,5"/>
-                    <ui:ToggleSwitch Content="对未匹配游戏记录启动前/退出后文件差异，生成存档路径候选" OnContent="开" OffContent="关" IsChecked="{Binding EnableSessionSavePathDetection}" Margin="0,5"/>
-                    <ui:ToggleSwitch Content="同步新增截图和录像（源文件删除不会删除归档）" OnContent="开" OffContent="关" IsChecked="{Binding EnableMediaSync}" Margin="0,5"/>
+                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="随 Playnite 启动 Worker" OnContent="开" OffContent="关" IsChecked="{Binding AutoStartWorker}" Margin="0,5"/>
+                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="检测从 Steam、Xbox、启动器和 MOD 管理器外部启动的游戏" OnContent="开" OffContent="关" IsChecked="{Binding EnableProcessDetection}" Margin="0,5"/>
+                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="对未匹配游戏记录启动前/退出后文件差异，生成存档路径候选" OnContent="开" OffContent="关" IsChecked="{Binding EnableSessionSavePathDetection}" Margin="0,5"/>
+                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="同步新增截图和录像（源文件删除不会删除归档）" OnContent="开" OffContent="关" IsChecked="{Binding EnableMediaSync}" Margin="0,5"/>
                     <WrapPanel Margin="22,1,0,5" IsEnabled="{Binding EnableMediaSync}">
-                        <ui:ToggleSwitch Content="Steam 截图" OnContent="开" OffContent="关" IsChecked="{Binding EnableSteamMedia}" Margin="0,4,14,4"/>
-                        <ui:ToggleSwitch Content="Xbox Game Bar" OnContent="开" OffContent="关" IsChecked="{Binding EnableXboxGameBarMedia}" Margin="0,4,14,4"/>
-                        <ui:ToggleSwitch Content="Windows 截图" OnContent="开" OffContent="关" IsChecked="{Binding EnableWindowsScreenshotMedia}" Margin="0,4,14,4"/>
-                        <ui:ToggleSwitch Content="游戏相邻目录" OnContent="开" OffContent="关" IsChecked="{Binding EnablePlatformAdjacentMedia}" Margin="0,4,14,4"/>
-                        <ui:ToggleSwitch Content="自定义来源" OnContent="开" OffContent="关" IsChecked="{Binding EnableCustomMedia}" Margin="0,4,14,4"/>
+                        <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="Steam 截图" OnContent="开" OffContent="关" IsChecked="{Binding EnableSteamMedia}" Margin="0,4,14,4"/>
+                        <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="Xbox Game Bar" OnContent="开" OffContent="关" IsChecked="{Binding EnableXboxGameBarMedia}" Margin="0,4,14,4"/>
+                        <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="Windows 截图" OnContent="开" OffContent="关" IsChecked="{Binding EnableWindowsScreenshotMedia}" Margin="0,4,14,4"/>
+                        <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="游戏相邻目录" OnContent="开" OffContent="关" IsChecked="{Binding EnablePlatformAdjacentMedia}" Margin="0,4,14,4"/>
+                        <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="自定义来源" OnContent="开" OffContent="关" IsChecked="{Binding EnableCustomMedia}" Margin="0,4,14,4"/>
                     </WrapPanel>
-                    <ui:ToggleSwitch Content="完成本地任务后允许单向云端复制" OnContent="开" OffContent="关" IsChecked="{Binding EnableCloudUpload}" Margin="0,5"/>
-                    <ui:ToggleSwitch Content="管理面板打开时自动刷新任务与状态" OnContent="开" OffContent="关" IsChecked="{Binding EnableDashboardAutoRefresh}" Margin="0,5"/>
-                    <ui:ToggleSwitch Content="任务完成或失败时显示 Playnite 通知（管理面板关闭时也会监测）" OnContent="开" OffContent="关" IsChecked="{Binding EnableTaskNotifications}" Margin="0,5"/>
+                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="完成本地任务后允许单向云端复制" OnContent="开" OffContent="关" IsChecked="{Binding EnableCloudUpload}" Margin="0,5"/>
+                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="管理面板打开时自动刷新任务与状态" OnContent="开" OffContent="关" IsChecked="{Binding EnableDashboardAutoRefresh}" Margin="0,5"/>
+                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="任务完成或失败时显示 Playnite 通知（管理面板关闭时也会监测）" OnContent="开" OffContent="关" IsChecked="{Binding EnableTaskNotifications}" Margin="0,5"/>
                     <Grid Margin="0,10,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="210"/><ColumnDefinition Width="120"/></Grid.ColumnDefinitions>
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -173,9 +166,9 @@
                         <TextBlock Text="自动恢复始终关闭。恢复必须经过当前快照、游戏关闭确认、预览、恢复后校验和可撤销快照。" TextWrapping="Wrap"/>
                     </Border>
                 </StackPanel>
-            </Border>
+            </ui:Card>
 
-            <Border Style="{StaticResource SettingsCard}">
+            <ui:Card Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentTintBrush}" Margin="0,0,9,0">
@@ -186,12 +179,15 @@
                     <TextBlock Text="导出文件包含非敏感插件设置、本地路径和云端目标名称，不包含 Rclone 密码。导入后先显示缺失路径报告，点击 Playnite 的保存按钮后才会生效。"
                                Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,0,0,12"/>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <ui:Button Appearance="Secondary" MinHeight="40" MinWidth="112" Content="导出设置" Click="OnExportSettingsClick" Margin="0,0,10,0"/>
-                        <ui:Button Appearance="Primary" MinHeight="40" MinWidth="112" Content="导入设置" Click="OnImportSettingsClick"/>
+                        <ui:Button Style="{StaticResource GscWpfUiSecondaryButton}" MinHeight="40" MinWidth="112" Content="导出设置" Click="OnExportSettingsClick" Margin="0,0,10,0"/>
+                        <ui:Button Style="{StaticResource GscWpfUiPrimaryButton}" MinHeight="40" MinWidth="112" Content="导入设置" Click="OnImportSettingsClick"/>
                     </StackPanel>
                 </StackPanel>
-            </Border>
+            </ui:Card>
         </StackPanel>
         </ScrollViewer>
+        <ui:SnackbarPresenter x:Name="SettingsSnackbarHost" Panel.ZIndex="20"
+                              HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20"/>
+        <ui:ContentDialogHost x:Name="SettingsDialogHost" Panel.ZIndex="21"/>
     </Grid>
 </UserControl>

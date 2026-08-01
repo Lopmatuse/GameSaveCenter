@@ -81,10 +81,15 @@
 
 ## UI-004 生产 WPF-UI 局部迁移回归
 
+- [ ] 在 Windows 工作区先运行 `python scripts/validate-source.py`、Release restore/build、全部 50 项测试、package 与 Worker `0.6.22.0` smoke；任何 XAML 编译、WPF-UI API、程序集复制或资源错误都必须先修复，不能直接安装试错。
 - [ ] 仅在 ENV-001 已证明独立 AppData、扩展目录、测试库和 PID 边界后安装本次 PEXT；不停止、覆盖或连接用户日常 Playnite/Worker。
-- [ ] 依次打开 Dashboard 与 Settings，确认顶部 Button、自动化/安全 ToggleSwitch、导入/导出 Button 正常显示和触发原有命令；检查 `playnite.log` 不含程序集、资源、XAML、绑定或 Dispatcher 异常。
-- [ ] 在 Light、Dark、Follow Playnite、高对比度、关闭透明和关闭动画下切换两页；验证控件文本、开/关状态、焦点环、Tooltip、Disabled 状态与现有卡片/表格的主题一致，且切换后打开其他 Playnite 页面不受影响。
-- [ ] 在 1600×900 至 980×640、100%/125%/150%/200% DPI 用键盘 Tab、Enter、Space 验证工具栏与设置开关；检查长中文文本、开关状态、数值输入及横向访问不裁切。
+- [ ] 依次打开 Dashboard 六个工作区与 Settings，检查 6 个指标卡、所有 WPF-UI 动作按钮、策略/工具/媒体/设置开关、文本输入和 ComboBox；原 Command、Binding、Tooltip、Automation Name、Disabled/隐藏行为和数值校验必须保持。
+- [ ] 分别触发成功/警告/错误通知：成功与警告显示 Snackbar，错误仍显示可打开详情的本地 Toast；模拟 WPF-UI 宿主异常时回退入口可用且 `playnite.log` 有诊断。
+- [ ] 分别触发普通与危险确认：ContentDialog 的确认/取消/Esc、危险按钮外观、重复请求安全取消均正确；模拟框架失败时插件内 Dialog 可继续完成原 `TaskCompletionSource`，不得挂起调用方。
+- [ ] 导出设置到本地与网络测试路径、导入正常/超 1 MiB/缺失路径/非法 JSON 文件；UI 不冻结，报告使用 ContentDialog，失败使用 MessageBox，取消设置页仍保持原有保存语义。
+- [ ] 在 Light、Dark、Follow Playnite、高对比度、关闭透明和关闭动画下切换两页；验证 Card、Button、ToggleSwitch、输入、Popup、焦点环与现有表格主题一致，关闭插件页后 Playnite 其他页面不受影响。
+- [ ] 在 1600×900、1366×768、1280×720、1100×700、980×640 与 100%/125%/150%/200% DPI 使用 Tab、Shift+Tab、方向键、Enter、Space、Esc；长中文、开关状态、下拉 Popup、窄屏横向访问和浮层均不裁切。
+- [ ] 使用约 1000 游戏、1000 媒体和大量任务数据滚动并切换筛选；DataGrid/ListBox 仍为 Recycling，不能因 WPF-UI 按钮或卡片迁移出现全量实例化、N+1、明显卡顿或失去键盘选择。
 
 ## 0.6.13 远端隔离下载与恢复回归
 

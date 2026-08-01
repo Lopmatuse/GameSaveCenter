@@ -16,6 +16,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiBase.xaml"/>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml"/>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiProduction.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <converters:MediaThumbnailConverter x:Key="MediaThumbnailConverter"/>
         <converters:MediaVideoSourceConverter x:Key="MediaVideoSourceConverter"/>
@@ -57,7 +58,7 @@
             <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
         </Style>
 
-        <Style x:Key="GscMetricCard" TargetType="Border" BasedOn="{StaticResource GscSurface}">
+        <Style x:Key="GscMetricCard" TargetType="{x:Type ui:Card}" BasedOn="{StaticResource GscWpfUiCard}">
             <Setter Property="Padding" Value="16,13"/>
             <Setter Property="Margin" Value="0,0,10,0"/>
             <Setter Property="MinHeight" Value="80"/>
@@ -185,9 +186,6 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
-        <Style TargetType="CheckBox" BasedOn="{StaticResource GscCheckBox}"/>
-        <Style TargetType="ComboBox" BasedOn="{StaticResource GscComboBox}"/>
-        <Style TargetType="ComboBoxItem" BasedOn="{StaticResource GscComboBoxItem}"/>
 
         <!-- The header and selected content are deliberately separated.  In 0.5.9 the
              TabItem content-alignment values were set to Center, and those inheritable
@@ -722,7 +720,7 @@
             <StackPanel VerticalAlignment="Center">
                 <TextBlock x:Name="PageTitleText" Text="首页" FontSize="25" FontWeight="SemiBold"/>
                 <TextBlock x:Name="PageSubtitleText" Text="存档、修改器、媒体与任务的一体化工作台" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0"/>
-                <ComboBox x:Name="CompactGameSelector" Visibility="Collapsed" Margin="0,8,0,0" Width="230"
+                <ComboBox Style="{StaticResource GscWpfUiComboBox}" x:Name="CompactGameSelector" Visibility="Collapsed" Margin="0,8,0,0" Width="230"
                           ItemsSource="{Binding GamesView}" SelectedItem="{Binding SelectedGame}"
                           ToolTip="在紧凑布局中切换当前游戏">
                     <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate>
@@ -731,41 +729,41 @@
             <WrapPanel x:Name="TopActionsPanel" Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="14,0,0,0">
                 <!-- Background refresh never inserts an element into this WrapPanel. Keeping the toolbar's
                      measured width stable prevents timer-driven page movement when actions would wrap. -->
-                <ui:Button x:Name="TopRefreshButton" Appearance="Secondary" MinHeight="40" AutomationProperties.Name="刷新全部状态" ToolTip="刷新全部状态" Command="{Binding RefreshCommand}" Margin="0,0,8,0">
+                <ui:Button x:Name="TopRefreshButton" Style="{StaticResource GscWpfUiSecondaryButton}" MinHeight="40" AutomationProperties.Name="刷新全部状态" ToolTip="刷新全部状态" Command="{Binding RefreshCommand}" Margin="0,0,8,0">
                     <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72C;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock x:Name="TopRefreshLabel" Grid.Column="1" Text="刷新" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
                 </ui:Button>
-                <ui:Button x:Name="TopBackupAllButton" Appearance="Secondary" MinHeight="40" AutomationProperties.Name="备份全部游戏" ToolTip="备份全部游戏" Command="{Binding BackupAllCommand}" Margin="0,0,8,0">
+                <ui:Button x:Name="TopBackupAllButton" Style="{StaticResource GscWpfUiSecondaryButton}" MinHeight="40" AutomationProperties.Name="备份全部游戏" ToolTip="备份全部游戏" Command="{Binding BackupAllCommand}" Margin="0,0,8,0">
                     <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock x:Name="TopBackupAllLabel" Grid.Column="1" Text="全部备份" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
                 </ui:Button>
-                <ui:Button x:Name="TopMediaSyncButton" Appearance="Secondary" MinHeight="40" AutomationProperties.Name="同步媒体" ToolTip="同步媒体" Command="{Binding SyncMediaCommand}" Margin="0,0,8,0">
+                <ui:Button x:Name="TopMediaSyncButton" Style="{StaticResource GscWpfUiSecondaryButton}" MinHeight="40" AutomationProperties.Name="同步媒体" ToolTip="同步媒体" Command="{Binding SyncMediaCommand}" Margin="0,0,8,0">
                     <Grid VerticalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="18"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" HorizontalAlignment="Center" VerticalAlignment="Center"/><TextBlock x:Name="TopMediaSyncLabel" Grid.Column="1" Text="同步媒体" Margin="8,0,0,0" VerticalAlignment="Center"/></Grid>
                 </ui:Button>
-                <ui:Button x:Name="TopTrainerImportButton" Appearance="Secondary" MinHeight="40" Command="{Binding ImportTrainerCommand}" Visibility="Collapsed" Content="导入修改器"/>
-                <ui:Button x:Name="TopTrainerCatalogButton" Appearance="Secondary" MinHeight="40" Margin="8,0,0,0" Command="{Binding SyncTrainerCatalogCommand}" Visibility="Collapsed" Content="刷新目录"/>
-                <ui:Button x:Name="TopDiagnosticsButton" Appearance="Secondary" MinHeight="40" Command="{Binding RefreshDiagnosticsCommand}" Visibility="Collapsed" Content="刷新诊断"/>
+                <ui:Button x:Name="TopTrainerImportButton" Style="{StaticResource GscWpfUiSecondaryButton}" MinHeight="40" Command="{Binding ImportTrainerCommand}" Visibility="Collapsed" Content="导入修改器"/>
+                <ui:Button x:Name="TopTrainerCatalogButton" Style="{StaticResource GscWpfUiSecondaryButton}" MinHeight="40" Margin="8,0,0,0" Command="{Binding SyncTrainerCatalogCommand}" Visibility="Collapsed" Content="刷新目录"/>
+                <ui:Button x:Name="TopDiagnosticsButton" Style="{StaticResource GscWpfUiSecondaryButton}" MinHeight="40" Command="{Binding RefreshDiagnosticsCommand}" Visibility="Collapsed" Content="刷新诊断"/>
             </WrapPanel>
         </Grid>
 
         <UniformGrid x:Name="MetricsPanel" Grid.Row="1" Columns="6" Margin="0,0,0,18">
-            <Border Style="{StaticResource GscMetricCard}">
+            <ui:Card Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
                     <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscAccentIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{StaticResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="管理游戏" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.ManagedGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
-            </Border>
-            <Border Style="{StaticResource GscMetricCard}">
+            </ui:Card>
+            <ui:Card Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
                     <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscInfoIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="已匹配存档" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.MatchedGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
-            </Border>
-            <Border Style="{StaticResource GscMetricCard}">
+            </ui:Card>
+            <ui:Card Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
                     <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscSuccessIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE768;" Foreground="{StaticResource GscSuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="正在运行" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.RunningGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
-            </Border>
-            <Border Style="{StaticResource GscMetricCard}">
+            </ui:Card>
+            <ui:Card Style="{StaticResource GscMetricCard}">
                 <Button Style="{StaticResource GscButtonBase}"
                         Command="{Binding OpenAttentionCenterCommand}"
                         ToolTip="查看需要关注的游戏、原因和建议处理方式"
@@ -776,19 +774,19 @@
                         <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="需要关注" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.WarningGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                     </Grid>
                 </Button>
-            </Border>
-            <Border Style="{StaticResource GscMetricCard}">
+            </ui:Card>
+            <ui:Card Style="{StaticResource GscMetricCard}">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
                     <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscInfoIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="云端任务" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.PendingCloudTasks}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
-            </Border>
-            <Border Style="{StaticResource GscMetricCard}" Margin="0">
+            </ui:Card>
+            <ui:Card Style="{StaticResource GscMetricCard}" Margin="0">
                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
                     <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscWarningIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE91B;" Foreground="{StaticResource GscWarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="待归类媒体" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
                 </Grid>
-            </Border>
+            </ui:Card>
         </UniformGrid>
 
         <Grid x:Name="WorkspaceGrid" Grid.Row="2" MinHeight="0">
@@ -812,7 +810,7 @@
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                         <Grid x:Name="SearchBoxContainer" Margin="0,0,0,8">
                             <TextBox x:Name="GameSearchTextBox"
-                                     Style="{StaticResource GscTextBox}"
+                                     Style="{StaticResource GscWpfUiTextBox}"
                                      Text="{Binding GameSearchText, UpdateSourceTrigger=PropertyChanged}"
                                      ToolTip="搜索游戏名、Ludusavi 名称、平台或状态"
                                      Padding="32,7,38,7"/>
@@ -867,8 +865,8 @@
                             </Button>
                         </Grid>
                         <UniformGrid Grid.Row="1" Columns="2">
-                            <ComboBox ItemsSource="{Binding GameStatusFilterOptions}" SelectedItem="{Binding GameStatusFilter}" Margin="0,0,4,0" ToolTip="状态筛选"/>
-                            <ComboBox ItemsSource="{Binding GameSortOptions}" SelectedItem="{Binding GameSortMode}" Margin="4,0,0,0" ToolTip="排序"/>
+                            <ComboBox Style="{StaticResource GscWpfUiComboBox}" ItemsSource="{Binding GameStatusFilterOptions}" SelectedItem="{Binding GameStatusFilter}" Margin="0,0,4,0" ToolTip="状态筛选"/>
+                            <ComboBox Style="{StaticResource GscWpfUiComboBox}" ItemsSource="{Binding GameSortOptions}" SelectedItem="{Binding GameSortMode}" Margin="4,0,0,0" ToolTip="排序"/>
                         </UniformGrid>
                     </Grid>
                     <Grid Grid.Row="2">
@@ -971,10 +969,10 @@
                             <TextBlock Text="{Binding SelectedGame.LudusaviName, StringFormat=Ludusavi：{0}, TargetNullValue=Ludusavi：未匹配}" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,5,0,0"/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button x:Name="BackupSelectedButton" Style="{StaticResource GscToolbarPrimaryButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份" Margin="0,0,8,0"/>
-                            <Button x:Name="ValidateButton" Style="{StaticResource GscToolbarButton}" Command="{Binding ValidateCommand}" Content="校验" Margin="0,0,8,0"/>
-                            <Button x:Name="DetectPathsButton" Style="{StaticResource GscToolbarButton}" Command="{Binding DetectPathsCommand}" Content="侦测路径" Margin="0,0,8,0"/>
-                            <Button x:Name="PolicyToggleButton" Style="{StaticResource GscToolbarButton}" Click="OnTogglePolicy" Content="策略"/>
+                            <ui:Button x:Name="BackupSelectedButton" Style="{StaticResource GscWpfUiToolbarPrimaryButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份" Margin="0,0,8,0"/>
+                            <ui:Button x:Name="ValidateButton" Style="{StaticResource GscWpfUiToolbarButton}" Command="{Binding ValidateCommand}" Content="校验" Margin="0,0,8,0"/>
+                            <ui:Button x:Name="DetectPathsButton" Style="{StaticResource GscWpfUiToolbarButton}" Command="{Binding DetectPathsCommand}" Content="侦测路径" Margin="0,0,8,0"/>
+                            <ui:Button x:Name="PolicyToggleButton" Style="{StaticResource GscWpfUiToolbarButton}" Click="OnTogglePolicy" Content="策略"/>
                         </StackPanel>
                     </Grid>
 
@@ -987,19 +985,19 @@
 
                     <Border x:Name="BackupPolicyPanel" Grid.Row="2" Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="12" Padding="12" Margin="0,0,0,12" Visibility="Collapsed">
                         <WrapPanel VerticalAlignment="Center">
-                            <CheckBox Content="启用当前游戏自动任务" IsChecked="{Binding SelectedGame.Policy.Enabled}" Margin="0,3,18,3" ToolTip="关闭后不会因启动、退出或游玩间隔自动备份或归档媒体；手动操作仍可使用。"/>
-                            <CheckBox Content="退出后备份" IsChecked="{Binding SelectedGame.Policy.BackupOnGameStop}" Margin="0,3,18,3"/>
-                            <CheckBox Content="游玩中备份" IsChecked="{Binding SelectedGame.Policy.BackupDuringPlay}" Margin="0,3,12,3"/>
+                            <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="启用当前游戏自动任务" OnContent="开" OffContent="关" IsChecked="{Binding SelectedGame.Policy.Enabled}" Margin="0,3,18,3" ToolTip="关闭后不会因启动、退出或游玩间隔自动备份或归档媒体；手动操作仍可使用。"/>
+                            <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="退出后备份" OnContent="开" OffContent="关" IsChecked="{Binding SelectedGame.Policy.BackupOnGameStop}" Margin="0,3,18,3"/>
+                            <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="游玩中备份" OnContent="开" OffContent="关" IsChecked="{Binding SelectedGame.Policy.BackupDuringPlay}" Margin="0,3,12,3"/>
                             <TextBlock Text="间隔" VerticalAlignment="Center"/>
                             <TextBox Style="{StaticResource GscNumericTextBox}" Width="88" infra:SelectAllOnKeyboardFocus.Enabled="True"
                                      ToolTip="允许 1–1440 分钟；输入完成后离开输入框或点击“保存策略”提交。" Margin="7,0,7,0">
                                 <TextBox.Text><Binding Path="SelectedGame.Policy.DuringPlayIntervalMinutes" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="1" Maximum="1440"/></Binding.ValidationRules></Binding></TextBox.Text>
                             </TextBox>
                             <TextBlock Text="分钟" VerticalAlignment="Center" Margin="0,0,18,0"/>
-                            <CheckBox Content="退出后归档媒体" IsChecked="{Binding SelectedGame.Policy.SyncMediaOnGameStop}" Margin="0,3,18,3"/>
-                            <CheckBox Content="游玩中归档媒体" IsChecked="{Binding SelectedGame.Policy.SyncMediaDuringPlay}" Margin="0,3,18,3"/>
-                            <CheckBox Content="上传云端" IsChecked="{Binding SelectedGame.Policy.UploadAfterBackup}" Margin="0,3,12,3"/>
-                            <Button Style="{StaticResource GscButtonBase}" Command="{Binding SavePolicyCommand}" Content="保存策略" Margin="0"/>
+                            <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="退出后归档媒体" OnContent="开" OffContent="关" IsChecked="{Binding SelectedGame.Policy.SyncMediaOnGameStop}" Margin="0,3,18,3"/>
+                            <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="游玩中归档媒体" OnContent="开" OffContent="关" IsChecked="{Binding SelectedGame.Policy.SyncMediaDuringPlay}" Margin="0,3,18,3"/>
+                            <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="上传云端" OnContent="开" OffContent="关" IsChecked="{Binding SelectedGame.Policy.UploadAfterBackup}" Margin="0,3,12,3"/>
+                            <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding SavePolicyCommand}" Content="保存策略" Margin="0"/>
                         </WrapPanel>
                     </Border>
 
@@ -1098,15 +1096,15 @@
                                         <TextBlock Text="当前为 Simple 格式，只维护一个当前副本；需要多个恢复点请在设置中选择 ZIP。" TextWrapping="Wrap"/>
                                     </Border>
                                     <WrapPanel>
-                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding RestoreCommand}" Content="安全恢复所选版本"/>
-                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding UndoRestoreCommand}" Content="撤销最近恢复"/>
-                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding CompareBackupCommand}" Content="与上一版本比较"/>
-                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding PreviewRetentionCommand}" Content="保留策略预览"/>
+                                        <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding RestoreCommand}" Content="安全恢复所选版本"/>
+                                        <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding UndoRestoreCommand}" Content="撤销最近恢复"/>
+                                        <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding CompareBackupCommand}" Content="与上一版本比较"/>
+                                        <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding PreviewRetentionCommand}" Content="保留策略预览"/>
                                     </WrapPanel>
                                     <WrapPanel>
-                                        <CheckBox Content="锁定版本" IsChecked="{Binding LockSelectedBackup}" VerticalAlignment="Center" Margin="0,0,12,8"/>
-                                        <TextBox Style="{StaticResource GscTextBox}" Width="280" Text="{Binding BackupComment, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,8" ToolTip="版本备注"/>
-                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding UpdateBackupMetadataCommand}" Content="保存备注/锁定"/>
+                                        <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="锁定版本" IsChecked="{Binding LockSelectedBackup}" VerticalAlignment="Center" Margin="0,0,12,8"/>
+                                        <TextBox Style="{StaticResource GscWpfUiTextBox}" Width="280" Text="{Binding BackupComment, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,8,8" ToolTip="版本备注"/>
+                                        <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding UpdateBackupMetadataCommand}" Content="保存备注/锁定"/>
                                     </WrapPanel>
                                     <TextBlock Text="{Binding DiffSummary}" TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                                     <TextBlock Text="{Binding RetentionSummary}" TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
@@ -1128,9 +1126,9 @@
                                                 <TextBlock Text="每个工具独立决定是否随游戏启动；新导入项目默认关闭自动启动。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,3,0,0"/>
                                             </StackPanel>
                                             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                                                <Button Style="{StaticResource GscToolbarButton}" MinWidth="104" Command="{Binding ImportTrainerCommand}" Content="导入修改器" Margin="0,0,8,0"/>
-                                                <Button Style="{StaticResource GscToolbarButton}" MinWidth="104" Command="{Binding ImportToolFolderCommand}" Content="导入目录" Margin="0,0,8,0"/>
-                                                <Button Style="{StaticResource GscToolbarButton}" MinWidth="104" Command="{Binding ImportCheatTableCommand}" Content="导入 CT"/>
+                                                <ui:Button Style="{StaticResource GscWpfUiToolbarButton}" MinWidth="104" Command="{Binding ImportTrainerCommand}" Content="导入修改器" Margin="0,0,8,0"/>
+                                                <ui:Button Style="{StaticResource GscWpfUiToolbarButton}" MinWidth="104" Command="{Binding ImportToolFolderCommand}" Content="导入目录" Margin="0,0,8,0"/>
+                                                <ui:Button Style="{StaticResource GscWpfUiToolbarButton}" MinWidth="104" Command="{Binding ImportCheatTableCommand}" Content="导入 CT"/>
                                             </StackPanel>
                                         </Grid>
                                         <Border Grid.Row="1" Grid.ColumnSpan="3" Background="{DynamicResource GscAccentTintBrush}"
@@ -1151,11 +1149,11 @@
                                                     <TextBlock Text="选择修改器主程序" FontWeight="SemiBold"/>
                                                     <TextBlock Text="检测到多个 EXE，确认后才会完成导入。" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11" Margin="0,3,0,0"/>
                                                 </StackPanel>
-                                                <ComboBox ItemsSource="{Binding ImportEntryCandidates}" SelectedItem="{Binding SelectedImportEntryCandidate}"
+                                                <ComboBox Style="{StaticResource GscWpfUiComboBox}" ItemsSource="{Binding ImportEntryCandidates}" SelectedItem="{Binding SelectedImportEntryCandidate}"
                                                           DisplayMemberPath="Display" MinWidth="260" MaxWidth="440" VerticalAlignment="Center" Margin="0,0,12,8"/>
                                                 <WrapPanel VerticalAlignment="Center">
-                                                    <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding ConfirmGameToolImportCommand}" Content="确认导入"/>
-                                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding CancelGameToolImportCommand}" Content="取消" Margin="0"/>
+                                                    <ui:Button Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding ConfirmGameToolImportCommand}" Content="确认导入"/>
+                                                    <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding CancelGameToolImportCommand}" Content="取消" Margin="0"/>
                                                 </WrapPanel>
                                             </WrapPanel>
                                         </Border>
@@ -1233,7 +1231,7 @@
                                                 </StackPanel>
                                                 <StackPanel Grid.Row="1" Margin="0,16,0,0">
                                                     <TextBlock Text="当前版本" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/>
-                                                    <ComboBox ItemsSource="{Binding SelectedGameTool.Versions}"
+                                                    <ComboBox Style="{StaticResource GscWpfUiComboBox}" ItemsSource="{Binding SelectedGameTool.Versions}"
                                                               SelectedItem="{Binding SelectedGameToolVersion}"
                                                               DisplayMemberPath="VersionName"
                                                               Margin="0,5,0,4"
@@ -1243,10 +1241,10 @@
                                                                TextTrimming="CharacterEllipsis"
                                                                ToolTip="{Binding SelectedGameToolVersion.EntryPath}"
                                                                Margin="1,0,0,12"/>
-                                                    <CheckBox Content="启用" IsChecked="{Binding SelectedGameTool.Enabled}" Margin="0,0,0,10"/>
-                                                    <CheckBox Content="随游戏启动" IsChecked="{Binding SelectedGameTool.AutoStart}" Margin="0,0,0,10"/>
-                                                    <CheckBox Content="游戏退出后关闭" IsChecked="{Binding SelectedGameTool.CloseOnGameExit}" Margin="0,0,0,10"/>
-                                                    <CheckBox Content="管理员权限" IsChecked="{Binding SelectedGameTool.RequiresAdmin}" Margin="0,0,0,12"/>
+                                                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="启用" OnContent="开" OffContent="关" IsChecked="{Binding SelectedGameTool.Enabled}" Margin="0,0,0,10"/>
+                                                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="随游戏启动" OnContent="开" OffContent="关" IsChecked="{Binding SelectedGameTool.AutoStart}" Margin="0,0,0,10"/>
+                                                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="游戏退出后关闭" OnContent="开" OffContent="关" IsChecked="{Binding SelectedGameTool.CloseOnGameExit}" Margin="0,0,0,10"/>
+                                                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="管理员权限" OnContent="开" OffContent="关" IsChecked="{Binding SelectedGameTool.RequiresAdmin}" Margin="0,0,0,12"/>
                                                     <DockPanel LastChildFill="False">
                                                         <TextBlock Text="启动延迟" VerticalAlignment="Center"/>
                                                         <TextBox DockPanel.Dock="Right" Style="{StaticResource GscNumericTextBox}" Width="84" infra:SelectAllOnKeyboardFocus.Enabled="True" ToolTip="允许 0–300 秒；离开输入框后提交。">
@@ -1255,10 +1253,10 @@
                                                     </DockPanel>
                                                 </StackPanel>
                                                 <WrapPanel Grid.Row="2" VerticalAlignment="Bottom" Margin="0,18,0,0">
-                                                    <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding LaunchGameToolCommand}" Content="启动"/>
-                                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding SaveGameToolCommand}" Content="保存设置"/>
-                                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding OpenGameToolDirectoryCommand}" Content="打开目录"/>
-                                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding DeleteGameToolCommand}" Content="解除绑定" Margin="0"/>
+                                                    <ui:Button Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding LaunchGameToolCommand}" Content="启动"/>
+                                                    <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding SaveGameToolCommand}" Content="保存设置"/>
+                                                    <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding OpenGameToolDirectoryCommand}" Content="打开目录"/>
+                                                    <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding DeleteGameToolCommand}" Content="解除绑定" Margin="0"/>
                                                 </WrapPanel>
                                             </Grid>
                                         </Border>
@@ -1272,7 +1270,7 @@
                                                 <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                                 <Grid>
                                                     <TextBox x:Name="TrainerSearchTextBox"
-                                                             Style="{StaticResource GscTextBox}"
+                                                             Style="{StaticResource GscWpfUiTextBox}"
                                                              Text="{Binding TrainerSearchText, UpdateSourceTrigger=PropertyChanged}"
                                                              ToolTip="输入英文游戏名；留空时使用当前 Playnite 游戏名"
                                                              Padding="32,7,38,7"/>
@@ -1326,8 +1324,8 @@
                                                         </Button.Style>
                                                     </Button>
                                                 </Grid>
-                                                <Button Grid.Column="1" Style="{StaticResource GscPrimaryButton}" Command="{Binding SearchTrainerCatalogCommand}" Content="搜索" Margin="10,0"/>
-                                                <Button Grid.Column="2" Style="{StaticResource GscButtonBase}" Command="{Binding SyncTrainerCatalogCommand}" Content="刷新目录" Margin="0"/>
+                                                <ui:Button Grid.Column="1" Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding SearchTrainerCatalogCommand}" Content="搜索" Margin="10,0"/>
+                                                <ui:Button Grid.Column="2" Style="{StaticResource GscWpfUiActionButton}" Command="{Binding SyncTrainerCatalogCommand}" Content="刷新目录" Margin="0"/>
                                             </Grid>
                                         </Border>
                                         <Grid Grid.Row="1" Margin="0,12,0,0">
@@ -1348,7 +1346,7 @@
                                                             </StackPanel>
                                                         </DataTemplate></ListBox.ItemTemplate>
                                                     </ListBox>
-                                                    <Button Grid.Row="2" Style="{StaticResource GscButtonBase}" Command="{Binding LoadTrainerReleasesCommand}" Content="重新读取可下载版本" Margin="0,10,0,0"/>
+                                                    <ui:Button Grid.Row="2" Style="{StaticResource GscWpfUiActionButton}" Command="{Binding LoadTrainerReleasesCommand}" Content="重新读取可下载版本" Margin="0,10,0,0"/>
                                                 </Grid>
                                             </Border>
                                             <Border Grid.Column="2" Style="{StaticResource GscSurface}" CornerRadius="14" Padding="12">
@@ -1370,9 +1368,9 @@
                                                             </Grid>
                                                         </DataTemplate></ListBox.ItemTemplate>
                                                     </ListBox>
-                                                    <Button Grid.Row="2" Style="{StaticResource GscPrimaryButton}" Command="{Binding DownloadTrainerCommand}" Margin="0,10,0,0" HorizontalAlignment="Right">
+                                                    <ui:Button Grid.Row="2" Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding DownloadTrainerCommand}" Margin="0,10,0,0" HorizontalAlignment="Right">
                                                         <TextBlock><Run Text="下载并绑定到 "/><Run Text="{Binding SelectedGame.Name, Mode=OneWay, TargetNullValue=当前游戏}"/></TextBlock>
-                                                    </Button>
+                                                    </ui:Button>
                                                 </Grid>
                                             </Border>
                                         </Grid>
@@ -1419,9 +1417,9 @@
                                         </Border>
                                         <WrapPanel Grid.Row="2" Margin="0,10,0,0">
                                             <TextBlock Text="归类到：" VerticalAlignment="Center"/>
-                                            <ComboBox Width="250" ItemsSource="{Binding Games}" SelectedItem="{Binding InboxTargetGame}" Margin="7,0,8,8"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
-                                            <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding AssignInboxMediaCommand}" Content="确认归类"/>
-                                            <Button Style="{StaticResource GscButtonBase}" Command="{Binding IgnoreInboxMediaCommand}" Content="忽略并保留副本"/>
+                                            <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="250" ItemsSource="{Binding Games}" SelectedItem="{Binding InboxTargetGame}" Margin="7,0,8,8"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+                                            <ui:Button Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding AssignInboxMediaCommand}" Content="确认归类"/>
+                                            <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding IgnoreInboxMediaCommand}" Content="忽略并保留副本"/>
                                         </WrapPanel>
                                     </Grid>
                                 </TabItem>
@@ -1437,8 +1435,8 @@
                                                 <Border Style="{StaticResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,0,8"><TextBlock><Run Text="占用 "/><Run Text="{Binding MediaSummary.TotalSizeDisplay, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
                                             </WrapPanel>
                                             <WrapPanel>
-                                                <TextBox Style="{StaticResource GscTextBox}" MinWidth="260" Text="{Binding MediaSearchText, UpdateSourceTrigger=PropertyChanged}" ToolTip="按文件名、备注或来源搜索" Margin="0,0,8,0"/>
-                                                <ComboBox Style="{StaticResource GscComboBox}" Width="130" ItemsSource="{Binding MediaFilterOptions}" SelectedItem="{Binding MediaFilter}"/>
+                                                <TextBox Style="{StaticResource GscWpfUiTextBox}" MinWidth="260" Text="{Binding MediaSearchText, UpdateSourceTrigger=PropertyChanged}" ToolTip="按文件名、备注或来源搜索" Margin="0,0,8,0"/>
+                                                <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="130" ItemsSource="{Binding MediaFilterOptions}" SelectedItem="{Binding MediaFilter}"/>
                                             </WrapPanel>
                                         </StackPanel>
                                         <Border Grid.Row="1" Style="{StaticResource GscTableFrame}" MinHeight="190">
@@ -1512,22 +1510,22 @@
                                                 </Border>
                                                 <StackPanel Grid.Column="1">
                                                     <WrapPanel>
-                                                        <CheckBox Content="收藏" IsChecked="{Binding MediaFavorite}" Margin="0,8,12,8"/>
-                                                        <TextBox Style="{StaticResource GscTextBox}" MinWidth="280" MaxWidth="520" Text="{Binding MediaComment, UpdateSourceTrigger=PropertyChanged}" ToolTip="为选中媒体添加备注" Margin="0,0,8,8"/>
-                                                        <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding UpdateMediaMetadataCommand}" Content="保存元数据"/>
-                                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding OpenSelectedMediaCommand}" Content="打开媒体"/>
-                                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding RevealSelectedMediaCommand}" Content="在目录中显示"/>
+                                                        <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="收藏" OnContent="开" OffContent="关" IsChecked="{Binding MediaFavorite}" Margin="0,8,12,8"/>
+                                                        <TextBox Style="{StaticResource GscWpfUiTextBox}" MinWidth="280" MaxWidth="520" Text="{Binding MediaComment, UpdateSourceTrigger=PropertyChanged}" ToolTip="为选中媒体添加备注" Margin="0,0,8,8"/>
+                                                        <ui:Button Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding UpdateMediaMetadataCommand}" Content="保存元数据"/>
+                                                        <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding OpenSelectedMediaCommand}" Content="打开媒体"/>
+                                                        <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding RevealSelectedMediaCommand}" Content="在目录中显示"/>
                                                     </WrapPanel>
                                                     <WrapPanel Margin="0,2,0,0">
                                                         <TextBlock Text="重新归类到：" VerticalAlignment="Center"/>
-                                                        <ComboBox Width="240" ItemsSource="{Binding Games}" SelectedItem="{Binding MediaTargetGame}" Margin="7,0,8,8"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
-                                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding ReassignMediaCommand}" Content="移动并重新归类"/>
+                                                        <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="240" ItemsSource="{Binding Games}" SelectedItem="{Binding MediaTargetGame}" Margin="7,0,8,8"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+                                                        <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding ReassignMediaCommand}" Content="移动并重新归类"/>
                                                     </WrapPanel>
                                                     <WrapPanel Margin="0,2,0,0">
                                                         <TextBlock Text="批量操作：" VerticalAlignment="Center"/>
-                                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding FavoriteSelectedMediaCommand}" CommandParameter="{Binding SelectedItems, ElementName=MediaGrid}" Content="收藏所选"/>
-                                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding UnfavoriteSelectedMediaCommand}" CommandParameter="{Binding SelectedItems, ElementName=MediaGrid}" Content="取消收藏"/>
-                                                        <Button Style="{StaticResource GscButtonBase}" Command="{Binding CommentSelectedMediaCommand}" CommandParameter="{Binding SelectedItems, ElementName=MediaGrid}" Content="将当前备注应用到所选"/>
+                                                        <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding FavoriteSelectedMediaCommand}" CommandParameter="{Binding SelectedItems, ElementName=MediaGrid}" Content="收藏所选"/>
+                                                        <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding UnfavoriteSelectedMediaCommand}" CommandParameter="{Binding SelectedItems, ElementName=MediaGrid}" Content="取消收藏"/>
+                                                        <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding CommentSelectedMediaCommand}" CommandParameter="{Binding SelectedItems, ElementName=MediaGrid}" Content="将当前备注应用到所选"/>
                                                     </WrapPanel>
                                                 </StackPanel>
                                             </Grid>
@@ -1540,10 +1538,10 @@
                                             <TextBlock Text="添加截图或录像来源" FontSize="16" FontWeight="SemiBold"/>
                                             <TextBlock Text="共享目录中无法唯一判断所属游戏的文件会进入待归类收件箱。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,12" TextWrapping="Wrap"/>
                                             <WrapPanel>
-                                                <TextBox Style="{StaticResource GscTextBox}" MinWidth="330" Text="{Binding CustomMediaSourcePath, UpdateSourceTrigger=PropertyChanged}" ToolTip="Epic/Ubisoft/EA/GOG、MOD 或游戏自身截图目录" Margin="0,0,8,8"/>
-                                                <TextBox Style="{StaticResource GscTextBox}" Width="100" Text="{Binding CustomMediaPattern, UpdateSourceTrigger=PropertyChanged}" ToolTip="例如 *.png" Margin="0,0,8,8"/>
-                                                <CheckBox Content="共享目录" IsChecked="{Binding CustomMediaShared}" Margin="0,8,10,8"/>
-                                                <Button Style="{StaticResource GscButtonBase}" Command="{Binding AddMediaSourceCommand}" Content="添加来源"/>
+                                                <TextBox Style="{StaticResource GscWpfUiTextBox}" MinWidth="330" Text="{Binding CustomMediaSourcePath, UpdateSourceTrigger=PropertyChanged}" ToolTip="Epic/Ubisoft/EA/GOG、MOD 或游戏自身截图目录" Margin="0,0,8,8"/>
+                                                <TextBox Style="{StaticResource GscWpfUiTextBox}" Width="100" Text="{Binding CustomMediaPattern, UpdateSourceTrigger=PropertyChanged}" ToolTip="例如 *.png" Margin="0,0,8,8"/>
+                                                <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="共享目录" OnContent="开" OffContent="关" IsChecked="{Binding CustomMediaShared}" Margin="0,8,10,8"/>
+                                                <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding AddMediaSourceCommand}" Content="添加来源"/>
                                             </WrapPanel>
                                             <ItemsControl ItemsSource="{Binding MediaSources}" Margin="0,8,0,0">
                                                 <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
@@ -1552,12 +1550,12 @@
                                                         <Border Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="10" Padding="10,7" Margin="0,0,8,8">
                                                             <StackPanel>
                                                                 <WrapPanel>
-                                                                    <CheckBox Content="启用" IsChecked="{Binding Enabled, Mode=TwoWay}" Command="{Binding DataContext.UpdateMediaSourceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,10,0"/>
+                                                                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="启用" IsChecked="{Binding Enabled, Mode=TwoWay}" Command="{Binding DataContext.UpdateMediaSourceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,10,0"/>
                                                                     <TextBlock Text="{Binding SourceKindDisplay, Mode=OneWay}" FontWeight="SemiBold" VerticalAlignment="Center"/>
                                                                     <TextBlock Text="共享" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="8,0,0,0" VerticalAlignment="Center">
                                                                         <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding SharedDirectory}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                                                     </TextBlock>
-                                                                    <Button Style="{StaticResource GscContextButton}" Command="{Binding DataContext.DeleteMediaSourceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Content="移除" Margin="10,0,0,0"/>
+                                                                    <ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding DataContext.DeleteMediaSourceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Content="移除" Margin="10,0,0,0"/>
                                                                 </WrapPanel>
                                                                 <TextBlock Text="{Binding RootPath, Mode=OneWay}" Foreground="{DynamicResource GscSecondaryTextBrush}" MaxWidth="460" TextTrimming="CharacterEllipsis" ToolTip="{Binding RootPath, Mode=OneWay}"/>
                                                             </StackPanel>
@@ -1595,9 +1593,9 @@
                                     </StackPanel>
                                 </Border>
                                 <WrapPanel Grid.Row="2" Margin="0,10,0,0">
-                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding DetectPathsCommand}" Content="立即扫描"/>
-                                    <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding AcceptCandidateCommand}" Content="接受并生成规则草案"/>
-                                    <Button Style="{StaticResource GscButtonBase}" Command="{Binding RejectCandidateCommand}" Content="忽略候选"/>
+                                    <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding DetectPathsCommand}" Content="立即扫描"/>
+                                    <ui:Button Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding AcceptCandidateCommand}" Content="接受并生成规则草案"/>
+                                    <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding RejectCandidateCommand}" Content="忽略候选"/>
                                 </WrapPanel>
                             </Grid>
                         </TabItem>
@@ -1606,9 +1604,9 @@
                             <Grid Margin="0,12,0,0">
                                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                 <WrapPanel Margin="0,0,0,10">
-                                    <ComboBox Width="150" ItemsSource="{Binding TaskStatusFilterOptions}" SelectedItem="{Binding TaskStatusFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="任务状态" Margin="0,0,8,0"/>
-                                    <ComboBox Width="190" ItemsSource="{Binding TaskGameFilterOptions}" SelectedItem="{Binding TaskGameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="游戏筛选" Margin="0,0,8,0"/>
-                                    <ComboBox Width="160" ItemsSource="{Binding TaskTypeFilterOptions}" SelectedItem="{Binding TaskTypeFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="任务类型" Margin="0"/>
+                                    <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="150" ItemsSource="{Binding TaskStatusFilterOptions}" SelectedItem="{Binding TaskStatusFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="任务状态" Margin="0,0,8,0"/>
+                                    <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="190" ItemsSource="{Binding TaskGameFilterOptions}" SelectedItem="{Binding TaskGameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="游戏筛选" Margin="0,0,8,0"/>
+                                    <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="160" ItemsSource="{Binding TaskTypeFilterOptions}" SelectedItem="{Binding TaskTypeFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" ToolTip="任务类型" Margin="0"/>
                                 </WrapPanel>
                                 <Border Grid.Row="1" Style="{StaticResource GscTableFrame}">
                                     <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding TasksView}" SelectedItem="{Binding SelectedTask}" RowHeight="46" ColumnHeaderHeight="40">
@@ -1672,9 +1670,9 @@
                                             <TextBlock Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,5,0,0"><Run Text="耗时 "/><Run Text="{Binding SelectedTask.DurationDisplay, Mode=OneWay}"/><Run Text=" · 任务 ID "/><Run Text="{Binding SelectedTask.TaskId, Mode=OneWay}"/></TextBlock>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                            <Button Style="{StaticResource GscContextButton}" Command="{Binding CopyTaskErrorCommand}" Content="复制详情" Margin="8,0,0,0"/>
-                                            <Button Style="{StaticResource GscContextButton}" Command="{Binding RetryTaskCommand}" Content="安全重试" Margin="8,0,0,0"/>
-                                            <Button Style="{StaticResource GscContextButton}" Command="{Binding CancelTaskCommand}" Content="取消任务" Margin="8,0,0,0"/>
+                                            <ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding CopyTaskErrorCommand}" Content="复制详情" Margin="8,0,0,0"/>
+                                            <ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding RetryTaskCommand}" Content="安全重试" Margin="8,0,0,0"/>
+                                            <ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding CancelTaskCommand}" Content="取消任务" Margin="8,0,0,0"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
@@ -1687,12 +1685,12 @@
                             <Grid Margin="0,12,0,0">
                                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                                 <WrapPanel>
-                                    <Button Style="{StaticResource GscToolbarPrimaryButton}" Command="{Binding RefreshDiagnosticsCommand}" Content="刷新诊断" Margin="0,0,8,8"/>
-                                    <Button Style="{StaticResource GscToolbarButton}" Command="{Binding CopyDiagnosticsCommand}" Content="复制诊断" Margin="0,0,8,8"/>
-                                    <Button Style="{StaticResource GscToolbarButton}" Command="{Binding OpenDataDirectoryCommand}" Content="打开数据目录" Margin="0,0,8,8"/>
-                                    <Button Style="{StaticResource GscToolbarButton}" Command="{Binding OpenBackupDirectoryCommand}" Content="打开存档目录" Margin="0,0,8,8"/>
-                                    <Button Style="{StaticResource GscToolbarButton}" Command="{Binding OpenMediaDirectoryCommand}" Content="打开媒体目录" Margin="0,0,8,8"/>
-                                    <Button Style="{StaticResource GscToolbarButton}" Command="{Binding OpenWorkerLogCommand}" Content="Worker 日志" Margin="0,0,0,8"/>
+                                    <ui:Button Style="{StaticResource GscWpfUiToolbarPrimaryButton}" Command="{Binding RefreshDiagnosticsCommand}" Content="刷新诊断" Margin="0,0,8,8"/>
+                                    <ui:Button Style="{StaticResource GscWpfUiToolbarButton}" Command="{Binding CopyDiagnosticsCommand}" Content="复制诊断" Margin="0,0,8,8"/>
+                                    <ui:Button Style="{StaticResource GscWpfUiToolbarButton}" Command="{Binding OpenDataDirectoryCommand}" Content="打开数据目录" Margin="0,0,8,8"/>
+                                    <ui:Button Style="{StaticResource GscWpfUiToolbarButton}" Command="{Binding OpenBackupDirectoryCommand}" Content="打开存档目录" Margin="0,0,8,8"/>
+                                    <ui:Button Style="{StaticResource GscWpfUiToolbarButton}" Command="{Binding OpenMediaDirectoryCommand}" Content="打开媒体目录" Margin="0,0,8,8"/>
+                                    <ui:Button Style="{StaticResource GscWpfUiToolbarButton}" Command="{Binding OpenWorkerLogCommand}" Content="Worker 日志" Margin="0,0,0,8"/>
                                 </WrapPanel>
                                 <Grid Grid.Row="1" Margin="0,4,0,10">
                                     <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
@@ -1710,18 +1708,18 @@
                                     <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="120"/></Grid.RowDefinitions>
                                         <TextBlock FontWeight="SemiBold" Text="学习未知进程 / MOD 启动器"/>
                                         <Grid Grid.Row="1" Margin="0,8,0,8"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                            <TextBox Style="{StaticResource GscTextBox}" Text="{Binding ProcessMappingExecutable, UpdateSourceTrigger=PropertyChanged}" ToolTip="输入 EXE 文件名，例如 skse64.exe；不要填写完整路径"/>
-                                            <ComboBox Grid.Column="2" Style="{StaticResource GscComboBox}" ItemsSource="{Binding Games}" SelectedItem="{Binding ProcessMappingTargetGame}" DisplayMemberPath="Name"/>
-                                            <Button Grid.Column="3" Style="{StaticResource GscButtonBase}" Command="{Binding SaveProcessMappingCommand}" Content="绑定" Margin="8,0,0,0"/>
+                                            <TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding ProcessMappingExecutable, UpdateSourceTrigger=PropertyChanged}" ToolTip="输入 EXE 文件名，例如 skse64.exe；不要填写完整路径"/>
+                                            <ComboBox Grid.Column="2" Style="{StaticResource GscWpfUiComboBox}" ItemsSource="{Binding Games}" SelectedItem="{Binding ProcessMappingTargetGame}" DisplayMemberPath="Name"/>
+                                            <ui:Button Grid.Column="3" Style="{StaticResource GscWpfUiActionButton}" Command="{Binding SaveProcessMappingCommand}" Content="绑定" Margin="8,0,0,0"/>
                                         </Grid>
                                         <DataGrid Grid.Row="2" Style="{StaticResource GscDataGrid}" ItemsSource="{Binding ProcessMappings}" SelectedItem="{Binding SelectedProcessMapping}">
-                                            <DataGrid.Columns><DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="EXE" Binding="{Binding ExecutableName}" Width="180"/><DataGridTextColumn Header="目标游戏" Binding="{Binding GameName}" Width="*"/><DataGridTemplateColumn HeaderStyle="{StaticResource GscLastColumnHeader}" Header="操作" Width="90"><DataGridTemplateColumn.CellTemplate><DataTemplate><Button Style="{StaticResource GscContextButton}" Command="{Binding DataContext.DeleteProcessMappingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Content="删除"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns>
+                                            <DataGrid.Columns><DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="EXE" Binding="{Binding ExecutableName}" Width="180"/><DataGridTextColumn Header="目标游戏" Binding="{Binding GameName}" Width="*"/><DataGridTemplateColumn HeaderStyle="{StaticResource GscLastColumnHeader}" Header="操作" Width="90"><DataGridTemplateColumn.CellTemplate><DataTemplate><ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding DataContext.DeleteProcessMappingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Content="删除"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns>
                                         </DataGrid>
                                     </Grid>
                                 </Border>
                                 <Expander Grid.Row="3" Header="查看完整诊断信息" Foreground="{DynamicResource GscPrimaryTextBrush}" IsExpanded="False">
                                     <Border Style="{StaticResource GscSurface}" CornerRadius="12" Padding="12" Margin="0,8,0,0">
-                                        <TextBox Style="{StaticResource GscTextBox}" Text="{Binding DiagnosticSummary, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="Consolas"/>
+                                        <TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding DiagnosticSummary, Mode=OneWay}" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="Consolas"/>
                                     </Border>
                                 </Expander>
                             </Grid>
@@ -1730,7 +1728,7 @@
                         <TabItem x:Name="DeviceStatusTab" Header="设备状态">
                             <Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                 <WrapPanel>
-                                    <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding SyncDeviceStatesCommand}" Content="刷新设备状态"/>
+                                    <ui:Button Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding SyncDeviceStatesCommand}" Content="刷新设备状态"/>
                                 </WrapPanel>
                                 <Border Grid.Row="1" Style="{StaticResource GscSurface}" Padding="12" Margin="0,8,0,8">
                                     <StackPanel>
@@ -1755,9 +1753,9 @@
                                 <Border Grid.Row="3" Style="{StaticResource GscSurface}" Padding="12" Margin="0,8,0,0">
                                     <WrapPanel>
                                         <TextBlock Text="记录决策：" VerticalAlignment="Center"/>
-                                        <ComboBox Width="150" ItemsSource="{Binding DeviceDecisionOptions}" SelectedItem="{Binding DeviceDecision}" Margin="8,0"/>
-                                        <TextBox Style="{StaticResource GscTextBox}" MinWidth="280" Text="{Binding DeviceDecisionComment, UpdateSourceTrigger=PropertyChanged}" ToolTip="仅记录判断依据，不会执行远端操作"/>
-                                        <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding SaveDeviceDecisionCommand}" Content="保存人工决策"/>
+                                        <ComboBox Style="{StaticResource GscWpfUiComboBox}" Width="150" ItemsSource="{Binding DeviceDecisionOptions}" SelectedItem="{Binding DeviceDecision}" Margin="8,0"/>
+                                        <TextBox Style="{StaticResource GscWpfUiTextBox}" MinWidth="280" Text="{Binding DeviceDecisionComment, UpdateSourceTrigger=PropertyChanged}" ToolTip="仅记录判断依据，不会执行远端操作"/>
+                                        <ui:Button Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding SaveDeviceDecisionCommand}" Content="保存人工决策"/>
                                     </WrapPanel>
                                 </Border>
                                 <Border Grid.Row="4" Style="{StaticResource GscSurface}" Padding="12" Margin="0,8,0,0">
@@ -1765,8 +1763,8 @@
                                         <TextBlock FontWeight="SemiBold" Text="受保护的远端恢复"/>
                                         <TextBlock Text="{Binding StagedRemoteBackupStatus}" TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,10"/>
                                         <WrapPanel>
-                                            <Button Style="{StaticResource GscContextButton}" Command="{Binding StageRemoteBackupCommand}" Content="1. 下载并校验"/>
-                                            <Button Style="{StaticResource GscPrimaryButton}" Command="{Binding RestoreStagedRemoteBackupCommand}" Content="2. 创建快照并恢复"/>
+                                            <ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding StageRemoteBackupCommand}" Content="1. 下载并校验"/>
+                                            <ui:Button Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding RestoreStagedRemoteBackupCommand}" Content="2. 创建快照并恢复"/>
                                         </WrapPanel>
                                     </StackPanel>
                                 </Border>
@@ -1815,8 +1813,8 @@
                                         <TextBlock Margin="0,8,0,0" TextWrapping="Wrap"
                                                    Foreground="{DynamicResource GscSecondaryTextBrush}"
                                                    Text="此可选诊断页仅在你主动加载时才解析 WPF-UI 资源；不会执行备份、恢复、云端或媒体操作。加载失败不会影响维护中心，可查看错误后重试或切换到其他诊断页。"/>
-                                        <Button x:Name="LoadUiFrameworkProbeButton" Margin="0,14,0,0" HorizontalAlignment="Left"
-                                                Style="{StaticResource GscButtonBase}" Content="加载界面探针"
+                                        <ui:Button x:Name="LoadUiFrameworkProbeButton" Margin="0,14,0,0" HorizontalAlignment="Left"
+                                                Style="{StaticResource GscWpfUiActionButton}" Content="加载界面探针"
                                                 Click="OnLoadUiFrameworkProbeClick"/>
                                         <Border x:Name="UiFrameworkProbeLoadFailurePanel" Margin="0,12,0,0" Padding="12"
                                                 Background="{DynamicResource GscErrorTintBrush}" CornerRadius="10" Visibility="Collapsed">
@@ -1864,6 +1862,11 @@
         </Grid>
             </Grid>
         </Grid>
+
+        <!-- WPF-UI is the primary production feedback surface; the existing in-plugin hosts below remain a safe fallback. -->
+        <ui:SnackbarPresenter x:Name="SnackbarHost" Panel.ZIndex="88"
+                              HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,22,22"/>
+        <ui:ContentDialogHost x:Name="ContentDialogHost" Panel.ZIndex="99"/>
 
         <!-- In-plugin feedback stays inside the Playnite content host and never steals focus with a new Window. -->
         <StackPanel x:Name="ToastHost"

@@ -3,11 +3,14 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
-### 2026-08-01 UI-004 生产 WPF-UI 资源范围
+### 2026-08-01 UI-004 生产 WPF-UI 资源与回退边界
 
-- WPF-UI 生产资源只能在 Dashboard 和 Settings 的 `UserControl.Resources` 内合并。`WpfUiThemeScope.Apply(Resources, palette.IsDark)` 只遍历该视图的合并字典并更新 `ThemesDictionary`；禁止用 `ApplicationThemeManager` 或 `Application.Current.Resources` 影响 Playnite 宿主。
-- Dashboard 顶部操作和 Settings 自动化/安全开关已迁移为局部 WPF-UI Button/ToggleSwitch。不得改变其原有 Command、Binding、Tooltip、Automation Name 或紧凑模式行为；高密度 DataGrid/ListBox 仍保留现有 Recycling 虚拟化模板。
-- 这轮只有源码、构建和单元测试证据。真实框架加载、浅深色/高对比度、DPI、键盘与宿主污染必须在 ENV-001 的隔离 Playnite 数据根验证，不能启动 `.tmp` 副本或用户日常实例代替。
+- `Themes/WpfUiProduction.xaml` 是生产框架控件的唯一适配层；它只能在 Dashboard/Settings 的 `UserControl.Resources` 中、且在 `DesignTokens.xaml` 之后合并。禁止将其注入 `Application.Current.Resources` 或调用会改变 Playnite 宿主主题的全局 API。
+- 低密度 Card、Button、ToggleSwitch、普通 TextBox/ComboBox 使用 WPF-UI；数值校验输入、高密度 DataGrid/ListBox、搜索清除按钮和安全兜底浮层继续保留原生 WPF。迁移不得改变 Command、Binding、Automation Name、Tooltip、键盘路径或 Recycling 虚拟化。
+- `GscWpfUiActionButton`、Toolbar、Context 等适配样式必须保留原按钮的 Margin、紧凑高度和“禁用时隐藏”行为；不能把 `ui:Button` 样式应用到原生 `Button`，反之亦然。
+- Dashboard 通知/确认和 Settings 导入报告采用 WPF-UI Snackbar/ContentDialog 优先；任何构造、资源或宿主异常必须记录并回退到插件内 Toast/Dialog 或 MessageBox。错误通知的详情入口不可删除，重叠确认必须安全取消而不能堆叠模态层。
+- 设置导入/导出的文件元数据、读取和写入不得阻塞 UI 线程；UI 依赖对象和 DataContext 更新仍在 Dispatcher 线程。生产事件边界不得新增不可控 `async void`。
+- 本批只有源码门禁、XAML 解析、语义计数、UI Skill 和 Git 静态证据。当前容器缺少 `dotnet`/MSBuild，因此不能引用先前 50 项测试和 Release 构建冒充本批结果；真实 Playnite、DPI、主题、键盘和宿主污染仍需 ENV-001。
 
 ### 2026-08-01 UI-003 自适应布局与验证边界
 

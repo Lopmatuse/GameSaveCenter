@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -7,12 +8,16 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using GameSaveCenter.Playnite.Infrastructure;
 using Microsoft.Win32;
+using Playnite.SDK;
+using Wpf.Ui.Controls;
 
 namespace GameSaveCenter.Playnite.Settings
 {
     public partial class GameSaveCenterSettingsView : UserControl
     {
+        private static readonly ILogger Logger = LogManager.GetLogger();
         private bool entrancePlayed;
+        private bool settingsTransferInProgress;
 
         public GameSaveCenterSettingsView()
         {
@@ -66,8 +71,12 @@ namespace GameSaveCenter.Playnite.Settings
         }
 
         private void OnExportSettingsClick(object sender, RoutedEventArgs e)
+            => _ = ObserveUiOperationAsync(ExportSettingsAsync, "GameSaveCenter settings export failed.");
+
+        private async Task ExportSettingsAsync()
         {
-            if (CurrentSettings == null) return;
+            var settings = CurrentSettings;
+            if (settingsTransferInProgress || settings == null) return;
             var dialog = new SaveFileDialog
             {
                 Title = "导出 GameSaveCenter 设置",
@@ -77,15 +86,34 @@ namespace GameSaveCenter.Playnite.Settings
                 DefaultExt = ".json"
             };
             if (dialog.ShowDialog() != true) return;
-            File.WriteAllText(dialog.FileName, CurrentSettings.ExportPortableJson(), new System.Text.UTF8Encoding(false));
-            MessageBox.Show("设置已导出。文件不包含 Rclone 密码，但会包含你填写的本地路径和云端目标名称。",
-                "GameSaveCenter", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            settingsTransferInProgress = true;
+            try
+            {
+                var json = settings.ExportPortableJson();
+                var fileName = dialog.FileName;
+                await Task.Run(() => File.WriteAllText(fileName, json, new System.Text.UTF8Encoding(false)));
+                ShowSettingsSnackbar("设置已导出", "文件不包含 Rclone 密码，但会包含本地路径和云端目标名称。");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "GameSaveCenter settings export failed.");
+                MessageBox.Show("无法导出设置：" + ex.Message, "GameSaveCenter",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                settingsTransferInProgress = false;
+            }
         }
 
         private void OnImportSettingsClick(object sender, RoutedEventArgs e)
+            => _ = ObserveUiOperationAsync(ImportSettingsAsync, "GameSaveCenter settings import failed.");
+
+        private async Task ImportSettingsAsync()
         {
             var settings = CurrentSettings;
-            if (settings == null) return;
+            if (settingsTransferInProgress || settings == null) return;
             var dialog = new OpenFileDialog
             {
                 Title = "导入 GameSaveCenter 设置",
@@ -94,21 +122,86 @@ namespace GameSaveCenter.Playnite.Settings
                 Multiselect = false
             };
             if (dialog.ShowDialog() != true) return;
+
+            settingsTransferInProgress = true;
             try
             {
-                var info = new FileInfo(dialog.FileName);
-                if (info.Length > 1024 * 1024) throw new InvalidDataException("设置文件超过 1 MiB 安全上限。");
-                var report = settings.ImportPortableJson(File.ReadAllText(dialog.FileName));
+                var fileName = dialog.FileName;
+                var json = await Task.Run(() =>
+                {
+                    var info = new FileInfo(fileName);
+                    if (info.Length > 1024 * 1024) throw new InvalidDataException("设置文件超过 1 MiB 安全上限。");
+                    return File.ReadAllText(fileName);
+                });
+                var report = settings.ImportPortableJson(json);
                 DataContext = null;
                 DataContext = settings;
                 ApplyAdaptiveTheme();
                 ApplyResponsiveLayout(ActualWidth, ActualHeight);
-                MessageBox.Show(report.Summary, "GameSaveCenter 设置迁移报告",
-                    MessageBoxButton.OK, report.MissingPaths.Count == 0 ? MessageBoxImage.Information : MessageBoxImage.Warning);
+                await ShowImportReportAsync(report.Summary, report.MissingPaths.Count != 0);
             }
             catch (Exception ex)
             {
+                Logger.Error(ex, "GameSaveCenter settings import failed.");
                 MessageBox.Show("无法导入设置：" + ex.Message, "GameSaveCenter",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                settingsTransferInProgress = false;
+            }
+        }
+
+        private async Task ShowImportReportAsync(string summary, bool hasMissingPaths)
+        {
+            try
+            {
+                var dialog = new ContentDialog(SettingsDialogHost)
+                {
+                    Title = hasMissingPaths ? "设置已导入，请检查路径" : "设置已导入",
+                    Content = summary,
+                    CloseButtonText = "关闭"
+                };
+                await dialog.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "GameSaveCenter WPF-UI import report failed; using MessageBox fallback.");
+                MessageBox.Show(summary, "GameSaveCenter 设置迁移报告", MessageBoxButton.OK,
+                    hasMissingPaths ? MessageBoxImage.Warning : MessageBoxImage.Information);
+            }
+        }
+
+        private void ShowSettingsSnackbar(string title, string message)
+        {
+            try
+            {
+                var snackbar = new Snackbar(SettingsSnackbarHost)
+                {
+                    Title = title,
+                    Content = message,
+                    Timeout = TimeSpan.FromSeconds(4),
+                    IsCloseButtonEnabled = true
+                };
+                snackbar.Show();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "GameSaveCenter WPF-UI settings snackbar failed; using MessageBox fallback.");
+                MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private static async Task ObserveUiOperationAsync(Func<Task> operation, string errorMessage)
+        {
+            try
+            {
+                await operation();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, errorMessage);
+                MessageBox.Show("设置操作失败：" + ex.Message, "GameSaveCenter",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

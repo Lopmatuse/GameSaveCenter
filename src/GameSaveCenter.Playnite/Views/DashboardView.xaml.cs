@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -9,6 +10,7 @@ using System.Windows.Threading;
 using GameSaveCenter.Playnite.Infrastructure;
 using GameSaveCenter.Playnite.ViewModels;
 using Playnite.SDK;
+using Wpf.Ui.Controls;
 
 namespace GameSaveCenter.Playnite.Views
 {
@@ -24,6 +26,7 @@ namespace GameSaveCenter.Playnite.Views
         private bool uiFeedbackSubscribed;
         private UiConfirmationEventArgs? activeConfirmation;
         private bool dialogShowsResult;
+        private bool confirmationOpen;
 
         public DashboardView(GameSaveCenterPlugin plugin)
         {
@@ -97,6 +100,7 @@ namespace GameSaveCenter.Playnite.Views
             }
             activeConfirmation?.Completion.TrySetResult(false);
             activeConfirmation = null;
+            confirmationOpen = false;
             DialogOverlay.Visibility = Visibility.Collapsed;
             ToastHost.Children.Clear();
         }
@@ -533,19 +537,99 @@ namespace GameSaveCenter.Playnite.Views
         {
             if (!IsLoaded || !IsVisible) return;
             e.Handled = true;
-            ShowToast(e.Title, e.Message, e.Kind);
+
+            // Error notifications retain the existing details action and recovery path. Other
+            // feedback uses WPF-UI first, with the local toast host as a non-destructive fallback.
+            if (e.Kind == UiNotificationKind.Error || !TryShowFrameworkSnackbar(e))
+                ShowToast(e.Title, e.Message, e.Kind);
+        }
+
+        private bool TryShowFrameworkSnackbar(UiNotificationEventArgs notification)
+        {
+            try
+            {
+                var snackbar = new Snackbar(SnackbarHost)
+                {
+                    Title = notification.Title,
+                    Content = notification.Message,
+                    Timeout = TimeSpan.FromSeconds(notification.Kind == UiNotificationKind.Warning ? 5 : 3.8),
+                    IsCloseButtonEnabled = true
+                };
+                snackbar.Show();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "GameSaveCenter WPF-UI snackbar failed; using the local toast fallback.");
+                return false;
+            }
         }
 
         private void OnUiConfirmationRequested(object? sender, UiConfirmationEventArgs e)
         {
             if (!IsLoaded || !IsVisible) return;
             e.Handled = true;
-            ShowConfirmation(e);
+
+            if (confirmationOpen)
+            {
+                // Never stack modal prompts inside Playnite. The caller receives a safe cancellation
+                // and can expose the action again after the current decision is complete.
+                e.Completion.TrySetResult(false);
+                return;
+            }
+
+            _ = ShowFrameworkConfirmationAsync(e);
         }
 
-        private void ShowConfirmation(UiConfirmationEventArgs request)
+        private async Task ShowFrameworkConfirmationAsync(UiConfirmationEventArgs request)
         {
+            confirmationOpen = true;
             activeConfirmation?.Completion.TrySetResult(false);
+            activeConfirmation = request;
+            var fallbackOpened = false;
+            try
+            {
+                var dialog = new ContentDialog(ContentDialogHost)
+                {
+                    Title = request.Title,
+                    Content = request.Message,
+                    PrimaryButtonText = request.ConfirmText,
+                    CloseButtonText = request.CancelText,
+                    PrimaryButtonAppearance = request.IsDangerous ? ControlAppearance.Danger : ControlAppearance.Primary
+                };
+                var result = await dialog.ShowAsync();
+                if (ReferenceEquals(activeConfirmation, request))
+                {
+                    activeConfirmation = null;
+                    request.Completion.TrySetResult(result == ContentDialogResult.Primary);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "GameSaveCenter WPF-UI confirmation failed; using the local dialog fallback.");
+                if (ReferenceEquals(activeConfirmation, request))
+                {
+                    try
+                    {
+                        ShowFallbackConfirmation(request);
+                        fallbackOpened = true;
+                    }
+                    catch (Exception fallbackException)
+                    {
+                        Logger.Error(fallbackException, "GameSaveCenter local confirmation fallback failed.");
+                        activeConfirmation = null;
+                        request.Completion.TrySetResult(false);
+                    }
+                }
+            }
+            finally
+            {
+                if (!fallbackOpened) confirmationOpen = false;
+            }
+        }
+
+        private void ShowFallbackConfirmation(UiConfirmationEventArgs request)
+        {
             activeConfirmation = request;
             dialogShowsResult = false;
             DialogTitleText.Text = request.Title;
@@ -562,6 +646,7 @@ namespace GameSaveCenter.Playnite.Views
         {
             activeConfirmation?.Completion.TrySetResult(false);
             activeConfirmation = null;
+            confirmationOpen = true;
             dialogShowsResult = true;
             DialogTitleText.Text = title;
             DialogMessageText.Text = message;
@@ -610,6 +695,7 @@ namespace GameSaveCenter.Playnite.Views
 
         private void CloseDialog()
         {
+            confirmationOpen = false;
             dialogShowsResult = false;
             DialogOverlay.Visibility = Visibility.Collapsed;
             DialogCard.BeginAnimation(OpacityProperty, null);
