@@ -165,6 +165,22 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("DiagnosticHealthPanel.Columns = width >= 1280 ? 3 : width >= 980 ? 2 : 1", dashboardCode);
     }
 
+    [Fact]
+    public void MediaInspectorStacksBeforeItsEditingControlsAreCompressed()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("x:Name=\"MediaInspectorPanel\"", dashboard);
+        Assert.Contains("x:Name=\"MediaPreviewPanel\"", dashboard);
+        Assert.Contains("x:Name=\"MediaMetadataPanel\"", dashboard);
+        Assert.Contains("EnableRowVirtualization=\"True\"", dashboard);
+        Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", dashboard);
+        Assert.Contains("var stackMediaInspector = width < 1180", dashboardCode);
+        Assert.Contains("Grid.SetRow(MediaMetadataPanel, stackMediaInspector ? 1 : 0)", dashboardCode);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]

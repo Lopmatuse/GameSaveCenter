@@ -1497,9 +1497,10 @@
                                             </DataGrid>
                                         </Border>
                                         <Border Grid.Row="2" Style="{StaticResource GscSurface}" CornerRadius="12" Padding="12" Margin="0,10,0,0">
-                                            <Grid>
+                                            <Grid x:Name="MediaInspectorPanel">
                                                 <Grid.ColumnDefinitions><ColumnDefinition Width="170"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                <Border Height="104" CornerRadius="10" ClipToBounds="True" Background="{DynamicResource GscControlFillBrush}" Margin="0,0,12,0">
+                                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition x:Name="MediaInspectorCompactRow" Height="0"/></Grid.RowDefinitions>
+                                                <Border x:Name="MediaPreviewPanel" Grid.Row="0" Grid.Column="0" Height="104" CornerRadius="10" ClipToBounds="True" Background="{DynamicResource GscControlFillBrush}" Margin="0,0,12,0">
                                                     <Grid>
                                                         <TextBlock Text="选择截图或录像可在此预览" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" Margin="14" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                                                         <Image Source="{Binding SelectedMedia.ArchivePath, Converter={StaticResource MediaThumbnailConverter}}" Stretch="UniformToFill">
@@ -1525,7 +1526,7 @@
                                                         </MediaElement>
                                                     </Grid>
                                                 </Border>
-                                                <StackPanel Grid.Column="1">
+                                                <StackPanel x:Name="MediaMetadataPanel" Grid.Row="0" Grid.Column="1">
                                                     <WrapPanel>
                                                         <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="收藏" OnContent="开" OffContent="关" IsChecked="{Binding MediaFavorite}" Margin="0,8,12,8"/>
                                                         <TextBox Style="{StaticResource GscWpfUiTextBox}" MinWidth="280" MaxWidth="520" Text="{Binding MediaComment, UpdateSourceTrigger=PropertyChanged}" ToolTip="为选中媒体添加备注" Margin="0,0,8,8"/>

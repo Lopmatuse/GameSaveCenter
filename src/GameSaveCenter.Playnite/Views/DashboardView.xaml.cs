@@ -183,6 +183,23 @@ namespace GameSaveCenter.Playnite.Views
                 DiagnosticHealthPanel.Columns = width >= 1280 ? 3 : width >= 980 ? 2 : 1;
             }
 
+            // The media table remains virtualized; only its selected-item inspector changes
+            // geometry. A one-column inspector leaves enough room for the actual note field,
+            // reassignment selector and batch actions in medium and compact host widths.
+            if (MediaInspectorPanel != null && MediaInspectorCompactRow != null
+                && MediaPreviewPanel != null && MediaMetadataPanel != null)
+            {
+                var stackMediaInspector = width < 1180;
+                MediaInspectorCompactRow.Height = stackMediaInspector ? GridLength.Auto : new GridLength(0);
+                Grid.SetColumnSpan(MediaPreviewPanel, stackMediaInspector ? 2 : 1);
+                MediaPreviewPanel.Margin = stackMediaInspector
+                    ? new Thickness(0, 0, 0, 12)
+                    : new Thickness(0, 0, 12, 0);
+                Grid.SetRow(MediaMetadataPanel, stackMediaInspector ? 1 : 0);
+                Grid.SetColumn(MediaMetadataPanel, stackMediaInspector ? 0 : 1);
+                Grid.SetColumnSpan(MediaMetadataPanel, stackMediaInspector ? 2 : 1);
+            }
+
             RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves && height >= 700
                 ? Visibility.Visible : Visibility.Collapsed;
             if (viewModel.CurrentWorkspace != WorkspaceKind.Saves)
