@@ -3,6 +3,13 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-038 高密度表格长文本可访问性
+
+- [x] Dashboard 的近期任务、任务队列、进程映射、设备状态与日志标题改用共享 `GscLongTextCell`：在任意主题下左对齐、省略超长内容，并提供完整文本 Tooltip；不改变列宽、命令、绑定、选择或数据读取时机。
+- [x] 新增源码回归测试，锁定共享样式、自引用 Tooltip、关键长文本列、Recycling 虚拟化及无 `BlurEffect` 约束。
+- [x] 自动验证：源码门禁、UI Skill 静态审查（0 errors）、Release 下 Core 13 + Worker 21 + Playnite UI 47 = 81 项测试、`git diff --check` 与 `git fsck --full` 通过。
+- [ ] 实际 Playnite 中的鼠标 Tooltip、键盘选择和 100%–200% DPI 回归仍由 `ENV-001` 阻塞。
+
 ## 2026-08-01 UI-037 紧凑工具栏的可访问操作回归门禁
 
 - [x] Dashboard 顶部的刷新、全部备份、媒体同步、修改器导入/目录和诊断操作在紧凑宽度统一转换为图标优先模式；每个入口仍保留真实 Command、Automation Name 与 Tooltip，只有文字标签会随布局收起。

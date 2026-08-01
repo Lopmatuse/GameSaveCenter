@@ -3,9 +3,14 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 高密度表格长文本的统一可达性
+
+- `GscLongTextCell` 只用于 Dashboard 高密度表格中可能被窄列裁切的名字、设备、原因和日志文本；它复用 `GscLeftCellText` 的省略/左对齐，通过绑定自身最终 `Text` 提供完整 Tooltip，不重新读取数据或建立每行动画。
+- 不得为得到完整文本而取消列宽、虚拟化或为 DataGrid 行附加 `BlurEffect`；真实 Tooltip/DPI/键盘验证仍需隔离 Playnite。
+
 ### 2026-08-01 当前可复查自动化基线
 
-- 当前基线是 Core 13、Worker 21、Playnite UI 46，共 80 项 Release 测试；并同时通过源码门禁、UI Skill 静态审查（0 errors）、`git diff --check`、`git fsck --full`、PEXT 打包和 Worker `0.6.22.0` smoke。历史提交中记录的较低测试数是当时的快照，不得作为当前完成度。
+- 当前基线是 Core 13、Worker 21、Playnite UI 47，共 81 项 Release 测试；并同时通过源码门禁、UI Skill 静态审查（0 errors）、`git diff --check`、`git fsck --full`、PEXT 打包和 Worker `0.6.22.0` smoke。历史提交中记录的较低测试数是当时的快照，不得作为当前完成度。
 - 这不是实际 Playnite 验收的替代物：`ENV-001` 未证明独立数据根/扩展目录/PID 前，不得启动 `.tmp` 副本或用户实例，也不能宣称多主题、DPI、键盘或滚动真机完成。
 
 ### 2026-08-01 紧凑工具栏必须保留动作可达性

@@ -328,6 +328,12 @@
             <Setter Property="TextWrapping" Value="NoWrap"/>
         </Style>
 
+        <!-- A DataGridTextColumn does not inherit a useful ToolTip from its binding. Reuse this
+             only for names and diagnostic text that can be truncated in compact layouts. -->
+        <Style x:Key="GscLongTextCell" TargetType="TextBlock" BasedOn="{StaticResource GscLeftCellText}">
+            <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+        </Style>
+
         <!-- Column-resize hit areas remain available, but the host theme must not draw a
              bright native Thumb over the header on light themes. -->
         <Style x:Key="GscColumnHeaderGripper" TargetType="Thumb">
@@ -1076,7 +1082,7 @@
                                 </Grid>
                                 <Border Grid.Row="1" Style="{StaticResource GscTableFrame}" Margin="0,12,0,0">
                                     <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding OverviewTasks}" SelectedItem="{Binding SelectedTask}" IsReadOnly="True">
-                                        <DataGrid.Columns><DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="时间" Binding="{Binding CreatedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="128"/><DataGridTextColumn Header="近期活动（最多 8 条）" Binding="{Binding TaskTypeDisplay, Mode=OneWay}" Width="150"/><DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="*"/><DataGridTextColumn HeaderStyle="{StaticResource GscLastColumnHeader}" Header="状态" Binding="{Binding StateDisplay}" Width="100"/></DataGrid.Columns>
+                                        <DataGrid.Columns><DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="时间" Binding="{Binding CreatedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="128"/><DataGridTextColumn Header="近期活动（最多 8 条）" Binding="{Binding TaskTypeDisplay, Mode=OneWay}" Width="150"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource GscLongTextCell}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn><DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="*" CellStyle="{StaticResource GscLeftDataGridCell}"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource GscLongTextCell}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn><DataGridTextColumn HeaderStyle="{StaticResource GscLastColumnHeader}" Header="状态" Binding="{Binding StateDisplay}" Width="100"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource GscLongTextCell}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn></DataGrid.Columns>
                                     </DataGrid>
                                 </Border>
                             </Grid>
@@ -1660,7 +1666,7 @@
                                         <DataGrid.Columns>
                                             <DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="本地时间" Binding="{Binding CreatedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm:ss}}" Width="128"/>
                                             <DataGridTextColumn Header="任务" Binding="{Binding TaskTypeDisplay, Mode=OneWay}" Width="110"/>
-                                            <DataGridTextColumn Header="游戏" Binding="{Binding GameName, Mode=OneWay}" Width="1.25*"/>
+                                            <DataGridTextColumn Header="游戏" Binding="{Binding GameName, Mode=OneWay}" Width="1.25*" CellStyle="{StaticResource GscLeftDataGridCell}"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource GscLongTextCell}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn>
                                             <DataGridTemplateColumn Header="状态" Width="90">
                                                 <DataGridTemplateColumn.CellTemplate>
                                                     <DataTemplate>
@@ -1761,7 +1767,7 @@
                                             <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding SaveProcessMappingCommand}" Content="绑定" Margin="0,0,0,8"/>
                                         </WrapPanel>
                                         <DataGrid Grid.Row="2" Style="{StaticResource GscDataGrid}" ItemsSource="{Binding ProcessMappings}" SelectedItem="{Binding SelectedProcessMapping}">
-                                            <DataGrid.Columns><DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="EXE" Binding="{Binding ExecutableName}" Width="180"/><DataGridTextColumn Header="目标游戏" Binding="{Binding GameName}" Width="*"/><DataGridTemplateColumn HeaderStyle="{StaticResource GscLastColumnHeader}" Header="操作" Width="90"><DataGridTemplateColumn.CellTemplate><DataTemplate><ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding DataContext.DeleteProcessMappingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Content="删除"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns>
+                                            <DataGrid.Columns><DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="EXE" Binding="{Binding ExecutableName}" Width="180" CellStyle="{StaticResource GscLeftDataGridCell}"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource GscLongTextCell}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn><DataGridTextColumn Header="目标游戏" Binding="{Binding GameName}" Width="*" CellStyle="{StaticResource GscLeftDataGridCell}"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource GscLongTextCell}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn><DataGridTemplateColumn HeaderStyle="{StaticResource GscLastColumnHeader}" Header="操作" Width="90"><DataGridTemplateColumn.CellTemplate><DataTemplate><ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding DataContext.DeleteProcessMappingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" Content="删除"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn></DataGrid.Columns>
                                         </DataGrid>
                                     </Grid>
                                 </Border>
@@ -1788,10 +1794,10 @@
                                     <DataGrid Style="{StaticResource GscDataGrid}" ItemsSource="{Binding DeviceComparisons}" SelectedItem="{Binding SelectedDeviceComparison}">
                                         <DataGrid.Columns>
                                             <DataGridTextColumn HeaderStyle="{StaticResource GscFirstColumnHeader}" Header="状态" Binding="{Binding StateDisplay}" Width="150"/>
-                                            <DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="*" MinWidth="180"/>
-                                            <DataGridTextColumn Header="其他设备" Binding="{Binding RemoteDevice}" Width="130"/>
-                                            <DataGridTextColumn Header="原因" Binding="{Binding ReasonDisplay}" Width="240"/>
-                                            <DataGridTextColumn Header="人工决策" Binding="{Binding DecisionDisplay}" Width="130"/>
+                                            <DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="*" MinWidth="180" CellStyle="{StaticResource GscLeftDataGridCell}"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource GscLongTextCell}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn>
+                                            <DataGridTextColumn Header="其他设备" Binding="{Binding RemoteDevice}" Width="130" CellStyle="{StaticResource GscLeftDataGridCell}"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource GscLongTextCell}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn>
+                                            <DataGridTextColumn Header="原因" Binding="{Binding ReasonDisplay}" Width="240" CellStyle="{StaticResource GscLeftDataGridCell}"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource GscLongTextCell}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn>
+                                            <DataGridTextColumn Header="人工决策" Binding="{Binding DecisionDisplay}" Width="130" CellStyle="{StaticResource GscLeftDataGridCell}"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource GscLongTextCell}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn>
                                             <DataGridTextColumn HeaderStyle="{StaticResource GscLastColumnHeader}" Header="建议" Binding="{Binding SuggestedBackupId}" Width="180">
                                                 <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding SuggestedBackupId}"/></Style></DataGridTextColumn.ElementStyle>
                                             </DataGridTextColumn>
@@ -1831,7 +1837,7 @@
                                             <DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="150">
                                                 <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="ToolTip" Value="{Binding GameName}"/></Style></DataGridTextColumn.ElementStyle>
                                             </DataGridTextColumn>
-                                            <DataGridTextColumn Header="标题" Binding="{Binding Title}" Width="170"/>
+                                            <DataGridTextColumn Header="标题" Binding="{Binding Title}" Width="170" CellStyle="{StaticResource GscLeftDataGridCell}"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource GscLongTextCell}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn>
                                             <DataGridTextColumn Header="详情" Binding="{Binding Detail}" Width="*" MinWidth="320" CellStyle="{StaticResource GscLeftDataGridCell}">
                                                 <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/><Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="TextWrapping" Value="NoWrap"/><Setter Property="ToolTip" Value="{Binding Detail}"/></Style></DataGridTextColumn.ElementStyle>
                                             </DataGridTextColumn>

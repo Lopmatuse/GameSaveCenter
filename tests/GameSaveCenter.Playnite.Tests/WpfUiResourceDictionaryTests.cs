@@ -456,6 +456,37 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void DenseGridLongTextUsesTheSharedEllipsisAndTooltipStyle()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+
+        Assert.Contains("x:Key=\"GscLongTextCell\"", dashboard);
+        Assert.Contains("BasedOn=\"{StaticResource GscLeftCellText}\"", dashboard);
+        Assert.Contains("ToolTip\" Value=\"{Binding Text, RelativeSource={RelativeSource Self}}\"", dashboard);
+
+        foreach (var column in new[]
+        {
+            "Header=\"近期活动（最多 8 条）\"",
+            "Header=\"目标游戏\"",
+            "Header=\"其他设备\"",
+            "Header=\"人工决策\"",
+            "Header=\"标题\""
+        })
+        {
+            var offset = dashboard.IndexOf(column, StringComparison.Ordinal);
+            Assert.True(offset >= 0, "缺少应支持长文本的表格列：" + column);
+            Assert.Contains("GscLongTextCell", dashboard.Substring(offset, Math.Min(420, dashboard.Length - offset)));
+        }
+
+        Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", dashboard);
+        var xaml = XDocument.Parse(dashboard);
+        Assert.All(
+            xaml.Descendants().Where(element => element.Name.LocalName == "DataGrid"),
+            grid => Assert.DoesNotContain(grid.Descendants(), element => element.Name.LocalName == "BlurEffect"));
+    }
+
+    [Fact]
     public void EveryDashboardViewModelCommandRemainsReachableFromTheRedesignedDashboard()
     {
         var repositoryRoot = FindRepositoryRoot();
