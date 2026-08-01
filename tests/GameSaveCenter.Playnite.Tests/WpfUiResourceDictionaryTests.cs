@@ -646,7 +646,10 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("private bool TryInvokeUi(Action action, string operation)", pluginCode);
         Assert.Contains("if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished) return false;", pluginCode);
+        Assert.Contains("if (dispatcher.CheckAccess())", pluginCode);
         Assert.Contains("dispatcher.Invoke(action, DispatcherPriority.DataBind);", pluginCode);
+        Assert.Contains("catch (InvalidOperationException ex) when (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)", pluginCode);
+        Assert.Contains("catch (TaskCanceledException ex) when (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)", pluginCode);
         Assert.Contains("if (!TryInvokeUi(() => UiConfirmationRequested?.Invoke(this, args), \"confirmation request\"))", pluginCode);
         Assert.Contains("return false;", pluginCode);
         Assert.Contains("if (!TryInvokeUi(() => handler(this, args), \"notification request\")) return false;", pluginCode);

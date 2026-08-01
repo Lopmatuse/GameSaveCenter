@@ -205,13 +205,23 @@ namespace GameSaveCenter.Playnite
         {
             var dispatcher = PlayniteApi.MainView.UIDispatcher;
             if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished) return false;
-            try
+            if (dispatcher.CheckAccess())
             {
-                if (dispatcher.CheckAccess()) action();
-                else dispatcher.Invoke(action, DispatcherPriority.DataBind);
+                action();
                 return true;
             }
-            catch (InvalidOperationException ex)
+
+            try
+            {
+                dispatcher.Invoke(action, DispatcherPriority.DataBind);
+                return true;
+            }
+            catch (InvalidOperationException ex) when (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
+            {
+                logger.Error(ex, $"GameSaveCenter skipped {operation} because the Playnite UI dispatcher is unavailable.");
+                return false;
+            }
+            catch (TaskCanceledException ex) when (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
             {
                 logger.Error(ex, $"GameSaveCenter skipped {operation} because the Playnite UI dispatcher is unavailable.");
                 return false;

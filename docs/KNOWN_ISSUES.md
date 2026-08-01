@@ -156,7 +156,7 @@
 
 - **状态**：源码已修复，待隔离 Playnite 生命周期回归。
 - **根因**：`ShowError`、`ShowInfo`、任务通知和安全恢复确认均可能从 Worker/后台续体进入 Playnite UI；原先各自直接 `UIDispatcher.Invoke`，在宿主开始关闭时会抛出未处理异常。
-- **修复**：集中 `TryInvokeUi` 检查 Dispatcher 关闭态并记录不可用竞态。通知在安全调度失败时保留既有宿主回退路径；无法显示的确认返回取消，绝不执行恢复或其他需要用户确认的操作。
+- **修复**：集中 `TryInvokeUi` 检查 Dispatcher 关闭态并记录不可用竞态；仅当 Dispatcher 已确认关闭时才拦截调度异常，处理器自身的真实异常继续进入既有错误边界。通知在安全调度失败时保留既有宿主回退路径；无法显示的确认返回取消，绝不执行恢复或其他需要用户确认的操作。
 - **回归**：自动化测试锁定确认、通知和宿主通知均通过统一守卫；隔离 Playnite 中在后台任务完成、错误通知和恢复确认期间关闭宿主，确认日志无未处理 Dispatcher 异常且危险操作不会越过确认。
 | GSC-083 | 0.6.22 Dashboard 解析 WPF-UI Button 类型样式时崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 字典必须先合并 WpfUiBase；STA 资源解析测试通过后，在隔离 Playnite 打开 Dashboard/Settings，日志不得再出现 `Wpf.Ui.Controls.Button` 或 `XamlParseException` |
 | GSC-084 | 0.6.22 Dashboard 在修复类型样式后仍解析不到主题阴影资源而崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 适配器中的 GameSaveCenter 令牌必须使用 `DynamicResource` 从父级 UserControl 作用域解析；打开 Dashboard/Settings 后日志不得再出现 `GscSoftShadowColor`、`StaticResourceHolder` 或 `XamlParseException` |
