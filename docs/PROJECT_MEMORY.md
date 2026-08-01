@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 Settings 主题更新必须合并
+
+- `QueueAdaptiveThemeUpdate` 是设置页所有滑块/主题/玻璃开关事件的唯一延迟主题入口；它只保留最新设置状态，避免每个 `ValueChanged` 都重建局部调色板和 WPF-UI 资源。Loaded、可见与导入后的显式刷新仍可直接调用 `ApplyAdaptiveTheme`。
+- `BeginUiSafely` 返回是否真正成功投递；若 Dispatcher 已关闭或投递失败，必须释放 `adaptiveThemePending`，不能让后续设置更新永久失效。页面卸载同样释放该门闩。
+
 ### 2026-08-01 有限宽度下拉项的长文本访问
 
 - `GscComboBoxLongText` 是 Dashboard 的受限宽度游戏、修改器和版本选择器的唯一长文本模板：仅用省略与自引用 Tooltip 提供完整内容，不增大 Popup、不更改选择绑定，也不为下拉项加入动画或效果。

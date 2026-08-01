@@ -547,9 +547,12 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("BeginUiSafely(() => OnViewModelPropertyChanged(sender, e)", dashboardCode);
         Assert.Contains("BeginUiSafely(PlayEntranceAnimation, DispatcherPriority.Loaded)", dashboardCode);
         Assert.Contains("if (!IsLoaded) return;", dashboardCode);
-        Assert.Contains("private void BeginUiSafely(Action action, DispatcherPriority priority)", settingsCode);
+        Assert.Contains("private bool BeginUiSafely(Action action, DispatcherPriority priority)", settingsCode);
         Assert.Contains("Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished", settingsCode);
-        Assert.Contains("BeginUiSafely(ApplyAdaptiveTheme, DispatcherPriority.Background)", settingsCode);
+        Assert.Contains("private void QueueAdaptiveThemeUpdate()", settingsCode);
+        Assert.Contains("if (!IsLoaded || adaptiveThemePending) return;", settingsCode);
+        Assert.Contains("adaptiveThemePending = false;", settingsCode);
+        Assert.Contains("QueueAdaptiveThemeUpdate();", settingsCode);
     }
 
     [Fact]

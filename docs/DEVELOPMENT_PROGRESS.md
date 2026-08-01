@@ -3,6 +3,14 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-040 设置页主题更新合并
+
+- [x] 毛玻璃强度滑块、视觉开关和主题切换现在通过单一 `QueueAdaptiveThemeUpdate` 合并 Dispatcher 回调；快速拖动只重算最新一份局部调色板/WPF-UI 资源，避免后台回调积压造成设置页卡顿。
+- [x] Dispatcher 关闭或页面卸载会释放挂起门闩；Loaded/可见、导入后等需要立即呈现的路径仍直接刷新，未改变真实设置绑定或保存。
+- [x] 回归测试锁定合并门闩、关闭释放与安全调度结果。
+- [x] 自动验证：源码门禁、UI Skill 静态审查（0 errors）、Release 下 Core 13 + Worker 21 + Playnite UI 48 = 82 项测试、`git diff --check` 与 `git fsck --full` 通过。
+- [ ] 真实 Playnite 中连续拖动滑块、切换主题和关闭页面的性能回归仍由 `ENV-001` 阻塞。
+
 ## 2026-08-01 UI-039 有限宽度下拉项的长文本访问
 
 - [x] 游戏选择、修改器入口选择、版本选择及媒体归类的有限宽度 ComboBox 统一使用 `GscComboBoxLongText`，保持省略、完整 Tooltip 与主题文字资源；不通过扩大浮层或工具栏来避免裁切。

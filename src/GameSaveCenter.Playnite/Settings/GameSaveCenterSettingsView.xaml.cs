@@ -19,6 +19,7 @@ namespace GameSaveCenter.Playnite.Settings
         private bool entrancePlayed;
         private bool settingsTransferInProgress;
         private bool responsiveLayoutPending;
+        private bool adaptiveThemePending;
         private Size pendingResponsiveSize;
 
         public GameSaveCenterSettingsView()
@@ -68,6 +69,7 @@ namespace GameSaveCenter.Playnite.Settings
                 translate.BeginAnimation(TranslateTransform.YProperty, null);
             }
             responsiveLayoutPending = false;
+            adaptiveThemePending = false;
         }
 
         private void QueueResponsiveLayout(Size size)
@@ -85,29 +87,47 @@ namespace GameSaveCenter.Playnite.Settings
 
         private void OnThemeModeChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (IsLoaded) BeginUiSafely(ApplyAdaptiveTheme, DispatcherPriority.Background);
+            QueueAdaptiveThemeUpdate();
         }
 
         private void OnVisualSettingChanged(object sender, RoutedEventArgs e)
         {
-            if (IsLoaded) BeginUiSafely(ApplyAdaptiveTheme, DispatcherPriority.Background);
+            QueueAdaptiveThemeUpdate();
         }
 
         private void OnGlassStrengthChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (IsLoaded) BeginUiSafely(ApplyAdaptiveTheme, DispatcherPriority.Background);
+            QueueAdaptiveThemeUpdate();
         }
 
-        private void BeginUiSafely(Action action, DispatcherPriority priority)
+        // Slider and toggle events can arrive faster than the Dispatcher can recreate the
+        // local palette and WPF-UI resources. Keep only the latest settings state pending.
+        private void QueueAdaptiveThemeUpdate()
         {
-            if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished) return;
+            if (!IsLoaded || adaptiveThemePending) return;
+            adaptiveThemePending = true;
+            if (BeginUiSafely(() =>
+            {
+                adaptiveThemePending = false;
+                if (!IsLoaded) return;
+                ApplyAdaptiveTheme();
+            }, DispatcherPriority.Background)) return;
+
+            adaptiveThemePending = false;
+        }
+
+        private bool BeginUiSafely(Action action, DispatcherPriority priority)
+        {
+            if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished) return false;
             try
             {
                 Dispatcher.BeginInvoke(action, priority);
+                return true;
             }
             catch (InvalidOperationException ex)
             {
                 Logger.Error(ex, "GameSaveCenter skipped a deferred settings UI callback because the dispatcher is unavailable.");
+                return false;
             }
         }
 
