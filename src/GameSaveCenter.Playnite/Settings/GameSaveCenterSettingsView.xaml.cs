@@ -256,6 +256,10 @@ namespace GameSaveCenter.Playnite.Settings
             SettingsShell.HorizontalAlignment = compact ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
             SettingsShell.MaxWidth = compact ? double.PositiveInfinity : 980;
             SettingsHeaderSubtitle.Visibility = height < 680 ? Visibility.Collapsed : Visibility.Visible;
+            if (StoragePolicyFields != null)
+            {
+                StoragePolicyFields.Columns = compact ? 1 : 2;
+            }
         }
     }
 }

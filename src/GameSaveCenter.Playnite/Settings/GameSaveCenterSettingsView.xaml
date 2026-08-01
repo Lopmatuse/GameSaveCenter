@@ -79,28 +79,34 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscInfoIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{StaticResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="存档格式与历史版本" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
                     <TextBlock Text="推荐 ZIP + Zstandard。Simple 模式只维护一个当前副本，不适合作为多版本恢复历史。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,13" TextWrapping="Wrap"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="150"/><ColumnDefinition Width="180"/><ColumnDefinition Width="28"/><ColumnDefinition Width="150"/><ColumnDefinition Width="180"/></Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                        <TextBlock Text="备份格式" VerticalAlignment="Center" Margin="0,6"/>
-                        <ComboBox Grid.Column="1" Style="{StaticResource GscWpfUiComboBox}" SelectedValue="{Binding BackupFormat}" SelectedValuePath="Tag" Margin="0,4">
+                    <UniformGrid x:Name="StoragePolicyFields" Columns="2">
+                        <StackPanel Margin="0,0,12,10">
+                        <TextBlock Text="备份格式" VerticalAlignment="Center" Margin="0,0,0,4"/>
+                        <ComboBox Style="{StaticResource GscWpfUiComboBox}" SelectedValue="{Binding BackupFormat}" SelectedValuePath="Tag">
                             <ComboBoxItem Content="ZIP（多版本）" Tag="{x:Static contracts:BackupStorageFormat.Zip}"/>
                             <ComboBoxItem Content="Simple（单副本）" Tag="{x:Static contracts:BackupStorageFormat.Simple}"/>
                         </ComboBox>
-                        <TextBlock Grid.Column="3" Text="压缩方式" VerticalAlignment="Center" Margin="0,6"/>
-                        <ComboBox Grid.Column="4" Style="{StaticResource GscWpfUiComboBox}" SelectedValue="{Binding Compression}" SelectedValuePath="Tag" Margin="0,4">
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,10">
+                        <TextBlock Text="压缩方式" VerticalAlignment="Center" Margin="0,0,0,4"/>
+                        <ComboBox Style="{StaticResource GscWpfUiComboBox}" SelectedValue="{Binding Compression}" SelectedValuePath="Tag">
                             <ComboBoxItem Content="Zstandard" Tag="zstd"/><ComboBoxItem Content="Deflate" Tag="deflate"/>
                             <ComboBoxItem Content="Bzip2" Tag="bzip2"/><ComboBoxItem Content="不压缩" Tag="none"/>
                         </ComboBox>
-
-                        <TextBlock Grid.Row="1" Text="完整版本数" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="1" Grid.Column="1" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="允许 1–255；离开输入框后提交。"><TextBox.Text><Binding Path="FullBackupLimit" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="1" Maximum="255"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
-                        <TextBlock Grid.Row="1" Grid.Column="3" Text="每组差异版本数" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="1" Grid.Column="4" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="允许 0–255；离开输入框后提交。"><TextBox.Text><Binding Path="DifferentialBackupLimit" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="0" Maximum="255"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
-
-                        <TextBlock Grid.Row="2" Text="压缩等级" VerticalAlignment="Center" Margin="0,6"/>
-                        <TextBox Grid.Row="2" Grid.Column="1" Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" Margin="0,4" ToolTip="zstd 推荐 3；允许 -7 到 22；离开输入框后提交。"><TextBox.Text><Binding Path="CompressionLevel" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="-7" Maximum="22"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
-                    </Grid>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,10">
+                        <TextBlock Text="完整版本数" VerticalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBox Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" ToolTip="允许 1–255；离开输入框后提交。"><TextBox.Text><Binding Path="FullBackupLimit" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="1" Maximum="255"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,10">
+                        <TextBlock Text="每组差异版本数" VerticalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBox Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" ToolTip="允许 0–255；离开输入框后提交。"><TextBox.Text><Binding Path="DifferentialBackupLimit" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="0" Maximum="255"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,12,0">
+                        <TextBlock Text="压缩等级" VerticalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBox Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" ToolTip="zstd 推荐 3；允许 -7 到 22；离开输入框后提交。"><TextBox.Text><Binding Path="CompressionLevel" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="-7" Maximum="22"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
+                        </StackPanel>
+                    </UniformGrid>
                 </StackPanel>
             </ui:Card>
 

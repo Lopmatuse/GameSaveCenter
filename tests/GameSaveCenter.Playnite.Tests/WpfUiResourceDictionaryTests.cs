@@ -181,6 +181,20 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Grid.SetRow(MediaMetadataPanel, stackMediaInspector ? 1 : 0)", dashboardCode);
     }
 
+    [Fact]
+    public void SettingsStoragePolicyFieldsUseASafeCompactSingleColumnLayout()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var settings = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml"));
+        var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
+
+        Assert.Contains("x:Name=\"StoragePolicyFields\" Columns=\"2\"", settings);
+        Assert.Contains("Path=\"FullBackupLimit\" UpdateSourceTrigger=\"LostFocus\"", settings);
+        Assert.Contains("Path=\"DifferentialBackupLimit\" UpdateSourceTrigger=\"LostFocus\"", settings);
+        Assert.Contains("Path=\"CompressionLevel\" UpdateSourceTrigger=\"LostFocus\"", settings);
+        Assert.Contains("StoragePolicyFields.Columns = compact ? 1 : 2", settingsCode);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]
