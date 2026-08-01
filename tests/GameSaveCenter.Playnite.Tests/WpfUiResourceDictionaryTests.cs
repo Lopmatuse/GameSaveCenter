@@ -1,11 +1,13 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
+using System.Xml.Linq;
 using GameSaveCenter.Playnite.Views;
 using Wpf.Ui.Controls;
 using Xunit;
@@ -261,6 +263,37 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("var stackTrainerTools = width < 1180", codeBehind);
         Assert.Contains("var stackTrainerCatalog = width < 1180", codeBehind);
         Assert.Contains("Grid.SetRow(TrainerCatalogReleasesPanel, stackTrainerCatalog ? 1 : 0)", codeBehind);
+    }
+
+    [Fact]
+    public void DashboardLargeScrollableControlsStayInsideFiniteGridLayouts()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = XDocument.Parse(File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml")));
+        var largeControls = dashboard.Descendants()
+            .Where(element => element.Name.LocalName is "DataGrid" or "ListBox")
+            .ToList();
+
+        Assert.NotEmpty(largeControls);
+        foreach (var control in largeControls)
+        {
+            // Item templates may legitimately use a StackPanel for two lines of text, but a
+            // scrolling control itself must not inherit infinite height from a StackPanel or an
+            // outer ScrollViewer. Its direct layout path must retain a finite Grid measurement.
+            Assert.DoesNotContain(control.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
+            Assert.DoesNotContain(control.Ancestors(), ancestor => ancestor.Name.LocalName == "ScrollViewer");
+            Assert.Contains(control.Ancestors(), ancestor => ancestor.Name.LocalName == "Grid");
+
+            if (control.Name.LocalName == "DataGrid")
+            {
+                Assert.Equal("{StaticResource GscDataGrid}", control.Attribute("Style")?.Value);
+                continue;
+            }
+
+            Assert.Equal("True", control.Attribute("VirtualizingPanel.IsVirtualizing")?.Value);
+            Assert.Equal("Recycling", control.Attribute("VirtualizingPanel.VirtualizationMode")?.Value);
+            Assert.Equal("True", control.Attribute("ScrollViewer.CanContentScroll")?.Value);
+        }
     }
 
     [Fact]

@@ -3,16 +3,23 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-021 大型列表有限测量与虚拟化结构门禁
+
+- [x] 以 XAML XML 祖先结构审计 Dashboard 的所有 DataGrid/ListBox：大型滚动控件必须位于有限 `Grid` 布局路径，不得处于纵向 `StackPanel` 或外层 `ScrollViewer`；ListBox 必须明确启用 `Recycling` 与逻辑滚动，DataGrid 必须使用共享 `GscDataGrid`。
+- [x] 此门禁区分“数据模板中两行文字的 StackPanel”与真正的滚动容器；当前 UI Skill 10 条项目布局提示属于前者的保守正则匹配，保留以供真机 DPI 复查，但不会为了消除提示破坏正确布局。
+- [ ] Windows Sandbox 在当前系统没有可执行入口，功能状态查询需要管理员提升；现有 Playnite 用户实例仍有全局单实例保护，隔离真机 UI 验收继续由 `ENV-001` 阻塞，未启动或修改用户 Playnite。
+- [x] 自动验证：Release 构建 0 warning/0 error，Core 13 + Worker 21 + Playnite 34 = 68 项测试通过；其余源码与 UI 静态门禁在提交前复跑。
+
 ## 2026-08-01 UI-020 Dashboard 共用命令异常边界保护
 
 - [x] 将覆盖刷新、备份、恢复、校验、路径检测、媒体、任务、云端、诊断和修改器命令的 `Run(Func<Task>)` 从 `async void` 收敛为可观测 `Task`；未预期故障会被记录而非成为未观察任务异常。
 - [x] 统一命令、取消任务和本地操作的失败反馈；如果插件通知层自身失败，保留原始异常及通知异常日志，并继续在页面显示真实失败信息，避免为“显示错误”而造成宿主 Dispatcher 崩溃。
-- [x] 自动验证：`validate-source.py`、UI Skill（0 errors）、`git diff --check` 与 `git fsck --full` 均通过；Release 构建为 0 warning/0 error，Core 13 + Worker 21 + Playnite 33 = 67 项测试通过，PEXT 打包与 Worker `0.6.22.0` smoke 通过。真实 Playnite 仍受 `ENV-001` 隔离环境阻塞。
+- [x] 自动验证：`validate-source.py`、UI Skill（0 errors）、`git diff --check` 与 `git fsck --full` 均通过；Release 构建为 0 warning/0 error，Core 13 + Worker 21 + Playnite 34 = 68 项测试通过，PEXT 打包与 Worker `0.6.22.0` smoke 通过。真实 Playnite 仍受 `ENV-001` 隔离环境阻塞。
 
 ## 2026-08-01 UI-019 async-void 事件边界保护
 
 - [x] Dashboard 定时刷新事件增加最终异常边界并记录真实失败；取消任务从 `async void` 改为受保护的 `Task`，确认、Worker IPC 与刷新统一在同一 `try/catch` 内。
-- [x] 源码门禁、UI Skill（0 errors）、Release 构建（0 warning/0 error）、Core 13 + Worker 21 + Playnite 33 = 67 项测试、PEXT 打包和 Worker `0.6.22.0` smoke 均通过；真实 Playnite/DPI/theme/keyboard 仍受 `ENV-001` 阻塞。
+- [x] 源码门禁、UI Skill（0 errors）、Release 构建（0 warning/0 error）、Core 13 + Worker 21 + Playnite 34 = 68 项测试、PEXT 打包和 Worker `0.6.22.0` smoke 均通过；真实 Playnite/DPI/theme/keyboard 仍受 `ENV-001` 阻塞。
 
 ## 2026-08-01 QA-001 Worker smoke 默认路径修复
 
