@@ -164,6 +164,8 @@ namespace GameSaveCenter.Playnite.Infrastructure
             resources["GscOnAccentTextBrush"] = Brush(palette.OnAccentText);
             resources["GscPrimaryButtonBrush"] = Gradient(palette.Accent, palette.AccentPressed);
             resources["GscPrimaryButtonBorderBrush"] = Brush(palette.AccentHover);
+            resources["GscAmbientAccentBrush"] = Brush(WithAlpha(palette.Accent, palette.IsDark ? 0.18 : 0.15));
+            resources["GscAccentShadowColor"] = WithAlpha(palette.Accent, palette.IsDark ? 0.34 : 0.28);
         }
 
         public static SolidColorBrush Brush(Color color)

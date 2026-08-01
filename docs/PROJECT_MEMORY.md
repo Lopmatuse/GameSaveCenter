@@ -6,7 +6,7 @@
 ### 2026-08-01 多主题强调色与资源生命周期
 
 - `AdaptiveThemePaletteFactory` 是 Dashboard/Settings 局部主题的唯一强调色推导入口：Follow Playnite 优先读取 `HighlightGlyphBrush`，强制浅色/深色保留稳定紫色，高对比度使用 Windows 系统 Window/Highlight 颜色；按钮前景会依强调色计算，不能固定假设白字。
-- `GscAccent*`、`GscPrimaryButton*`、`GscOnAccentTextBrush` 的运行时使用点必须是 `DynamicResource`；页面每次应用主题都调用 `ApplyAccentResources` 写入自己的 `Resources`，绝不把这套调色板注入 `Application.Current.Resources` 或 Playnite 宿主。
+- `GscAccent*`、`GscPrimaryButton*`、`GscOnAccentTextBrush` 以及 `GscAmbientAccentBrush`、`GscAccentShadowColor` 的运行时使用点必须是 `DynamicResource`；页面每次应用主题都调用 `ApplyAccentResources` 写入自己的 `Resources`，绝不把这套调色板注入 `Application.Current.Resources` 或 Playnite 宿主。
 - STA 回归测试真实创建带 `HighlightGlyphBrush` 的宿主资源并检查色板派生；当前源码验证为 Core 13、Worker 21、Playnite 35，共 69 项测试，仍不能替代 `ENV-001` 的真实 Playnite Light/Dark/Follow/High Contrast/DPI 回归。
 
 ### 2026-08-01 全量 UI 源码交付与真机边界

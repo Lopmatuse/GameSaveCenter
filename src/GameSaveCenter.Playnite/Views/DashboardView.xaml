@@ -138,7 +138,7 @@
                             <Border.RenderTransform>
                                 <ScaleTransform ScaleX="1" ScaleY="1"/>
                             </Border.RenderTransform>
-                            <Border.Effect><DropShadowEffect Color="{StaticResource GscAccentShadowColor}" BlurRadius="12" ShadowDepth="2" Opacity="0.38"/></Border.Effect>
+                            <Border.Effect><DropShadowEffect Color="{DynamicResource GscAccentShadowColor}" BlurRadius="12" ShadowDepth="2" Opacity="0.38"/></Border.Effect>
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               RecognizesAccessKey="True"

@@ -75,6 +75,15 @@ public sealed class WpfUiResourceDictionaryTests
             Assert.DoesNotContain("{StaticResource GscPrimaryButtonBrush}", xaml);
             Assert.Contains("{DynamicResource GscAccentBrush}", xaml);
         }
+
+        var paletteSource = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Infrastructure", "AdaptiveThemePalette.cs"));
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var tokens = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "DesignTokens.xaml"));
+        Assert.Contains("resources[\"GscAmbientAccentBrush\"]", paletteSource);
+        Assert.Contains("resources[\"GscAccentShadowColor\"]", paletteSource);
+        Assert.DoesNotContain("{StaticResource GscAccentShadowColor}", dashboard);
+        Assert.DoesNotContain("{StaticResource GscAccentShadowColor}", tokens);
+        Assert.Contains("{DynamicResource GscAmbientAccentBrush}", dashboard);
     }
 
     [Fact]

@@ -6,6 +6,7 @@
 ## 2026-08-01 UI-022 多主题强调色动态令牌
 
 - [x] Dashboard 与 Settings 现在在各自的局部资源树中统一生成 Accent、Hover、Pressed、Tint、图标填充、主按钮与前景文字令牌；跟随 Playnite 时优先读取宿主 `HighlightGlyphBrush`，强制浅色/深色仍使用稳定紫色回退，高对比度改用 Windows 系统颜色。
+- [x] Dashboard 的固定环境光与主按钮阴影同样从该局部 Accent 派生；仅保留既有固定背景效果，关闭毛玻璃/高对比度时仍折叠环境光，绝不向列表、表格或滚动内容扩散 BlurEffect。
 - [x] 所有共享模板、Dashboard 与 Settings 的上述令牌引用从 `StaticResource` 改为 `DynamicResource`，避免主题切换后残留初始紫色；列表/表格没有新增模糊或逐项动画，现有固定环境光和不透明降级不变。
 - [x] 新增 STA 回归测试，实际创建宿主资源并断言强调色与按钮前景由宿主色板派生，同时禁止三个核心 XAML 资源字典重新静态捕获强调色。
 - [x] 自动验证：`validate-source.py` 通过；UI Skill 0 errors（27 条已登记的 `.tmp`/布局提示）；Release 构建 0 warning/0 error；Core 13 + Worker 21 + Playnite 35 = 69 项测试通过。隔离 Playnite 多主题/DPI/键盘验收仍由 `ENV-001` 阻塞。
