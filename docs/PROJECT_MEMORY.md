@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 紧凑工具栏必须保留动作可达性
+
+- Dashboard 顶部操作在非 Expanded 布局只能收起文字标签，不能删除按钮、Command、Automation Name 或 Tooltip。`SetToolbarLabelsVisible` 必须覆盖刷新、全部备份、媒体同步、修改器导入/目录及诊断全部六项，以便窄宽度仍保留鼠标、键盘与屏幕阅读器路径。
+- 这项收口不得改为动态插入/删除工具栏子元素；后台刷新也不能改变 `TopActionsPanel` 的测量宽度，避免定时更新触发页面跳动。
+
 ### 2026-08-01 Settings 紧凑窗口横向访问
 
 - Settings 外层滚动区禁止页面级横向滚动；长路径仍由各自 TextBox 提供可编辑的横向访问。自动化数值字段按扣除页面边距后的 `contentWidth` 决定一/二/三列，避免 950–1019 DIP 宿主宽度错误挤入三列。

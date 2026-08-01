@@ -563,6 +563,35 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void CompactToolbarPreservesEveryActionThroughAnAccessibleIconOnlyMode()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        foreach (var action in new[]
+        {
+            ("TopRefreshButton", "TopRefreshLabel", "刷新全部状态", "RefreshCommand"),
+            ("TopBackupAllButton", "TopBackupAllLabel", "备份全部游戏", "BackupAllCommand"),
+            ("TopMediaSyncButton", "TopMediaSyncLabel", "同步媒体", "SyncMediaCommand"),
+            ("TopTrainerImportButton", "TopTrainerImportLabel", "导入修改器", "ImportTrainerCommand"),
+            ("TopTrainerCatalogButton", "TopTrainerCatalogLabel", "刷新目录", "SyncTrainerCatalogCommand"),
+            ("TopDiagnosticsButton", "TopDiagnosticsLabel", "刷新诊断", "RefreshDiagnosticsCommand")
+        })
+        {
+            Assert.Contains($"x:Name=\"{action.Item1}\"", dashboard);
+            Assert.Contains($"x:Name=\"{action.Item2}\"", dashboard);
+            Assert.Contains($"AutomationProperties.Name=\"{action.Item3}\"", dashboard);
+            Assert.Contains($"ToolTip=\"{action.Item3}\"", dashboard);
+            Assert.Contains($"Command=\"{{Binding {action.Item4}}}\"", dashboard);
+            Assert.Contains($"{action.Item2}.Visibility = labelVisibility;", dashboardCode);
+        }
+
+        Assert.Contains("SetToolbarLabelsVisible(mode == LayoutMode.Expanded);", dashboardCode);
+        Assert.Contains("var labelVisibility = visible ? Visibility.Visible : Visibility.Collapsed;", dashboardCode);
+    }
+
+    [Fact]
     public void DashboardToastTimersAreReleasedOnUnloadAndCapacityEviction()
     {
         var repositoryRoot = FindRepositoryRoot();
