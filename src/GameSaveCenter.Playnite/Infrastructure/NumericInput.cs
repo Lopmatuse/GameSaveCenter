@@ -43,7 +43,22 @@ namespace GameSaveCenter.Playnite.Infrastructure
         private static void OnGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs args)
         {
             if (sender is not TextBox textBox) return;
-            textBox.Dispatcher.BeginInvoke(new Action(textBox.SelectAll), DispatcherPriority.Input);
+
+            // Keyboard focus can be delivered while a hosted page is being torn down.  Selecting
+            // the text is only a convenience; never let a dispatcher shutdown race turn it into
+            // an unhandled exception in Playnite's UI dispatcher.
+            var dispatcher = textBox.Dispatcher;
+            if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished) return;
+
+            try
+            {
+                dispatcher.BeginInvoke(new Action(textBox.SelectAll), DispatcherPriority.Input);
+            }
+            catch (InvalidOperationException)
+            {
+                // The dispatcher may begin shutdown immediately after the guard above.  There is
+                // no safe UI surface left to select, so leaving the existing caret is intentional.
+            }
         }
     }
 }

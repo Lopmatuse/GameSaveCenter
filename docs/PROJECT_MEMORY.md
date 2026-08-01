@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 数值输入的 Dispatcher 关闭边界
+
+- `SelectAllOnKeyboardFocus` 的延迟全选只是一项输入便利功能：必须先检查 Dispatcher 的启动/完成关闭态，并捕获守卫后仍可能发生的 `InvalidOperationException`。页面卸载时不可让该投递成为 Playnite Dispatcher 的未处理异常；不能以此改变数值绑定、范围校验或失焦提交。
+- 回归测试锁定此关闭边界。真实页面关闭后的输入焦点回归仍需 `ENV-001` 的隔离 Playnite 实例，不能用用户正在运行的宿主替代。
+
 ### 2026-08-01 插件异步事件边界
 
 - `GameSaveCenterPlugin` 的设置同步、应用/库/游戏生命周期和任务通知计时器不得新增 `async void` 业务路径；通过 `FireAndForget` 的可观测 Task continuation 收敛最终故障。WPF 必需的视图事件边界仍必须在入口处完整捕获。
