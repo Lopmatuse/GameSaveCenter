@@ -644,12 +644,12 @@
                             <Border x:Name="SidebarBrandIcon" Width="42" Height="42" CornerRadius="13" Background="{DynamicResource GscAccentBrush}" ToolTip="GameSaveCenter" ClipToBounds="False">
                                 <Viewbox Margin="7" Stretch="Uniform">
                                     <Grid Width="48" Height="48">
-                                        <Path Data="{StaticResource GscBrandIconGeometry}" Fill="White" Stretch="None"/>
+                                        <Path Data="{StaticResource GscBrandIconGeometry}" Fill="{DynamicResource GscOnAccentTextBrush}" Stretch="None"/>
                                         <Path Data="{StaticResource GscBrandDpadGeometry}" Stroke="{DynamicResource GscAccentBrush}" StrokeThickness="3.2"
                                               StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                         <Ellipse Width="4.5" Height="4.5" Fill="{StaticResource GscInfoBrush}" Margin="30,16,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                                         <Ellipse Width="4.5" Height="4.5" Fill="{DynamicResource GscAccentBrush}" Margin="35,21,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                        <Path Data="{StaticResource GscBrandSaveGeometry}" Stroke="White" StrokeThickness="3"
+                                        <Path Data="{StaticResource GscBrandSaveGeometry}" Stroke="{DynamicResource GscOnAccentTextBrush}" StrokeThickness="3"
                                               StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
                                     </Grid>
                                 </Viewbox>

@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 品牌图标的动态强调色前景
+
+- 在强调色表面上的 Dashboard/Settings 图标不能写死 `White`；必须使用 `GscOnAccentTextBrush`，由 `AdaptiveThemePaletteFactory` 根据宿主强调色计算，并在高对比度时提供系统 `HighlightText`。该令牌的使用点必须是 `DynamicResource`。
+- 多主题外观调整不能移除图标的 Automation、Tooltip、布局或动画；真实 Follow/自定义宿主色/高对比度渲染仍需 `ENV-001`。
+
 ### 2026-08-01 Dashboard Toast 的计时器所有权
 
 - Dashboard 的 Toast 自动关闭计时器必须由页面集中持有并在容量淘汰、显式关闭、动画结束及 `Unloaded` 时停止和移除。不能只清空视觉容器：悬停/自动关闭回调仍会保留卡片和页面，导致关闭后继续向 Dispatcher 投递。

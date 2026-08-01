@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-026 品牌图标多主题前景收口
+
+- [x] Dashboard 和 Settings 的品牌强调色图标不再固定白色，改用共享的 `GscOnAccentTextBrush`；它会随 Follow Playnite、浅/深色、自定义强调色和高对比度的本地调色板即时变化。
+- [x] 改动只替换图标前景资源，不影响布局、毛玻璃环境光、命令、绑定或视觉动画；已添加回归门禁，禁止重新引入固定白色品牌前景。
+- [x] 自动验证：`validate-source.py` 与 UI Skill 静态审查（0 errors）通过；Release 下 Core 13 + Worker 21 + Playnite UI 38 = 72 项测试通过，`git diff --check`、`git fsck --full`、PEXT 打包及 Worker `0.6.22.0` smoke 通过。真实主题/高对比度渲染仍由 `ENV-001` 阻塞。
+
 ## 2026-08-01 UI-025 Dashboard Toast 生命周期与性能收口
 
 - [x] Dashboard 现在集中追踪每个浮层通知的 Dispatcher 计时器；超过四条通知时淘汰的旧卡片会立即停止计时器，页面卸载时会停止全部计时器、取消动画并释放容器，避免短暂页面引用和关闭后的 UI 投递。

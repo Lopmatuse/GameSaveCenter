@@ -533,6 +533,22 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("StopToastTimer(card, timer);", dashboardCode);
     }
 
+    [Fact]
+    public void AccentBrandMarksUseTheComputedOnAccentForegroundInEveryTheme()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var settings = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml"));
+        var palette = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Infrastructure", "AdaptiveThemePalette.cs"));
+
+        Assert.DoesNotContain("Fill=\"White\"", dashboard);
+        Assert.DoesNotContain("Stroke=\"White\"", dashboard);
+        Assert.DoesNotContain("Foreground=\"White\"", settings);
+        Assert.Contains("GscOnAccentTextBrush", dashboard);
+        Assert.Contains("GscOnAccentTextBrush", settings);
+        Assert.Contains("resources[\"GscOnAccentTextBrush\"]", palette);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]

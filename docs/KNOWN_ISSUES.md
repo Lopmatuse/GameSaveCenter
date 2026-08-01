@@ -80,6 +80,7 @@
 | GSC-082 | 生产 WPF-UI 局部主题与控件尚未经过隔离 Playnite 宿主加载验证 | 自动化已通过，真机环境阻塞 | Card/Button/ToggleSwitch/普通输入、Dialog/Snackbar 已接入局部适配层并保留原生回退；Windows Release build 与 66 项测试通过，仍需以独立实例检查资源加载、Light/Dark/HighContrast、DPI、键盘和宿主无全局污染 |
 | GSC-093 | 数值框获得键盘焦点时，宿主关闭可能向已停止 Dispatcher 投递全选操作 | 源码已修复待 Playnite 回归 | 关闭前不再投递；守卫与投递之间的关闭竞态被捕获，保留原有编辑值和业务绑定 |
 | GSC-094 | Dashboard 卸载或 Toast 超出容量后，自动关闭计时器仍可能保持页面引用并延迟投递 | 源码已修复待 Playnite 回归 | 所有 Toast 计时器由页面集中跟踪；淘汰和卸载立即停止并移除动画 |
+| GSC-095 | 品牌图标前景固定为白色，宿主强调色与高对比度下可能失去对比 | 源码已修复待多主题回归 | Dashboard 和 Settings 均使用按宿主强调色计算的 `GscOnAccentTextBrush` |
 
 ## GSC-093：数值输入焦点全选的 Dispatcher 关闭竞态
 
@@ -94,6 +95,13 @@
 - **根因**：Dashboard 的通知卡拥有各自的 `DispatcherTimer`。原实现只在自然关闭时停止计时器；关闭页面或为新通知淘汰最旧卡片时，计时器仍会暂时保留卡片与页面引用，并继续在 Dispatcher 排队。
 - **修复**：页面以卡片为键集中追踪 Toast 计时器；容量淘汰、显式关闭、动画结束和卸载均会停止并移除相应计时器。卸载同时取消卡片动画并清空容器，不改通知文本、错误详情入口或真实任务反馈。
 - **回归**：自动化门禁锁定集中追踪、容量淘汰和卸载清理；隔离 Playnite 中连续产生超过四条通知、打开错误详情后关闭 Dashboard，后续日志不得出现卸载页面的回调或未处理异常。
+
+## GSC-095：品牌强调色图标的多主题前景
+
+- **状态**：源码已修复，待隔离 Playnite 多主题/高对比度回归。
+- **根因**：Dashboard 品牌图形和 Settings 标题图标直接写死为白色；用户选择的 Playnite 强调色可能更适合深色前景，高对比度也要求使用系统选中前景。
+- **修复**：三个品牌图形均改用局部动态 `GscOnAccentTextBrush`。该令牌由共享调色板根据当前强调色计算可读前景，并在高对比度时采用 Windows `HighlightText`；未改动画、布局或功能入口。
+- **回归**：自动化测试禁止这些页面重新写死白色品牌前景；隔离 Playnite 中依次验证 Follow、浅色、深色、自定义宿主色和高对比度下图标可读。
 | GSC-083 | 0.6.22 Dashboard 解析 WPF-UI Button 类型样式时崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 字典必须先合并 WpfUiBase；STA 资源解析测试通过后，在隔离 Playnite 打开 Dashboard/Settings，日志不得再出现 `Wpf.Ui.Controls.Button` 或 `XamlParseException` |
 | GSC-084 | 0.6.22 Dashboard 在修复类型样式后仍解析不到主题阴影资源而崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 适配器中的 GameSaveCenter 令牌必须使用 `DynamicResource` 从父级 UserControl 作用域解析；打开 Dashboard/Settings 后日志不得再出现 `GscSoftShadowColor`、`StaticResourceHolder` 或 `XamlParseException` |
 | GSC-085 | 0.6.22 动画冻结 Transform 与 WPF-UI `ContentDialogHost` 在 Playnite 共用窗口中导致崩溃 | 源码已修复，待隔离 Playnite 回归 | 回归测试验证冻结的 Translate/Scale Transform 会先克隆为元素私有实例；全插件 XAML/C# 禁止 `ContentDialogHost` 和 `new ContentDialog(...)`；确认使用插件内浮层、设置报告使用 MessageBox，日志不得再出现相应异常 |
