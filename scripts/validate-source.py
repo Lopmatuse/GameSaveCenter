@@ -997,6 +997,7 @@ def check_wpf_ui_production_scope_guards() -> None:
             fail(f"{label} must alias individual WPF-UI feedback controls to avoid native WPF type ambiguity")
     for token in ("using ContentDialog = Wpf.Ui.Controls.ContentDialog;",
                   "using ContentDialogResult = Wpf.Ui.Controls.ContentDialogResult;",
+                  "using ControlAppearance = Wpf.Ui.Controls.ControlAppearance;",
                   "using Snackbar = Wpf.Ui.Controls.Snackbar;"):
         if token not in dashboard_code:
             fail(f"Dashboard WPF-UI alias guard missing: {token}")

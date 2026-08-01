@@ -12,6 +12,7 @@ using GameSaveCenter.Playnite.ViewModels;
 using Playnite.SDK;
 using ContentDialog = Wpf.Ui.Controls.ContentDialog;
 using ContentDialogResult = Wpf.Ui.Controls.ContentDialogResult;
+using ControlAppearance = Wpf.Ui.Controls.ControlAppearance;
 using Snackbar = Wpf.Ui.Controls.Snackbar;
 
 namespace GameSaveCenter.Playnite.Views
