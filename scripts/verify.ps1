@@ -2,9 +2,18 @@
 param(
     [string]$Ludusavi,
     [string]$Rclone,
-    [string]$Worker = (Join-Path (Split-Path -Parent $PSScriptRoot) 'artifacts\GameSaveCenter_66e9f2d7-67bb-43ef-b62a-b8e60734fcec\Worker\GameSaveCenter.Worker.exe')
+    [string]$Worker
 )
 $ErrorActionPreference = 'Stop'
+
+# PowerShell evaluates parameter defaults before it assigns $PSScriptRoot in some
+# `powershell -File` hosts. Resolve the package-relative default in the script body
+# so the smoke test is equally reliable from a terminal, CI, or a double-click entry.
+if ([string]::IsNullOrWhiteSpace($Worker)) {
+    $repositoryRoot = Split-Path -Parent $PSScriptRoot
+    $Worker = Join-Path $repositoryRoot 'artifacts\GameSaveCenter_66e9f2d7-67bb-43ef-b62a-b8e60734fcec\Worker\GameSaveCenter.Worker.exe'
+}
+
 function Check-Executable([string]$Name,[string]$Path,[string[]]$Arguments) {
     if ([string]::IsNullOrWhiteSpace($Path)) { Write-Warning "$Name 未配置"; return }
     if (-not (Test-Path $Path)) { throw "$Name 不存在：$Path" }

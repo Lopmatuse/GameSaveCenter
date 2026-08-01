@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 QA-001 Worker smoke 默认路径修复
+
+- [x] 修复 `verify.ps1` 在 `powershell -File` 宿主中的参数默认值时序：Worker 默认路径改在脚本体内基于已初始化的 `$PSScriptRoot` 计算，避免空路径导致 smoke 尚未检查包内容即失败。
+- [x] 该脚本只读取打包 Worker 的文件版本及可选工具版本，不启动、停止、安装或覆盖任何 Playnite/Worker 实例。
+- [x] 通过 `powershell -File scripts\verify.ps1` 实测默认路径，Worker 文件版本为 `0.6.22.0`；源码门禁、UI 静态审查（0 errors）、Release 构建（0 warning/0 error）以及 13 Core + 21 Worker + 31 Playnite 测试均通过。
+
 ## 2026-08-01 UI-018 设置页 Dispatcher 生命周期保护
 
 - [x] 设置页的首次入场、主题切换、动画开关和玻璃强度回调统一经关闭态保护器投递；宿主关闭或 Dispatcher 不可用时不再将延迟回调抛向 WPF 未处理异常路径。
