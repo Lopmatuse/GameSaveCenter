@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using GameSaveCenter.Playnite.Infrastructure;
 using Playnite.SDK;
-using Wpf.Ui.Controls;
+using Snackbar = Wpf.Ui.Controls.Snackbar;
 
 namespace GameSaveCenter.Playnite.Views.Development;
 
@@ -21,19 +21,9 @@ public partial class UiFrameworkProbeView : UserControl
             ShowProbeFailure);
     }
 
-    private async void OnShowDialogClick(object sender, RoutedEventArgs e)
+    private void OnShowDialogClick(object sender, RoutedEventArgs e)
     {
-        await feedback.TryShowAsync(async () =>
-        {
-            var dialog = new ContentDialog(DialogHost)
-            {
-                Title = "WPF-UI 对话框",
-                Content = "该对话框仅用于验证插件内部宿主、键盘焦点和 Esc 关闭，不会执行任何业务操作。",
-                CloseButtonText = "关闭"
-            };
-
-            await dialog.ShowAsync();
-        });
+        ShowProbeFailure("WPF-UI ContentDialogHost 只能在每个 Window 注册一次；Playnite 内嵌页面不创建该宿主。正式确认继续使用 GameSaveCenter 的插件内对话层，避免影响其他扩展。");
     }
 
     private async void OnShowSnackbarClick(object sender, RoutedEventArgs e)

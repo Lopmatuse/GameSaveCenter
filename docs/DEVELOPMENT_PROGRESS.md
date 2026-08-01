@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-004 WPF-UI ContentDialogHost 单例崩溃修复
+
+- [x] 最新 `crash.zip` 证实此前两项资源解析修复后出现第三个独立崩溃：`ContentDialogHost.RegisterHost(Window)` 抛出 `Only one ContentDialogHost instance is allowed per Window.`；这是 WPF-UI 窗口级注册限制，不是 Worker 超时或业务任务失败。
+- [x] Dashboard、Settings 和惰性探针不再声明 `ContentDialogHost` 或构造 `ContentDialog`。Dashboard 保留已有插件内半透明确认层（普通/危险确认、取消、Esc 和真实 TaskCompletionSource 路径不变），设置导入报告改用可靠的 MessageBox；页面级 Snackbar 和本地 Toast 仍作为非模态反馈。
+- [x] 新增 1 项 Playnite UI 回归测试，检查所有嵌入式页面不再注册窗口级 Host，Dashboard 仍调用本地确认层、设置仍有报告路径；同步更新源码门禁。Release 构建 0 警告/0 错误、Playnite UI 测试 19 项通过；真实 Playnite 仍需隔离实例验证。
+
 ## 2026-08-01 UI-004 WPF-UI 主题令牌二次崩溃修复
 
 - [x] 分析 `crash.zip` 中两次独立的 Playnite 崩溃：首先缺失 `Wpf.Ui.Controls.Button`，修复后第二次在 `DashboardView.InitializeComponent()` 因 `StaticResourceHolder` 找不到 `GscSoftShadowColor` 崩溃；两者均发生在插件页面构造阶段，不能以隐藏控件或捕获业务命令异常规避。
@@ -22,7 +28,7 @@
 - [x] Windows 首次 Release 验证发现 `Wpf.Ui.Controls.Card` 不公开 `CornerRadius` 属性；已按 WPF-UI 4.3.0 模板改用 `Border.CornerRadius` 附加属性，并在 `validate-source.py` 增加回归门禁，防止再次生成 MC4005。
 - [x] 新增 `Themes/WpfUiProduction.xaml`，以视图局部适配样式统一 WPF-UI Card、Button、ToggleSwitch、TextBox 与 ComboBox；资源仍仅由 Dashboard/Settings 的 `UserControl.Resources` 合并，`WpfUiThemeScope` 不触碰 Playnite 全局资源。
 - [x] Dashboard 已迁移 6 个指标卡、59 个生产动作按钮、14 个策略/工具/媒体开关、10 个普通文本输入和 13 个下拉选择；Settings 已迁移 5 个设置卡、2 个动作按钮、14 个开关、6 个路径输入和 3 个下拉选择。数值校验编辑器、DataGrid/ListBox、搜索清除按钮和安全兜底浮层继续使用原生 WPF。
-- [x] 生产通知与确认改为 WPF-UI Snackbar/ContentDialog 优先，异常时回退到插件内 Toast/Dialog 或 MessageBox；错误通知仍保留“查看详情”恢复入口。设置导入/导出文件读写使用 `Task.Run`，没有新增 `async void` UI 事件。
+- [x] 生产通知使用 WPF-UI Snackbar 优先，确认使用插件内 Dialog，设置导入报告使用 MessageBox；错误通知仍保留“查看详情”恢复入口。设置导入/导出文件读写使用 `Task.Run`，没有新增 `async void` UI 事件。
 - [x] 语义复核确认 Dashboard 的 59 个 Command 和 320 个 Binding、Settings 的 26 个 Binding 与基线数量一致；DataGrid/ListBox 的 Recycling、行列虚拟化及业务程序集、数据库、备份、媒体和 Worker 文件均未修改。
 - [x] `scripts/validate-source.py`、XAML XML 解析、`git diff --check` 和 UI Skill 静态审查通过；项目范围为 0 errors、11 warnings、52 info，warnings 是既有的保守 StackPanel 邻近检查。
 - [x] 修复后已在 Windows/.NET SDK 8.0.423 执行 Release restore/build：0 警告/0 错误；Core 13、Worker 21、Playnite 17 项测试通过。UI-004 仍因缺少可审计的隔离 Playnite 实例而保持真机环境阻塞，需继续验证主题、DPI、键盘、Dialog/Snackbar 与宿主无污染。

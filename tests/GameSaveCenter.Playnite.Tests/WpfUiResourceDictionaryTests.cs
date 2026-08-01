@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Markup;
@@ -88,5 +89,44 @@ public sealed class WpfUiResourceDictionaryTests
         thread.Join();
 
         Assert.Null(exception);
+    }
+
+    [Fact]
+    public void EmbeddedPlayniteViewsDoNotRegisterWindowScopedContentDialogHosts()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var settings = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml"));
+        var probe = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "Development", "UiFrameworkProbeView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
+
+        Assert.DoesNotContain("<ui:ContentDialogHost", dashboard);
+        Assert.DoesNotContain("<ui:ContentDialogHost", settings);
+        Assert.DoesNotContain("<ui:ContentDialogHost", probe);
+        Assert.DoesNotContain("new ContentDialog(", dashboardCode);
+        Assert.DoesNotContain("new ContentDialog(", settingsCode);
+        Assert.Contains("ShowFallbackConfirmation", dashboardCode);
+        Assert.Contains("MessageBox.Show", settingsCode);
+    }
+
+    private static string FindRepositoryRoot()
+    {
+        foreach (var initialDirectory in new[]
+                 {
+                     new DirectoryInfo(Directory.GetCurrentDirectory()),
+                     new DirectoryInfo(AppContext.BaseDirectory)
+                 })
+        {
+            for (DirectoryInfo? directory = initialDirectory; directory != null; directory = directory.Parent)
+            {
+                if (File.Exists(Path.Combine(directory.FullName, "GameSaveCenter.sln")))
+                {
+                    return directory.FullName;
+                }
+            }
+        }
+
+        throw new DirectoryNotFoundException("Could not locate the GameSaveCenter repository root for the WPF host regression test.");
     }
 }

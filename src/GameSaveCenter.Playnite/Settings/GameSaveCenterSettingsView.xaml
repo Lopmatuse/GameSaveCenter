@@ -187,6 +187,5 @@
         </ScrollViewer>
         <ui:SnackbarPresenter x:Name="SettingsSnackbarHost" Panel.ZIndex="20"
                               HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20"/>
-        <ui:ContentDialogHost x:Name="SettingsDialogHost" Panel.ZIndex="21"/>
     </Grid>
 </UserControl>

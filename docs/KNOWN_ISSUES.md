@@ -80,6 +80,7 @@
 | GSC-082 | 生产 WPF-UI 局部主题与控件尚未经过隔离 Playnite 宿主加载验证 | 自动化已通过，真机环境阻塞 | Card/Button/ToggleSwitch/普通输入、Dialog/Snackbar 已接入局部适配层并保留原生回退；Windows Release build 与 51 项测试通过，仍需以独立实例检查资源加载、Light/Dark/HighContrast、DPI、键盘和宿主无全局污染 |
 | GSC-083 | 0.6.22 Dashboard 解析 WPF-UI Button 类型样式时崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 字典必须先合并 WpfUiBase；STA 资源解析测试通过后，在隔离 Playnite 打开 Dashboard/Settings，日志不得再出现 `Wpf.Ui.Controls.Button` 或 `XamlParseException` |
 | GSC-084 | 0.6.22 Dashboard 在修复类型样式后仍解析不到主题阴影资源而崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 适配器中的 GameSaveCenter 令牌必须使用 `DynamicResource` 从父级 UserControl 作用域解析；打开 Dashboard/Settings 后日志不得再出现 `GscSoftShadowColor`、`StaticResourceHolder` 或 `XamlParseException` |
+| GSC-085 | 0.6.22 WPF-UI `ContentDialogHost` 在 Playnite 共用窗口中重复注册导致崩溃 | 源码已修复，待隔离 Playnite 回归 | 所有 Playnite 页面禁止注册 `ContentDialogHost`；确认使用插件内浮层、设置报告使用 MessageBox，日志不得再出现 `Only one ContentDialogHost instance is allowed per Window` |
 
 ### GSC-083：WPF-UI Button 同级资源字典作用域导致 Dashboard 崩溃
 
@@ -96,6 +97,14 @@
 - **根因**：`WpfUiProduction.xaml` 在自身解析期间用 `StaticResource` 查找 `GscSoftShadowColor` 和 `GscSharedFocusVisual`；这两项令牌由宿主 UserControl 的兄弟字典 `DesignTokens.xaml` 提供。Playnite 的 BAML 解析不保证在该时点向父级兄弟字典回溯。
 - **修复**：适配器把上述 GameSaveCenter 令牌改为 `DynamicResource`，延后到控件实际位于 Dashboard/Settings 父级资源树时解析；只保留 WPF-UI 类型默认样式的本字典 `StaticResource`。新增 STA 资源树布局测试与源码门禁，防止把这些令牌恢复为静态查找。
 - **回归**：以独立 Playnite 数据根打开 Dashboard 与 Settings；`playnite.log` 不得新增 `GscSoftShadowColor`、`StaticResourceHolder` 或 `XamlParseException`。该验证不能使用用户日常 Playnite 或其扩展目录。
+
+### GSC-085：WPF-UI Window 级 ContentDialogHost 与 Playnite 共享宿主冲突
+
+- **状态**：源码已修复，待隔离 Playnite 回归。
+- **真机证据**：2026-08-01 14:16:47，`0.6.22` 在插件加载后抛出未处理 `InvalidOperationException`：`Only one ContentDialogHost instance is allowed per Window.`，堆栈位于 `Wpf.Ui.Controls.ContentDialogHost.RegisterHost(Window window)`。
+- **根因**：Dashboard、Settings 和惰性界面探针都在 Playnite 的同一个 Window 内各自声明了 `ContentDialogHost`。WPF-UI 将该宿主注册为窗口级单例，无法在嵌入式页面中安全重复使用，也不能假设其他扩展未注册它。
+- **修复**：移除所有 Playnite 页面中的 `ContentDialogHost` 与 `ContentDialog` 构造。Dashboard 的普通/危险确认继续使用已有插件内半透明对话层；设置导入报告改为可靠的 `MessageBox`；Snackbar 与本地 Toast 保留。新增单元测试和源码门禁，禁止重新注册 Host。
+- **回归**：独立 Playnite 中依次打开 Dashboard、Settings 和维护中心探针，普通/危险确认使用 Enter、Esc、取消和确认均能完成原有 `TaskCompletionSource`；导入报告可关闭；`playnite.log` 不得出现 `ContentDialogHost`、`RegisterHost` 或未处理异常。
 
 ## 当前安全边界
 

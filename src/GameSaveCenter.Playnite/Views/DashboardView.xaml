@@ -1862,12 +1862,12 @@
             </Grid>
         </Grid>
 
-        <!-- WPF-UI is the primary production feedback surface; the existing in-plugin hosts below remain a safe fallback. -->
+        <!-- Snackbar is safe as a page-local floating surface. ContentDialogHost is deliberately
+             excluded: WPF-UI permits only one host per Playnite Window. -->
         <ui:SnackbarPresenter x:Name="SnackbarHost" Panel.ZIndex="88"
                               HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,22,22"/>
-        <ui:ContentDialogHost x:Name="ContentDialogHost" Panel.ZIndex="99"/>
 
-        <!-- In-plugin feedback stays inside the Playnite content host and never steals focus with a new Window. -->
+        <!-- Confirmation feedback stays inside the Playnite content host and never steals focus with a new Window. -->
         <StackPanel x:Name="ToastHost"
                     Panel.ZIndex="90"
                     Width="360"

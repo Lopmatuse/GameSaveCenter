@@ -10,9 +10,6 @@ using System.Windows.Threading;
 using GameSaveCenter.Playnite.Infrastructure;
 using GameSaveCenter.Playnite.ViewModels;
 using Playnite.SDK;
-using ContentDialog = Wpf.Ui.Controls.ContentDialog;
-using ContentDialogResult = Wpf.Ui.Controls.ContentDialogResult;
-using ControlAppearance = Wpf.Ui.Controls.ControlAppearance;
 using Snackbar = Wpf.Ui.Controls.Snackbar;
 
 namespace GameSaveCenter.Playnite.Views
@@ -584,51 +581,27 @@ namespace GameSaveCenter.Playnite.Views
             _ = ShowFrameworkConfirmationAsync(e);
         }
 
-        private async Task ShowFrameworkConfirmationAsync(UiConfirmationEventArgs request)
+        private Task ShowFrameworkConfirmationAsync(UiConfirmationEventArgs request)
         {
             confirmationOpen = true;
             activeConfirmation?.Completion.TrySetResult(false);
             activeConfirmation = request;
-            var fallbackOpened = false;
             try
             {
-                var dialog = new ContentDialog(ContentDialogHost)
-                {
-                    Title = request.Title,
-                    Content = request.Message,
-                    PrimaryButtonText = request.ConfirmText,
-                    CloseButtonText = request.CancelText,
-                    PrimaryButtonAppearance = request.IsDangerous ? ControlAppearance.Danger : ControlAppearance.Primary
-                };
-                var result = await dialog.ShowAsync();
-                if (ReferenceEquals(activeConfirmation, request))
-                {
-                    activeConfirmation = null;
-                    request.Completion.TrySetResult(result == ContentDialogResult.Primary);
-                }
+                // ContentDialogHost is a Window-wide singleton in WPF-UI. Dashboard and Settings
+                // are both embedded in Playnite's shared Window, so use the existing in-plugin
+                // modal surface rather than registering a competing WPF-UI host.
+                ShowFallbackConfirmation(request);
             }
             catch (Exception ex)
             {
-                Logger.Error(ex, "GameSaveCenter WPF-UI confirmation failed; using the local dialog fallback.");
-                if (ReferenceEquals(activeConfirmation, request))
-                {
-                    try
-                    {
-                        ShowFallbackConfirmation(request);
-                        fallbackOpened = true;
-                    }
-                    catch (Exception fallbackException)
-                    {
-                        Logger.Error(fallbackException, "GameSaveCenter local confirmation fallback failed.");
-                        activeConfirmation = null;
-                        request.Completion.TrySetResult(false);
-                    }
-                }
+                Logger.Error(ex, "GameSaveCenter embedded confirmation failed.");
+                activeConfirmation = null;
+                confirmationOpen = false;
+                request.Completion.TrySetResult(false);
             }
-            finally
-            {
-                if (!fallbackOpened) confirmationOpen = false;
-            }
+
+            return Task.CompletedTask;
         }
 
         private void ShowFallbackConfirmation(UiConfirmationEventArgs request)

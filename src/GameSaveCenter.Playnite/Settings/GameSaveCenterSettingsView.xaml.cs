@@ -9,7 +9,6 @@ using System.Windows.Threading;
 using GameSaveCenter.Playnite.Infrastructure;
 using Microsoft.Win32;
 using Playnite.SDK;
-using ContentDialog = Wpf.Ui.Controls.ContentDialog;
 using Snackbar = Wpf.Ui.Controls.Snackbar;
 
 namespace GameSaveCenter.Playnite.Settings
@@ -153,24 +152,13 @@ namespace GameSaveCenter.Playnite.Settings
             }
         }
 
-        private async Task ShowImportReportAsync(string summary, bool hasMissingPaths)
+        private Task ShowImportReportAsync(string summary, bool hasMissingPaths)
         {
-            try
-            {
-                var dialog = new ContentDialog(SettingsDialogHost)
-                {
-                    Title = hasMissingPaths ? "设置已导入，请检查路径" : "设置已导入",
-                    Content = summary,
-                    CloseButtonText = "关闭"
-                };
-                await dialog.ShowAsync();
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "GameSaveCenter WPF-UI import report failed; using MessageBox fallback.");
-                MessageBox.Show(summary, "GameSaveCenter 设置迁移报告", MessageBoxButton.OK,
-                    hasMissingPaths ? MessageBoxImage.Warning : MessageBoxImage.Information);
-            }
+            // WPF-UI ContentDialogHost is Window-wide and cannot be placed in Playnite pages.
+            // The import has already completed; MessageBox gives the report a reliable modal path.
+            MessageBox.Show(summary, "GameSaveCenter 设置迁移报告", MessageBoxButton.OK,
+                hasMissingPaths ? MessageBoxImage.Warning : MessageBoxImage.Information);
+            return Task.CompletedTask;
         }
 
         private void ShowSettingsSnackbar(string title, string message)

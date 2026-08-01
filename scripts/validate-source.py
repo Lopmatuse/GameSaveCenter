@@ -886,9 +886,12 @@ def check_wpf_ui_probe_guards() -> None:
     for token in ("ResourceDictionary.MergedDictionaries", "ui:ThemesDictionary", "ui:ControlsDictionary"):
         if token not in base:
             fail(f"WPF-UI local resource guard missing: {token}")
-    for token in ("UserControl.Resources", "WpfUiBase.xaml", "ContentDialogHost", "SnackbarPresenter", "UiFrameworkProbeView"):
+    for token in ("UserControl.Resources", "WpfUiBase.xaml", "SnackbarPresenter", "UiFrameworkProbeView"):
         if token not in probe and token not in dashboard:
             fail(f"WPF-UI probe surface guard missing: {token}")
+    for source, label in ((probe, "WPF-UI probe"), (dashboard, "Dashboard")):
+        if "<ui:ContentDialogHost" in source:
+            fail(f"{label} must not register WPF-UI ContentDialogHost inside Playnite's shared Window")
     if "<development:UiFrameworkProbeView" in dashboard:
         fail("WPF-UI probe must not be constructed while Dashboard XAML is parsed")
     for token in ("UiFrameworkProbeHost", "UiFrameworkProbeRecoveryPanel", "OnLoadUiFrameworkProbeClick"):
@@ -980,19 +983,18 @@ def check_wpf_ui_production_scope_guards() -> None:
         (dashboard, "Dashboard WPF-UI production scope",
          ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiProduction.xaml",
           "<ui:Card", "<ui:Button", "<ui:ToggleSwitch",
-          "x:Name=\"ContentDialogHost\"", "x:Name=\"SnackbarHost\"")),
+          "x:Name=\"SnackbarHost\"")),
         (settings, "Settings WPF-UI production scope",
          ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiProduction.xaml",
           "<ui:Card", "<ui:ToggleSwitch", "<ui:Button",
-          "x:Name=\"SettingsDialogHost\"", "x:Name=\"SettingsSnackbarHost\"")),
+          "x:Name=\"SettingsSnackbarHost\"")),
         (dashboard_code, "Dashboard production feedback",
-         ("new ContentDialog(ContentDialogHost)", "new Snackbar(SnackbarHost)",
-          "ShowFallbackConfirmation", "ShowToast", "ContentDialogResult.Primary",
-          "if (confirmationOpen)", "fallbackOpened = true",
-          "if (!fallbackOpened) confirmationOpen = false")),
+         ("new Snackbar(SnackbarHost)", "ShowFallbackConfirmation", "ShowToast",
+          "if (confirmationOpen)", "confirmationOpen = false",
+          "return Task.CompletedTask")),
         (settings_code, "Settings production feedback",
-         ("new ContentDialog(SettingsDialogHost)", "new Snackbar(SettingsSnackbarHost)",
-          "Task.Run", "MessageBox fallback")),
+         ("new Snackbar(SettingsSnackbarHost)",
+          "Task.Run", "MessageBox.Show")),
         (theme_scope, "WPF-UI theme scope", ("ThemesDictionary", "ApplicationTheme.HighContrast", "ApplyMergedDictionaries")),
     ):
         for token in required:
@@ -1003,16 +1005,18 @@ def check_wpf_ui_production_scope_guards() -> None:
             fail(f"{label} must apply WPF-UI theme only through its local resource scope")
         if "using Wpf.Ui.Controls;" in source:
             fail(f"{label} must alias individual WPF-UI feedback controls to avoid native WPF type ambiguity")
-    for token in ("using ContentDialog = Wpf.Ui.Controls.ContentDialog;",
-                  "using ContentDialogResult = Wpf.Ui.Controls.ContentDialogResult;",
-                  "using ControlAppearance = Wpf.Ui.Controls.ControlAppearance;",
-                  "using Snackbar = Wpf.Ui.Controls.Snackbar;"):
+    for token in ("using Snackbar = Wpf.Ui.Controls.Snackbar;",):
         if token not in dashboard_code:
             fail(f"Dashboard WPF-UI alias guard missing: {token}")
-    for token in ("using ContentDialog = Wpf.Ui.Controls.ContentDialog;",
-                  "using Snackbar = Wpf.Ui.Controls.Snackbar;"):
+    for token in ("using Snackbar = Wpf.Ui.Controls.Snackbar;",):
         if token not in settings_code:
             fail(f"Settings WPF-UI alias guard missing: {token}")
+    for source, label in ((dashboard, "Dashboard"), (settings, "Settings")):
+        if "<ui:ContentDialogHost" in source:
+            fail(f"{label} must use GameSaveCenter's embedded dialog fallback instead of a WPF-UI Window host")
+    for source, label in ((dashboard_code, "Dashboard feedback"), (settings_code, "Settings feedback")):
+        if "new ContentDialog(" in source:
+            fail(f"{label} must use GameSaveCenter's embedded dialog fallback instead of a WPF-UI Window host")
     if "Application.Current.Resources" in theme_scope or "Application.Current.Resources" in production:
         fail("WPF-UI production theme scope must never mutate Playnite application resources")
     for token in ("EnableRowVirtualization=\"True\"", "EnableColumnVirtualization=\"True\"",

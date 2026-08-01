@@ -16,9 +16,9 @@
 - `Themes/WpfUiProduction.xaml` 是生产框架控件的唯一适配层；它只能在 Dashboard/Settings 的 `UserControl.Resources` 中、且在 `DesignTokens.xaml` 之后合并。禁止将其注入 `Application.Current.Resources` 或调用会改变 Playnite 宿主主题的全局 API。
 - 低密度 Card、Button、ToggleSwitch、普通 TextBox/ComboBox 使用 WPF-UI；数值校验输入、高密度 DataGrid/ListBox、搜索清除按钮和安全兜底浮层继续保留原生 WPF。迁移不得改变 Command、Binding、Automation Name、Tooltip、键盘路径或 Recycling 虚拟化。
 - `GscWpfUiActionButton`、Toolbar、Context 等适配样式必须保留原按钮的 Margin、紧凑高度和“禁用时隐藏”行为；不能把 `ui:Button` 样式应用到原生 `Button`，反之亦然。
-- Dashboard 通知/确认和 Settings 导入报告采用 WPF-UI Snackbar/ContentDialog 优先；任何构造、资源或宿主异常必须记录并回退到插件内 Toast/Dialog 或 MessageBox。错误通知的详情入口不可删除，重叠确认必须安全取消而不能堆叠模态层。
+- Playnite 内嵌页面绝不能声明 WPF-UI `ContentDialogHost` 或构造 `ContentDialog`：它是 Window 级单例，Dashboard、Settings、探针或其他扩展的任意重复注册都会令宿主崩溃。通知可使用页面局部 Snackbar；确认必须使用 Dashboard 的插件内 Dialog，设置导入报告使用 MessageBox。错误通知的详情入口不可删除，重叠确认必须安全取消而不能堆叠模态层。
 - 设置导入/导出的文件元数据、读取和写入不得阻塞 UI 线程；UI 依赖对象和 DataContext 更新仍在 Dispatcher 线程。生产事件边界不得新增不可控 `async void`。
-- 本批已具备 Windows/.NET SDK 8.0.423 的 Release build（0 警告/错误）与 52 项自动化测试证据；真实 Playnite、DPI、主题、键盘和宿主污染仍需 ENV-001，不能由构建、STA 资源加载测试或包内容检查替代。
+- 本批已具备 Windows/.NET SDK 8.0.423 的 Release build（0 警告/错误）与 53 项自动化测试证据；真实 Playnite、DPI、主题、键盘和宿主污染仍需 ENV-001，不能由构建、STA 资源加载测试或包内容检查替代。
 
 ### 2026-08-01 UI-003 自适应布局与验证边界
 

@@ -66,7 +66,7 @@
                                 <ProgressBar Width="170" Height="6" Value="62" Maximum="100" VerticalAlignment="Center"/>
                             </StackPanel>
                             <WrapPanel Margin="0,18,0,0">
-                                <ui:Button Appearance="Secondary" Content="显示 Dialog" Click="OnShowDialogClick" Margin="0,0,8,8"/>
+                                <ui:Button Appearance="Secondary" Content="Dialog 兼容性说明" Click="OnShowDialogClick" Margin="0,0,8,8"/>
                                 <ui:Button Appearance="Secondary" Content="显示 Snackbar" Click="OnShowSnackbarClick" Margin="0,0,8,8"/>
                             </WrapPanel>
                             <TextBlock Text="DataGrid 继续由 GameSaveCenter 模板接管；后续阶段会在保留虚拟化和列宽行为的前提下迁移。"
@@ -84,7 +84,6 @@
                 Background="{DynamicResource GscErrorTintBrush}" BorderBrush="{DynamicResource GscErrorBrush}" BorderThickness="1">
             <TextBlock x:Name="ProbeFailureText" TextWrapping="Wrap" Foreground="{DynamicResource GscPrimaryTextBrush}"/>
         </Border>
-        <ui:ContentDialogHost x:Name="DialogHost" Panel.ZIndex="20"/>
         <ui:SnackbarPresenter x:Name="SnackbarHost" Panel.ZIndex="21" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20"/>
     </Grid>
 </UserControl>
