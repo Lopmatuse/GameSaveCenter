@@ -77,7 +77,16 @@
 | GSC-079 | WPF-UI POC 尚未在隔离 Playnite 宿主中实际加载 | 环境阻塞 | 现有 Playnite/Worker 是用户实例，不能关闭或覆盖。需要独立插件目录和测试实例后检查资源作用域、Dialog/Snackbar、主题、DPI 与宿主未污染 |
 | GSC-080 | 共享 WPF 控件尚未在隔离 Playnite 中完成多 DPI/主题视觉验证 | 源码与自动化已验收，环境待验证 | UI-002/003 已通过资源门禁、Release 构建、50 项测试与包 smoke；仍需在独立数据根验证按钮、输入、滑块、提示、表格、页签、滚动条和键盘焦点 |
 | GSC-081 | Dashboard/Settings 的紧凑布局尚未在独立 Playnite 中完成真实缩放验证 | 源码收口，环境阻塞 | 侧栏滚动、图标工具栏、设置页横向访问与可见焦点均已实现；`ENV-001` 证明独立数据根前不得启动 `.tmp` 副本或用户实例 |
-| GSC-082 | 生产 WPF-UI 局部主题与控件尚未经过隔离 Playnite 宿主加载验证 | 源码迁移完成，构建与真机环境阻塞 | Card/Button/ToggleSwitch/普通输入、Dialog/Snackbar 已接入局部适配层并保留原生回退；当前容器无 `dotnet`/MSBuild，需在 Windows 先重跑 Release/50 tests/package，再以独立实例检查资源加载、Light/Dark/HighContrast、DPI、键盘和宿主无全局污染 |
+| GSC-082 | 生产 WPF-UI 局部主题与控件尚未经过隔离 Playnite 宿主加载验证 | 自动化已通过，真机环境阻塞 | Card/Button/ToggleSwitch/普通输入、Dialog/Snackbar 已接入局部适配层并保留原生回退；Windows Release build 与 51 项测试通过，仍需以独立实例检查资源加载、Light/Dark/HighContrast、DPI、键盘和宿主无全局污染 |
+| GSC-083 | 0.6.22 Dashboard 解析 WPF-UI Button 类型样式时崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 字典必须先合并 WpfUiBase；STA 资源解析测试通过后，在隔离 Playnite 打开 Dashboard/Settings，日志不得再出现 `Wpf.Ui.Controls.Button` 或 `XamlParseException` |
+
+### GSC-083：WPF-UI Button 同级资源字典作用域导致 Dashboard 崩溃
+
+- **状态**：源码已修复，待隔离 Playnite 回归。
+- **真机证据**：2026-08-01 的 Playnite `0.6.22` 日志在打开 GameSaveCenter 侧栏时记录 `DashboardView.InitializeComponent()` 的未处理 `XamlParseException`：找不到资源 `Wpf.Ui.Controls.Button`。
+- **根因**：`WpfUiProduction.xaml` 的按钮适配样式使用 WPF-UI 的类型键作为 `BasedOn`，但默认样式位于 Dashboard/Settings 的同级 `WpfUiBase.xaml`。Playnite 的 BAML 加载在解析 Production 字典时不向该同级字典查找类型键。
+- **修复**：Production 字典直接合并 WpfUiBase，两个页面只保留 DesignTokens + Production 的合并顺序；新增 STA XAML 资源字典测试，确保 `GscWpfUiButton` 的类型样式可实际解析。
+- **回归**：使用独立 Playnite 数据根打开 Dashboard 与 Settings，并显示一次 Dialog/Snackbar；`playnite.log` 不得新增 `Wpf.Ui.Controls.Button`、`StaticResourceHolder` 或 `XamlParseException`。
 
 ## 当前安全边界
 

@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 WPF-UI 生产资源解析边界
+
+- Playnite 的实际 Dashboard 加载已证明：`WpfUiProduction.xaml` 不能把 WPF-UI 默认类型样式仅放在 Dashboard/Settings 的同级 `WpfUiBase.xaml` 合并字典中；该布局会在解析 `BasedOn="{StaticResource {x:Type ui:Button}}"` 时抛出 `XamlParseException`，资源名为 `Wpf.Ui.Controls.Button`。
+- `WpfUiProduction.xaml` 必须自行先合并 `WpfUiBase.xaml`，使类型键和适配器在同一字典解析作用域；Dashboard/Settings 仅合并 DesignTokens 后的 Production 字典，避免重复或依赖合并顺序。任何新增的生产 WPF-UI 类型适配器都遵守此边界。
+- 该规则由 STA `XamlReader.Parse` 回归测试覆盖。测试只证明资源可被 WPF 解析，不能替代隔离 Playnite 的主题、DPI、Dialog/Snackbar 或宿主污染验证；未经授权不得覆盖正在运行的用户插件目录。
+
 ### 2026-08-01 UI-004 生产 WPF-UI 资源与回退边界
 
 - `Themes/WpfUiProduction.xaml` 是生产框架控件的唯一适配层；它只能在 Dashboard/Settings 的 `UserControl.Resources` 中、且在 `DesignTokens.xaml` 之后合并。禁止将其注入 `Application.Current.Resources` 或调用会改变 Playnite 宿主主题的全局 API。
@@ -10,7 +16,7 @@
 - `GscWpfUiActionButton`、Toolbar、Context 等适配样式必须保留原按钮的 Margin、紧凑高度和“禁用时隐藏”行为；不能把 `ui:Button` 样式应用到原生 `Button`，反之亦然。
 - Dashboard 通知/确认和 Settings 导入报告采用 WPF-UI Snackbar/ContentDialog 优先；任何构造、资源或宿主异常必须记录并回退到插件内 Toast/Dialog 或 MessageBox。错误通知的详情入口不可删除，重叠确认必须安全取消而不能堆叠模态层。
 - 设置导入/导出的文件元数据、读取和写入不得阻塞 UI 线程；UI 依赖对象和 DataContext 更新仍在 Dispatcher 线程。生产事件边界不得新增不可控 `async void`。
-- 本批只有源码门禁、XAML 解析、语义计数、UI Skill 和 Git 静态证据。当前容器缺少 `dotnet`/MSBuild，因此不能引用先前 50 项测试和 Release 构建冒充本批结果；真实 Playnite、DPI、主题、键盘和宿主污染仍需 ENV-001。
+- 本批已具备 Windows/.NET SDK 8.0.423 的 Release build（0 警告/错误）与 51 项自动化测试证据；真实 Playnite、DPI、主题、键盘和宿主污染仍需 ENV-001，不能由构建、STA 资源加载测试或包内容检查替代。
 
 ### 2026-08-01 UI-003 自适应布局与验证边界
 

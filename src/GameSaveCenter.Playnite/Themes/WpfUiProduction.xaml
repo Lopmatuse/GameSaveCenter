@@ -1,6 +1,13 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <!-- StaticResource resolution happens while this dictionary is parsed. Keep WPF-UI's
+             type-keyed defaults in the same resource scope as the production adapters; a
+             sibling merge at the UserControl level is too late in Playnite's XAML loader. -->
+        <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiBase.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
     <!-- Production adapters keep WPF-UI templates while applying GameSaveCenter's spacing,
          focus and material tokens. This dictionary is merged only after DesignTokens.xaml
          inside a GameSaveCenter UserControl; it must never enter Playnite application-level resources. -->

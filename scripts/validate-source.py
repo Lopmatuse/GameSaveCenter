@@ -926,6 +926,8 @@ def check_shared_wpf_control_guards() -> None:
                   "<Setter Property=\"Visibility\" Value=\"Collapsed\"/>"):
         if token not in production:
             fail(f"Shared WPF-UI production adapter guard missing: {token}")
+    if 'ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiBase.xaml"' not in production:
+        fail("WPF-UI production adapters must merge WpfUiBase in their own parse scope")
     if '<Setter Property="CornerRadius"' in production:
         fail("WPF-UI Card must use Border.CornerRadius; Card has no CornerRadius dependency property")
     if production.count('<Setter Property="Margin" Value="0,0,8,8"/>') < 3:
@@ -970,12 +972,12 @@ def check_wpf_ui_production_scope_guards() -> None:
     production = (ROOT / "src/GameSaveCenter.Playnite/Themes/WpfUiProduction.xaml").read_text(encoding="utf-8")
     for source, label, required in (
         (dashboard, "Dashboard WPF-UI production scope",
-         ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiBase.xaml",
-          "Themes/WpfUiProduction.xaml", "<ui:Card", "<ui:Button", "<ui:ToggleSwitch",
+         ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiProduction.xaml",
+          "<ui:Card", "<ui:Button", "<ui:ToggleSwitch",
           "x:Name=\"ContentDialogHost\"", "x:Name=\"SnackbarHost\"")),
         (settings, "Settings WPF-UI production scope",
-         ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiBase.xaml",
-          "Themes/WpfUiProduction.xaml", "<ui:Card", "<ui:ToggleSwitch", "<ui:Button",
+         ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiProduction.xaml",
+          "<ui:Card", "<ui:ToggleSwitch", "<ui:Button",
           "x:Name=\"SettingsDialogHost\"", "x:Name=\"SettingsSnackbarHost\"")),
         (dashboard_code, "Dashboard production feedback",
          ("new ContentDialog(ContentDialogHost)", "new Snackbar(SnackbarHost)",

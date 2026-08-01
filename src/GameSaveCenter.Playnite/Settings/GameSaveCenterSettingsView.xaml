@@ -12,7 +12,6 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiBase.xaml"/>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml"/>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiProduction.xaml"/>
             </ResourceDictionary.MergedDictionaries>

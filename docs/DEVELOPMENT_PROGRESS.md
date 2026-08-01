@@ -3,6 +3,13 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-004 WPF-UI 生产资源作用域崩溃修复
+
+- [x] 用户提供的 Playnite 日志确认 `0.6.22` 打开 Dashboard 时在 `DashboardView.InitializeComponent()` 抛出 `XamlParseException`：`Wpf.Ui.Controls.Button` 类型键未被解析为资源。该异常会直接打开扩展崩溃窗口，不是 Worker 管道短暂不可用。
+- [x] 根因是 `WpfUiProduction.xaml` 作为 Dashboard/Settings 的同级合并字典解析时，`GscWpfUiButton` 的 `BasedOn="{StaticResource {x:Type ui:Button}}"` 看不到另一个同级 `WpfUiBase.xaml` 中的 WPF-UI 默认类型样式；编译与包内容检查不能覆盖这种 Playnite BAML 资源作用域。
+- [x] `WpfUiProduction.xaml` 现在直接合并 `WpfUiBase.xaml`，Dashboard/Settings 不再重复同级合并基础字典。新增 STA XAML 资源字典回归测试，实际解析 DesignTokens + Production adapters 并断言 `GscWpfUiButton` 可用，避免重新引入同级作用域依赖。
+- [ ] 已生成修复源码，但未覆盖正在运行的用户 Playnite 或扩展目录。仍需在隔离 Playnite 中打开 Dashboard、Settings、Dialog/Snackbar 并检查 `playnite.log` 无资源错误后，才可解除 UI-004 的真机阻塞。
+
 ## 2026-08-01 UI-004 生产 WPF-UI 控件迁移（源码完成，环境阻塞）
 
 - [x] Windows 首次 Release 验证发现 `Wpf.Ui.Controls.Card` 不公开 `CornerRadius` 属性；已按 WPF-UI 4.3.0 模板改用 `Border.CornerRadius` 附加属性，并在 `validate-source.py` 增加回归门禁，防止再次生成 MC4005。
@@ -11,7 +18,7 @@
 - [x] 生产通知与确认改为 WPF-UI Snackbar/ContentDialog 优先，异常时回退到插件内 Toast/Dialog 或 MessageBox；错误通知仍保留“查看详情”恢复入口。设置导入/导出文件读写使用 `Task.Run`，没有新增 `async void` UI 事件。
 - [x] 语义复核确认 Dashboard 的 59 个 Command 和 320 个 Binding、Settings 的 26 个 Binding 与基线数量一致；DataGrid/ListBox 的 Recycling、行列虚拟化及业务程序集、数据库、备份、媒体和 Worker 文件均未修改。
 - [x] `scripts/validate-source.py`、XAML XML 解析、`git diff --check` 和 UI Skill 静态审查通过；项目范围为 0 errors、11 warnings、52 info，warnings 是既有的保守 StackPanel 邻近检查。
-- [ ] 当前隔离容器没有 `dotnet`、MSBuild、Mono 或 C# 编译器，无法为这批新 diff 重跑 Release build、50 项测试、package 和 Worker smoke；此前 `ce473c8` 的构建结果只覆盖第一批迁移。UI-004 因此标记 `BLOCKED_ENVIRONMENT`，并继续等待 ENV-001 后的独立 Playnite 主题、DPI、键盘、Dialog/Snackbar 和宿主无污染验证。
+- [x] 修复后已在 Windows/.NET SDK 8.0.423 执行 Release restore/build：0 警告/0 错误；Core 13、Worker 21、Playnite 17 项测试通过。UI-004 仍因缺少可审计的隔离 Playnite 实例而保持真机环境阻塞，需继续验证主题、DPI、键盘、Dialog/Snackbar 与宿主无污染。
 
 ## 2026-08-01 UI-003 响应式布局与可访问性收口（真机阻塞）
 
