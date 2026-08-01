@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using GameSaveCenter.Playnite.Settings;
 
 namespace GameSaveCenter.Playnite.Infrastructure
@@ -204,6 +205,21 @@ namespace GameSaveCenter.Playnite.Infrastructure
         }
 
         /// <summary>
+        /// Keeps elevation effects local to an embedded plugin page and removes them entirely
+        /// when transparent material is unavailable. An Effect with Opacity=0 still retains an
+        /// effect visual, so accessibility and low-cost fallback paths must use a real null.
+        /// </summary>
+        public static void ApplyMaterialResources(ResourceDictionary resources, AdaptiveThemePalette palette, bool glassEnabled)
+        {
+            resources["GscSurfaceEffect"] = CreateShadowEffect(glassEnabled, Colors.Black, 14, 2, palette.IsDark ? 0.34 : 0.24);
+            resources["GscPrimaryButtonEffect"] = CreateShadowEffect(glassEnabled, palette.Accent, 12, 2, palette.IsDark ? 0.32 : 0.28);
+            resources["GscSidebarEffect"] = CreateShadowEffect(glassEnabled, Colors.Black, 24, 3, palette.IsDark ? 0.42 : 0.30);
+            resources["GscPopupEffect"] = CreateShadowEffect(glassEnabled, Colors.Black, 20, 5, palette.IsDark ? 0.46 : 0.38);
+            resources["GscDialogEffect"] = CreateShadowEffect(glassEnabled, Colors.Black, 34, 8, palette.IsDark ? 0.52 : 0.44);
+            resources["GscSliderThumbEffect"] = CreateShadowEffect(glassEnabled, Colors.Black, 6, 1, 0.26);
+        }
+
+        /// <summary>
         /// WPF-UI resolves these Fluent token names through dynamic resources. Keep the overrides
         /// local to an embedded GameSaveCenter view so a Playnite theme (or another extension)
         /// is never mutated, while WPF-UI controls still share the same palette as native controls.
@@ -255,6 +271,20 @@ namespace GameSaveCenter.Playnite.Infrastructure
             brush.GradientStops.Add(new GradientStop(bottom, 1));
             brush.Freeze();
             return brush;
+        }
+
+        private static DropShadowEffect? CreateShadowEffect(bool enabled, Color color, double blurRadius, double shadowDepth, double opacity)
+        {
+            if (!enabled) return null;
+            var effect = new DropShadowEffect
+            {
+                Color = color,
+                BlurRadius = blurRadius,
+                ShadowDepth = shadowDepth,
+                Opacity = opacity
+            };
+            effect.Freeze();
+            return effect;
         }
 
         private static Color ChooseBestText(Color background, Color? first, Color? second, bool darkBackground)

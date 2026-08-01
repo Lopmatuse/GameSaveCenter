@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-034 共享材质 Effect 的辅助功能回退
+
+- [x] Dashboard 与 Settings 的本地调色板现在集中决定 Surface、主按钮、侧栏、Popup、Dialog 和 Slider Thumb 的轻量阴影；关闭透明或高对比度时使用真正的 `null` Effect，而不是透明的效果对象。
+- [x] 常规玻璃模式仍只在固定卡片/浮层使用克制阴影；列表行、DataGrid、媒体缩略图和滚动内容没有新增 BlurEffect 或每项视觉效果。
+- [x] 自动验证：`validate-source.py` 与 UI Skill 静态审查（0 errors）通过；Release 下 Core 13 + Worker 21 + Playnite UI 45 = 79 项测试通过，`git diff --check`、`git fsck --full`、PEXT 打包及 Worker `0.6.22.0` smoke 通过。真实辅助功能与多主题渲染仍由 `ENV-001` 阻塞。
+
 ## 2026-08-01 UI-033 插件通知与确认 Dispatcher 边界
 
 - [x] 插件级错误、成功、任务通知和安全确认现在共用关闭态保护；无法安全显示的危险确认默认取消，绝不在关闭中继续恢复或其他确认操作。

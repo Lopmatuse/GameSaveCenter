@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 共享材质 Effect 的无障碍回退
+
+- `ApplyMaterialResources` 是 Dashboard 与 Settings 的局部阴影资源唯一入口。关闭透明或高对比度时，`GscSurfaceEffect`、`GscPrimaryButtonEffect`、`GscSidebarEffect`、`GscPopupEffect`、`GscDialogEffect` 和 `GscSliderThumbEffect` 必须是真正的 `null`，不能用 `Opacity=0` 保留昂贵的 Effect visual。
+- 正常玻璃模式只为固定卡片、侧栏和浮层恢复冻结的轻量阴影；绝不将阴影或模糊加到 DataGrid、ListBox、媒体行或任何大型滚动内容。初始 XAML 资源也必须声明这些空键，以保持静态资源门禁和安全解析。
+
 ### 2026-08-01 插件级通知/确认的安全 UI 调度
 
 - `GameSaveCenterPlugin` 的错误、成功、任务通知、宿主通知和确认必须经 `TryInvokeUi`。它检查 Playnite Dispatcher 关闭态并记录竞态；仅在 Dispatcher 确认关闭时拦截调度异常，处理器自身的真实异常必须保留给原错误边界；确认无法显示时必须返回取消，尤其不能让恢复等危险操作继续。

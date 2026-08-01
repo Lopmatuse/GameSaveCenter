@@ -969,6 +969,7 @@ namespace GameSaveCenter.Playnite.Views
             var palette = AdaptiveThemePaletteFactory.Create(this, glassEnabled, plugin.Settings.GlassEffectStrength, plugin.Settings.ThemeMode);
 
             AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette);
+            AdaptiveThemePaletteFactory.ApplyMaterialResources(Resources, palette, glassEnabled);
             AdaptiveThemePaletteFactory.ApplyWpfUiResources(Resources, palette);
             Resources["GscPrimaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.PrimaryText);
             Resources["GscSecondaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.SecondaryText);

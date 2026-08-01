@@ -42,11 +42,7 @@
             <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="{StaticResource GscSoftShadowColor}" BlurRadius="14" ShadowDepth="2" Opacity="0.32"/>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Effect" Value="{DynamicResource GscSurfaceEffect}"/>
         </Style>
 
         <Style x:Key="GscTableFrame" TargetType="Border" BasedOn="{StaticResource GscSurface}">
@@ -134,11 +130,11 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Chrome" CornerRadius="12" Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
-                                Padding="{TemplateBinding Padding}" RenderTransformOrigin="0.5,0.5">
+                                Padding="{TemplateBinding Padding}" RenderTransformOrigin="0.5,0.5"
+                                Effect="{DynamicResource GscPrimaryButtonEffect}">
                             <Border.RenderTransform>
                                 <ScaleTransform ScaleX="1" ScaleY="1"/>
                             </Border.RenderTransform>
-                            <Border.Effect><DropShadowEffect Color="{DynamicResource GscAccentShadowColor}" BlurRadius="12" ShadowDepth="2" Opacity="0.38"/></Border.Effect>
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                               RecognizesAccessKey="True"
@@ -635,8 +631,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Border x:Name="SidebarChrome" Grid.Column="0" Background="{DynamicResource GscSidebarBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}" BorderThickness="1" CornerRadius="22" Padding="15">
-                <Border.Effect><DropShadowEffect Color="{StaticResource GscSoftShadowColor}" BlurRadius="24" ShadowDepth="3" Opacity="0.35"/></Border.Effect>
+            <Border x:Name="SidebarChrome" Grid.Column="0" Background="{DynamicResource GscSidebarBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}" BorderThickness="1" CornerRadius="22" Padding="15" Effect="{DynamicResource GscSidebarEffect}">
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                     <StackPanel x:Name="SidebarBrandContainer" Margin="0,2,0,20" HorizontalAlignment="Stretch">
@@ -1940,10 +1935,8 @@
                     BorderThickness="1"
                     CornerRadius="22"
                     Padding="22"
-                    Opacity="0">
-                <Border.Effect>
-                    <DropShadowEffect Color="{StaticResource GscPopupShadowColor}" BlurRadius="34" ShadowDepth="8" Opacity="0.48"/>
-                </Border.Effect>
+                    Opacity="0"
+                    Effect="{DynamicResource GscDialogEffect}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

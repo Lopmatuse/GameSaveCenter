@@ -7,6 +7,7 @@ using System.Threading;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Xml.Linq;
 using GameSaveCenter.Playnite.Settings;
 using GameSaveCenter.Playnite.Views;
@@ -51,6 +52,23 @@ public sealed class WpfUiResourceDictionaryTests
                 var wpfUiText = Assert.IsType<SolidColorBrush>(localResources["TextOnAccentFillColorPrimaryBrush"]);
                 Assert.Equal(hostAccent, wpfUiAccent.Color);
                 Assert.Equal(Colors.White, wpfUiText.Color);
+
+                var materialResources = factoryType.GetMethod("ApplyMaterialResources", BindingFlags.Public | BindingFlags.Static)!;
+                materialResources.Invoke(null, new object[] { localResources, palette, false });
+                Assert.Null(localResources["GscSurfaceEffect"]);
+                Assert.Null(localResources["GscPrimaryButtonEffect"]);
+                Assert.Null(localResources["GscSidebarEffect"]);
+                Assert.Null(localResources["GscPopupEffect"]);
+                Assert.Null(localResources["GscDialogEffect"]);
+                Assert.Null(localResources["GscSliderThumbEffect"]);
+
+                materialResources.Invoke(null, new object[] { localResources, palette, true });
+                Assert.IsType<DropShadowEffect>(localResources["GscSurfaceEffect"]);
+                Assert.IsType<DropShadowEffect>(localResources["GscPrimaryButtonEffect"]);
+                Assert.IsType<DropShadowEffect>(localResources["GscSidebarEffect"]);
+                Assert.IsType<DropShadowEffect>(localResources["GscPopupEffect"]);
+                Assert.IsType<DropShadowEffect>(localResources["GscDialogEffect"]);
+                Assert.IsType<DropShadowEffect>(localResources["GscSliderThumbEffect"]);
             }
             catch (Exception caught)
             {
@@ -69,6 +87,8 @@ public sealed class WpfUiResourceDictionaryTests
         var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
         Assert.Contains("AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette)", dashboardCode);
         Assert.Contains("AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette)", settingsCode);
+        Assert.Contains("AdaptiveThemePaletteFactory.ApplyMaterialResources(Resources, palette, glassEnabled)", dashboardCode);
+        Assert.Contains("AdaptiveThemePaletteFactory.ApplyMaterialResources(Resources, palette, glassEnabled)", settingsCode);
         Assert.Contains("AdaptiveThemePaletteFactory.ApplyWpfUiResources(Resources, palette)", dashboardCode);
         Assert.Contains("AdaptiveThemePaletteFactory.ApplyWpfUiResources(Resources, palette)", settingsCode);
 
@@ -93,12 +113,21 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("resources[\"GscAmbientAccentBrush\"]", paletteSource);
         Assert.Contains("resources[\"GscAccentShadowColor\"]", paletteSource);
         Assert.Contains("resources[\"GscSelectionTextBrush\"]", paletteSource);
+        Assert.Contains("resources[\"GscSurfaceEffect\"]", paletteSource);
+        Assert.Contains("resources[\"GscPrimaryButtonEffect\"]", paletteSource);
+        Assert.Contains("if (!enabled) return null;", paletteSource);
         Assert.Contains("highContrast ? accent", paletteSource);
         Assert.DoesNotContain("{StaticResource GscAccentShadowColor}", dashboard);
         Assert.DoesNotContain("{StaticResource GscAccentShadowColor}", tokens);
         Assert.Contains("{DynamicResource GscAmbientAccentBrush}", dashboard);
         Assert.Contains("{DynamicResource GscSelectionTextBrush}", dashboard);
         Assert.Contains("{DynamicResource GscSelectionTextBrush}", tokens);
+        Assert.Contains("{DynamicResource GscSurfaceEffect}", dashboard);
+        Assert.Contains("{DynamicResource GscPrimaryButtonEffect}", dashboard);
+        Assert.Contains("{DynamicResource GscSidebarEffect}", dashboard);
+        Assert.Contains("{DynamicResource GscDialogEffect}", dashboard);
+        Assert.Contains("{DynamicResource GscPopupEffect}", tokens);
+        Assert.Contains("{DynamicResource GscSliderThumbEffect}", tokens);
     }
 
     [Fact]

@@ -37,6 +37,15 @@
     <Color x:Key="GscPopupShadowColor">#52000000</Color>
     <Color x:Key="GscAccentShadowColor">#487C5CFC</Color>
 
+    <!-- Effects are deliberately null until a page enables its local material palette. This
+         keeps initial, high-contrast and reduced-transparency parsing free of effect visuals. -->
+    <x:Null x:Key="GscSurfaceEffect"/>
+    <x:Null x:Key="GscPrimaryButtonEffect"/>
+    <x:Null x:Key="GscSidebarEffect"/>
+    <x:Null x:Key="GscPopupEffect"/>
+    <x:Null x:Key="GscDialogEffect"/>
+    <x:Null x:Key="GscSliderThumbEffect"/>
+
     <SolidColorBrush x:Key="GscGlassFillBrush" Color="#D8FFFFFF"/>
     <SolidColorBrush x:Key="GscGlassStrongBrush" Color="#F0FFFFFF"/>
     <SolidColorBrush x:Key="GscGlassStrokeBrush" Color="#2A000000"/>
@@ -74,11 +83,7 @@
         <Setter Property="CornerRadius" Value="{StaticResource GscCornerCard}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect Color="{StaticResource GscSoftShadowColor}" BlurRadius="14" ShadowDepth="2" Opacity="0.28"/>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Effect" Value="{DynamicResource GscSurfaceEffect}"/>
     </Style>
 
     <Style x:Key="GscSharedFocusVisual" TargetType="Control">
@@ -154,9 +159,9 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Chrome" CornerRadius="12" Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1"
-                            Padding="{TemplateBinding Padding}" RenderTransformOrigin="0.5,0.5">
+                            Padding="{TemplateBinding Padding}" RenderTransformOrigin="0.5,0.5"
+                            Effect="{DynamicResource GscPrimaryButtonEffect}">
                         <Border.RenderTransform><ScaleTransform ScaleX="1" ScaleY="1"/></Border.RenderTransform>
-                        <Border.Effect><DropShadowEffect Color="{DynamicResource GscAccentShadowColor}" BlurRadius="12" ShadowDepth="2" Opacity="0.34"/></Border.Effect>
                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                           RecognizesAccessKey="True" SnapsToDevicePixels="True"/>
@@ -199,8 +204,8 @@
                                     <Thumb.Template>
                                         <ControlTemplate TargetType="Thumb">
                                             <Border x:Name="ThumbChrome" CornerRadius="8" Background="{TemplateBinding Background}"
-                                                    BorderBrush="{DynamicResource GscControlStrokeBrush}" BorderThickness="1">
-                                                <Border.Effect><DropShadowEffect Color="{StaticResource GscSoftShadowColor}" BlurRadius="6" ShadowDepth="1" Opacity="0.32"/></Border.Effect>
+                                                    BorderBrush="{DynamicResource GscControlStrokeBrush}" BorderThickness="1"
+                                                    Effect="{DynamicResource GscSliderThumbEffect}">
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ThumbChrome" Property="BorderBrush" Value="{DynamicResource GscAccentBrush}"/></Trigger>
@@ -487,8 +492,8 @@
                         </ToggleButton>
                         <Popup x:Name="PART_Popup" Placement="Bottom" AllowsTransparency="True" IsOpen="{TemplateBinding IsDropDownOpen}" Focusable="False" PopupAnimation="Fade">
                             <Border MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="320" Margin="0,6,0,8" Padding="5"
-                                    Background="{DynamicResource GscPopupBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}" BorderThickness="1" CornerRadius="11">
-                                <Border.Effect><DropShadowEffect Color="{StaticResource GscPopupShadowColor}" BlurRadius="20" ShadowDepth="5" Opacity="0.42"/></Border.Effect>
+                                    Background="{DynamicResource GscPopupBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}" BorderThickness="1" CornerRadius="11"
+                                    Effect="{DynamicResource GscPopupEffect}">
                                 <ScrollViewer CanContentScroll="True" VerticalScrollBarVisibility="Auto"><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/></ScrollViewer>
                             </Border>
                         </Popup>
