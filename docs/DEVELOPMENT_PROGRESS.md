@@ -8,6 +8,7 @@
 - [x] 分析 `crash.zip` 中两次独立的 Playnite 崩溃：首先缺失 `Wpf.Ui.Controls.Button`，修复后第二次在 `DashboardView.InitializeComponent()` 因 `StaticResourceHolder` 找不到 `GscSoftShadowColor` 崩溃；两者均发生在插件页面构造阶段，不能以隐藏控件或捕获业务命令异常规避。
 - [x] `WpfUiProduction.xaml` 继续在自身作用域静态合并 WPF-UI 默认类型样式，但对父级 `DesignTokens.xaml` 提供的 `GscSoftShadowColor`、`GscSharedFocusVisual` 改为 `DynamicResource`，避免 Playnite BAML 在兄弟字典尚未可见时解析失败，也不在 Production 内部合并令牌而破坏运行时主题调色板。
 - [x] 新增 STA `UserControl` 资源树布局回归测试，覆盖 Card、Button、ToggleSwitch、TextBox、ComboBox 的父级令牌解析；源码门禁禁止 Production 适配器重新以 `StaticResource` 使用上述令牌。受控 WPF 测试通过，但仍不能替代隔离 Playnite 的真实加载、主题、DPI 和键盘回归。
+- [ ] 已尝试启动 `.tmp/playnite-ui-test`，但桌面自动化只发现 `D:\software\Playnite\Playnite\Playnite.DesktopApp.exe` 的窗口（“数据备份错误”）；未对该用户实例点击、关闭或写入。复制安装目录与 `DatabasePath: library` 仍不足以证明单实例/用户 AppData 隔离，UI-004 真机验收继续由 ENV-001 阻塞。
 
 ## 2026-08-01 UI-004 WPF-UI 生产资源作用域崩溃修复
 

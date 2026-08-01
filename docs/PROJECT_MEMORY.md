@@ -9,6 +9,7 @@
 - `WpfUiProduction.xaml` 必须自行先合并 `WpfUiBase.xaml`，使类型键和适配器在同一字典解析作用域；Dashboard/Settings 仅合并 DesignTokens 后的 Production 字典，避免重复或依赖合并顺序。任何新增的生产 WPF-UI 类型适配器都遵守此边界。
 - `WpfUiProduction.xaml` 不得以 `StaticResource` 使用父级 `DesignTokens.xaml` 的 `Gsc*` 令牌（已证实 `GscSoftShadowColor` 与 `GscSharedFocusVisual` 会在 Playnite BAML 解析期失败）；必须用 `DynamicResource` 让它们在控件加入 Dashboard/Settings 的 UserControl 资源树后解析。不得为了规避此问题把 DesignTokens 合并进 Production，因为会固定或遮蔽宿主的自适应主题调色板。
 - 该规则由 STA `XamlReader.Parse` 回归测试覆盖。测试只证明资源可被 WPF 解析，不能替代隔离 Playnite 的主题、DPI、Dialog/Snackbar 或宿主污染验证；未经授权不得覆盖正在运行的用户插件目录。
+- `.tmp/playnite-ui-test` 即使含本地 `config.json` 和测试扩展目录，也不能视为隔离真机环境：一次启动尝试只暴露出 `D:\software\Playnite\Playnite\Playnite.DesktopApp.exe` 的用户窗口。不得操作该窗口；必须先证明独立启动 PID、配置/扩展数据根及日志均不触及用户 AppData，才能继续 UI 真机测试。
 
 ### 2026-08-01 UI-004 生产 WPF-UI 资源与回退边界
 
@@ -17,7 +18,7 @@
 - `GscWpfUiActionButton`、Toolbar、Context 等适配样式必须保留原按钮的 Margin、紧凑高度和“禁用时隐藏”行为；不能把 `ui:Button` 样式应用到原生 `Button`，反之亦然。
 - Dashboard 通知/确认和 Settings 导入报告采用 WPF-UI Snackbar/ContentDialog 优先；任何构造、资源或宿主异常必须记录并回退到插件内 Toast/Dialog 或 MessageBox。错误通知的详情入口不可删除，重叠确认必须安全取消而不能堆叠模态层。
 - 设置导入/导出的文件元数据、读取和写入不得阻塞 UI 线程；UI 依赖对象和 DataContext 更新仍在 Dispatcher 线程。生产事件边界不得新增不可控 `async void`。
-- 本批已具备 Windows/.NET SDK 8.0.423 的 Release build（0 警告/错误）与 51 项自动化测试证据；真实 Playnite、DPI、主题、键盘和宿主污染仍需 ENV-001，不能由构建、STA 资源加载测试或包内容检查替代。
+- 本批已具备 Windows/.NET SDK 8.0.423 的 Release build（0 警告/错误）与 52 项自动化测试证据；真实 Playnite、DPI、主题、键盘和宿主污染仍需 ENV-001，不能由构建、STA 资源加载测试或包内容检查替代。
 
 ### 2026-08-01 UI-003 自适应布局与验证边界
 
