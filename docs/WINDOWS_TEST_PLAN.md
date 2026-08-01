@@ -1,5 +1,7 @@
 ## 0.6.22 主题令牌与最终 UI 回归
 
+源码/自动化当前基线：Core 13、Worker 21、Playnite 33，共 67 项测试；真实 Playnite 主题、DPI、键盘和大库回归仍须在具备独立数据根及 PID 边界的环境执行。
+
 ## UI-002 共享控件与主题回归
 
 - [ ] 在独立 Playnite 测试实例中确认设置卡片、普通/主按钮、文本与数值输入、ComboBox、CheckBox、Slider、Tooltip、ProgressBar、DataGrid、ListBox、TabControl、Popup 和滚动条均未回退到宿主默认样式。

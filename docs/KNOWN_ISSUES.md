@@ -82,6 +82,7 @@
 | GSC-084 | 0.6.22 Dashboard 在修复类型样式后仍解析不到主题阴影资源而崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 适配器中的 GameSaveCenter 令牌必须使用 `DynamicResource` 从父级 UserControl 作用域解析；打开 Dashboard/Settings 后日志不得再出现 `GscSoftShadowColor`、`StaticResourceHolder` 或 `XamlParseException` |
 | GSC-085 | 0.6.22 动画冻结 Transform 与 WPF-UI `ContentDialogHost` 在 Playnite 共用窗口中导致崩溃 | 源码已修复，待隔离 Playnite 回归 | 回归测试验证冻结的 Translate/Scale Transform 会先克隆为元素私有实例；全插件 XAML/C# 禁止 `ContentDialogHost` 和 `new ContentDialog(...)`；确认使用插件内浮层、设置报告使用 MessageBox，日志不得再出现相应异常 |
 | GSC-086 | 媒体摘要只读 `TotalSizeDisplay` 曾被 TwoWay 绑定而在打开媒体页时崩溃 | 源码已修复，待隔离 Playnite 回归 | 媒体概览固定使用 `Mode=OneWay`，回归测试禁止该属性恢复为 TwoWay；仍需在独立 Playnite 实例打开媒体工作区确认无绑定异常 |
+| GSC-087 | WPF 定时刷新或取消任务的 async-void/RelayCommand 边界可能把宿主异常传播到 Playnite Dispatcher | 源码已修复，待隔离 Playnite 回归 | 定时刷新事件增加最终异常边界；取消任务改为受保护的 `Task`，确认、Worker IPC 与刷新均在同一 try/catch 内，避免后台故障导致宿主未处理异常 |
 
 ### GSC-083：WPF-UI Button 同级资源字典作用域导致 Dashboard 崩溃
 

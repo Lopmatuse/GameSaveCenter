@@ -289,7 +289,17 @@ namespace GameSaveCenter.Playnite.Views
         private async void OnRefreshTimerTick(object sender, EventArgs e)
         {
             if (viewModel == null) return;
-            await viewModel.RequestBackgroundRefreshAsync();
+            try
+            {
+                // DispatcherTimer invokes an async-void event boundary. The view-model normally
+                // converts refresh failures into status text, but keep this final boundary
+                // guarded so a future refresh path cannot tear down Playnite's Dispatcher.
+                await viewModel.RequestBackgroundRefreshAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "GameSaveCenter background refresh timer failed.");
+            }
         }
 
 

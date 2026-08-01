@@ -8,7 +8,7 @@
 ## 2026-08-01 交付快照
 
 - Apple-inspired WPF 源码重构已覆盖 Dashboard 的六个工作区与 Settings：共享令牌、控件状态、紧凑布局、数值输入、命令入口、焦点与高对比度/关闭玻璃/关闭动画降级均已有源码和自动化证据。
-- 当前自动化证据为：源码门禁通过；UI Skill 静态审查为 0 个错误（保留既有布局提示）；Release 构建 0 警告/0 错误；Core 13、Worker 21、Playnite 32，共 66 项测试通过；PEXT 打包和 Worker `0.6.22.0` 文件版本 smoke 通过。
+- 当前自动化证据为：源码门禁通过；UI Skill 静态审查为 0 个错误（保留既有布局提示）；Release 构建 0 警告/0 错误；Core 13、Worker 21、Playnite 33，共 67 项测试通过；PEXT 打包和 Worker `0.6.22.0` 文件版本 smoke 通过。
 - 这不等于真实 Playnite 已验收。`ENV-001` 尚未建立可证明隔离的 Playnite 数据根、扩展目录、测试库和 PID 边界；复制的 `.tmp` 安装副本可能共享用户 AppData，且 Playnite 单实例保护会转交至用户实例。不得为取得证据而关闭、覆盖或操作用户正在使用的 Playnite。
 
 ## 总体判断

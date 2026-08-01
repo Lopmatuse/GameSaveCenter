@@ -331,6 +331,26 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void AsyncUiEventBoundariesDoNotLeakFailuresIntoThePlayniteDispatcher()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var viewModelCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "ViewModels", "DashboardViewModel.cs"));
+
+        // DispatcherTimer is an async-void WPF event boundary, so it must have a final catch even
+        // though the current view-model refresh implementation also reports its own failures.
+        Assert.Contains("private async void OnRefreshTimerTick", dashboardCode);
+        Assert.Contains("background refresh timer failed", dashboardCode);
+
+        // RelayCommand accepts an Action, therefore cancellation must be fire-and-forget only
+        // through a Task that guards confirmation, Worker IPC, and the final refresh.
+        Assert.Contains("_ = CancelSelectedTaskAsync()", viewModelCode);
+        Assert.Contains("private async Task CancelSelectedTaskAsync()", viewModelCode);
+        Assert.DoesNotContain("private async void CancelSelectedTask()", viewModelCode);
+        Assert.Contains("catch (Exception ex)", viewModelCode);
+    }
+
+    [Fact]
     public void SettingsStoragePolicyFieldsUseASafeCompactSingleColumnLayout()
     {
         var repositoryRoot = FindRepositoryRoot();

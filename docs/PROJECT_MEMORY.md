@@ -6,8 +6,13 @@
 ### 2026-08-01 全量 UI 源码交付与真机边界
 
 - 已完成的源码重构覆盖 Dashboard 六个工作区（总览、存档、修改器、媒体、任务、维护）及 Settings：共享设计令牌和控件模板、数值输入完整值提交、紧凑布局、命令映射、错误/取消路径、焦点、主题降级和延迟 Dispatcher 回调均有回归覆盖；不得以页面改版为由删除既有功能入口或 Recycling 虚拟化。
-- 本轮自动化证据：`validate-source.py` 通过；UI Skill 静态审查为 0 错误（仍有项目和 `.tmp` 副本的提示，不能忽略）；Release 构建 0 警告/0 错误；Core 13、Worker 21、Playnite 32，共 66 测试通过；PEXT 包检查与 Worker `0.6.22.0` smoke 通过。
+- 本轮自动化证据：`validate-source.py` 通过；UI Skill 静态审查为 0 错误（仍有项目和 `.tmp` 副本的提示，不能忽略）；Release 构建 0 警告/0 错误；Core 13、Worker 21、Playnite 33，共 67 测试通过；PEXT 包检查与 Worker `0.6.22.0` smoke 通过。
 - 以上仅为源码和自动化证据。真实 Playnite 的资源加载、Light/Dark/Follow/High Contrast、透明/动画降级、100%--200% DPI、980×640--1600×900、键盘和大库性能仍受 `ENV-001` 阻塞。没有可审计的独立数据根、扩展目录、测试库和本次启动 PID 边界时，不得启动/关闭/覆盖用户 Playnite 或用户插件目录。
+
+### 2026-08-01 async-void UI 事件边界保护
+
+- Dashboard 定时刷新保留为 WPF 事件边界，但在最终 `catch` 中记录真实异常；取消任务命令改为受保护的 `Task`，确认、Worker IPC 和刷新均在同一异常边界内，避免宿主 Dispatcher 收到未处理异常。
+- 新增回归断言覆盖事件入口与取消命令形态；当前验证为 Core 13、Worker 21、Playnite 33，共 67 项测试通过。真实 Playnite 运行时回归仍受 `ENV-001` 阻塞。
 
 ### 2026-08-01 WPF-UI 生产资源解析边界
 

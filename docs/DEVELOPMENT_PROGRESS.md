@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-019 async-void 事件边界保护
+
+- [x] Dashboard 定时刷新事件增加最终异常边界并记录真实失败；取消任务从 `async void` 改为受保护的 `Task`，确认、Worker IPC 与刷新统一在同一 `try/catch` 内。
+- [x] 源码门禁、UI Skill（0 errors）、Release 构建（0 warning/0 error）、Core 13 + Worker 21 + Playnite 33 = 67 项测试、PEXT 打包和 Worker `0.6.22.0` smoke 均通过；真实 Playnite/DPI/theme/keyboard 仍受 `ENV-001` 阻塞。
+
 ## 2026-08-01 QA-001 Worker smoke 默认路径修复
 
 - [x] 修复 `verify.ps1` 在 `powershell -File` 宿主中的参数默认值时序：Worker 默认路径改在脚本体内基于已初始化的 `$PSScriptRoot` 计算，避免空路径导致 smoke 尚未检查包内容即失败。

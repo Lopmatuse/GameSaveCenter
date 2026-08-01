@@ -121,7 +121,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             RevealSelectedMediaCommand = new RelayCommand(_ => RunLocal(() => OpenPath(SelectedMedia.ArchivePath)), _ => SelectedMedia != null && !string.IsNullOrWhiteSpace(SelectedMedia.ArchivePath));
             AssignInboxMediaCommand = new RelayCommand(_ => Run(AssignInboxMediaAsync), _ => !IsBusy && SelectedInboxMedia != null && InboxTargetGame != null);
             IgnoreInboxMediaCommand = new RelayCommand(_ => Run(IgnoreInboxMediaAsync), _ => !IsBusy && SelectedInboxMedia != null);
-            CancelTaskCommand = new RelayCommand(_ => CancelSelectedTask(), _ => SelectedTask != null && SelectedTask.CanCancel && !IsCancellingTask);
+            CancelTaskCommand = new RelayCommand(_ => _ = CancelSelectedTaskAsync(), _ => SelectedTask != null && SelectedTask.CanCancel && !IsCancellingTask);
             RetryTaskCommand = new RelayCommand(_ => Run(RetrySelectedTaskAsync), _ => !IsBusy && CanRetrySelectedTask());
             CopyTaskErrorCommand = new RelayCommand(_ => RunLocal(CopySelectedTaskError), _ => SelectedTask != null && !string.IsNullOrWhiteSpace(SelectedTask.DetailMessage));
             OpenAttentionCenterCommand = new RelayCommand(_ => OpenAttentionCenter());
@@ -1192,19 +1192,19 @@ namespace GameSaveCenter.Playnite.ViewModels
             StatusMessage = "任务详情已复制";
         }
 
-        private async void CancelSelectedTask()
+        private async Task CancelSelectedTaskAsync()
         {
-            if (SelectedTask == null || !SelectedTask.CanCancel || IsCancellingTask) return;
-            var taskId = SelectedTask.TaskId;
-            if (!await plugin.ConfirmAsync(
+            try
+            {
+                if (SelectedTask == null || !SelectedTask.CanCancel || IsCancellingTask) return;
+                var taskId = SelectedTask.TaskId;
+                if (!await plugin.ConfirmAsync(
                     "取消后台任务",
                     $"取消“{SelectedTask.GameName} · {SelectedTask.TaskType}”任务？\n\n取消请求会在当前文件操作的安全边界生效。",
                     "取消任务",
                     "保留任务",
                     true)) return;
-            IsCancellingTask = true;
-            try
-            {
+                IsCancellingTask = true;
                 await plugin.EnsureWorkerAsync();
                 var response = await plugin.RequestAsync<CancelTaskResultDto>(MessageTypes.CancelTask, new CancelTaskRequestDto { TaskId = taskId });
                 StatusMessage = response.Cancelled ? "已发送取消请求" : "任务已经结束或无法取消";
