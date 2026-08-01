@@ -80,7 +80,7 @@
 | GSC-082 | 生产 WPF-UI 局部主题与控件尚未经过隔离 Playnite 宿主加载验证 | 自动化已通过，真机环境阻塞 | Card/Button/ToggleSwitch/普通输入、Dialog/Snackbar 已接入局部适配层并保留原生回退；Windows Release build 与 65 项测试通过，仍需以独立实例检查资源加载、Light/Dark/HighContrast、DPI、键盘和宿主无全局污染 |
 | GSC-083 | 0.6.22 Dashboard 解析 WPF-UI Button 类型样式时崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 字典必须先合并 WpfUiBase；STA 资源解析测试通过后，在隔离 Playnite 打开 Dashboard/Settings，日志不得再出现 `Wpf.Ui.Controls.Button` 或 `XamlParseException` |
 | GSC-084 | 0.6.22 Dashboard 在修复类型样式后仍解析不到主题阴影资源而崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 适配器中的 GameSaveCenter 令牌必须使用 `DynamicResource` 从父级 UserControl 作用域解析；打开 Dashboard/Settings 后日志不得再出现 `GscSoftShadowColor`、`StaticResourceHolder` 或 `XamlParseException` |
-| GSC-085 | 0.6.22 WPF-UI `ContentDialogHost` 在 Playnite 共用窗口中重复注册导致崩溃 | 源码已修复，待隔离 Playnite 回归 | 所有 Playnite 页面禁止注册 `ContentDialogHost`；确认使用插件内浮层、设置报告使用 MessageBox，日志不得再出现 `Only one ContentDialogHost instance is allowed per Window` |
+| GSC-085 | 0.6.22 WPF-UI `ContentDialogHost` 在 Playnite 共用窗口中重复注册导致崩溃 | 源码已修复，待隔离 Playnite 回归 | 全插件 XAML/C# 回归测试禁止 `ContentDialogHost` 和 `new ContentDialog(...)`；确认使用插件内浮层、设置报告使用 MessageBox，日志不得再出现 `Only one ContentDialogHost instance is allowed per Window` |
 
 ### GSC-083：WPF-UI Button 同级资源字典作用域导致 Dashboard 崩溃
 

@@ -96,6 +96,7 @@ public sealed class WpfUiResourceDictionaryTests
     public void EmbeddedPlayniteViewsDoNotRegisterWindowScopedContentDialogHosts()
     {
         var repositoryRoot = FindRepositoryRoot();
+        var pluginSourceDirectory = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite");
         var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
         var settings = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml"));
         var probe = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "Development", "UiFrameworkProbeView.xaml"));
@@ -109,6 +110,16 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.DoesNotContain("new ContentDialog(", settingsCode);
         Assert.Contains("ShowFallbackConfirmation", dashboardCode);
         Assert.Contains("MessageBox.Show", settingsCode);
+
+        foreach (var xamlPath in Directory.GetFiles(pluginSourceDirectory, "*.xaml", SearchOption.AllDirectories))
+        {
+            Assert.DoesNotContain("<ui:ContentDialogHost", File.ReadAllText(xamlPath));
+        }
+
+        foreach (var sourcePath in Directory.GetFiles(pluginSourceDirectory, "*.cs", SearchOption.AllDirectories))
+        {
+            Assert.DoesNotContain("new ContentDialog(", File.ReadAllText(sourcePath));
+        }
     }
 
     [Fact]
