@@ -1558,18 +1558,31 @@
                                         <StackPanel>
                                             <TextBlock Text="添加截图或录像来源" FontSize="16" FontWeight="SemiBold"/>
                                             <TextBlock Text="共享目录中无法唯一判断所属游戏的文件会进入待归类收件箱。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,12" TextWrapping="Wrap"/>
-                                            <WrapPanel>
-                                                <TextBox Style="{StaticResource GscWpfUiTextBox}" MinWidth="330" Text="{Binding CustomMediaSourcePath, UpdateSourceTrigger=PropertyChanged}" ToolTip="Epic/Ubisoft/EA/GOG、MOD 或游戏自身截图目录" Margin="0,0,8,8"/>
-                                                <TextBox Style="{StaticResource GscWpfUiTextBox}" Width="100" Text="{Binding CustomMediaPattern, UpdateSourceTrigger=PropertyChanged}" ToolTip="例如 *.png" Margin="0,0,8,8"/>
-                                                <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="共享目录" OnContent="开" OffContent="关" IsChecked="{Binding CustomMediaShared}" Margin="0,8,10,8"/>
-                                                <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding AddMediaSourceCommand}" Content="添加来源"/>
-                                            </WrapPanel>
+                                            <UniformGrid x:Name="MediaSourceFields" Columns="2">
+                                                <StackPanel Margin="0,0,12,10">
+                                                    <TextBlock Text="截图或录像目录" Margin="0,0,0,4"/>
+                                                    <TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding CustomMediaSourcePath, UpdateSourceTrigger=PropertyChanged}" ToolTip="Epic/Ubisoft/EA/GOG、MOD 或游戏自身截图目录"/>
+                                                </StackPanel>
+                                                <StackPanel Margin="0,0,12,10">
+                                                    <TextBlock Text="文件模式" Margin="0,0,0,4"/>
+                                                    <TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding CustomMediaPattern, UpdateSourceTrigger=PropertyChanged}" ToolTip="例如 *.png"/>
+                                                </StackPanel>
+                                                <StackPanel Margin="0,0,12,10">
+                                                    <TextBlock Text="目录类型" Margin="0,0,0,4"/>
+                                                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="共享目录" OnContent="开" OffContent="关" IsChecked="{Binding CustomMediaShared}"/>
+                                                </StackPanel>
+                                                <StackPanel Margin="0,0,12,10">
+                                                    <TextBlock Text="操作" Margin="0,0,0,4"/>
+                                                    <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding AddMediaSourceCommand}" Content="添加来源" HorizontalAlignment="Left"/>
+                                                </StackPanel>
+                                            </UniformGrid>
                                             <ItemsControl ItemsSource="{Binding MediaSources}" Margin="0,8,0,0">
-                                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemsPanel><ItemsPanelTemplate><StackPanel/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
                                                 <ItemsControl.ItemTemplate>
                                                     <DataTemplate>
-                                                        <Border Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="10" Padding="10,7" Margin="0,0,8,8">
-                                                            <StackPanel>
+                                                        <Border Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="10" Padding="10,7" Margin="0,0,0,8">
+                                                            <Grid>
+                                                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                                                 <WrapPanel>
                                                                     <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="启用" IsChecked="{Binding Enabled, Mode=TwoWay}" Command="{Binding DataContext.UpdateMediaSourceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Margin="0,0,10,0"/>
                                                                     <TextBlock Text="{Binding SourceKindDisplay, Mode=OneWay}" FontWeight="SemiBold" VerticalAlignment="Center"/>
@@ -1578,8 +1591,8 @@
                                                                     </TextBlock>
                                                                     <ui:Button Style="{StaticResource GscWpfUiContextButton}" Command="{Binding DataContext.DeleteMediaSourceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Content="移除" Margin="10,0,0,0"/>
                                                                 </WrapPanel>
-                                                                <TextBlock Text="{Binding RootPath, Mode=OneWay}" Foreground="{DynamicResource GscSecondaryTextBrush}" MaxWidth="460" TextTrimming="CharacterEllipsis" ToolTip="{Binding RootPath, Mode=OneWay}"/>
-                                                            </StackPanel>
+                                                                <TextBlock Grid.Row="1" Text="{Binding RootPath, Mode=OneWay}" Foreground="{DynamicResource GscSecondaryTextBrush}" TextTrimming="CharacterEllipsis" ToolTip="{Binding RootPath, Mode=OneWay}" Margin="0,5,0,0"/>
+                                                            </Grid>
                                                         </Border>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>

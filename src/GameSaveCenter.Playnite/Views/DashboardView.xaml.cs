@@ -242,6 +242,13 @@ namespace GameSaveCenter.Playnite.Views
                     : new Thickness(0);
             }
 
+            if (MediaSourceFields != null)
+            {
+                // Sources are path-heavy. Let the path own the full line before it can
+                // be compressed by the pattern field or an action button in compact mode.
+                MediaSourceFields.Columns = width < 980 ? 1 : 2;
+            }
+
             RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves && height >= 700
                 ? Visibility.Visible : Visibility.Collapsed;
             if (viewModel.CurrentWorkspace != WorkspaceKind.Saves)

@@ -200,6 +200,21 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void MediaSourcesKeepPathEditingAndSafetyCommandsReachableInCompactLayouts()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var codeBehind = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("x:Name=\"MediaSourceFields\" Columns=\"2\"", dashboard);
+        Assert.Contains("Command=\"{Binding AddMediaSourceCommand}\"", dashboard);
+        Assert.Contains("Command=\"{Binding DataContext.UpdateMediaSourceCommand", dashboard);
+        Assert.Contains("Command=\"{Binding DataContext.DeleteMediaSourceCommand", dashboard);
+        Assert.Contains("<ItemsPanelTemplate><StackPanel/></ItemsPanelTemplate>", dashboard);
+        Assert.Contains("MediaSourceFields.Columns = width < 980 ? 1 : 2", codeBehind);
+    }
+
+    [Fact]
     public void SettingsStoragePolicyFieldsUseASafeCompactSingleColumnLayout()
     {
         var repositoryRoot = FindRepositoryRoot();
