@@ -314,11 +314,14 @@ namespace GameSaveCenter.Playnite.Views
 
         private void SetToolbarLabelsVisible(bool visible)
         {
-            if (TopRefreshLabel == null || TopBackupAllLabel == null || TopMediaSyncLabel == null) return;
+            if (TopRefreshLabel == null || TopBackupAllLabel == null || TopMediaSyncLabel == null || TopTrainerImportLabel == null || TopTrainerCatalogLabel == null || TopDiagnosticsLabel == null) return;
             var labelVisibility = visible ? Visibility.Visible : Visibility.Collapsed;
             TopRefreshLabel.Visibility = labelVisibility;
             TopBackupAllLabel.Visibility = labelVisibility;
             TopMediaSyncLabel.Visibility = labelVisibility;
+            TopTrainerImportLabel.Visibility = labelVisibility;
+            TopTrainerCatalogLabel.Visibility = labelVisibility;
+            TopDiagnosticsLabel.Visibility = labelVisibility;
         }
 
         private async void OnRefreshTimerTick(object sender, EventArgs e)
