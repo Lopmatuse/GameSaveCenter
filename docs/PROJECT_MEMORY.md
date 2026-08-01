@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 Settings 页面卸载与异步反馈
+
+- 设置导入/导出可在页面卸载后继续完成真实文件操作，但后续 `DataContext`、Snackbar、MessageBox 和成功提示必须通过 `CanPresentUiFeedback`（已加载且 Dispatcher 可用）边界。无法呈现时记录而不是让视觉反馈异常回流。
+- `Unloaded` 必须取消 SettingsShell 的入口动画；不能让页面脱离视觉树后继续保留动画。真实关闭/切换页回归仍需 `ENV-001`。
+
 ### 2026-08-01 语义状态色必须可动态重算
 
 - `GscInfo/Success/Warning/ErrorBrush` 与对应图标填充在 Dashboard/Settings 中均由 `ApplyAccentResources` 写入局部资源。需要随主题/高对比度变化的状态点、图标和状态文字必须使用 `DynamicResource`，不能用 `StaticResource` 捕获首次 Brush。

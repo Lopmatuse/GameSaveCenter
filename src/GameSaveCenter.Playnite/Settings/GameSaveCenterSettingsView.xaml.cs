@@ -23,6 +23,7 @@ namespace GameSaveCenter.Playnite.Settings
         {
             InitializeComponent();
             Loaded += OnLoaded;
+            Unloaded += OnUnloaded;
             IsVisibleChanged += OnIsVisibleChanged;
             SizeChanged += OnSizeChanged;
         }
@@ -54,6 +55,17 @@ namespace GameSaveCenter.Playnite.Settings
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
             => ApplyResponsiveLayout(e.NewSize.Width, e.NewSize.Height);
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            // A detached Playnite settings page must not keep an entrance animation clock alive.
+            // Import/export can still finish in the background; only its visual feedback is gated.
+            SettingsShell.BeginAnimation(UIElement.OpacityProperty, null);
+            if (SettingsShell.RenderTransform is TranslateTransform translate)
+            {
+                translate.BeginAnimation(TranslateTransform.YProperty, null);
+            }
+        }
 
         private void OnThemeModeChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -106,13 +118,13 @@ namespace GameSaveCenter.Playnite.Settings
                 var json = settings.ExportPortableJson();
                 var fileName = dialog.FileName;
                 await Task.Run(() => File.WriteAllText(fileName, json, new System.Text.UTF8Encoding(false)));
+                if (!CanPresentUiFeedback) return;
                 ShowSettingsSnackbar("设置已导出", "文件不包含 Rclone 密码，但会包含本地路径和云端目标名称。");
             }
             catch (Exception ex)
             {
                 Logger.Error(ex, "GameSaveCenter settings export failed.");
-                MessageBox.Show("无法导出设置：" + ex.Message, "GameSaveCenter",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowSettingsError("无法导出设置：" + ex.Message);
             }
             finally
             {
@@ -147,6 +159,7 @@ namespace GameSaveCenter.Playnite.Settings
                     return File.ReadAllText(fileName);
                 });
                 var report = settings.ImportPortableJson(json);
+                if (!CanPresentUiFeedback) return;
                 DataContext = null;
                 DataContext = settings;
                 ApplyAdaptiveTheme();
@@ -156,8 +169,7 @@ namespace GameSaveCenter.Playnite.Settings
             catch (Exception ex)
             {
                 Logger.Error(ex, "GameSaveCenter settings import failed.");
-                MessageBox.Show("无法导入设置：" + ex.Message, "GameSaveCenter",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowSettingsError("无法导入设置：" + ex.Message);
             }
             finally
             {
@@ -169,7 +181,7 @@ namespace GameSaveCenter.Playnite.Settings
         {
             // WPF-UI ContentDialogHost is Window-wide and cannot be placed in Playnite pages.
             // The import has already completed; MessageBox gives the report a reliable modal path.
-            MessageBox.Show(summary, "GameSaveCenter 设置迁移报告", MessageBoxButton.OK,
+            ShowSettingsMessage(summary, "GameSaveCenter 设置迁移报告",
                 hasMissingPaths ? MessageBoxImage.Warning : MessageBoxImage.Information);
             return Task.CompletedTask;
         }
@@ -190,11 +202,11 @@ namespace GameSaveCenter.Playnite.Settings
             catch (Exception ex)
             {
                 Logger.Error(ex, "GameSaveCenter WPF-UI settings snackbar failed; using MessageBox fallback.");
-                MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Information);
+                ShowSettingsMessage(message, title, MessageBoxImage.Information);
             }
         }
 
-        private static async Task ObserveUiOperationAsync(Func<Task> operation, string errorMessage)
+        private async Task ObserveUiOperationAsync(Func<Task> operation, string errorMessage)
         {
             try
             {
@@ -203,8 +215,30 @@ namespace GameSaveCenter.Playnite.Settings
             catch (Exception ex)
             {
                 Logger.Error(ex, errorMessage);
-                MessageBox.Show("设置操作失败：" + ex.Message, "GameSaveCenter",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                ShowSettingsError("设置操作失败：" + ex.Message);
+            }
+        }
+
+        private bool CanPresentUiFeedback => IsLoaded && !Dispatcher.HasShutdownStarted && !Dispatcher.HasShutdownFinished;
+
+        private void ShowSettingsError(string message)
+            => ShowSettingsMessage(message, "GameSaveCenter", MessageBoxImage.Error);
+
+        private void ShowSettingsMessage(string message, string title, MessageBoxImage image)
+        {
+            if (!CanPresentUiFeedback)
+            {
+                Logger.Debug("GameSaveCenter skipped settings feedback because the page is no longer loaded.");
+                return;
+            }
+
+            try
+            {
+                MessageBox.Show(message, title, MessageBoxButton.OK, image);
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex, "GameSaveCenter could not present settings feedback.");
             }
         }
 

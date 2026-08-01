@@ -568,6 +568,20 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("highContrast ? primaryText", palette);
     }
 
+    [Fact]
+    public void SettingsAsyncFeedbackDoesNotTargetAnUnloadedPlaynitePage()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
+
+        Assert.Contains("Unloaded += OnUnloaded;", settingsCode);
+        Assert.Contains("private bool CanPresentUiFeedback => IsLoaded", settingsCode);
+        Assert.Contains("if (!CanPresentUiFeedback) return;", settingsCode);
+        Assert.Contains("SettingsShell.BeginAnimation(UIElement.OpacityProperty, null);", settingsCode);
+        Assert.Contains("private async Task ObserveUiOperationAsync", settingsCode);
+        Assert.Contains("GameSaveCenter could not present settings feedback.", settingsCode);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]
