@@ -24,6 +24,7 @@ namespace GameSaveCenter.Playnite.Views
         private readonly UiFrameworkProbeLoader uiFrameworkProbeLoader;
         private DashboardViewModel viewModel;
         private bool hasPlayedEntrance;
+        private bool viewModelSubscribed;
         private bool visualSettingsSubscribed;
         private bool uiFeedbackSubscribed;
         private UiConfirmationEventArgs? activeConfirmation;
@@ -39,8 +40,6 @@ namespace GameSaveCenter.Playnite.Views
             uiFrameworkProbeLoader = new UiFrameworkProbeLoader(exception => Logger.Error(exception, "GameSaveCenter WPF-UI probe could not be loaded."));
 
             viewModel = new DashboardViewModel(plugin);
-            viewModel.PropertyChanged += OnViewModelPropertyChanged;
-            viewModel.AttentionCenterRequested += OnAttentionCenterRequested;
             DataContext = viewModel;
 
             refreshTimer = new DispatcherTimer(DispatcherPriority.Background);
@@ -56,6 +55,7 @@ namespace GameSaveCenter.Playnite.Views
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            SubscribeViewModel();
             if (!visualSettingsSubscribed)
             {
                 plugin.VisualSettingsChanged += OnVisualSettingsChanged;
@@ -91,6 +91,7 @@ namespace GameSaveCenter.Playnite.Views
         {
             refreshTimer.Stop();
             viewModel.StopTaskEventSubscription();
+            UnsubscribeViewModel();
             if (visualSettingsSubscribed)
             {
                 plugin.VisualSettingsChanged -= OnVisualSettingsChanged;
@@ -108,6 +109,22 @@ namespace GameSaveCenter.Playnite.Views
             responsiveLayoutPending = false;
             DialogOverlay.Visibility = Visibility.Collapsed;
             ClearToasts();
+        }
+
+        private void SubscribeViewModel()
+        {
+            if (viewModelSubscribed) return;
+            viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            viewModel.AttentionCenterRequested += OnAttentionCenterRequested;
+            viewModelSubscribed = true;
+        }
+
+        private void UnsubscribeViewModel()
+        {
+            if (!viewModelSubscribed) return;
+            viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            viewModel.AttentionCenterRequested -= OnAttentionCenterRequested;
+            viewModelSubscribed = false;
         }
 
         private void OnAttentionCenterRequested(object? sender, EventArgs e)

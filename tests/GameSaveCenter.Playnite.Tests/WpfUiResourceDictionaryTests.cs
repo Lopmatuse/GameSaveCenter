@@ -600,6 +600,21 @@ public sealed class WpfUiResourceDictionaryTests
         }
     }
 
+    [Fact]
+    public void DashboardViewModelEventsFollowTheLoadedViewLifecycle()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("private bool viewModelSubscribed;", dashboardCode);
+        Assert.Contains("SubscribeViewModel();", dashboardCode);
+        Assert.Contains("UnsubscribeViewModel();", dashboardCode);
+        Assert.Contains("private void SubscribeViewModel()", dashboardCode);
+        Assert.Contains("private void UnsubscribeViewModel()", dashboardCode);
+        Assert.Contains("viewModel.PropertyChanged -= OnViewModelPropertyChanged;", dashboardCode);
+        Assert.Contains("viewModel.AttentionCenterRequested -= OnAttentionCenterRequested;", dashboardCode);
+    }
+
     private static string FindRepositoryRoot()
     {
         foreach (var initialDirectory in new[]

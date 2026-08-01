@@ -84,6 +84,7 @@
 | GSC-096 | 语义状态色在运行时高对比度切换后仍引用初始静态资源 | 源码已修复待多主题回归 | 状态点、文本和图标填充均改为页面局部动态资源，并为高对比度计算可读回退 |
 | GSC-097 | Settings 异步导入/导出在页面卸载后仍可能尝试显示反馈或保留入场动画 | 源码已修复待 Playnite 生命周期回归 | 业务操作保持完成，视觉反馈受页面/Dispatcher 可用性保护，卸载取消动画 |
 | GSC-098 | 连续窗口缩放会对 Dashboard/Settings 重复执行大量响应式布局赋值 | 源码已修复待 DPI/缩放回归 | 同一渲染帧只应用最后一个尺寸，卸载页面不会执行延迟布局 |
+| GSC-099 | Dashboard 卸载后仍保留 ViewModel 事件订阅，可能持有页面并触发无效 UI 调度 | 源码已修复待 Playnite 生命周期回归 | ViewModel 事件改为严格 Loaded/Unloaded 对称订阅 |
 
 ## GSC-093：数值输入焦点全选的 Dispatcher 关闭竞态
 
@@ -126,6 +127,13 @@
 - **根因**：拖动或 DPI 重排会连续触发 `SizeChanged`。Dashboard 的响应式逻辑会同时重排侧栏、工具栏、列表、媒体、修改器和维护工作区；逐事件同步执行会造成不必要的 UI 线程布局压力。
 - **修复**：Dashboard 与 Settings 记录最近尺寸并以 Dispatcher `Render` 优先级合并同一帧中的重复事件；只执行一次最终布局。页面卸载后跳过延迟布局，保持已有紧凑模式、滚动通道、命令与焦点逻辑。
 - **回归**：自动化测试锁定合并标记、最近尺寸、Render 优先级和已卸载视图保护；隔离 Playnite 中在 100%–200% DPI 与 980×640–1600×900 连续拖动窗口，检查无重叠、裁切、明显掉帧或卸载回调。
+
+## GSC-099：Dashboard ViewModel 事件订阅生命周期
+
+- **状态**：源码已修复，待隔离 Playnite 生命周期回归。
+- **根因**：Dashboard 在构造时订阅 `PropertyChanged` 和关注中心请求事件，但页面卸载时未解除；后台任务更新即使被 `IsLoaded` 过滤，仍会持有视图并产生无效回调/调度。
+- **修复**：事件订阅移至 `Loaded`，并在 `Unloaded` 与任务订阅同步解除；重复 Loaded 不会重复订阅。重新打开 Dashboard 时会恢复真实状态动画与关注中心导航，未改变命令、绑定或 Worker 任务。
+- **回归**：自动化测试锁定订阅守卫、解除逻辑和两个事件处理器；隔离 Playnite 中反复打开/关闭 Dashboard、完成后台任务和打开关注中心，日志不得出现重复回调、页面泄漏或 Dispatcher 异常。
 | GSC-083 | 0.6.22 Dashboard 解析 WPF-UI Button 类型样式时崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 字典必须先合并 WpfUiBase；STA 资源解析测试通过后，在隔离 Playnite 打开 Dashboard/Settings，日志不得再出现 `Wpf.Ui.Controls.Button` 或 `XamlParseException` |
 | GSC-084 | 0.6.22 Dashboard 在修复类型样式后仍解析不到主题阴影资源而崩溃 | 源码已修复，待隔离 Playnite 回归 | Production 适配器中的 GameSaveCenter 令牌必须使用 `DynamicResource` 从父级 UserControl 作用域解析；打开 Dashboard/Settings 后日志不得再出现 `GscSoftShadowColor`、`StaticResourceHolder` 或 `XamlParseException` |
 | GSC-085 | 0.6.22 动画冻结 Transform 与 WPF-UI `ContentDialogHost` 在 Playnite 共用窗口中导致崩溃 | 源码已修复，待隔离 Playnite 回归 | 回归测试验证冻结的 Translate/Scale Transform 会先克隆为元素私有实例；全插件 XAML/C# 禁止 `ContentDialogHost` 和 `new ContentDialog(...)`；确认使用插件内浮层、设置报告使用 MessageBox，日志不得再出现相应异常 |

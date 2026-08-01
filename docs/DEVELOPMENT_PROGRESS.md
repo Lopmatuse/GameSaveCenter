@@ -3,6 +3,12 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-01 UI-030 Dashboard ViewModel 事件生命周期收口
+
+- [x] Dashboard 的 ViewModel 属性变化和关注中心事件现仅在页面 Loaded 期间订阅，Unloaded 与任务订阅停止同步解除；反复打开页面不会重复订阅。
+- [x] 真实任务、命令、状态绑定和重新打开后的动画/关注中心可达性均保留，降低关闭 Dashboard 后的页面持有和无效 Dispatcher 工作。
+- [x] 自动验证：`validate-source.py` 与 UI Skill 静态审查（0 errors）通过；Release 下 Core 13 + Worker 21 + Playnite UI 42 = 76 项测试通过，`git diff --check`、`git fsck --full`、PEXT 打包及 Worker `0.6.22.0` smoke 通过。真实开关页/后台任务回归仍由 `ENV-001` 阻塞。
+
 ## 2026-08-01 UI-029 响应式缩放布局合并
 
 - [x] Dashboard 与 Settings 的连续 `SizeChanged` 现在合并为下一渲染帧的最后一个尺寸，避免拖动窗口时重复执行多组列宽、面板可见性和紧凑模式赋值。

@@ -3,6 +3,11 @@
 更新时间：2026-08-01
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-01 Dashboard 的 ViewModel 事件所有权
+
+- Dashboard 的 `PropertyChanged` 与 `AttentionCenterRequested` 只能在页面 Loaded 时订阅，Unloaded 时必须解除；不能仅依靠事件处理器中的 `IsLoaded` 早退，因为该方式仍会持有页面并制造后台回调。
+- 重复 Loaded 必须由订阅标记防止重复挂接；重新打开页面后所有真实状态动画、关注中心导航和命令入口仍应存在。
+
 ### 2026-08-01 响应式布局的缩放合并
 
 - Dashboard/Settings 不能在每一个 `SizeChanged` 同步重新设置全部响应式属性；必须保存最近 `Size` 并用单次 `DispatcherPriority.Render` 回调合并。回调必须在 `IsLoaded` 为 false 时跳过，卸载要清除挂起标记。
