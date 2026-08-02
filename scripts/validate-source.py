@@ -1033,6 +1033,88 @@ def check_final_redesign_guards() -> None:
             if token not in source:
                 fail(f"{label} guard missing: {token}")
 
+    dashboard_root = ET.parse(dashboard_path).getroot()
+    compact_selector = next(
+        (
+            node for node in dashboard_root.iter()
+            if local_name(node.tag) == "ComboBox"
+            and any(local_name(name) == "Name" and value == "CompactGameSelector" for name, value in node.attrib.items())
+        ),
+        None,
+    )
+    if compact_selector is None:
+        fail("Final redesign compact game selector is missing")
+    else:
+        compact_name = next(
+            (
+                node for node in compact_selector.iter()
+                if local_name(node.tag) == "TextBlock" and node.attrib.get("Text") == "{Binding Name}"
+            ),
+            None,
+        )
+        if compact_name is None or "GscComboBoxLongText" not in compact_name.attrib.get("Style", ""):
+            fail("Compact game selector must reuse GscComboBoxLongText for long game names")
+
+    overview_activity_column = next(
+        (
+            node for node in dashboard_root.iter()
+            if local_name(node.tag) == "DataGridTextColumn"
+            and node.attrib.get("Header") == "活动"
+            and "TaskTypeDisplay" in node.attrib.get("Binding", "")
+        ),
+        None,
+    )
+    if overview_activity_column is None:
+        fail("Final redesign overview activity column is missing")
+    elif not any(
+        local_name(node.tag) == "Style" and "GscLongTextCell" in node.attrib.get("BasedOn", "")
+        for node in overview_activity_column.iter()
+    ):
+        fail("Final redesign overview activity column must reuse GscLongTextCell")
+
+    # Large-library controls must retain finite Grid measurement and recycling after the
+    # visual redesign.  This cross-platform gate mirrors the Windows xUnit regression test,
+    # so a future XAML-only change cannot silently disable virtualization before build time.
+    parent_map = {child: parent for parent in dashboard_root.iter() for child in parent}
+    large_controls = [
+        node for node in dashboard_root.iter()
+        if local_name(node.tag) in {"DataGrid", "ListBox"}
+    ]
+    if not large_controls:
+        fail("Final redesign contains no large-library controls to validate")
+    for control in large_controls:
+        ancestors: list[str] = []
+        parent = parent_map.get(control)
+        while parent is not None:
+            ancestors.append(local_name(parent.tag))
+            parent = parent_map.get(parent)
+        if "StackPanel" in ancestors or "ScrollViewer" in ancestors or "Grid" not in ancestors:
+            fail(
+                "Large-library control lost finite Grid measurement: "
+                f"{local_name(control.tag)} {control.attrib.get('ItemsSource', control.attrib.get('Name', ''))}"
+            )
+        if local_name(control.tag) == "DataGrid":
+            if control.attrib.get("Style") != "{StaticResource GscDataGrid}":
+                fail("Final redesign DataGrid must reuse GscDataGrid virtualization style")
+            if any(local_name(node.tag) == "BlurEffect" for node in control.iter()):
+                fail("Final redesign must not place BlurEffect inside a DataGrid")
+        else:
+            for attribute, expected in (
+                ("VirtualizingPanel.IsVirtualizing", "True"),
+                ("VirtualizingPanel.VirtualizationMode", "Recycling"),
+                ("ScrollViewer.CanContentScroll", "True"),
+            ):
+                if control.attrib.get(attribute) != expected:
+                    fail(f"Final redesign ListBox virtualization guard missing: {attribute}={expected}")
+
+    for effect in [node for node in dashboard_root.iter() if local_name(node.tag).endswith("Effect")]:
+        parent = parent_map.get(effect)
+        while parent is not None:
+            if local_name(parent.tag) == "DataTemplate":
+                fail("Final redesign must not allocate effects per virtualized item template")
+                break
+            parent = parent_map.get(parent)
+
     for unsafe in ("WebView", "Electron", "Avalonia", "WinUI"):
         if unsafe in redesign or unsafe in dashboard or unsafe in settings:
             fail(f"Final WPF redesign must not introduce a browser/alternate UI shell: {unsafe}")

@@ -480,22 +480,29 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("BasedOn=\"{StaticResource GscLeftCellText}\"", dashboard);
         Assert.Contains("ToolTip\" Value=\"{Binding Text, RelativeSource={RelativeSource Self}}\"", dashboard);
 
+        var xaml = XDocument.Parse(dashboard);
         foreach (var column in new[]
         {
-            "Header=\"近期活动（最多 8 条）\"",
-            "Header=\"目标游戏\"",
-            "Header=\"其他设备\"",
-            "Header=\"人工决策\"",
-            "Header=\"标题\""
+            new { Header = "活动", Binding = "TaskTypeDisplay" },
+            new { Header = "目标游戏", Binding = "GameName" },
+            new { Header = "其他设备", Binding = "RemoteDevice" },
+            new { Header = "人工决策", Binding = "DecisionDisplay" },
+            new { Header = "标题", Binding = "Title" }
         })
         {
-            var offset = dashboard.IndexOf(column, StringComparison.Ordinal);
-            Assert.True(offset >= 0, "缺少应支持长文本的表格列：" + column);
-            Assert.Contains("GscLongTextCell", dashboard.Substring(offset, Math.Min(420, dashboard.Length - offset)));
+            var columnElement = xaml.Descendants().SingleOrDefault(element =>
+                element.Name.LocalName == "DataGridTextColumn"
+                && element.Attribute("Header")?.Value == column.Header
+                && (element.Attribute("Binding")?.Value.IndexOf(column.Binding, StringComparison.Ordinal) ?? -1) >= 0);
+            Assert.NotNull(columnElement);
+            Assert.True(
+                columnElement!.Descendants().Any(element =>
+                    element.Name.LocalName == "Style"
+                    && (element.Attribute("BasedOn")?.Value.IndexOf("GscLongTextCell", StringComparison.Ordinal) ?? -1) >= 0),
+                $"长文本表格列未复用 GscLongTextCell：Header={column.Header}, Binding={column.Binding}");
         }
 
         Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", dashboard);
-        var xaml = XDocument.Parse(dashboard);
         Assert.All(
             xaml.Descendants().Where(element => element.Name.LocalName == "DataGrid"),
             grid => Assert.DoesNotContain(grid.Descendants(), element => element.Name.LocalName == "BlurEffect"));
@@ -511,19 +518,28 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("<Setter Property=\"TextTrimming\" Value=\"CharacterEllipsis\"/>", dashboard);
         Assert.Contains("<Setter Property=\"ToolTip\" Value=\"{Binding Text, RelativeSource={RelativeSource Self}}\"/>", dashboard);
 
-        foreach (var template in new[]
+        var xaml = XDocument.Parse(dashboard);
+        var xamlName = XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml");
+        var comboBoxes = xaml.Descendants().Where(element => element.Name.LocalName == "ComboBox").ToList();
+        var targets = new[]
         {
-            "x:Name=\"CompactGameSelector\"",
-            "ItemsSource=\"{Binding ImportEntryCandidates}\"",
-            "ItemsSource=\"{Binding SelectedGameTool.Versions}\"",
-            "SelectedItem=\"{Binding InboxTargetGame}\"",
-            "SelectedItem=\"{Binding MediaTargetGame}\"",
-            "SelectedItem=\"{Binding ProcessMappingTargetGame}\""
-        })
+            new { Description = "CompactGameSelector", Match = (Func<XElement, bool>)(element => element.Attribute(xamlName)?.Value == "CompactGameSelector") },
+            new { Description = "ImportEntryCandidates", Match = (Func<XElement, bool>)(element => element.Attribute("ItemsSource")?.Value == "{Binding ImportEntryCandidates}") },
+            new { Description = "SelectedGameTool.Versions", Match = (Func<XElement, bool>)(element => element.Attribute("ItemsSource")?.Value == "{Binding SelectedGameTool.Versions}") },
+            new { Description = "InboxTargetGame", Match = (Func<XElement, bool>)(element => element.Attribute("SelectedItem")?.Value == "{Binding InboxTargetGame}") },
+            new { Description = "MediaTargetGame", Match = (Func<XElement, bool>)(element => element.Attribute("SelectedItem")?.Value == "{Binding MediaTargetGame}") },
+            new { Description = "ProcessMappingTargetGame", Match = (Func<XElement, bool>)(element => element.Attribute("SelectedItem")?.Value == "{Binding ProcessMappingTargetGame}") }
+        };
+
+        foreach (var target in targets)
         {
-            var offset = dashboard.IndexOf(template, StringComparison.Ordinal);
-            Assert.True(offset >= 0, "缺少受限宽度下拉选择：" + template);
-            Assert.Contains("GscComboBoxLongText", dashboard.Substring(offset, Math.Min(540, dashboard.Length - offset)));
+            var comboBox = comboBoxes.SingleOrDefault(target.Match);
+            Assert.NotNull(comboBox);
+            Assert.True(
+                comboBox!.Descendants().Any(element =>
+                    element.Name.LocalName == "TextBlock"
+                    && (element.Attribute("Style")?.Value.IndexOf("GscComboBoxLongText", StringComparison.Ordinal) ?? -1) >= 0),
+                "受限宽度下拉选择未复用 GscComboBoxLongText：" + target.Description);
         }
 
         Assert.DoesNotContain("DisplayMemberPath=\"Display\"", dashboard);
