@@ -114,6 +114,7 @@ public sealed class WpfUiResourceDictionaryTests
 
         var paletteSource = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Infrastructure", "AdaptiveThemePalette.cs"));
         var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var redesign = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "Redesign.xaml"));
         var tokens = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "DesignTokens.xaml"));
         Assert.Contains("resources[\"GscAmbientAccentBrush\"]", paletteSource);
         Assert.Contains("resources[\"GscAccentShadowColor\"]", paletteSource);
@@ -131,7 +132,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("{DynamicResource GscSelectionTextBrush}", tokens);
         Assert.Contains("{DynamicResource GscSurfaceEffect}", dashboard);
         Assert.Contains("{DynamicResource GscPrimaryButtonEffect}", dashboard);
-        Assert.Contains("{DynamicResource GscSidebarEffect}", dashboard);
+        Assert.Contains("{DynamicResource GscSidebarEffect}", redesign);
         Assert.Contains("{DynamicResource GscDialogEffect}", dashboard);
         Assert.Contains("{DynamicResource GscPopupEffect}", tokens);
         Assert.Contains("{DynamicResource GscSliderThumbEffect}", tokens);
@@ -139,8 +140,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("PopupAnimation=\"{DynamicResource GscPopupAnimation}\"", tokens);
         Assert.Contains("x:Key=\"GscElevatedSurface\"", tokens);
         Assert.Contains("x:Key=\"GscElevatedSurface\"", dashboard);
-        Assert.Contains("x:Name=\"GameBrowserPanel\" Style=\"{StaticResource GscElevatedSurface}\"", dashboard);
-        Assert.Contains("x:Name=\"GameDetailCard\" Grid.Column=\"2\" Style=\"{StaticResource GscElevatedSurface}\"", dashboard);
+        Assert.Contains("x:Name=\"GameBrowserPanel\" Grid.Row=\"0\" Grid.RowSpan=\"2\" Style=\"{StaticResource GscRedesignSectionCard}\"", dashboard);
+        Assert.Contains("x:Name=\"GameDetailCard\" Grid.Row=\"0\" Grid.RowSpan=\"2\" Grid.Column=\"2\" Style=\"{StaticResource GscRedesignHeroCard}\"", dashboard);
     }
 
     [Fact]
@@ -355,7 +356,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Name=\"ProcessMappingEditor\"", dashboard);
         Assert.Contains("MinWidth=\"220\"", dashboard);
         Assert.Contains("Command=\"{Binding SaveProcessMappingCommand}\"", dashboard);
-        Assert.Contains("DiagnosticHealthPanel.Columns = width >= 1280 ? 3 : width >= 980 ? 2 : 1", dashboardCode);
+        Assert.Contains("DiagnosticHealthPanel.Columns = width >= 1320 ? 4 : width >= 980 ? 2 : 1", dashboardCode);
     }
 
     [Fact]
@@ -616,7 +617,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Path=\"FullBackupLimit\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("Path=\"DifferentialBackupLimit\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("Path=\"CompressionLevel\" UpdateSourceTrigger=\"LostFocus\"", settings);
-        Assert.Contains("StoragePolicyFields.Columns = compact ? 1 : 2", settingsCode);
+        Assert.Contains("StoragePolicyFields.Columns = twoColumns ? 2 : 1", settingsCode);
     }
 
     [Fact]
@@ -633,10 +634,10 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Path=\"DefaultBackupIntervalMinutes\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("Path=\"ProcessPollingSeconds\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("Path=\"DashboardRefreshSeconds\" UpdateSourceTrigger=\"LostFocus\"", settings);
-        Assert.Contains("CoreToolFields.Columns = compact ? 1 : 2", settingsCode);
-        Assert.Contains("AppearanceFields.Columns = compact ? 1 : 2", settingsCode);
-        Assert.Contains("var contentWidth = width - (compact ? 36 : 60);", settingsCode);
-        Assert.Contains("AutomationIntervalFields.Columns = compact ? 1 : contentWidth < 960 ? 2 : 3", settingsCode);
+        Assert.Contains("CoreToolFields.Columns = twoColumns ? 2 : 1", settingsCode);
+        Assert.Contains("AppearanceFields.Columns = twoColumns ? 2 : 1", settingsCode);
+        Assert.Contains("var contentWidth = Math.Max(320, width - horizontalMargin - trailingMargin);", settingsCode);
+        Assert.Contains("AutomationIntervalFields.Columns = expanded && formWidth >= 930 ? 3 : formWidth >= 650 ? 2 : 1", settingsCode);
     }
 
     [Fact]
@@ -804,6 +805,105 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("return false;", pluginCode);
         Assert.Contains("if (!TryInvokeUi(() => handler(this, args), \"notification request\")) return false;", pluginCode);
         Assert.Contains("skipped {operation} because the Playnite UI dispatcher is unavailable", pluginCode);
+    }
+
+
+    [Fact]
+    public void FinalRedesignKeepsNavigationAndStatusCardsInsideCompactSidebarBounds()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("x:Name=\"SidebarWorkerCompactLabel\"", dashboard);
+        Assert.Contains("x:Name=\"SidebarLudusaviCompactLabel\"", dashboard);
+        Assert.Contains("x:Name=\"SidebarWorkerStatusCard\"", dashboard);
+        Assert.Contains("x:Name=\"SidebarLudusaviStatusCard\"", dashboard);
+        Assert.Contains("item.Width = visible ? double.NaN : 48", dashboardCode);
+        Assert.Contains("item.Height = visible ? double.NaN : 48", dashboardCode);
+        Assert.Contains("card.Width = expanded ? double.NaN : 48", dashboardCode);
+        Assert.Contains("card.Height = expanded ? double.NaN : 50", dashboardCode);
+        Assert.Contains("card.HorizontalAlignment = expanded ? HorizontalAlignment.Stretch : HorizontalAlignment.Center", dashboardCode);
+        Assert.Contains("SidebarStatusPanel.HorizontalAlignment = visible ? HorizontalAlignment.Stretch : HorizontalAlignment.Center", dashboardCode);
+        Assert.Contains("ContentPresenter HorizontalAlignment=\"{TemplateBinding HorizontalContentAlignment}\"", dashboard);
+        Assert.Contains("x:Name=\"SidebarChrome\" Grid.Column=\"0\" Style=\"{StaticResource GscRedesignSidebarSurface}\" ClipToBounds=\"True\"", dashboard);
+    }
+
+    [Fact]
+    public void FinalRedesignUsesExplicitHeaderRowsAndSharedGameContextAtEveryBreakpoint()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("x:Name=\"HeaderCompactActionsRow\"", dashboard);
+        Assert.Contains("x:Name=\"TopActionsScroller\"", dashboard);
+        Assert.Contains("x:Name=\"GameSwitcherHost\"", dashboard);
+        Assert.Contains("x:Name=\"CompactGameSelector\"", dashboard);
+        Assert.Contains("x:Name=\"ToggleGameBrowserButton\"", dashboard);
+        Assert.Contains("width >= 1280 ? LayoutMode.Expanded", dashboardCode);
+        Assert.Contains("width >= 980 ? LayoutMode.Standard", dashboardCode);
+        Assert.Contains("width >= 880 ? LayoutMode.Compact", dashboardCode);
+        Assert.Contains("Grid.SetRow(TopActionsScroller, 2)", dashboardCode);
+        Assert.Contains("Grid.SetColumnSpan(TopActionsScroller, 2)", dashboardCode);
+        Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace ? Visibility.Visible : Visibility.Collapsed", dashboardCode);
+        Assert.Contains("GameBrowserPanel.MaxHeight = showCompactGameBrowser ? Math.Max(240, Math.Min(360, height * 0.42)) : 0", dashboardCode);
+    }
+
+    [Fact]
+    public void SettingsRedesignMovesCategoriesWithoutRemovingExistingFieldsOrSaveSemantics()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var settings = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml"));
+        var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
+
+        Assert.Contains("x:Name=\"SettingsSectionTabs\"", settings);
+        Assert.Contains("Style=\"{StaticResource GscRedesignSettingsTabControl}\"", settings);
+        Assert.Contains("由 Playnite 的保存按钮提交", settings);
+        Assert.Contains("Text=\"{Binding WorkerExecutable, UpdateSourceTrigger=PropertyChanged}\"", settings);
+        Assert.Contains("SelectedValue=\"{Binding BackupFormat}\"", settings);
+        Assert.Contains("IsChecked=\"{Binding EnableUiAnimations}\"", settings);
+        Assert.Contains("IsChecked=\"{Binding EnableCloudUpload}\"", settings);
+        Assert.Contains("Click=\"OnExportSettingsClick\"", settings);
+        Assert.Contains("Click=\"OnImportSettingsClick\"", settings);
+        Assert.Contains("SettingsSectionTabs.TabStripPlacement = compact ? Dock.Top : Dock.Left", settingsCode);
+        Assert.Contains("tab.MinWidth = compact ? (narrow ? 132 : 158) : 218", settingsCode);
+    }
+
+    [Fact]
+    public void FinalRedesignResourceDictionaryParsesInsideThePluginScope()
+    {
+        Exception? exception = null;
+
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                var resources = (ResourceDictionary)XamlReader.Parse(@"
+<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+                    xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source=""/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml""/>
+        <ResourceDictionary Source=""/GameSaveCenter.Playnite;component/Themes/WpfUiProduction.xaml""/>
+        <ResourceDictionary Source=""/GameSaveCenter.Playnite;component/Themes/Redesign.xaml""/>
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>");
+
+                Assert.IsType<Style>(resources["GscRedesignSectionCard"]);
+                Assert.IsType<Style>(resources["GscRedesignSettingsTabControl"]);
+                Assert.IsType<Style>(resources["GscRedesignSettingsTabItem"]);
+            }
+            catch (Exception caught)
+            {
+                exception = caught;
+            }
+        });
+
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+
+        Assert.Null(exception);
     }
 
     private static string FindRepositoryRoot()

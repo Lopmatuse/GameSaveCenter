@@ -31,6 +31,7 @@ namespace GameSaveCenter.Playnite.Views
         private bool dialogShowsResult;
         private bool confirmationOpen;
         private bool responsiveLayoutPending;
+        private bool compactGameBrowserOpen;
         private Size pendingResponsiveSize;
 
         public DashboardView(GameSaveCenterPlugin plugin)
@@ -199,43 +200,193 @@ namespace GameSaveCenter.Playnite.Views
                 : width >= 880 ? LayoutMode.Compact
                 : LayoutMode.Narrow;
             viewModel.LayoutMode = mode;
-            var iconSidebar = mode != LayoutMode.Expanded;
+
+            var iconSidebar = mode == LayoutMode.Compact || mode == LayoutMode.Narrow;
             var gameScopedWorkspace = viewModel.CurrentWorkspace == WorkspaceKind.Saves
                 || viewModel.CurrentWorkspace == WorkspaceKind.Trainers
                 || viewModel.CurrentWorkspace == WorkspaceKind.Media;
-            var showGameBrowser = gameScopedWorkspace && (mode == LayoutMode.Expanded || mode == LayoutMode.Standard);
+            var showPersistentGameBrowser = gameScopedWorkspace && mode == LayoutMode.Expanded;
+            var showCompactGameBrowser = gameScopedWorkspace && !showPersistentGameBrowser && compactGameBrowserOpen;
 
-            SidebarColumn.Width = new GridLength(iconSidebar ? (mode == LayoutMode.Narrow ? 68 : 72) : 220);
-            SidebarGutterColumn.Width = new GridLength(iconSidebar ? 10 : 18);
-            TopChromeSafetyColumn.Width = new GridLength(width < 980 ? 76 : 96);
+            SidebarColumn.Width = new GridLength(mode == LayoutMode.Expanded ? 228
+                : mode == LayoutMode.Standard ? 204
+                : mode == LayoutMode.Compact ? 78
+                : 72);
+            SidebarGutterColumn.Width = new GridLength(iconSidebar ? 10 : 16);
+            TopChromeSafetyColumn.Width = new GridLength(0);
             ToastHost.Margin = new Thickness(0, height < 760 ? 66 : 78, width < 980 ? 12 : 22, 0);
             SetSidebarLabelsVisible(!iconSidebar);
             SetToolbarLabelsVisible(mode == LayoutMode.Expanded);
 
-            GameBrowserPanel.Visibility = showGameBrowser ? Visibility.Visible : Visibility.Collapsed;
-            WorkspaceGutterColumn.Width = new GridLength(showGameBrowser ? 14 : 0);
-            GameListColumn.Width = showGameBrowser
-                ? new GridLength(mode == LayoutMode.Expanded ? 330 : 280)
-                : new GridLength(0);
-            GameDetailColumn.Width = new GridLength(1, GridUnitType.Star);
-            CompactGameSelector.Visibility = gameScopedWorkspace && !showGameBrowser ? Visibility.Visible : Visibility.Collapsed;
+            // Header layout is explicit at every breakpoint.  It never relies on wrapping the
+            // title and action bar into the same measure slot, which prevents overlap at 125–200% DPI.
+            Grid.SetRow(HeaderTitlePanel, 0);
+            Grid.SetColumn(HeaderTitlePanel, 0);
+            Grid.SetColumnSpan(HeaderTitlePanel, mode == LayoutMode.Expanded ? 1 : 2);
+            GameSwitcherHost.Visibility = gameScopedWorkspace ? Visibility.Visible : Visibility.Collapsed;
+            Grid.SetRow(GameSwitcherHost, 1);
+            Grid.SetColumn(GameSwitcherHost, 0);
+            Grid.SetColumnSpan(GameSwitcherHost, mode == LayoutMode.Standard ? 1 : 2);
+            GameSwitcherHost.MaxWidth = mode == LayoutMode.Narrow ? double.PositiveInfinity : 640;
+            GameSwitcherHost.HorizontalAlignment = mode == LayoutMode.Narrow ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
 
-            PageSubtitleText.Visibility = height >= 760 ? Visibility.Visible : Visibility.Collapsed;
-            var showMetrics = viewModel.CurrentWorkspace == WorkspaceKind.Overview && height >= 760 && width >= 1180;
-            MetricsPanel.Visibility = showMetrics ? Visibility.Visible : Visibility.Collapsed;
-            MetricsPanel.Columns = width >= 1450 ? 6 : 3;
-            MetricsPanel.Margin = showMetrics ? new Thickness(0, 0, 0, 18) : new Thickness(0);
-
-            // Maintenance remains readable inside the narrower Playnite content region: health
-            // cards reflow instead of compressing their paths and version information to dots.
-            if (DiagnosticHealthPanel != null)
+            if (mode == LayoutMode.Expanded)
             {
-                DiagnosticHealthPanel.Columns = width >= 1280 ? 3 : width >= 980 ? 2 : 1;
+                HeaderCompactActionsRow.Height = new GridLength(0);
+                Grid.SetRow(TopActionsScroller, 0);
+                Grid.SetColumn(TopActionsScroller, 1);
+                Grid.SetColumnSpan(TopActionsScroller, 1);
+                TopActionsScroller.HorizontalAlignment = HorizontalAlignment.Right;
+                TopActionsScroller.Margin = new Thickness(14, 0, 0, 0);
+            }
+            else if (mode == LayoutMode.Standard)
+            {
+                HeaderCompactActionsRow.Height = new GridLength(0);
+                Grid.SetRow(TopActionsScroller, 1);
+                Grid.SetColumn(TopActionsScroller, 1);
+                Grid.SetColumnSpan(TopActionsScroller, 1);
+                TopActionsScroller.HorizontalAlignment = HorizontalAlignment.Right;
+                TopActionsScroller.Margin = new Thickness(14, 12, 0, 0);
+            }
+            else
+            {
+                HeaderCompactActionsRow.Height = GridLength.Auto;
+                Grid.SetRow(TopActionsScroller, 2);
+                Grid.SetColumn(TopActionsScroller, 0);
+                Grid.SetColumnSpan(TopActionsScroller, 2);
+                TopActionsScroller.HorizontalAlignment = HorizontalAlignment.Stretch;
+                TopActionsScroller.Margin = new Thickness(0, 10, 0, 0);
             }
 
-            // The media table remains virtualized; only its selected-item inspector changes
-            // geometry. A one-column inspector leaves enough room for the actual note field,
-            // reassignment selector and batch actions in medium and compact host widths.
+            ToggleGameBrowserButton.Visibility = gameScopedWorkspace && !showPersistentGameBrowser
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            // The complete game search/filter/sort surface is persistent only when there is
+            // genuinely enough width.  At smaller sizes it becomes an explicit, finite-height
+            // workspace row instead of silently disappearing or squeezing the active page.
+            GameBrowserPanel.Visibility = showPersistentGameBrowser || showCompactGameBrowser
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            if (showPersistentGameBrowser)
+            {
+                WorkspaceCompactBrowserRow.Height = new GridLength(0);
+                WorkspaceDetailRow.Height = new GridLength(1, GridUnitType.Star);
+                Grid.SetRow(GameBrowserPanel, 0);
+                Grid.SetRowSpan(GameBrowserPanel, 2);
+                Grid.SetColumn(GameBrowserPanel, 0);
+                Grid.SetColumnSpan(GameBrowserPanel, 1);
+                GameBrowserPanel.MaxHeight = double.PositiveInfinity;
+                GameBrowserPanel.Margin = new Thickness(0);
+                WorkspaceGutterColumn.Width = new GridLength(14);
+                GameListColumn.Width = new GridLength(310);
+                GameDetailColumn.Width = new GridLength(1, GridUnitType.Star);
+                Grid.SetRow(GameDetailCard, 0);
+                Grid.SetRowSpan(GameDetailCard, 2);
+                Grid.SetColumn(GameDetailCard, 2);
+                Grid.SetColumnSpan(GameDetailCard, 1);
+                GameDetailCard.Margin = new Thickness(0);
+            }
+            else
+            {
+                WorkspaceCompactBrowserRow.Height = showCompactGameBrowser ? GridLength.Auto : new GridLength(0);
+                WorkspaceDetailRow.Height = new GridLength(1, GridUnitType.Star);
+                WorkspaceGutterColumn.Width = new GridLength(0);
+                GameListColumn.Width = new GridLength(1, GridUnitType.Star);
+                GameDetailColumn.Width = new GridLength(0);
+                Grid.SetRow(GameBrowserPanel, 0);
+                Grid.SetRowSpan(GameBrowserPanel, 1);
+                Grid.SetColumn(GameBrowserPanel, 0);
+                Grid.SetColumnSpan(GameBrowserPanel, 3);
+                GameBrowserPanel.MaxHeight = showCompactGameBrowser ? Math.Max(240, Math.Min(360, height * 0.42)) : 0;
+                GameBrowserPanel.Margin = showCompactGameBrowser ? new Thickness(0, 0, 0, 12) : new Thickness(0);
+                Grid.SetRow(GameDetailCard, 1);
+                Grid.SetRowSpan(GameDetailCard, 1);
+                Grid.SetColumn(GameDetailCard, 0);
+                Grid.SetColumnSpan(GameDetailCard, 3);
+                GameDetailCard.Margin = new Thickness(0);
+            }
+
+            PageSubtitleText.Visibility = height >= 760 ? Visibility.Visible : Visibility.Collapsed;
+            var showMetrics = viewModel.CurrentWorkspace == WorkspaceKind.Overview && height >= 760 && width >= 980;
+            MetricsPanel.Visibility = showMetrics ? Visibility.Visible : Visibility.Collapsed;
+            MetricsPanel.Columns = width >= 1480 ? 6 : width >= 1120 ? 3 : 2;
+            MetricsPanel.Margin = showMetrics ? new Thickness(0, 0, 0, 16) : new Thickness(0);
+
+            if (OverviewCompactSecondaryRow != null && OverviewPrimaryPanel != null
+                && OverviewSecondaryPanel != null && OverviewPrimaryColumn != null
+                && OverviewGutterColumn != null && OverviewSecondaryColumn != null)
+            {
+                var stackOverview = width < 1180;
+                OverviewCompactSecondaryRow.Height = stackOverview ? GridLength.Auto : new GridLength(0);
+                OverviewPrimaryColumn.Width = new GridLength(1.2, GridUnitType.Star);
+                OverviewGutterColumn.Width = new GridLength(stackOverview ? 0 : 14);
+                OverviewSecondaryColumn.Width = stackOverview ? new GridLength(0) : new GridLength(0.8, GridUnitType.Star);
+                Grid.SetRow(OverviewPrimaryPanel, 0);
+                Grid.SetColumn(OverviewPrimaryPanel, 0);
+                Grid.SetColumnSpan(OverviewPrimaryPanel, stackOverview ? 3 : 1);
+                Grid.SetRow(OverviewSecondaryPanel, stackOverview ? 1 : 0);
+                Grid.SetColumn(OverviewSecondaryPanel, stackOverview ? 0 : 2);
+                Grid.SetColumnSpan(OverviewSecondaryPanel, stackOverview ? 3 : 1);
+                OverviewSecondaryPanel.Margin = stackOverview
+                    ? new Thickness(0, 14, 0, 0)
+                    : new Thickness(0);
+            }
+
+            if (SelectedGameMetricPanel != null)
+            {
+                SelectedGameMetricPanel.Visibility = width >= 1180 ? Visibility.Visible : Visibility.Collapsed;
+                GameHeaderActions.Margin = width >= 1180
+                    ? new Thickness(62, 12, 0, 0)
+                    : new Thickness(0, 12, 0, 0);
+            }
+
+            if (TrainerSummaryPanel != null)
+            {
+                TrainerSummaryPanel.Columns = width >= 1120 ? 3 : 1;
+                TrainerSummaryPanel.Visibility = height >= 720 ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            if (MediaSummaryPanel != null)
+            {
+                MediaSummaryPanel.Columns = width >= 1180 ? 4 : 2;
+                MediaSummaryPanel.Visibility = height >= 720 ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            if (TaskSummaryPanel != null)
+            {
+                TaskSummaryPanel.Columns = width >= 1120 ? 3 : 1;
+                TaskSummaryPanel.Visibility = height >= 720 ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            if (DiagnosticHealthPanel != null)
+            {
+                DiagnosticHealthPanel.Columns = width >= 1320 ? 4 : width >= 980 ? 2 : 1;
+            }
+
+            if (SaveHistoryCompactInspectorRow != null && SaveHistoryListPanel != null
+                && SaveHistoryInspectorPanel != null && SaveHistoryListColumn != null
+                && SaveHistoryGutterColumn != null && SaveHistoryInspectorColumn != null)
+            {
+                var stackSaveHistory = width < 1180;
+                SaveHistoryCompactInspectorRow.Height = stackSaveHistory ? GridLength.Auto : new GridLength(0);
+                SaveHistoryListColumn.Width = new GridLength(1.25, GridUnitType.Star);
+                SaveHistoryGutterColumn.Width = new GridLength(stackSaveHistory ? 0 : 14);
+                SaveHistoryInspectorColumn.Width = stackSaveHistory ? new GridLength(0) : new GridLength(0.75, GridUnitType.Star);
+                Grid.SetRow(SaveHistoryListPanel, 0);
+                Grid.SetColumn(SaveHistoryListPanel, 0);
+                Grid.SetColumnSpan(SaveHistoryListPanel, stackSaveHistory ? 3 : 1);
+                Grid.SetRow(SaveHistoryInspectorPanel, stackSaveHistory ? 1 : 0);
+                Grid.SetColumn(SaveHistoryInspectorPanel, stackSaveHistory ? 0 : 2);
+                Grid.SetColumnSpan(SaveHistoryInspectorPanel, stackSaveHistory ? 3 : 1);
+                SaveHistoryInspectorPanel.Margin = stackSaveHistory
+                    ? new Thickness(0, 14, 0, 0)
+                    : new Thickness(0);
+                SaveHistoryInspectorPanel.MaxHeight = stackSaveHistory
+                    ? Math.Max(360, Math.Min(620, height * 0.7))
+                    : double.PositiveInfinity;
+            }
+
             if (MediaInspectorPanel != null && MediaInspectorCompactRow != null
                 && MediaPreviewPanel != null && MediaMetadataPanel != null)
             {
@@ -250,9 +401,6 @@ namespace GameSaveCenter.Playnite.Views
                 Grid.SetColumnSpan(MediaMetadataPanel, stackMediaInspector ? 2 : 1);
             }
 
-            // Both trainer workflows retain virtualized result lists, but their two-pane
-            // editors become a reading-order stack before the narrow Playnite content area
-            // can compress a search result, a launch-delay field, or a recovery action.
             if (TrainerToolsCompactRow != null && TrainerToolsListPanel != null
                 && TrainerToolsInspectorPanel != null && TrainerToolsListColumn != null
                 && TrainerToolsGutterColumn != null && TrainerToolsInspectorColumn != null)
@@ -294,8 +442,6 @@ namespace GameSaveCenter.Playnite.Views
 
             if (MediaSourceFields != null)
             {
-                // Sources are path-heavy. Let the path own the full line before it can
-                // be compressed by the pattern field or an action button in compact mode.
                 MediaSourceFields.Columns = width < 980 ? 1 : 2;
             }
 
@@ -304,7 +450,7 @@ namespace GameSaveCenter.Playnite.Views
                 DeviceDecisionFields.Columns = width < 980 ? 1 : width < 1280 ? 2 : 3;
             }
 
-            RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves && height >= 700
+            RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves && height >= 680
                 ? Visibility.Visible : Visibility.Collapsed;
             if (viewModel.CurrentWorkspace != WorkspaceKind.Saves)
             {
@@ -314,7 +460,10 @@ namespace GameSaveCenter.Playnite.Views
 
         private void SetToolbarLabelsVisible(bool visible)
         {
-            if (TopRefreshLabel == null || TopBackupAllLabel == null || TopMediaSyncLabel == null || TopTrainerImportLabel == null || TopTrainerCatalogLabel == null || TopDiagnosticsLabel == null) return;
+            if (TopRefreshLabel == null || TopBackupAllLabel == null || TopMediaSyncLabel == null
+                || TopTrainerImportLabel == null || TopTrainerCatalogLabel == null
+                || TopDiagnosticsLabel == null || ToggleGameBrowserLabel == null) return;
+
             var labelVisibility = visible ? Visibility.Visible : Visibility.Collapsed;
             TopRefreshLabel.Visibility = labelVisibility;
             TopBackupAllLabel.Visibility = labelVisibility;
@@ -322,6 +471,19 @@ namespace GameSaveCenter.Playnite.Views
             TopTrainerImportLabel.Visibility = labelVisibility;
             TopTrainerCatalogLabel.Visibility = labelVisibility;
             TopDiagnosticsLabel.Visibility = labelVisibility;
+            ToggleGameBrowserLabel.Visibility = labelVisibility;
+
+            var width = visible ? double.NaN : 44;
+            foreach (var button in new[]
+            {
+                TopRefreshButton, TopBackupAllButton, TopMediaSyncButton,
+                TopTrainerImportButton, TopTrainerCatalogButton, TopDiagnosticsButton,
+                ToggleGameBrowserButton
+            })
+            {
+                button.Width = width;
+                button.Padding = visible ? new Thickness(13, 7, 13, 7) : new Thickness(0);
+            }
         }
 
         private async void OnRefreshTimerTick(object sender, EventArgs e)
@@ -404,6 +566,7 @@ namespace GameSaveCenter.Playnite.Views
                 default:
                     PageTitleText.Text = "首页"; PageSubtitleText.Text = "存档、修改器、媒体与任务的一体化工作台"; break;
             }
+            compactGameBrowserOpen = false;
             UpdateWorkspacePresentation();
             ApplyResponsiveLayout(ActualWidth, ActualHeight);
             viewModel.RequestWorkspaceLoad();
@@ -478,19 +641,66 @@ namespace GameSaveCenter.Playnite.Views
             NavMaintenanceLabel.Visibility = visibility;
             SidebarWorkerStatusText.Visibility = visibility;
             SidebarLudusaviStatusText.Visibility = visibility;
-            SidebarStatusPanel.HorizontalAlignment = visible ? HorizontalAlignment.Stretch : HorizontalAlignment.Center;
-            SidebarChrome.Padding = visible ? new Thickness(15) : new Thickness(10);
-            SidebarBrandContainer.HorizontalAlignment = visible ? HorizontalAlignment.Stretch : HorizontalAlignment.Center;
-            SidebarBrandIcon.Width = visible ? 42 : 44;
-            SidebarBrandIcon.Height = visible ? 42 : 44;
+            SidebarWorkerCompactLabel.Visibility = visible ? Visibility.Collapsed : Visibility.Visible;
+            SidebarLudusaviCompactLabel.Visibility = visible ? Visibility.Collapsed : Visibility.Visible;
 
-            var navigationPadding = visible ? new Thickness(13, 10, 13, 10) : new Thickness(7, 10, 7, 10);
-            NavOverview.Padding = navigationPadding;
-            NavSaves.Padding = navigationPadding;
-            NavTrainers.Padding = navigationPadding;
-            NavMedia.Padding = navigationPadding;
-            NavTasks.Padding = navigationPadding;
-            NavMaintenance.Padding = navigationPadding;
+            SidebarStatusPanel.HorizontalAlignment = visible ? HorizontalAlignment.Stretch : HorizontalAlignment.Center;
+            SidebarChrome.Padding = visible ? new Thickness(16) : new Thickness(11);
+            SidebarBrandContainer.HorizontalAlignment = visible ? HorizontalAlignment.Stretch : HorizontalAlignment.Center;
+            SidebarBrandIcon.Width = visible ? 44 : 46;
+            SidebarBrandIcon.Height = visible ? 44 : 46;
+
+            var navigationPadding = visible ? new Thickness(13, 10, 13, 10) : new Thickness(0);
+            foreach (var item in new[] { NavOverview, NavSaves, NavTrainers, NavMedia, NavTasks, NavMaintenance })
+            {
+                item.Padding = navigationPadding;
+                item.HorizontalAlignment = visible ? HorizontalAlignment.Stretch : HorizontalAlignment.Center;
+                item.HorizontalContentAlignment = visible ? HorizontalAlignment.Stretch : HorizontalAlignment.Center;
+                item.Width = visible ? double.NaN : 48;
+                item.Height = visible ? double.NaN : 48;
+                item.Margin = visible ? new Thickness(0, 0, 0, 6) : new Thickness(0, 0, 0, 8);
+            }
+
+            ConfigureCompactStatusCard(SidebarWorkerStatusCard, SidebarWorkerStatusDot, visible);
+            ConfigureCompactStatusCard(SidebarLudusaviStatusCard, SidebarLudusaviStatusDot, visible);
+        }
+
+        private static void ConfigureCompactStatusCard(Border card, Border dot, bool expanded)
+        {
+            card.Width = expanded ? double.NaN : 48;
+            card.Height = expanded ? double.NaN : 50;
+            card.MinHeight = expanded ? 58 : 50;
+            card.Padding = expanded ? new Thickness(12, 10, 12, 10) : new Thickness(0);
+            card.HorizontalAlignment = expanded ? HorizontalAlignment.Stretch : HorizontalAlignment.Center;
+
+            if (expanded)
+            {
+                Grid.SetColumn(dot, 0);
+                dot.HorizontalAlignment = HorizontalAlignment.Left;
+                dot.VerticalAlignment = VerticalAlignment.Center;
+                dot.Margin = new Thickness(0, 0, 9, 0);
+            }
+            else
+            {
+                Grid.SetColumn(dot, 1);
+                dot.HorizontalAlignment = HorizontalAlignment.Right;
+                dot.VerticalAlignment = VerticalAlignment.Top;
+                dot.Margin = new Thickness(0, 7, 7, 0);
+            }
+        }
+
+        private void OnToggleGameBrowserClick(object sender, RoutedEventArgs e)
+        {
+            if (viewModel == null) return;
+            compactGameBrowserOpen = !compactGameBrowserOpen;
+            ToggleGameBrowserButton.ToolTip = compactGameBrowserOpen
+                ? "关闭游戏搜索、状态筛选和排序"
+                : "打开游戏搜索、状态筛选和排序";
+            ApplyResponsiveLayout(ActualWidth, ActualHeight);
+            if (compactGameBrowserOpen && GameSearchTextBox != null)
+            {
+                BeginUiSafely(() => GameSearchTextBox.Focus(), DispatcherPriority.Background);
+            }
         }
 
         private static void SetVisibility(UIElement element, bool visible)

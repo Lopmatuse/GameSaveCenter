@@ -333,34 +333,50 @@ namespace GameSaveCenter.Playnite.Settings
 
         private void ApplyResponsiveLayout(double width, double height)
         {
-            if (SettingsShell == null || SettingsHeaderSubtitle == null) return;
+            if (SettingsShell == null || SettingsHeaderSubtitle == null || SettingsSectionTabs == null) return;
 
-            var compact = width < 720;
-            // Use the actual readable width, not the host width. The shell reserves 60 DIP
-            // for its responsive margins, so a three-column form at 950 host DIP was too
-            // narrow and could force the entire settings page into horizontal scrolling.
-            var contentWidth = width - (compact ? 36 : 60);
-            SettingsShell.Margin = compact
-                ? new Thickness(16, 16, 20, 24)
-                : new Thickness(28, 22, 32, 30);
+            // Settings uses the same four product breakpoints as Dashboard.  The category
+            // rail moves above the content before it can squeeze forms or create horizontal
+            // scrolling; fields then collapse independently according to their readable width.
+            var expanded = width >= 1180;
+            var compact = width < 920;
+            var narrow = width < 720;
+            var horizontalMargin = narrow ? 14 : compact ? 18 : 28;
+            var trailingMargin = horizontalMargin + 4;
+            var contentWidth = Math.Max(320, width - horizontalMargin - trailingMargin);
+            var formWidth = compact ? contentWidth : Math.Max(320, contentWidth - 248);
+
+            SettingsShell.Margin = new Thickness(horizontalMargin, narrow ? 14 : 22, trailingMargin, 28);
             SettingsShell.HorizontalAlignment = compact ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
-            SettingsShell.MaxWidth = compact ? double.PositiveInfinity : 980;
-            SettingsHeaderSubtitle.Visibility = height < 680 ? Visibility.Collapsed : Visibility.Visible;
+            SettingsShell.Width = compact ? double.NaN : Math.Min(1240, contentWidth);
+            SettingsShell.MaxWidth = compact ? double.PositiveInfinity : 1240;
+            SettingsHeaderSubtitle.Visibility = height < 650 ? Visibility.Collapsed : Visibility.Visible;
+            SettingsSaveHint.Visibility = width >= 1040 && height >= 650 ? Visibility.Visible : Visibility.Collapsed;
+            SettingsSectionTabs.TabStripPlacement = compact ? Dock.Top : Dock.Left;
+
+            foreach (var item in SettingsSectionTabs.Items)
+            {
+                if (!(item is TabItem tab)) continue;
+                tab.MinWidth = compact ? (narrow ? 132 : 158) : 218;
+                tab.Margin = compact ? new Thickness(0, 0, 8, 8) : new Thickness(0, 0, 0, 10);
+            }
+
+            var twoColumns = formWidth >= 720;
             if (StoragePolicyFields != null)
             {
-                StoragePolicyFields.Columns = compact ? 1 : 2;
+                StoragePolicyFields.Columns = twoColumns ? 2 : 1;
             }
             if (CoreToolFields != null)
             {
-                CoreToolFields.Columns = compact ? 1 : 2;
+                CoreToolFields.Columns = twoColumns ? 2 : 1;
             }
             if (AppearanceFields != null)
             {
-                AppearanceFields.Columns = compact ? 1 : 2;
+                AppearanceFields.Columns = twoColumns ? 2 : 1;
             }
             if (AutomationIntervalFields != null)
             {
-                AutomationIntervalFields.Columns = compact ? 1 : contentWidth < 960 ? 2 : 3;
+                AutomationIntervalFields.Columns = expanded && formWidth >= 930 ? 3 : formWidth >= 650 ? 2 : 1;
             }
         }
     }

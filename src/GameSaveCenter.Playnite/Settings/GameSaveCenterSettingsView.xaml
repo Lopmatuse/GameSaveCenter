@@ -14,6 +14,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml"/>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiProduction.xaml"/>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/Redesign.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         <Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}">
             <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
@@ -23,8 +24,11 @@
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
         <Style x:Key="SettingsCard" TargetType="{x:Type ui:Card}" BasedOn="{StaticResource GscWpfUiCard}">
-            <Setter Property="Padding" Value="16"/>
-            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="Padding" Value="18"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Border.CornerRadius" Value="20"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Effect" Value="{x:Null}"/>
         </Style>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -34,23 +38,33 @@
             <Ellipse Width="330" Height="330" HorizontalAlignment="Left" VerticalAlignment="Top" Fill="{DynamicResource GscAccentIconFillBrush}"><Ellipse.RenderTransform><TranslateTransform X="-95" Y="-120"/></Ellipse.RenderTransform><Ellipse.Effect><BlurEffect Radius="84"/></Ellipse.Effect></Ellipse>
             <Ellipse Width="280" Height="280" HorizontalAlignment="Right" VerticalAlignment="Bottom" Fill="{DynamicResource GscAmbientInfoBrush}"><Ellipse.RenderTransform><TranslateTransform X="80" Y="120"/></Ellipse.RenderTransform><Ellipse.Effect><BlurEffect Radius="92"/></Ellipse.Effect></Ellipse>
         </Grid>
-        <ScrollViewer x:Name="SettingsScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
-                      KeyboardNavigation.TabNavigation="Continue">
-        <StackPanel x:Name="SettingsShell" Opacity="0" Margin="28,22,32,30" MaxWidth="980" HorizontalAlignment="Left">
-            <Grid x:Name="SettingsHeader" Margin="0,0,0,5">
-                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                <Border x:Name="SettingsHeaderIcon" Width="42" Height="42" CornerRadius="13" Background="{DynamicResource GscAccentBrush}" Margin="0,0,12,0">
-                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE713;" Foreground="{DynamicResource GscOnAccentTextBrush}" FontSize="19" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="GameSaveCenter 设置" FontSize="24" FontWeight="SemiBold"/>
-                    <TextBlock x:Name="SettingsHeaderSubtitle" Text="工具路径、版本策略与自动化安全" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
-                </StackPanel>
-            </Grid>
-            <TextBlock Text="Playnite 管理游戏入口，Worker 执行存档、媒体与云端任务。设置会同时保存在 Playnite 与 Worker 本地配置中。"
-                       Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,5,0,20" TextWrapping="Wrap"/>
-
-            <ui:Card Style="{StaticResource SettingsCard}">
+        <ScrollViewer x:Name="SettingsScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" KeyboardNavigation.TabNavigation="Continue">
+            <Grid x:Name="SettingsShell" Opacity="0" Margin="28,22,32,30" MaxWidth="1240" HorizontalAlignment="Left">
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <Grid x:Name="SettingsHeader" Margin="0,0,0,6">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <Border x:Name="SettingsHeaderIcon" Width="46" Height="46" CornerRadius="15" Background="{DynamicResource GscAccentBrush}" Margin="0,0,12,0">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE713;" Foreground="{DynamicResource GscOnAccentTextBrush}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="GameSaveCenter 设置" FontSize="25" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="SettingsHeaderSubtitle" Text="工具路径、版本策略、外观效果与自动化安全" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <Border x:Name="SettingsSaveHint" Grid.Column="2" Style="{StaticResource GscRedesignContextPill}" VerticalAlignment="Center" Margin="14,0,0,0">
+                        <TextBlock Text="由 Playnite 的保存按钮提交" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                    </Border>
+                </Grid>
+                <TextBlock Grid.Row="1" Text="Playnite 管理游戏入口，Worker 执行存档、媒体与云端任务。切换左侧分类只改变显示内容，不会立即保存或执行任何业务操作。"
+                           Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,5,0,18" TextWrapping="Wrap"/>
+                <TabControl x:Name="SettingsSectionTabs" Grid.Row="2" Style="{StaticResource GscRedesignSettingsTabControl}" ItemContainerStyle="{StaticResource GscRedesignSettingsTabItem}" SelectedIndex="0">
+                    <TabItem Style="{StaticResource GscRedesignSettingsTabItem}">
+                        <TabItem.Header>
+                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="36"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Width="28" Height="28" CornerRadius="9" Background="{DynamicResource GscAccentIconFillBrush}" VerticalAlignment="Center"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0"><TextBlock Text="核心工具" FontWeight="SemiBold"/><TextBlock Text="工具路径与基础目录" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="工具路径与基础目录" Margin="0,3,0,0"/></StackPanel>
+                            </Grid>
+                        </TabItem.Header>
+                        <ui:Card Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,12"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE90F;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="核心工具" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
                     <UniformGrid x:Name="CoreToolFields" Columns="2">
@@ -63,8 +77,15 @@
                     </UniformGrid>
                 </StackPanel>
             </ui:Card>
-
-            <ui:Card Style="{StaticResource SettingsCard}">
+                    </TabItem>
+                    <TabItem Style="{StaticResource GscRedesignSettingsTabItem}">
+                        <TabItem.Header>
+                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="36"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Width="28" Height="28" CornerRadius="9" Background="{DynamicResource GscAccentIconFillBrush}" VerticalAlignment="Center"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0"><TextBlock Text="存档格式与历史版本" FontWeight="SemiBold"/><TextBlock Text="备份格式、压缩与版本策略" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="备份格式、压缩与版本策略" Margin="0,3,0,0"/></StackPanel>
+                            </Grid>
+                        </TabItem.Header>
+                        <ui:Card Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscInfoIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{DynamicResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="存档格式与历史版本" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
                     <TextBlock Text="推荐 ZIP + Zstandard。Simple 模式只维护一个当前副本，不适合作为多版本恢复历史。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,13" TextWrapping="Wrap"/>
@@ -98,8 +119,15 @@
                     </UniformGrid>
                 </StackPanel>
             </ui:Card>
-
-            <ui:Card Style="{StaticResource SettingsCard}">
+                    </TabItem>
+                    <TabItem Style="{StaticResource GscRedesignSettingsTabItem}">
+                        <TabItem.Header>
+                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="36"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Width="28" Height="28" CornerRadius="9" Background="{DynamicResource GscAccentIconFillBrush}" VerticalAlignment="Center"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE790;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0"><TextBlock Text="外观与动态效果" FontWeight="SemiBold"/><TextBlock Text="主题、玻璃强度与辅助功能" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="主题、玻璃强度与辅助功能" Margin="0,3,0,0"/></StackPanel>
+                            </Grid>
+                        </TabItem.Header>
+                        <ui:Card Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE790;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
@@ -130,8 +158,15 @@
                                      IsChecked="{Binding EnableGlassEffects}" Margin="0,5" Checked="OnVisualSettingChanged" Unchecked="OnVisualSettingChanged"/>
                 </StackPanel>
             </ui:Card>
-
-            <ui:Card Style="{StaticResource SettingsCard}">
+                    </TabItem>
+                    <TabItem Style="{StaticResource GscRedesignSettingsTabItem}">
+                        <TabItem.Header>
+                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="36"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Width="28" Height="28" CornerRadius="9" Background="{DynamicResource GscAccentIconFillBrush}" VerticalAlignment="Center"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72E;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0"><TextBlock Text="自动化与安全" FontWeight="SemiBold"/><TextBlock Text="自动任务、媒体来源与安全边界" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="自动任务、媒体来源与安全边界" Margin="0,3,0,0"/></StackPanel>
+                            </Grid>
+                        </TabItem.Header>
+                        <ui:Card Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscSuccessIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE72E;" Foreground="{DynamicResource GscSuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="自动化与安全" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
                     <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="随 Playnite 启动 Worker" OnContent="开" OffContent="关" IsChecked="{Binding AutoStartWorker}" Margin="0,5"/>
@@ -158,8 +193,15 @@
                     </Border>
                 </StackPanel>
             </ui:Card>
-
-            <ui:Card Style="{StaticResource SettingsCard}">
+                    </TabItem>
+                    <TabItem Style="{StaticResource GscRedesignSettingsTabItem}">
+                        <TabItem.Header>
+                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="36"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Width="28" Height="28" CornerRadius="9" Background="{DynamicResource GscAccentIconFillBrush}" VerticalAlignment="Center"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B5;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0"><TextBlock Text="设置迁移" FontWeight="SemiBold"/><TextBlock Text="导入、导出与设备间迁移" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11" TextTrimming="CharacterEllipsis" ToolTip="导入、导出与设备间迁移" Margin="0,3,0,0"/></StackPanel>
+                            </Grid>
+                        </TabItem.Header>
+                        <ui:Card Style="{StaticResource SettingsCard}">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                         <Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscAccentTintBrush}" Margin="0,0,9,0">
@@ -175,9 +217,10 @@
                     </WrapPanel>
                 </StackPanel>
             </ui:Card>
-        </StackPanel>
+                    </TabItem>
+                </TabControl>
+            </Grid>
         </ScrollViewer>
-        <ui:SnackbarPresenter x:Name="SettingsSnackbarHost" Panel.ZIndex="20"
-                              HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20"/>
+        <ui:SnackbarPresenter x:Name="SettingsSnackbarHost" Panel.ZIndex="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20"/>
     </Grid>
 </UserControl>

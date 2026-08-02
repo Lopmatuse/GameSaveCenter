@@ -977,6 +977,74 @@ def check_responsive_ui_layout_guards() -> None:
         if token not in dashboard_code:
             fail(f"Dashboard responsive behavior guard missing: {token}")
 
+def check_final_redesign_guards() -> None:
+    """Protect the final visual redesign from prototype overflow and feature-loss regressions."""
+    dashboard_path = ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml"
+    dashboard_code_path = ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml.cs"
+    settings_path = ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml"
+    settings_code_path = ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml.cs"
+    redesign_path = ROOT / "src/GameSaveCenter.Playnite/Themes/Redesign.xaml"
+    if not redesign_path.exists():
+        fail("Final redesign resource dictionary is missing: Themes/Redesign.xaml")
+        return
+
+    dashboard = dashboard_path.read_text(encoding="utf-8")
+    dashboard_code = dashboard_code_path.read_text(encoding="utf-8")
+    settings = settings_path.read_text(encoding="utf-8")
+    settings_code = settings_code_path.read_text(encoding="utf-8")
+    redesign = redesign_path.read_text(encoding="utf-8")
+
+    for source, label, required in (
+        (dashboard, "Dashboard final redesign",
+         ('Themes/Redesign.xaml', 'x:Name="HeaderCompactActionsRow"',
+          'x:Name="TopActionsScroller"', 'x:Name="GameSwitcherHost"',
+          'x:Name="ToggleGameBrowserButton"', 'x:Name="SidebarWorkerCompactLabel"',
+          'x:Name="SidebarLudusaviCompactLabel"', 'ClipToBounds="True"',
+          'ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"',
+          'x:Name="OverviewLayoutGrid"', 'x:Name="SaveHistoryLayoutGrid"',
+          'x:Name="TrainerSummaryPanel"', 'x:Name="MediaSummaryPanel"',
+          'x:Name="TaskSummaryPanel"', 'x:Name="DiagnosticHealthPanel"')),
+        (dashboard_code, "Dashboard final responsive behavior",
+         ('width >= 1280 ? LayoutMode.Expanded', 'width >= 980 ? LayoutMode.Standard',
+          'width >= 880 ? LayoutMode.Compact', 'Grid.SetRow(TopActionsScroller, 2)',
+          'Grid.SetColumnSpan(TopActionsScroller, 2)',
+          'item.Width = visible ? double.NaN : 48', 'item.Height = visible ? double.NaN : 48',
+          'card.Width = expanded ? double.NaN : 48', 'card.Height = expanded ? double.NaN : 50',
+          'GameBrowserPanel.MaxHeight = showCompactGameBrowser ? Math.Max(240, Math.Min(360, height * 0.42)) : 0')),
+        (settings, "Settings final redesign",
+         ('Themes/Redesign.xaml', 'x:Name="SettingsSectionTabs"',
+          'GscRedesignSettingsTabControl', '由 Playnite 的保存按钮提交',
+          'x:Name="CoreToolFields"', 'x:Name="StoragePolicyFields"',
+          'x:Name="AppearanceFields"', 'x:Name="AutomationIntervalFields"',
+          'Click="OnExportSettingsClick"', 'Click="OnImportSettingsClick"')),
+        (settings_code, "Settings final responsive behavior",
+         ('var compact = width < 920', 'var narrow = width < 720',
+          'SettingsSectionTabs.TabStripPlacement = compact ? Dock.Top : Dock.Left',
+          'tab.MinWidth = compact ? (narrow ? 132 : 158) : 218',
+          'SettingsShell.Width = compact ? double.NaN : Math.Min(1240, contentWidth)',
+          'var twoColumns = formWidth >= 720')),
+        (redesign, "Final redesign tokens",
+         ('x:Key="GscRedesignSectionCard"', 'x:Key="GscRedesignHeroCard"',
+          'x:Key="GscRedesignMetricCard"', 'x:Key="GscRedesignMetricBorder"',
+          'x:Key="GscRedesignGameSelector"', 'x:Key="GscRedesignStatusCard"',
+          'x:Key="GscRedesignSettingsTabControl"', 'x:Key="GscRedesignSettingsTabItem"')),
+    ):
+        for token in required:
+            if token not in source:
+                fail(f"{label} guard missing: {token}")
+
+    for unsafe in ("WebView", "Electron", "Avalonia", "WinUI"):
+        if unsafe in redesign or unsafe in dashboard or unsafe in settings:
+            fail(f"Final WPF redesign must not introduce a browser/alternate UI shell: {unsafe}")
+
+    for command in ("BackupSelectedCommand", "RestoreCommand", "UndoRestoreCommand",
+                    "ImportTrainerCommand", "SyncTrainerCatalogCommand", "SyncMediaCommand",
+                    "RetryTaskCommand", "CancelTaskCommand", "RefreshDiagnosticsCommand",
+                    "StageRemoteBackupCommand", "RestoreStagedRemoteBackupCommand"):
+        if f'Command="{{Binding {command}' not in dashboard:
+            fail(f"Final redesign removed a required production command: {command}")
+
+
 def check_wpf_ui_production_scope_guards() -> None:
     """Keep production WPF-UI resources view-local, recoverable and virtualization-safe."""
     dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
@@ -1060,6 +1128,7 @@ def main() -> int:
     check_0621_cloud_retry_and_numeric_ui_guards()
     check_shared_wpf_control_guards()
     check_responsive_ui_layout_guards()
+    check_final_redesign_guards()
     check_wpf_ui_production_scope_guards()
     check_wpf_ui_probe_guards()
     if ERRORS:
