@@ -199,8 +199,19 @@ def check_xaml_semantics() -> None:
                     if re.fullmatch(r"On[A-Za-z0-9_]+", value):
                         handlers.add(value)
             for handler in handlers:
-                if not re.search(rf"\b{re.escape(handler)}\s*\(", code):
+                declaration = re.search(
+                    rf"\b(?:private|protected|public|internal)\s+"
+                    rf"(?P<static>static\s+)?(?:async\s+)?[A-Za-z_][A-Za-z0-9_<>\[\],.?]*\s+"
+                    rf"{re.escape(handler)}\s*\(",
+                    code,
+                )
+                if declaration is None:
                     fail(f"XAML event handler missing: {path.relative_to(ROOT)} -> {handler}")
+                if declaration.group("static"):
+                    fail(
+                        f"XAML event handler must be an instance method: "
+                        f"{path.relative_to(ROOT)} -> {handler}"
+                    )
 
 def check_gsc_resource_references() -> None:
     """Ensure plugin-owned XAML resource names resolve within the view or shared theme dictionaries."""

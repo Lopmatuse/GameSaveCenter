@@ -716,7 +716,7 @@ namespace GameSaveCenter.Playnite.Views
             ApplyResponsiveLayout(ActualWidth, ActualHeight);
         }
 
-        private static void OnInspectorPreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        private void OnInspectorPreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             var scrollViewer = sender as ScrollViewer;
             if (scrollViewer == null || scrollViewer.ScrollableHeight <= 0) return;
