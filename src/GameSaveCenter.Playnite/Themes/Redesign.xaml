@@ -96,6 +96,45 @@
         <Setter Property="ToolTipService.ShowDuration" Value="16000"/>
     </Style>
 
+    <!-- The active-game context is deliberately a button, not a ComboBox. A ComboBox
+         materializes a large popup and becomes visibly slow for libraries with hundreds
+         of games. Clicking this button opens the existing virtualized search/filter/sort
+         browser, so there is only one game-selection surface at every breakpoint. -->
+    <Style x:Key="GscRedesignGameContextButton" TargetType="Button">
+        <Setter Property="MinHeight" Value="54"/>
+        <Setter Property="MinWidth" Value="250"/>
+        <Setter Property="Padding" Value="8,5"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="ToolTipService.ShowDuration" Value="16000"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome" CornerRadius="14" Padding="{TemplateBinding Padding}"
+                            Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GscAccentTintBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Chrome" Property="Opacity" Value="0.78"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Chrome" Property="Opacity" Value="0.42"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="GscRedesignStatusCard" TargetType="Border">
         <Setter Property="MinHeight" Value="58"/>
         <Setter Property="Padding" Value="12,10"/>

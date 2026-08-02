@@ -852,28 +852,25 @@
             <Border x:Name="GameSwitcherHost" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                     Margin="0,12,0,0" MaxWidth="640" HorizontalAlignment="Left"
                     Style="{StaticResource GscRedesignSectionCard}" Padding="7" Visibility="Collapsed">
-                <ComboBox x:Name="CompactGameSelector" Style="{StaticResource GscRedesignGameSelector}"
-                          ItemsSource="{Binding GamesView}" SelectedItem="{Binding SelectedGame}"
-                          HorizontalAlignment="Stretch" BorderThickness="0" Background="Transparent"
-                          ToolTip="切换当前游戏；游戏搜索、筛选和排序可通过“游戏库”访问">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <Grid MinWidth="0" Margin="2">
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <Border Width="32" Height="32" CornerRadius="10" Background="{DynamicResource GscAccentTintBrush}" VerticalAlignment="Center">
-                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="8,0,12,0" MinWidth="0">
-                                    <TextBlock Style="{StaticResource GscComboBoxLongText}" Text="{Binding Name}" FontWeight="SemiBold"/>
-                                    <TextBlock Style="{StaticResource GscComboBoxLongText}" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}">
-                                        <Run Text="{Binding PlatformDisplay, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding HealthStateDisplay, Mode=OneWay}"/>
-                                    </TextBlock>
-                                </StackPanel>
-                                <TextBlock Grid.Column="2" Text="{Binding CloudStateDisplay}" FontSize="11" Foreground="{DynamicResource GscInfoBrush}" VerticalAlignment="Center"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
+                <Button x:Name="CompactGameSelector" Style="{StaticResource GscRedesignGameContextButton}"
+                        HorizontalAlignment="Stretch" Click="OnToggleGameBrowserClick"
+                        AutomationProperties.Name="选择当前游戏"
+                        ToolTip="打开游戏搜索、状态筛选和排序">
+                    <Grid MinWidth="0" Margin="2">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions>
+                        <Border Width="32" Height="32" CornerRadius="10" Background="{DynamicResource GscAccentTintBrush}" VerticalAlignment="Center">
+                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Grid.Column="1" Margin="8,0,12,0" MinWidth="0">
+                            <TextBlock Style="{StaticResource GscComboBoxLongText}" Text="{Binding SelectedGame.Name, TargetNullValue=请选择游戏}" FontWeight="SemiBold"/>
+                            <TextBlock Style="{StaticResource GscComboBoxLongText}" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}">
+                                <Run Text="{Binding SelectedGame.PlatformDisplay, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding SelectedGame.HealthStateDisplay, Mode=OneWay}"/>
+                            </TextBlock>
+                        </StackPanel>
+                        <TextBlock Grid.Column="2" Text="{Binding SelectedGame.CloudStateDisplay, Mode=OneWay}" FontSize="11" Foreground="{DynamicResource GscInfoBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Grid.Column="3" FontFamily="Segoe MDL2 Assets" Text="&#xE70D;" Foreground="{DynamicResource GscSecondaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+                </Button>
             </Border>
         </Grid>
         <UniformGrid x:Name="MetricsPanel" Grid.Row="1" Columns="6" Margin="0,0,0,18">
@@ -1006,7 +1003,8 @@
                         </UniformGrid>
                     </Grid>
                     <Grid Grid.Row="2">
-                    <ListBox ItemsSource="{Binding GamesView}" SelectedItem="{Binding SelectedGame}" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                    <ListBox ItemsSource="{Binding GamesView}" SelectedItem="{Binding SelectedGame}" SelectionChanged="OnGameSelectionChanged"
+                             BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
@@ -1332,65 +1330,100 @@
                                 </Border>
 
                                 <Border x:Name="SaveHistoryInspectorPanel" Grid.Row="0" Grid.Column="2" Style="{StaticResource GscRedesignSectionCard}" MinWidth="0">
-                                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                                        <StackPanel>
-                                            <Grid>
-                                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                                <StackPanel MinWidth="0">
-                                                    <TextBlock Style="{StaticResource GscRedesignSectionTitle}" Text="选中版本"/>
-                                                    <TextBlock Text="{Binding SelectedBackup.CreatedLocal, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd HH:mm}, TargetNullValue=请从左侧选择版本}"
-                                                               FontSize="20" FontWeight="SemiBold" Margin="0,6,0,0" TextTrimming="CharacterEllipsis"/>
-                                                </StackPanel>
-                                                <Border Grid.Column="1" Style="{StaticResource GscRedesignContextPill}" VerticalAlignment="Top">
-                                                    <TextBlock Text="{Binding SelectedBackup.SizeDisplay, Mode=OneWay, TargetNullValue=--}"/>
-                                                </Border>
-                                            </Grid>
+                                    <Grid MinHeight="0">
+                                        <TextBlock Text="请选择一个历史版本&#x0a;选择后可查看版本信息、执行安全恢复、比较差异或编辑备注。" IsHitTestVisible="False">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource GscEmptyText}">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedBackup}" Value="{x:Null}"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
 
-                                            <UniformGrid Columns="2" Margin="0,14,0,0">
-                                                <Border Style="{StaticResource GscRedesignContextPill}" Margin="0,0,8,8"><StackPanel><TextBlock Text="文件数量" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding SelectedBackup.FileCount, Mode=OneWay, TargetNullValue=--}" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
-                                                <Border Style="{StaticResource GscRedesignContextPill}" Margin="0,0,0,8"><StackPanel><TextBlock Text="来源设备" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding SelectedBackup.SourceDevice, Mode=OneWay, TargetNullValue=--}" FontWeight="SemiBold" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedBackup.SourceDevice, Mode=OneWay}"/></StackPanel></Border>
-                                                <Border Style="{StaticResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="系统" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding SelectedBackup.OperatingSystem, Mode=OneWay, TargetNullValue=--}" FontWeight="SemiBold" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedBackup.OperatingSystem, Mode=OneWay}"/></StackPanel></Border>
-                                                <Border Style="{StaticResource GscRedesignContextPill}"><StackPanel><TextBlock Text="恢复前快照" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock FontWeight="SemiBold" Margin="0,4,0,0"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Text" Value="否"/><Style.Triggers><DataTrigger Binding="{Binding SelectedBackup.IsPreRestore}" Value="True"><Setter Property="Text" Value="是"/><Setter Property="Foreground" Value="{DynamicResource GscInfoBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></StackPanel></Border>
-                                            </UniformGrid>
+                                        <TabControl x:Name="SaveHistoryInspectorTabs" Margin="0">
+                                            <TabControl.Style>
+                                                <Style TargetType="TabControl" BasedOn="{StaticResource GscTabControl}">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding SelectedBackup}" Value="{x:Null}"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TabControl.Style>
+                                            <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource GscTabItem}"/></TabControl.Resources>
 
-                                            <Border Background="{DynamicResource GscSafetyFillBrush}" BorderBrush="{DynamicResource GscSafetyStrokeBrush}" BorderThickness="1" CornerRadius="14" Padding="13" Margin="0,14,0,0">
-                                                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE946;" Foreground="{DynamicResource GscInfoBrush}" FontSize="17"/><StackPanel Grid.Column="1"><TextBlock Text="安全恢复" FontWeight="SemiBold"/><TextBlock Text="恢复前会创建并锁定当前快照，恢复后校验；失败时尝试回滚。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/></StackPanel></Grid>
-                                            </Border>
+                                            <TabItem Header="版本详情">
+                                                <ScrollViewer x:Name="SaveHistoryDetailsScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                                              PanningMode="VerticalOnly" CanContentScroll="False" Padding="0,10,8,0"
+                                                              PreviewMouseWheel="OnInspectorPreviewMouseWheel">
+                                                    <StackPanel>
+                                                        <TextBlock Style="{StaticResource GscRedesignSectionTitle}" Text="选中版本"/>
+                                                        <TextBlock Text="{Binding SelectedBackup.CreatedLocal, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd HH:mm}}"
+                                                                   FontSize="20" FontWeight="SemiBold" Margin="0,6,0,0" TextTrimming="CharacterEllipsis"/>
+                                                        <UniformGrid Columns="2" Margin="0,14,0,0">
+                                                            <Border Style="{StaticResource GscRedesignContextPill}" Margin="0,0,8,8"><StackPanel><TextBlock Text="大小" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding SelectedBackup.SizeDisplay, Mode=OneWay}" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+                                                            <Border Style="{StaticResource GscRedesignContextPill}" Margin="0,0,0,8"><StackPanel><TextBlock Text="文件数量" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding SelectedBackup.FileCount, Mode=OneWay}" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+                                                            <Border Style="{StaticResource GscRedesignContextPill}" Margin="0,0,8,8"><StackPanel><TextBlock Text="来源设备" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding SelectedBackup.SourceDevice, Mode=OneWay, TargetNullValue=--}" FontWeight="SemiBold" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedBackup.SourceDevice, Mode=OneWay}"/></StackPanel></Border>
+                                                            <Border Style="{StaticResource GscRedesignContextPill}" Margin="0,0,0,8"><StackPanel><TextBlock Text="系统" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding SelectedBackup.OperatingSystem, Mode=OneWay, TargetNullValue=--}" FontWeight="SemiBold" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedBackup.OperatingSystem, Mode=OneWay}"/></StackPanel></Border>
+                                                            <Border Style="{StaticResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="恢复前快照" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock FontWeight="SemiBold" Margin="0,4,0,0"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Text" Value="否"/><Style.Triggers><DataTrigger Binding="{Binding SelectedBackup.IsPreRestore}" Value="True"><Setter Property="Text" Value="是"/><Setter Property="Foreground" Value="{DynamicResource GscInfoBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></StackPanel></Border>
+                                                            <Border Style="{StaticResource GscRedesignContextPill}"><StackPanel><TextBlock Text="锁定状态" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock FontWeight="SemiBold" Margin="0,4,0,0"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}"><Setter Property="Text" Value="未锁定"/><Style.Triggers><DataTrigger Binding="{Binding SelectedBackup.IsLocked}" Value="True"><Setter Property="Text" Value="已锁定"/><Setter Property="Foreground" Value="{DynamicResource GscWarningBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></StackPanel></Border>
+                                                        </UniformGrid>
+                                                        <Border Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="14" Padding="13" Margin="0,14,0,0">
+                                                            <StackPanel>
+                                                                <TextBlock Text="比较与保留结果" FontWeight="SemiBold"/>
+                                                                <TextBlock Text="{Binding DiffSummary}" TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,8,0,0"/>
+                                                                <TextBlock Text="{Binding RetentionSummary}" TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,6,0,0"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </StackPanel>
+                                                </ScrollViewer>
+                                            </TabItem>
 
-                                            <WrapPanel Margin="0,14,0,0">
-                                                <ui:Button Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding RestoreCommand}" Content="安全恢复所选版本"/>
-                                                <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding UndoRestoreCommand}" Content="撤销最近恢复"/>
-                                                <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding CompareBackupCommand}" Content="与上一版本比较" Margin="0"/>
-                                            </WrapPanel>
+                                            <TabItem Header="安全恢复">
+                                                <ScrollViewer x:Name="SaveHistoryRestoreScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                                              PanningMode="VerticalOnly" CanContentScroll="False" Padding="0,10,8,0"
+                                                              PreviewMouseWheel="OnInspectorPreviewMouseWheel">
+                                                    <StackPanel>
+                                                        <Border Background="{DynamicResource GscSafetyFillBrush}" BorderBrush="{DynamicResource GscSafetyStrokeBrush}" BorderThickness="1" CornerRadius="14" Padding="13">
+                                                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE946;" Foreground="{DynamicResource GscInfoBrush}" FontSize="17"/><StackPanel Grid.Column="1"><TextBlock Text="安全恢复" FontWeight="SemiBold"/><TextBlock Text="恢复前会创建并锁定当前快照，恢复后校验；失败时尝试回滚。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/></StackPanel></Grid>
+                                                        </Border>
+                                                        <WrapPanel Margin="0,14,0,0">
+                                                            <ui:Button Style="{StaticResource GscWpfUiPrimaryActionButton}" Command="{Binding RestoreCommand}" Content="安全恢复所选版本"/>
+                                                            <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding UndoRestoreCommand}" Content="撤销最近恢复"/>
+                                                            <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding CompareBackupCommand}" Content="与上一版本比较" Margin="0"/>
+                                                        </WrapPanel>
+                                                        <Border Background="{DynamicResource GscSafetyFillBrush}" BorderBrush="{DynamicResource GscSafetyStrokeBrush}" BorderThickness="1" CornerRadius="14" Padding="13" Margin="0,14,0,0">
+                                                            <Border.Style>
+                                                                <Style TargetType="Border">
+                                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                                    <Style.Triggers><DataTrigger Binding="{Binding Snapshot.BackupFormat}" Value="{x:Static contracts:BackupStorageFormat.Simple}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                                                                </Style>
+                                                            </Border.Style>
+                                                            <TextBlock Text="当前为 Simple 格式，只维护一个当前副本；需要多个恢复点请在设置中选择 ZIP。" TextWrapping="Wrap"/>
+                                                        </Border>
+                                                    </StackPanel>
+                                                </ScrollViewer>
+                                            </TabItem>
 
-                                            <Border Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="14" Padding="13" Margin="0,14,0,0">
-                                                <StackPanel>
-                                                    <TextBlock Text="版本备注与锁定" FontWeight="SemiBold"/>
-                                                    <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="锁定版本" IsChecked="{Binding LockSelectedBackup}" Margin="0,12,0,8"/>
-                                                    <TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding BackupComment, UpdateSourceTrigger=PropertyChanged}" ToolTip="版本备注"/>
-                                                    <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding UpdateBackupMetadataCommand}" Content="保存备注与锁定" HorizontalAlignment="Left" Margin="0,10,0,0"/>
-                                                </StackPanel>
-                                            </Border>
-
-                                            <Border Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="14" Padding="13" Margin="0,14,0,0">
-                                                <StackPanel>
-                                                    <TextBlock Text="比较与保留结果" FontWeight="SemiBold"/>
-                                                    <TextBlock Text="{Binding DiffSummary}" TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,8,0,0"/>
-                                                    <TextBlock Text="{Binding RetentionSummary}" TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,6,0,0"/>
-                                                </StackPanel>
-                                            </Border>
-
-                                            <Border Background="{DynamicResource GscSafetyFillBrush}" BorderBrush="{DynamicResource GscSafetyStrokeBrush}" BorderThickness="1" CornerRadius="14" Padding="13" Margin="0,14,0,0">
-                                                <Border.Style>
-                                                    <Style TargetType="Border">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                        <Style.Triggers><DataTrigger Binding="{Binding Snapshot.BackupFormat}" Value="{x:Static contracts:BackupStorageFormat.Simple}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
-                                                    </Style>
-                                                </Border.Style>
-                                                <TextBlock Text="当前为 Simple 格式，只维护一个当前副本；需要多个恢复点请在设置中选择 ZIP。" TextWrapping="Wrap"/>
-                                            </Border>
-                                        </StackPanel>
-                                    </ScrollViewer>
+                                            <TabItem Header="备注与锁定">
+                                                <ScrollViewer x:Name="SaveHistoryMetadataScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                                              PanningMode="VerticalOnly" CanContentScroll="False" Padding="0,10,8,0"
+                                                              PreviewMouseWheel="OnInspectorPreviewMouseWheel">
+                                                    <StackPanel>
+                                                        <Border Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="14" Padding="13">
+                                                            <StackPanel>
+                                                                <TextBlock Text="版本备注与锁定" FontWeight="SemiBold"/>
+                                                                <ui:ToggleSwitch Style="{StaticResource GscWpfUiToggleSwitch}" Content="锁定版本" IsChecked="{Binding LockSelectedBackup}" Margin="0,12,0,8"/>
+                                                                <TextBox Style="{StaticResource GscWpfUiTextBox}" Text="{Binding BackupComment, UpdateSourceTrigger=PropertyChanged}" ToolTip="版本备注"/>
+                                                                <ui:Button Style="{StaticResource GscWpfUiActionButton}" Command="{Binding UpdateBackupMetadataCommand}" Content="保存备注与锁定" HorizontalAlignment="Left" Margin="0,10,0,0"/>
+                                                            </StackPanel>
+                                                        </Border>
+                                                    </StackPanel>
+                                                </ScrollViewer>
+                                            </TabItem>
+                                        </TabControl>
+                                    </Grid>
                                 </Border>
                             </Grid>
                         </TabItem>

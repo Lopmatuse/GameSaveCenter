@@ -523,7 +523,6 @@ public sealed class WpfUiResourceDictionaryTests
         var comboBoxes = xaml.Descendants().Where(element => element.Name.LocalName == "ComboBox").ToList();
         var targets = new[]
         {
-            new { Description = "CompactGameSelector", Match = (Func<XElement, bool>)(element => element.Attribute(xamlName)?.Value == "CompactGameSelector") },
             new { Description = "ImportEntryCandidates", Match = (Func<XElement, bool>)(element => element.Attribute("ItemsSource")?.Value == "{Binding ImportEntryCandidates}") },
             new { Description = "SelectedGameTool.Versions", Match = (Func<XElement, bool>)(element => element.Attribute("ItemsSource")?.Value == "{Binding SelectedGameTool.Versions}") },
             new { Description = "InboxTargetGame", Match = (Func<XElement, bool>)(element => element.Attribute("SelectedItem")?.Value == "{Binding InboxTargetGame}") },
@@ -544,6 +543,39 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.DoesNotContain("DisplayMemberPath=\"Display\"", dashboard);
         Assert.DoesNotContain("DisplayMemberPath=\"VersionName\"", dashboard);
+    }
+
+    [Fact]
+    public void LargeGameLibrariesUseOneVirtualizedSearchableSelectorSurface()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var xaml = XDocument.Parse(dashboard);
+        var xamlName = XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml");
+
+        var contextButton = xaml.Descendants().SingleOrDefault(element =>
+            element.Name.LocalName == "Button"
+            && element.Attribute(xamlName)?.Value == "CompactGameSelector");
+        Assert.NotNull(contextButton);
+        Assert.Null(contextButton!.Attribute("ItemsSource"));
+        Assert.Contains("OnToggleGameBrowserClick", contextButton.Attribute("Click")?.Value ?? string.Empty);
+        Assert.Contains("SelectedGame.Name", contextButton.ToString(SaveOptions.DisableFormatting));
+
+        var gameList = xaml.Descendants().SingleOrDefault(element =>
+            element.Name.LocalName == "ListBox"
+            && element.Attribute("ItemsSource")?.Value == "{Binding GamesView}");
+        Assert.NotNull(gameList);
+        Assert.Equal("True", gameList!.Attribute("VirtualizingPanel.IsVirtualizing")?.Value);
+        Assert.Equal("Recycling", gameList.Attribute("VirtualizingPanel.VirtualizationMode")?.Value);
+        Assert.Equal("True", gameList.Attribute("ScrollViewer.CanContentScroll")?.Value);
+        Assert.Equal("OnGameSelectionChanged", gameList.Attribute("SelectionChanged")?.Value);
+
+        Assert.Contains("GameSearchText", dashboard);
+        Assert.Contains("GameStatusFilterOptions", dashboard);
+        Assert.Contains("GameSortOptions", dashboard);
+        Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace && !showPersistentGameBrowser", dashboardCode);
+        Assert.Contains("ToggleGameBrowserButton.Visibility = Visibility.Collapsed", dashboardCode);
     }
 
     [Fact]
@@ -862,8 +894,26 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("width >= 880 ? LayoutMode.Compact", dashboardCode);
         Assert.Contains("Grid.SetRow(TopActionsScroller, 2)", dashboardCode);
         Assert.Contains("Grid.SetColumnSpan(TopActionsScroller, 2)", dashboardCode);
-        Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace ? Visibility.Visible : Visibility.Collapsed", dashboardCode);
+        Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace && !showPersistentGameBrowser", dashboardCode);
         Assert.Contains("GameBrowserPanel.MaxHeight = showCompactGameBrowser ? Math.Max(240, Math.Min(360, height * 0.42)) : 0", dashboardCode);
+    }
+
+    [Fact]
+    public void SaveHistoryInspectorDoesNotShowDisabledControlsOrUnlabelledPillsWithoutASelection()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("x:Name=\"SaveHistoryInspectorTabs\"", dashboard);
+        Assert.Contains("请选择一个历史版本", dashboard);
+        Assert.Contains("<DataTrigger Binding=\"{Binding SelectedBackup}\" Value=\"{x:Null}\">", dashboard);
+        Assert.Contains("Header=\"版本详情\"", dashboard);
+        Assert.Contains("Header=\"安全恢复\"", dashboard);
+        Assert.Contains("Header=\"备注与锁定\"", dashboard);
+        Assert.Contains("PreviewMouseWheel=\"OnInspectorPreviewMouseWheel\"", dashboard);
+        Assert.Contains("scrollViewer.LineDown()", dashboardCode);
+        Assert.Contains("scrollViewer.LineUp()", dashboardCode);
     }
 
     [Fact]

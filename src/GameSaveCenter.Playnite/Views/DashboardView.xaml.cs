@@ -206,6 +206,7 @@ namespace GameSaveCenter.Playnite.Views
                 || viewModel.CurrentWorkspace == WorkspaceKind.Trainers
                 || viewModel.CurrentWorkspace == WorkspaceKind.Media;
             var showPersistentGameBrowser = gameScopedWorkspace && mode == LayoutMode.Expanded;
+            if (showPersistentGameBrowser) compactGameBrowserOpen = false;
             var showCompactGameBrowser = gameScopedWorkspace && !showPersistentGameBrowser && compactGameBrowserOpen;
 
             SidebarColumn.Width = new GridLength(mode == LayoutMode.Expanded ? 228
@@ -223,7 +224,9 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetRow(HeaderTitlePanel, 0);
             Grid.SetColumn(HeaderTitlePanel, 0);
             Grid.SetColumnSpan(HeaderTitlePanel, mode == LayoutMode.Expanded ? 1 : 2);
-            GameSwitcherHost.Visibility = gameScopedWorkspace ? Visibility.Visible : Visibility.Collapsed;
+            GameSwitcherHost.Visibility = gameScopedWorkspace && !showPersistentGameBrowser
+                ? Visibility.Visible
+                : Visibility.Collapsed;
             Grid.SetRow(GameSwitcherHost, 1);
             Grid.SetColumn(GameSwitcherHost, 0);
             Grid.SetColumnSpan(GameSwitcherHost, mode == LayoutMode.Standard ? 1 : 2);
@@ -258,9 +261,9 @@ namespace GameSaveCenter.Playnite.Views
                 TopActionsScroller.Margin = new Thickness(0, 10, 0, 0);
             }
 
-            ToggleGameBrowserButton.Visibility = gameScopedWorkspace && !showPersistentGameBrowser
-                ? Visibility.Visible
-                : Visibility.Collapsed;
+            // The selected-game context button is the only selector entry outside Expanded mode.
+            // It opens the same virtualized game browser used by the persistent Expanded layout.
+            ToggleGameBrowserButton.Visibility = Visibility.Collapsed;
 
             // The complete game search/filter/sort surface is persistent only when there is
             // genuinely enough width.  At smaller sizes it becomes an explicit, finite-height
@@ -691,16 +694,41 @@ namespace GameSaveCenter.Playnite.Views
 
         private void OnToggleGameBrowserClick(object sender, RoutedEventArgs e)
         {
-            if (viewModel == null) return;
+            if (viewModel == null || ActualWidth >= 1280) return;
             compactGameBrowserOpen = !compactGameBrowserOpen;
-            ToggleGameBrowserButton.ToolTip = compactGameBrowserOpen
+            var tooltip = compactGameBrowserOpen
                 ? "关闭游戏搜索、状态筛选和排序"
                 : "打开游戏搜索、状态筛选和排序";
+            ToggleGameBrowserButton.ToolTip = tooltip;
+            CompactGameSelector.ToolTip = tooltip;
             ApplyResponsiveLayout(ActualWidth, ActualHeight);
             if (compactGameBrowserOpen && GameSearchTextBox != null)
             {
                 BeginUiSafely(() => GameSearchTextBox.Focus(), DispatcherPriority.Background);
             }
+        }
+
+        private void OnGameSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!compactGameBrowserOpen || ActualWidth >= 1280 || viewModel == null || viewModel.SelectedGame == null) return;
+            compactGameBrowserOpen = false;
+            CompactGameSelector.ToolTip = "打开游戏搜索、状态筛选和排序";
+            ApplyResponsiveLayout(ActualWidth, ActualHeight);
+        }
+
+        private static void OnInspectorPreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            var scrollViewer = sender as ScrollViewer;
+            if (scrollViewer == null || scrollViewer.ScrollableHeight <= 0) return;
+
+            // Playnite themes can route the wheel to an outer host before nested inspectors
+            // consume it. Move the finite inspector explicitly and mark the event handled.
+            for (var index = 0; index < 3; index++)
+            {
+                if (e.Delta < 0) scrollViewer.LineDown();
+                else scrollViewer.LineUp();
+            }
+            e.Handled = true;
         }
 
         private static void SetVisibility(UIElement element, bool visible)

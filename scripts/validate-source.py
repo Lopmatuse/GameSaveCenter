@@ -998,10 +998,11 @@ def check_final_redesign_guards() -> None:
         (dashboard, "Dashboard final redesign",
          ('Themes/Redesign.xaml', 'x:Name="HeaderCompactActionsRow"',
           'x:Name="TopActionsScroller"', 'x:Name="GameSwitcherHost"',
-          'x:Name="ToggleGameBrowserButton"', 'x:Name="SidebarWorkerCompactLabel"',
+          'x:Name="CompactGameSelector"', 'x:Name="SidebarWorkerCompactLabel"',
           'x:Name="SidebarLudusaviCompactLabel"', 'ClipToBounds="True"',
           'ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"',
           'x:Name="OverviewLayoutGrid"', 'x:Name="SaveHistoryLayoutGrid"',
+          'x:Name="SaveHistoryInspectorTabs"', '请选择一个历史版本',
           'x:Name="TrainerSummaryPanel"', 'x:Name="MediaSummaryPanel"',
           'x:Name="TaskSummaryPanel"', 'x:Name="DiagnosticHealthPanel"')),
         (dashboard_code, "Dashboard final responsive behavior",
@@ -1010,7 +1011,10 @@ def check_final_redesign_guards() -> None:
           'Grid.SetColumnSpan(TopActionsScroller, 2)',
           'item.Width = visible ? double.NaN : 48', 'item.Height = visible ? double.NaN : 48',
           'card.Width = expanded ? double.NaN : 48', 'card.Height = expanded ? double.NaN : 50',
-          'GameBrowserPanel.MaxHeight = showCompactGameBrowser ? Math.Max(240, Math.Min(360, height * 0.42)) : 0')),
+          'GameBrowserPanel.MaxHeight = showCompactGameBrowser ? Math.Max(240, Math.Min(360, height * 0.42)) : 0',
+          'GameSwitcherHost.Visibility = gameScopedWorkspace && !showPersistentGameBrowser',
+          'ToggleGameBrowserButton.Visibility = Visibility.Collapsed',
+          'scrollViewer.LineDown()', 'scrollViewer.LineUp()')),
         (settings, "Settings final redesign",
          ('Themes/Redesign.xaml', 'x:Name="SettingsSectionTabs"',
           'GscRedesignSettingsTabControl', '由 Playnite 的保存按钮提交',
@@ -1026,7 +1030,7 @@ def check_final_redesign_guards() -> None:
         (redesign, "Final redesign tokens",
          ('x:Key="GscRedesignSectionCard"', 'x:Key="GscRedesignHeroCard"',
           'x:Key="GscRedesignMetricCard"', 'x:Key="GscRedesignMetricBorder"',
-          'x:Key="GscRedesignGameSelector"', 'x:Key="GscRedesignStatusCard"',
+          'x:Key="GscRedesignGameContextButton"', 'x:Key="GscRedesignStatusCard"',
           'x:Key="GscRedesignSettingsTabControl"', 'x:Key="GscRedesignSettingsTabItem"')),
     ):
         for token in required:
@@ -1037,23 +1041,44 @@ def check_final_redesign_guards() -> None:
     compact_selector = next(
         (
             node for node in dashboard_root.iter()
-            if local_name(node.tag) == "ComboBox"
+            if local_name(node.tag) == "Button"
             and any(local_name(name) == "Name" and value == "CompactGameSelector" for name, value in node.attrib.items())
         ),
         None,
     )
     if compact_selector is None:
-        fail("Final redesign compact game selector is missing")
+        fail("Final redesign selected-game context button is missing")
     else:
+        if "ItemsSource" in compact_selector.attrib:
+            fail("Selected-game context must not materialize the full game library in a ComboBox")
         compact_name = next(
             (
                 node for node in compact_selector.iter()
-                if local_name(node.tag) == "TextBlock" and node.attrib.get("Text") == "{Binding Name}"
+                if local_name(node.tag) == "TextBlock" and "SelectedGame.Name" in node.attrib.get("Text", "")
             ),
             None,
         )
         if compact_name is None or "GscComboBoxLongText" not in compact_name.attrib.get("Style", ""):
-            fail("Compact game selector must reuse GscComboBoxLongText for long game names")
+            fail("Selected-game context must trim long game names with the shared style")
+
+    game_list = next(
+        (
+            node for node in dashboard_root.iter()
+            if local_name(node.tag) == "ListBox" and node.attrib.get("ItemsSource") == "{Binding GamesView}"
+        ),
+        None,
+    )
+    if game_list is None:
+        fail("Virtualized searchable game browser is missing")
+    else:
+        for attribute, expected in (
+            ("VirtualizingPanel.IsVirtualizing", "True"),
+            ("VirtualizingPanel.VirtualizationMode", "Recycling"),
+            ("ScrollViewer.CanContentScroll", "True"),
+            ("SelectionChanged", "OnGameSelectionChanged"),
+        ):
+            if game_list.attrib.get(attribute) != expected:
+                fail(f"Game browser must preserve {attribute}={expected}")
 
     overview_activity_column = next(
         (
