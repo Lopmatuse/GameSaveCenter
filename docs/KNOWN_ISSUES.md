@@ -386,3 +386,12 @@
 ## 0.5.1 构建恢复顺序修复
 
 - **已修复待验证**：源码包若包含由其他用户配置文件生成的 `obj/project.assets.json`，旧的一键脚本会在 NuGet 恢复前执行 `dotnet clean`，进而报 `NETSDK1064` 缺少包。现在一键入口会先恢复依赖并重写资产路径，再执行清理、构建和打包。
+
+
+## GSC-085：视觉重构原型在 Standard/Compact 下发生标题、图标和状态卡越界
+
+- **状态**：源码已修复，待 Windows/Playnite DPI 回归。
+- **现象**：早期 HTML 原型的 Standard 模式中标题与顶部操作重叠；Compact 模式导航图标、选中背景、Worker/Ludusavi 状态卡超出侧栏或未居中。
+- **根因**：原型只隐藏文字和切换 CSS 类，没有为各断点重新建立独立测量槽、固定紧凑模板和真实可用宽度；仅靠 Wrap/Stretch 无法证明 WPF 高 DPI 下安全。
+- **修复**：Dashboard 使用 1280/980/880 DIP 显式模式；标题、游戏选择器与操作栏分行；紧凑导航固定 48×48、状态卡固定 48×50，`ContentPresenter` 绑定 `HorizontalContentAlignment`，侧栏 `ClipToBounds=True`；完整游戏库在非 Expanded 使用有限高度显式入口。
+- **回归**：必须在 980/880 DIP 临界点和 100%–200% DPI 逐像素检查导航、选中背景、品牌、W/L 状态灯、顶部操作及 Tooltip；不得仅凭 HTML 或源码静态检查关闭问题。

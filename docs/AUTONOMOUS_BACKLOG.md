@@ -87,6 +87,19 @@
 - **阻塞条件**：无法证明 WPF-UI 局部资源在 Playnite 10/net462 中稳定、可回退且无宿主污染时，保持自定义共享令牌方案并改为 `BLOCKED_ENVIRONMENT`，不得强行替换生产控件。
 - **当前证据**：2026-08-01 已完成可在源码层安全落地的生产迁移：新增视图局部 `WpfUiProduction.xaml` 适配层；Dashboard 的 6 个指标卡、59 个生产动作按钮、14 个策略/工具/媒体开关、10 个普通文本输入和 13 个下拉选择，以及 Settings 的 5 个设置卡、2 个动作按钮、14 个开关、6 个路径输入和 3 个下拉选择均使用 WPF-UI 模板。数值校验输入、高密度 DataGrid/ListBox、搜索清除按钮和本地兜底浮层继续保留原生 WPF；59 个 Command、全部 Binding、Recycling 虚拟化和业务事件数量与基线一致。Dashboard/Settings 的 Snackbar 使用框架局部适配；确认和设置导入报告分别使用插件内 Dialog 与 MessageBox，因为真实日志证明 WPF-UI `ContentDialogHost` 是 Playnite Window 级单例，不能放入嵌入式页面。文件导入导出的磁盘读取/写入移出 UI 线程，未引入新的 `async void`。针对真实 `Wpf.Ui.Controls.Button`、`GscSoftShadowColor` 和 `ContentDialogHost.RegisterHost` 崩溃，已分别增加资源作用域/主题令牌/窗口 Host 回归门禁。Windows Release build 为 0 警告/错误，Core 13、Worker 21、Playnite 19 项测试通过；真实 Playnite、DPI、主题、键盘及宿主污染验证仍被 ENV-001 阻塞。
 
+### UI-005：全功能页面视觉与响应式信息架构重构
+
+- **优先级**：P0
+- **状态**：BLOCKED_ENVIRONMENT
+- **发现日期**：2026-08-02
+- **前置条件**：UI-004 的局部 WPF-UI 资源隔离和崩溃门禁保留；不得删除现有 Command、Binding、业务事件、虚拟化、恢复安全确认、用户数据或插件 ID；真实 Playnite 验收仍以 ENV-001 为前置。
+- **根因与影响**：此前 UI-002～UI-004 主要完成共享样式、框架控件迁移和宿主安全收口，页面信息架构与旧版接近，用户无法直观看到“重新设计”。早期 HTML 原型还暴露 Standard 标题/操作重叠、Compact 图标与状态卡越界等问题，若直接翻译为 XAML 会把原型缺陷带入生产页面。
+- **范围**：在现有 net462 WPF/Playnite 页面内重构 Dashboard 六个工作区和 Settings；建立局部 `Redesign.xaml`，统一玻璃表面、圆角、指标卡、全局游戏上下文和设置分类；使用 1280/980/880 DIP 四档布局，明确标题、操作、游戏切换器、游戏库、详情区和紧凑侧栏的独立测量槽；保留现有 DataGrid/ListBox Recycling、命令、绑定、错误/空状态和安全回退。
+- **非目标**：不把 HTML、WebView、Electron、WinUI、Avalonia 或浏览器壳引入插件；不伪造真正 Acrylic/Mica；不修改备份、恢复、云端、媒体、修改器、SQLite 或进程业务逻辑；不以截图或静态检查替代 Windows 构建和 Playnite 真机回归。
+- **源码实现证据**：新增页面局部 `Themes/Redesign.xaml`；Dashboard 增加全局游戏切换器、可显式展开的完整游戏库、重构首页/存档历史/任务/维护摘要并统一修改器与媒体信息层；Settings 改为分类导航与单分类内容区。Compact/Narrow 侧栏使用 48×48 导航、48×50 Worker/Ludusavi 状态卡、裁切边界及模板级居中；Standard/Compact/Narrow 将标题、游戏选择和操作区放入独立 Grid 行。与 `HEAD` 比对，Dashboard 旧有 56 个唯一 Command 无删除，236 个唯一 Binding 无删除；Settings 25 个唯一 Binding 无删除，业务事件无删除。
+- **当前验证**：`scripts/validate-source.py`、三份 XAML XML 解析、UI Skill 静态审查（0 errors）、`git diff --check` 通过；新增 4 项 UI 合约测试，当前测试源码估算 Core 13 + Worker 21 + Playnite 53 = 87 项，但本 Linux 环境没有 dotnet/MSBuild/Playnite，新增测试和 Release build 尚未执行。
+- **阻塞与最终验收**：必须在 Windows 运行 restore/build/87 项测试/package/Worker smoke，并在可审计隔离 Playnite 中逐页验证 1600×900、1366×768、1280×720、1100×700、980×640、880 DIP 附近和 100%/125%/150%/200% DPI；检查 Light/Dark/Follow/高对比度、关闭玻璃/动画、键盘、Popup、侧栏居中、状态卡边界、游戏切换和页面反复开关。完成前不得宣称零崩溃或正式完成。
+
 ## 本次审计证据
 
 - 2026-08-01：GOV-002 完成台账校准。`792186f` 已将 `FEATURE_COMPLETION_ASSESSMENT.md` 校准至 `0.6.22-development-preview`，故 DOC-001 从 `PROPOSED` 改为 `IMPLEMENTED`；当前可复查自动化基线为源码门禁通过、Release 0 warning/0 error、Core 13 + Worker 21 + Playnite UI 49 = 83 项测试通过、UI Skill 静态审查 0 errors、`git diff --check`/`git fsck --full`、PEXT 打包和 Worker `0.6.22.0` smoke 通过。历史条目中的较低测试数保留为当时提交的证据，不能误写成当前基线。`ENV-001` 仍是实际 Playnite 加载、多主题、DPI、键盘和滚动验收的唯一环境前置；没有启动 `.tmp` 或用户实例。

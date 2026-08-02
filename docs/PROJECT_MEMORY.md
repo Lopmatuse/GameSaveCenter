@@ -637,3 +637,12 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 - `StaticResource` 在 XAML 加载时必须解析成功；不存在会使整个侧栏构造失败。`DynamicResource` 名称缺失通常不会立即抛同类异常，但会造成样式丢失，也必须纳入门禁。
 - 0.4.2 新增 `GscStatusPill`，并去除不存在的 `GscCardBrush/GscHairlineBrush` 引用。
 - 后续任何 UI 改动除结构和 TargetName 检查外，还必须验证全部 `Gsc*` 资源引用能够在当前 XAML或共享 Themes 字典中解析。
+
+
+## 2026-08-02 UI-005 最终视觉重构记忆
+
+- 用户确认此前“UI 收口”视觉变化不足，最终目标改为在现有 WPF/Playnite 平台上重做信息架构，同时不增加或减少功能。
+- HTML 只作为视觉/响应式原型，绝不能进入产品。原型暴露的 Standard 标题按钮重叠、Compact 导航与 Worker/Ludusavi 状态卡越界，已转化为生产 XAML 的硬门禁：独立 Grid 行、固定紧凑尺寸、模板级居中、侧栏裁切和有限高度游戏库。
+- 游戏级工作区（存档、修改器、媒体）共享顶部当前游戏选择器；完整游戏搜索、筛选和排序在 Expanded 常驻，在 Standard/Compact/Narrow 通过“游戏库”显式打开，不能丢失。
+- 视觉方向继续采用 Apple-inspired 原生 WPF：主题自适应拟态毛玻璃、低对比度描边、大圆角、克制环境光。禁止修改 Playnite 顶层 HWND、禁止模糊正文、禁止全局注入 WPF-UI 资源。
+- UI-005 源码完成不等于真机完成。当前环境无法运行 Windows build/Playnite，因此必须保留 `BLOCKED_ENVIRONMENT`；只有一键构建、87 项测试、打包/Worker smoke 和隔离 Playnite 的 DPI/主题/反复打开回归全部通过后，才能标为最终交付。

@@ -2,6 +2,17 @@
 
 源码/自动化当前基线：Core 13、Worker 21、Playnite UI 49，共 83 项 Release 测试；真实 Playnite 主题、DPI、键盘和大库回归仍须在具备独立数据根及 PID 边界的环境执行。
 
+## UI-005 全功能视觉重构与响应式最终验收
+
+- [ ] 运行根目录一键构建安装：restore、Release build、Core 13 + Worker 21 + Playnite 53（总计 87）项测试、package、Worker smoke 全部成功；确认安装 DLL 与 stage SHA-256 一致。
+- [ ] 首次打开 Dashboard，连续关闭/重开至少 10 次，并依次进入首页、存档、修改器、媒体、任务、维护和设置；日志不得出现 XamlParseException、资源键缺失、Dispatcher、绑定回写或 WPF-UI Host 异常。
+- [ ] 在 1600×900、1366×768、1280×720、1100×700、980×640，并在 1280/980/880 DIP 临界点上下连续拖动窗口；标题、操作、全局游戏选择器和页面内容不得重叠或突然越界。
+- [ ] 在 Compact/Narrow 验证六个导航项保持 48×48 居中；选中背景不越出侧栏；Worker/Ludusavi W/L 状态卡保持 48×50、状态点可见且均不裁切。键盘、Tooltip 和 Automation Name 仍可访问。
+- [ ] 在存档、修改器和媒体中心切换至少 20 个游戏；选择状态跨页面保持，Expanded 完整游戏库与非 Expanded “游戏库”入口均保留搜索、状态筛选、排序和大型库 Recycling。
+- [ ] 对存档页验证备份历史、选中版本详情、锁定、备注、比较、恢复、撤销、候选路径和保留策略命令仍可达；恢复必须保持确认、PreRestore、校验和互斥安全链路。
+- [ ] 对修改器/媒体/任务/维护/设置逐项验证原有按钮、开关、输入、筛选、导入导出、错误/空状态、重试、设备决策和日志入口，无命令丢失或假成功。
+- [ ] 在 100%/125%/150%/200% DPI、Light/Dark/Follow Playnite、至少一个社区主题、高对比度、关闭玻璃和关闭动画下重复关键路径；文本、Popup、焦点环、DataGrid、ScrollBar、Snackbar 均可读且不污染 Playnite 其他页面。
+
 ## UI-002 共享控件与主题回归
 
 - [ ] 在独立 Playnite 测试实例中确认设置卡片、普通/主按钮、文本与数值输入、ComboBox、CheckBox、Slider、Tooltip、ProgressBar、DataGrid、ListBox、TabControl、Popup 和滚动条均未回退到宿主默认样式。

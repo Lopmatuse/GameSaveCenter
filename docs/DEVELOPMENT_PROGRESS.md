@@ -878,3 +878,13 @@
 - `validate-source.py` 新增所有 `Gsc*` StaticResource/DynamicResource 引用解析门禁，防止自有资源名缺失再次进入交付包。
 - 版本提升为 0.4.2，便于在 Playnite 附加组件页区分崩溃版 0.4.1 与修复版。
 - 当前环境仍无 Windows/.NET/WPF/Playnite，必须由真机重新执行一键构建安装并打开侧栏验证。
+
+
+## 2026-08-02 UI-005 全功能视觉重构（源码阶段）
+
+- 在不修改业务层的前提下建立 `Themes/Redesign.xaml`，统一最终页面的玻璃表面、圆角、指标卡、标题按钮、游戏选择器、状态卡和设置分类导航。
+- Dashboard 六个工作区均进入新信息架构：首页采用关键指标/当前游戏/活动/风险分层；存档历史使用列表与安全详情检查器；修改器、媒体、任务和维护中心增加各自摘要与工作台层级；游戏级页面共享当前游戏选择器，并保留完整搜索/筛选/排序游戏库入口。
+- 响应式不再依赖 WrapPanel 猜测：1280/980/880 DIP 四档显式调整侧栏、标题、操作栏、游戏选择器、游戏库和检查器；Compact/Narrow 导航固定 48×48，Worker/Ludusavi 固定 48×50 并由模板居中，侧栏裁切防止选中背景越界。
+- Settings 改为左侧分类/右侧当前分类；低于 920 DIP 时分类移动到顶部并自动换行，输入分组按实际可读宽度降为两列或单列。保留所有原字段、校验、主题事件和导入导出行为，并明确由 Playnite 保存按钮提交。
+- 自动比对确认 Dashboard 的 56 个唯一 Command、236 个原有唯一 Binding、Settings 的 25 个唯一 Binding 和原业务事件均未删除；大列表仍位于有限 Grid 测量路径并使用既有 Recycling 样式。
+- 当前仅完成静态阶段：源码门禁、XML、UI Skill（0 errors）和 `git diff --check` 通过；新增 4 项响应式/资源/功能保留合约测试。Windows Release build、87 项测试、打包、Worker smoke 和真实 Playnite/DPI/主题验收因当前环境缺少工具而未执行，任务保持 `BLOCKED_ENVIRONMENT`。
