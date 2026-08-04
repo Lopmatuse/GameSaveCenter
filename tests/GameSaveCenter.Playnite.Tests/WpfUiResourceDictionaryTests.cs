@@ -549,8 +549,8 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Equal("Auto", auditScroll.Attribute("VerticalScrollBarVisibility")?.Value);
         Assert.Equal("Disabled", auditScroll.Attribute("HorizontalScrollBarVisibility")?.Value);
-        Assert.Contains("x:Name=\"MaintenanceAuditFindingsGrid\" Height=\"360\"", maintenanceText);
-        Assert.Contains("x:Name=\"MaintenanceAuditLogGrid\" Height=\"360\"", maintenanceText);
+        Assert.Contains("x:Name=\"MaintenanceAuditFindingsGrid\" Height=\"{DynamicResource GscTableViewportHeight}\"", maintenanceText);
+        Assert.Contains("x:Name=\"MaintenanceAuditLogGrid\" Height=\"{DynamicResource GscTableViewportHeight}\"", maintenanceText);
         Assert.Contains("MinHeight=\"360\"", maintenanceText);
         Assert.Contains("CanContentScroll=\"False\"", maintenanceText);
     }
@@ -568,7 +568,7 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Equal("Auto", deviceScroll.Attribute("VerticalScrollBarVisibility")?.Value);
         Assert.Equal("Disabled", deviceScroll.Attribute("HorizontalScrollBarVisibility")?.Value);
-        Assert.Contains("x:Name=\"MaintenanceDeviceGrid\" Height=\"360\"", maintenanceText);
+        Assert.Contains("x:Name=\"MaintenanceDeviceGrid\" Height=\"{DynamicResource GscTableViewportHeight}\"", maintenanceText);
         Assert.Contains("ItemsSource=\"{Binding DeviceComparisons}\"", maintenanceText);
     }
 
