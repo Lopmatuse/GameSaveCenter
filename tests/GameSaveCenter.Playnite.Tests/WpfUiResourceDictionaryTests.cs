@@ -1289,6 +1289,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("<Style TargetType=\"ListBox\">", production);
         Assert.Contains("ScrollViewer.VerticalScrollBarVisibility\" Value=\"Auto\"", production);
         Assert.Contains("VirtualizingPanel.VirtualizationMode\" Value=\"Recycling\"", production);
+        Assert.Contains("ScrollViewer.PanningMode\" Value=\"VerticalOnly\"", production);
+        Assert.Contains("KeyboardNavigation.TabNavigation\" Value=\"Local\"", production);
         Assert.Contains("FocusVisualStyle\" Value=\"{DynamicResource GscSharedFocusVisual}\"", production);
         Assert.Contains("CornerRadius=\"{DynamicResource GscCornerSmall}\"", production);
         Assert.Contains("Value=\"{DynamicResource GscRowHoverBrush}\"", production);

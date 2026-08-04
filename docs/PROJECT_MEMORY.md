@@ -815,3 +815,7 @@ UI-078：生产 `ListBox` 必须继承共享滚动契约：`CanContentScroll=Tru
 
 UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，不能在调色板应用路径中保留固定紫色
 常量；主题切换和高对比度下滚动条仍需与按钮、焦点环和选中态保持同一强调色语义。
+### UI-080：列表滚动与键盘焦点局部化
+
+- `WpfUiProduction.xaml` 的隐式 `ListBox` 现在统一使用 `PanningMode=VerticalOnly`、`TabNavigation=Local`、`DirectionalNavigation=Contained` 与 Recycling 虚拟化。
+- 该契约覆盖全局游戏选择器、修改器列表、FLiNG 目录和其他生产列表；页面仍可为特殊列表显式覆盖，但不能退回宿主默认滚动行为。

@@ -1133,3 +1133,8 @@
 - Settings 改为左侧分类/右侧当前分类；低于 920 DIP 时分类移动到顶部并自动换行，输入分组按实际可读宽度降为两列或单列。保留所有原字段、校验、主题事件和导入导出行为，并明确由 Playnite 保存按钮提交。
 - 自动比对确认 Dashboard 的 56 个唯一 Command、236 个原有唯一 Binding、Settings 的 25 个唯一 Binding 和原业务事件均未删除；大列表仍位于有限 Grid 测量路径并使用既有 Recycling 样式。
 - 当前仅完成静态阶段：源码门禁、XML、UI Skill（0 errors）和 `git diff --check` 通过；新增 4 项响应式/资源/功能保留合约测试。Windows Release build、87 项测试、打包、Worker smoke 和真实 Playnite/DPI/主题验收因当前环境缺少工具而未执行，任务保持 `BLOCKED_ENVIRONMENT`。
+### UI-080：统一列表局部滚动与焦点导航契约
+
+- 生产 `ListBox` 隐式样式统一启用 `ScrollViewer.PanningMode=VerticalOnly`，让触控、触摸板和滚轮事件在列表内部消费，避免外层工作区发生意外滚动。
+- 统一 `KeyboardNavigation.TabNavigation=Local` 与 Recycling 虚拟化，确保大库列表在 Tab 导航时保持局部焦点语义，不改变现有命令和选择绑定。
+- 本次只修改共享资源，并以资源门禁锁定滚动、虚拟化和键盘导航属性。

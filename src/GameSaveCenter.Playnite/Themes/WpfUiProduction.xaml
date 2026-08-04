@@ -201,8 +201,10 @@
         <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="ScrollViewer.PanningMode" Value="VerticalOnly"/>
         <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
         <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
+        <Setter Property="KeyboardNavigation.TabNavigation" Value="Local"/>
         <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Contained"/>
     </Style>
 
