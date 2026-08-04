@@ -136,7 +136,14 @@
             </Border>
         </Grid>
 
-        <Grid x:Name="OverviewSecondaryPanel" Grid.Row="0" Grid.Column="2" MinWidth="0">
+        <ScrollViewer x:Name="OverviewSecondaryScrollViewer"
+                      Grid.Row="0"
+                      Grid.Column="2"
+                      VerticalScrollBarVisibility="Disabled"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      MinHeight="0">
+        <Grid x:Name="OverviewSecondaryPanel" MinWidth="0">
             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
             <Border Style="{DynamicResource GscRedesignSectionCard}">
                 <StackPanel>
@@ -171,5 +178,6 @@
                 </Grid>
             </Border>
         </Grid>
+        </ScrollViewer>
     </Grid>
 </UserControl>

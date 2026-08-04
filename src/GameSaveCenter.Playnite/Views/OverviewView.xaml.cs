@@ -24,6 +24,7 @@ namespace GameSaveCenter.Playnite.Views
         public ColumnDefinition OverviewSecondaryColumnDefinition => OverviewSecondaryColumn;
         public UIElement OverviewPrimaryPanelElement => OverviewPrimaryPanel;
         public UIElement OverviewSecondaryPanelElement => OverviewSecondaryPanel;
+        public ScrollViewer OverviewSecondaryScrollViewerElement => OverviewSecondaryScrollViewer;
         public ScrollViewer OverviewRiskScrollViewerElement => OverviewRiskScrollViewer;
 
         public void ApplyResponsiveColumns(bool stack)
@@ -36,9 +37,9 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetRow(OverviewPrimaryPanel, 0);
             Grid.SetColumn(OverviewPrimaryPanel, 0);
             Grid.SetColumnSpan(OverviewPrimaryPanel, stack ? 3 : 1);
-            Grid.SetRow(OverviewSecondaryPanel, stack ? 1 : 0);
-            Grid.SetColumn(OverviewSecondaryPanel, stack ? 0 : 2);
-            Grid.SetColumnSpan(OverviewSecondaryPanel, stack ? 3 : 1);
+            Grid.SetRow(OverviewSecondaryScrollViewer, stack ? 1 : 0);
+            Grid.SetColumn(OverviewSecondaryScrollViewer, stack ? 0 : 2);
+            Grid.SetColumnSpan(OverviewSecondaryScrollViewer, stack ? 3 : 1);
             OverviewSecondaryPanel.Margin = stack
                 ? new Thickness(0, 14, 0, 0)
                 : new Thickness(0);
@@ -48,9 +49,12 @@ namespace GameSaveCenter.Playnite.Views
         {
             // In stacked layouts the risk card is secondary content. Give it a bounded
             // scroll channel so a long attention list cannot push recent activity away.
-            OverviewSecondaryPanel.MaxHeight = stack
+            OverviewSecondaryScrollViewer.MaxHeight = stack
                 ? Math.Max(260, Math.Min(480, height * 0.58))
                 : double.PositiveInfinity;
+            OverviewSecondaryScrollViewer.VerticalScrollBarVisibility = stack
+                ? ScrollBarVisibility.Auto
+                : ScrollBarVisibility.Disabled;
             OverviewRiskScrollViewer.MaxHeight = stack
                 ? Math.Max(180, Math.Min(360, height * 0.42))
                 : double.PositiveInfinity;

@@ -1001,7 +1001,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.DoesNotContain(dataGrid.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
         Assert.Contains("OpenAttentionFindingCommand", File.ReadAllText(overviewPath));
         Assert.Contains("x:Name=\"OverviewRiskScrollViewer\"", File.ReadAllText(overviewPath));
-        Assert.Contains("OverviewRiskScrollViewer.MaxHeight = stack", File.ReadAllText(overviewPath + ".cs"));
+        Assert.Contains("x:Name=\"OverviewSecondaryScrollViewer\"", File.ReadAllText(overviewPath));
+        Assert.Contains("OverviewSecondaryScrollViewer.MaxHeight = stack", File.ReadAllText(overviewPath + ".cs"));
+        Assert.Contains("OverviewSecondaryScrollViewer.VerticalScrollBarVisibility = stack", File.ReadAllText(overviewPath + ".cs"));
     }
 
     [Fact]

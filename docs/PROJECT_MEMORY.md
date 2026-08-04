@@ -823,3 +823,7 @@ UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，
 
 - Dashboard 游戏列表的强悬停色不得使用 `StaticResource`；必须绑定 `GscRowHoverStrongBrush` 的 `DynamicResource`。
 - 调色板在高对比度下将该资源降为透明，保留系统高亮、焦点和选中状态的可读语义。
+### UI-082：首页堆叠布局的滚动边界
+
+- `OverviewSecondaryScrollViewer` 只包住首页右侧的统计/风险内容，不得包住最近活动 DataGrid。
+- `ApplyResponsiveHeight` 在堆叠模式设置有限 `MaxHeight` 与 `VerticalScrollBarVisibility=Auto`，宽屏恢复 Disabled，避免双重无限测量。
