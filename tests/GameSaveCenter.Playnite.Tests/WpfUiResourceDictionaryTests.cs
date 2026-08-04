@@ -599,7 +599,24 @@ public sealed class WpfUiResourceDictionaryTests
             Assert.Equal("True", control.Attribute("VirtualizingPanel.IsVirtualizing")?.Value);
             Assert.Equal("Recycling", control.Attribute("VirtualizingPanel.VirtualizationMode")?.Value);
             Assert.Equal("True", control.Attribute("ScrollViewer.CanContentScroll")?.Value);
+            Assert.Equal("Auto", control.Attribute("ScrollViewer.VerticalScrollBarVisibility")?.Value);
+            Assert.Equal("Disabled", control.Attribute("ScrollViewer.HorizontalScrollBarVisibility")?.Value);
         }
+    }
+
+    [Fact]
+    public void AttentionActionsExposeAnAccessibleExplanationPath()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var overview = XDocument.Parse(File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml")));
+        var actions = overview.Descendants()
+            .Where(element => element.Name.LocalName == "Button" && (element.Attribute("Command")?.Value.IndexOf("OpenAttentionCenterCommand", StringComparison.Ordinal) ?? -1) >= 0)
+            .ToList();
+
+        Assert.Equal(2, actions.Count);
+        Assert.Contains(actions, element => element.Attribute("AutomationProperties.Name")?.Value == "查看需要关注的游戏、原因和建议处理方式");
+        Assert.Contains(actions, element => element.Attribute("AutomationProperties.Name")?.Value == "打开维护中心查看完整关注详情");
+        Assert.Contains(overview.Descendants(), element => element.Name.LocalName == "ItemsControl" && (element.Attribute("ItemsSource")?.Value.IndexOf("AttentionFindings", StringComparison.Ordinal) ?? -1) >= 0);
     }
 
     [Fact]

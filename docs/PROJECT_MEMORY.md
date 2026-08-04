@@ -706,3 +706,11 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 - 游戏级工作区（存档、修改器、媒体）共享顶部当前游戏选择器；完整游戏搜索、筛选和排序在 Expanded 常驻，在 Standard/Compact/Narrow 通过“游戏库”显式打开，不能丢失。
 - 视觉方向继续采用 Apple-inspired 原生 WPF：主题自适应拟态毛玻璃、低对比度描边、大圆角、克制环境光。禁止修改 Playnite 顶层 HWND、禁止模糊正文、禁止全局注入 WPF-UI 资源。
 - UI-005 源码完成不等于真机完成。当前环境无法运行 Windows build/Playnite，因此必须保留 `BLOCKED_ENVIRONMENT`；只有一键构建、87 项测试、打包/Worker smoke 和隔离 Playnite 的 DPI/主题/反复打开回归全部通过后，才能标为最终交付。
+
+## 2026-08-04 0.6.22 UI-057 共享游戏入口与可滚动列表规则
+
+- 生产 Dashboard 只保留顶部全局 GamePicker；游戏级工作区共享 `SelectedGame`，任务与维护工作区不显示游戏选择器。
+- 所有 Dashboard 内部 `ListBox` 必须同时声明 `VirtualizingPanel.IsVirtualizing=True`、`VirtualizationMode=Recycling`、`ScrollViewer.CanContentScroll=True`、纵向 `Auto` 和横向 `Disabled`，避免长列表被裁切或产生页面级横向滚动。
+- `DataGrid` 必须位于有限 `Grid` 测量路径，统一复用共享样式并保留内部滚动与虚拟化；媒体来源规则的表单可滚动，但表格必须处于独立 `*` 行。
+- 首页需关注入口必须以按钮/键盘可达，提供无障碍名称；具体原因来自持久化的 `AttentionFindings`，不能只显示数字。
+- WPF-UI 输入控件继续使用共享圆角模板和 `DynamicResource`；不得回退到系统白色 TextBox/ComboBox 或共享冻结 Transform。

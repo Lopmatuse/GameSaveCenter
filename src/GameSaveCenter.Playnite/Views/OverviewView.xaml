@@ -94,7 +94,7 @@
                         <WrapPanel Grid.Row="2" Margin="0,14,0,0">
                             <ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份"/>
                             <ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding LoadDetailsCommand}" Content="刷新详情"/>
-                            <ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding OpenAttentionCenterCommand}" Content="查看需关注项" Margin="0"/>
+                            <ui:Button Style="{DynamicResource GscWpfUiActionButton}" AutomationProperties.Name="查看需要关注的游戏、原因和建议处理方式" Command="{Binding OpenAttentionCenterCommand}" Content="查看需关注项" Margin="0"/>
                         </WrapPanel>
                     </Grid>
                 </Grid>
@@ -167,7 +167,7 @@
                         </Border>
                         </StackPanel>
                     </ScrollViewer>
-                    <ui:Button Grid.Row="2" Style="{DynamicResource GscWpfUiPrimaryButton}" Command="{Binding OpenAttentionCenterCommand}" Content="打开维护中心" HorizontalAlignment="Stretch" Margin="0,14,0,0"/>
+                    <ui:Button Grid.Row="2" Style="{DynamicResource GscWpfUiPrimaryButton}" AutomationProperties.Name="打开维护中心查看完整关注详情" Command="{Binding OpenAttentionCenterCommand}" Content="打开维护中心" HorizontalAlignment="Stretch" Margin="0,14,0,0"/>
                 </Grid>
             </Border>
         </Grid>

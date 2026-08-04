@@ -1508,6 +1508,7 @@
                                         <Grid x:Name="TrainerToolsListPanel" Grid.Row="2" Grid.Column="0" Margin="0,12,0,0">
                                             <ListBox ItemsSource="{Binding GameTools}" SelectedItem="{Binding SelectedGameTool}" BorderThickness="0"
                                                      Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                                     ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                      VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True">
                                                 <ListBox.ItemContainerStyle>
                                                     <Style TargetType="ListBoxItem">
@@ -1685,6 +1686,7 @@
                                                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                                     <TextBlock Text="搜索结果" FontWeight="SemiBold" Margin="2,0,0,9"/>
                                                     <ListBox Grid.Row="1" ItemsSource="{Binding TrainerCatalogResults}" SelectedItem="{Binding SelectedTrainerCatalogItem}" Background="Transparent" BorderThickness="0"
+                                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                              VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True"
                                                              SelectionChanged="OnTrainerCatalogSelectionChanged">
                                                         <ListBox.ItemTemplate><DataTemplate>
@@ -1704,6 +1706,7 @@
                                                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                                     <TextBlock Text="可下载版本" FontWeight="SemiBold" Margin="2,0,0,9"/>
                                                     <ListBox Grid.Row="1" ItemsSource="{Binding TrainerReleases}" SelectedItem="{Binding SelectedTrainerRelease}" Background="Transparent" BorderThickness="0"
+                                                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
                                                              VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True">
                                                         <ListBox.ItemTemplate><DataTemplate>
                                                             <Grid Margin="5,7" ToolTip="{Binding DisplayName}">
