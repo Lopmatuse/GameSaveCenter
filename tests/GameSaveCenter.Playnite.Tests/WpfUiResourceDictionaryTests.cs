@@ -564,6 +564,23 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("MediaSummaryPanel.Visibility = Visibility.Visible", mediaCode);
         Assert.Contains("TaskSummaryPanel.Visibility = Visibility.Visible", tasksCode);
         Assert.Contains("DiagnosticHealthPanel.Visibility = Visibility.Visible", maintenanceCode);
+        var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
+        Assert.Contains("SettingsHeaderSubtitle.Visibility = Visibility.Visible", settingsCode);
+        Assert.Contains("SettingsSaveHint.Visibility = Visibility.Visible", settingsCode);
+        Assert.Contains("RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves", dashboardCode);
+    }
+
+    [Fact]
+    public void SafeFallbackUsesSystemThemeResourcesInsteadOfHardCodedDarkColors()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var safeView = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "SafeViewFactory.cs"));
+
+        Assert.Contains("SystemColors.WindowTextBrush", safeView);
+        Assert.Contains("SystemColors.GrayTextBrush", safeView);
+        Assert.Contains("SystemColors.WindowBrush", safeView);
+        Assert.DoesNotContain("Brushes.White", safeView);
+        Assert.DoesNotContain("Color.FromRgb(28, 30, 38)", safeView);
     }
 
     [Fact]

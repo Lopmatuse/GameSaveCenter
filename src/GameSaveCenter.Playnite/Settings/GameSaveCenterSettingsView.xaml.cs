@@ -366,8 +366,13 @@ namespace GameSaveCenter.Playnite.Settings
             SettingsShell.HorizontalAlignment = compact ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
             SettingsShell.Width = compact ? double.NaN : Math.Min(1240, contentWidth);
             SettingsShell.MaxWidth = compact ? double.PositiveInfinity : 1240;
-            SettingsHeaderSubtitle.Visibility = height < 650 ? Visibility.Collapsed : Visibility.Visible;
-            SettingsSaveHint.Visibility = width >= 1040 && height >= 650 ? Visibility.Visible : Visibility.Collapsed;
+            // SettingsScroller is the overflow channel. Keep context and save semantics
+            // visible at every height; only constrain their width so compact headers wrap
+            // instead of silently removing information.
+            SettingsHeaderSubtitle.Visibility = Visibility.Visible;
+            SettingsHeaderSubtitle.MaxWidth = narrow ? 300 : double.PositiveInfinity;
+            SettingsSaveHint.Visibility = Visibility.Visible;
+            SettingsSaveHint.MaxWidth = width >= 1040 ? 320 : narrow ? 180 : 230;
             SettingsSectionTabs.TabStripPlacement = compact ? Dock.Top : Dock.Left;
 
             foreach (var item in SettingsSectionTabs.Items)

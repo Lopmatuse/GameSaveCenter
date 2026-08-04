@@ -1,3 +1,13 @@
+# 0.6.40 Development Preview
+
+- Core 13、Worker 23、Playnite 92，共 128 项 Release 自动测试通过；Release 构建 0 错误（仅 NuGet 漏洞源不可达警告）。
+
+- 低高度设置页继续显示标题说明和“由 Playnite 保存”提示，内容通过页面滚动承载。
+- 存档安全提示不再在矮窗口中静默消失。
+- XAML 构造失败时的隔离诊断视图改用 Windows 系统窗口、文字和边框资源，适配黑/白/高对比度环境。
+- 0.6.39 的共享页面滚动、较高表格视口和 0.6.38 的大型库启动保护继续保留。
+- 真实 Playnite、DPI、主题和 900+ 游戏库回归仍需 Windows 环境验证。
+
 # 0.6.39 Development Preview
 
 - Settings 与侧栏统一使用共享页面级滚动通道，长设置和窄导航不会退回系统默认滚动条。

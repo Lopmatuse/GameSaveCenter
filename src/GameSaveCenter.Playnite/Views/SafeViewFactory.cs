@@ -26,7 +26,7 @@ namespace GameSaveCenter.Playnite.Views
                 Text = title,
                 FontSize = 22,
                 FontWeight = FontWeights.SemiBold,
-                Foreground = Brushes.White,
+                Foreground = SystemColors.WindowTextBrush,
                 TextWrapping = TextWrapping.Wrap
             });
             panel.Children.Add(new TextBlock
@@ -34,7 +34,7 @@ namespace GameSaveCenter.Playnite.Views
                 Text = message,
                 Margin = new Thickness(0, 12, 0, 0),
                 FontSize = 14,
-                Foreground = Brushes.Gainsboro,
+                Foreground = SystemColors.GrayTextBrush,
                 TextWrapping = TextWrapping.Wrap
             });
             if (!string.IsNullOrWhiteSpace(details))
@@ -44,7 +44,7 @@ namespace GameSaveCenter.Playnite.Views
                     Text = details,
                     Margin = new Thickness(0, 12, 0, 0),
                     FontSize = 12,
-                    Foreground = Brushes.Silver,
+                    Foreground = SystemColors.GrayTextBrush,
                     TextWrapping = TextWrapping.Wrap,
                     TextTrimming = TextTrimming.CharacterEllipsis,
                     MaxHeight = 56
@@ -53,7 +53,9 @@ namespace GameSaveCenter.Playnite.Views
 
             var border = new Border
             {
-                Background = new SolidColorBrush(Color.FromRgb(28, 30, 38)),
+                Background = SystemColors.WindowBrush,
+                BorderBrush = SystemColors.ActiveBorderBrush,
+                BorderThickness = new Thickness(1),
                 Child = panel
             };
             return new UserControl { Content = border };

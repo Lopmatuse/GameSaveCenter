@@ -1,7 +1,14 @@
 # 功能完成度评估
 
 更新时间：2026-08-05
-评估版本：`0.6.39-development-preview`
+评估版本：`0.6.40-development-preview`
+
+## 0.6.40 当前证据（2026-08-05）
+
+- 自动化证据为：Core 13、Worker 23、Playnite 92，共 128 项 Release 测试通过；Release 构建 0 错误（仅 NuGet 漏洞源不可达警告）；源码校验与 `git diff --check` 通过。真实 Playnite、主题、DPI 和 900+ 游戏库回归仍待 Windows 环境验证。
+
+- 设置页低高度仍保留标题说明和保存语义提示；存档安全提示不再因 680 DIP 阈值消失；异常兜底视图使用系统窗口/文字资源，能随黑白高对比度环境适配。
+- 真实 Playnite 900+ 游戏启动、窗口渲染、主题、DPI 和独立 LudusaviPlaynite 对照仍未在本环境完成。
 
 ## 0.6.39 当前证据（2026-08-05）
 

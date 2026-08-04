@@ -422,7 +422,10 @@ namespace GameSaveCenter.Playnite.Views
             }
 
             // Responsive behavior now belongs to each extracted workspace view.
-            RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves && height >= 680
+            // The safety banner is actionable context, not decorative chrome. Keep it visible
+            // for the Saves workspace at every height and let the page-level scroll channel
+            // reveal the controls below it instead of dropping the warning under 680 DIP.
+            RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves
                 ? Visibility.Visible : Visibility.Collapsed;
             if (viewModel.CurrentWorkspace != WorkspaceKind.Saves)
             {
