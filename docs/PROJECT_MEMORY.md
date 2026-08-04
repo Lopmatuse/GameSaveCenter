@@ -746,3 +746,8 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 - 存档历史底部元数据/恢复操作、候选路径判断依据和候选操作不得作为无限 Auto 行；必须分别放入有限高度的 ScrollViewer，避免窄窗口或长文案推走上方 DataGrid。
 - SaveCenter 的表格仍位于 `Grid` 的 `*` 行，DataGrid 自身保留纵横滚动、CanContentScroll、行/列虚拟化；次级区域只滚动自身，不得用页面级 ScrollViewer 掩盖测量问题。
 - 三个次级滚动区的 MaxHeight 由 SaveCenter 响应式代码按窗口实际宽高计算，最低高度用于保留操作可达性；最终仍需 Windows 低高度、DPI 与真实长文案回归。
+
+## 2026-08-04 0.6.22 UI-064 表格文本规则
+
+- 提取工作区共享 `DataGridCell` 默认左对齐，适合游戏名、路径、详情和原因等阅读型文本；状态、进度、操作类模板必须显式指定 Center 或 Stretch，不能依赖默认值。
+- 共享表头、单元格、行和排序箭头继续使用 DynamicResource 与圆角模板；不可为修正单个表格而回退到宿主默认 DataGrid 样式。

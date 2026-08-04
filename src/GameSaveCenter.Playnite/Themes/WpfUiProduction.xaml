@@ -262,7 +262,10 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="12,8"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <!-- Text columns read naturally from the leading edge; status/progress/action
+             templates can still opt into Center/Stretch explicitly.  Centering every
+             text cell made long paths and task details look cramped in narrow windows. -->
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="FocusVisualStyle" Value="{DynamicResource GscSharedFocusVisual}"/>
         <Setter Property="Template">

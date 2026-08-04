@@ -447,6 +447,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("GscRowHoverBrush", production);
         Assert.Contains("GscAccentTintBrush", production);
         Assert.Contains("CornerRadius=\"10\"", production);
+        Assert.Contains("Text columns read naturally from the leading edge", production);
+        Assert.Contains("<Style TargetType=\"DataGridCell\">", production);
+        Assert.Contains("<Setter Property=\"HorizontalContentAlignment\" Value=\"Left\"/>", production);
         Assert.Contains("x:Name=\"SortGlyph\"", production);
         Assert.Contains("Property=\"SortDirection\" Value=\"Ascending\"", production);
         Assert.Contains("Property=\"SortDirection\" Value=\"Descending\"", production);
