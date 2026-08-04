@@ -1165,6 +1165,18 @@
                         <TabItem x:Name="OverviewWorkspaceTab" Header="首页概览">
                             <views:OverviewView x:Name="OverviewWorkspaceView"/>
                         </TabItem>
+                        <TabItem x:Name="MediaWorkspaceTab" Header="媒体中心">
+                            <views:MediaCenterView x:Name="MediaWorkspaceView"/>
+                        </TabItem>
+                        <TabItem x:Name="MaintenanceWorkspaceTab" Header="维护中心">
+                            <views:MaintenanceView x:Name="MaintenanceWorkspaceView"/>
+                        </TabItem>
+                        <TabItem x:Name="SaveWorkspaceTab" Header="存档中心">
+                            <views:SaveCenterView x:Name="SaveWorkspaceView"/>
+                        </TabItem>
+                        <TabItem x:Name="TrainerWorkspaceTab" Header="修改器中心">
+                            <views:TrainerCenterView x:Name="TrainerWorkspaceView"/>
+                        </TabItem>
                         <TabItem x:Name="OverviewTab" Header="首页概览">
                             <Grid x:Name="OverviewLayoutGrid" Margin="0,12,0,0" MinHeight="0">
                                 <Grid.RowDefinitions>

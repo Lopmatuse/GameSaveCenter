@@ -3,6 +3,14 @@
 更新时间：2026-08-04
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-04 六工作区物理入口收口
+
+- `OverviewWorkspaceTab`、`SaveWorkspaceTab`、`TrainerWorkspaceTab`、`MediaWorkspaceTab`、`TaskWorkspaceTab`、`MaintenanceWorkspaceTab` 是当前唯一可见工作区入口；旧 Dashboard Tab 只能保持隐藏迁移回退，不能恢复为可见副本。
+- `SaveCenterView`、`TrainerCenterView`、`MediaCenterView`、`MaintenanceView` 继续继承父级 `DashboardViewModel` DataContext，不复制 Worker 请求、SelectedGame 或 GamePicker。它们只负责布局、主题、虚拟化和现有命令入口。
+- 媒体中心的目标游戏 ComboBox 是业务归类目标，不是全局 GamePicker；任务和维护中心保持全局视角，不显示当前游戏选择器。
+- 新工作区的 DataGrid/ListBox 必须保留行/列虚拟化和 Recycling；任何后续视觉改动不得给列表行或大滚动区增加 BlurEffect。
+- 旧视图删除前要先完成独立 Playnite 宿主回归，确认命令、绑定、键盘、DPI、主题和卸载订阅无回归。
+
 ### 2026-08-04 首页物理工作区迁移
 
 - `OverviewView` 已从 `DashboardView` 的巨型 XAML 中提取为真实 UserControl，保留 `OverviewWorkspaceView` 对现有响应式布局协调器的窄接口；布局只能通过 `ApplyResponsiveColumns` 和只读列/面板访问器调整。
@@ -10,7 +18,7 @@
 - 新工作区必须继续从父级继承 Dashboard DataContext，不能复制 `SelectedGame`、GamePicker 或 Worker 请求；如果需要局部资源，优先使用 `DynamicResource` 和共享字典，不在 View 中静态捕获主题。
 - `OverviewView` 的最近任务 DataGrid 必须保持有限 Grid 祖先、行/列虚拟化和 Recycling；风险提醒中的 `OpenAttentionFindingCommand` 必须保留真实 finding 参数与维护中心导航。
 
-当前自动化基线为 Core 13、Worker 21、Playnite UI 62，共 96 项 Release 测试；这只代表源码/自动化通过，不能替代独立 Playnite 的宿主渲染、主题、DPI、键盘和页面生命周期回归。
+当前自动化基线为 Core 13、Worker 21、Playnite UI 64，共 98 项 Release 测试；这只代表源码/自动化通过，不能替代独立 Playnite 的宿主渲染、主题、DPI、键盘和页面生命周期回归。
 
 ### 2026-08-04 任务中心物理迁移
 

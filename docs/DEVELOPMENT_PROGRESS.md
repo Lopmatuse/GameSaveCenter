@@ -3,6 +3,14 @@
 更新时间：2026-08-04
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-04 UI-045/046/047/048 六工作区收口
+
+- [x] 新增 `MediaCenterView`、`MaintenanceView`、`SaveCenterView`、`TrainerCenterView` 四个真实 WPF UserControl；媒体待归类/媒体库/来源规则、维护诊断/设备/审计/进程映射、存档历史/候选路径/策略、修改器已安装/FLiNG 在线库均使用现有 Dashboard DataContext 和真实命令。
+- [x] Dashboard 现在为六个工作区提供唯一可见的物理入口：Overview、Save、Trainer、Media、Task、Maintenance；旧 SaveHistory、Candidate、Trainer、Media、Diagnostic、DeviceStatus、Logs 和 Task 标签均隐藏为迁移回退，避免重复渲染。
+- [x] 新工作区保留 DataGrid/ListBox 虚拟化与 Recycling、长文本省略和 Tooltip、共享 DynamicResource；普通内容保持近不透明，未向列表行和大型滚动区域添加 BlurEffect。
+- [x] 新增四工作区资源/命令/虚拟化门禁测试与 STA 构造回归；源码校验、Release 构建通过；当前为 Core 13 + Worker 21 + Playnite UI 64 = 98 项测试。
+- [ ] Playnite 宿主渲染、真实主题、1000 游戏库、125%/150% DPI、键盘和反复卸载回归仍未在当前环境运行；不能据此宣称宿主 UI 完成。
+
 ## 2026-08-04 UI-043 首页工作区物理拆分
 
 - [x] 新增 `Views/OverviewView.xaml` 与代码后置，将首页概览、最近任务、风险提醒和关注原因从巨型 `DashboardView.xaml` 提取为独立 UserControl。

@@ -1,0 +1,149 @@
+<UserControl x:Class="GameSaveCenter.Playnite.Views.MediaCenterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:contracts="clr-namespace:GameSaveCenter.Contracts;assembly=GameSaveCenter.Contracts"
+             xmlns:converters="clr-namespace:GameSaveCenter.Playnite.Converters"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             Foreground="{DynamicResource GscPrimaryTextBrush}"
+             TextElement.Foreground="{DynamicResource GscPrimaryTextBrush}"
+             Background="Transparent" UseLayoutRounding="True" SnapsToDevicePixels="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml"/>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiProduction.xaml"/>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/Redesign.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <converters:MediaThumbnailConverter x:Key="MediaThumbnailConverter"/>
+            <Style x:Key="MediaDataGrid" TargetType="DataGrid">
+                <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="GridLinesVisibility" Value="None"/>
+                <Setter Property="HeadersVisibility" Value="Column"/>
+                <Setter Property="RowBackground" Value="Transparent"/>
+                <Setter Property="AlternatingRowBackground" Value="Transparent"/>
+                <Setter Property="RowHeight" Value="52"/>
+                <Setter Property="ColumnHeaderHeight" Value="40"/>
+                <Setter Property="RowHeaderWidth" Value="0"/>
+                <Setter Property="SelectionUnit" Value="FullRow"/>
+                <Setter Property="CanUserAddRows" Value="False"/>
+                <Setter Property="CanUserResizeColumns" Value="True"/>
+                <Setter Property="CanUserReorderColumns" Value="False"/>
+                <Setter Property="CanUserSortColumns" Value="True"/>
+                <Setter Property="IsReadOnly" Value="True"/>
+                <Setter Property="AutoGenerateColumns" Value="False"/>
+                <Setter Property="EnableRowVirtualization" Value="True"/>
+                <Setter Property="EnableColumnVirtualization" Value="True"/>
+                <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            </Style>
+            <Style x:Key="MediaLongText" TargetType="TextBlock">
+                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                <Setter Property="TextWrapping" Value="NoWrap"/>
+                <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+            </Style>
+            <Style x:Key="MediaTableFrame" TargetType="Border"><Setter Property="Background" Value="{DynamicResource GscGlassFillBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="12"/><Setter Property="Padding" Value="1"/></Style>
+            <Style x:Key="MediaEmptyText" TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Center"/><Setter Property="VerticalAlignment" Value="Center"/><Setter Property="TextAlignment" Value="Center"/><Setter Property="Foreground" Value="{DynamicResource GscMutedTextBrush}"/><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="Margin" Value="22"/></Style>
+            <Style x:Key="MediaStatusPill" TargetType="Border"><Setter Property="MinWidth" Value="48"/><Setter Property="Padding" Value="12,8"/><Setter Property="CornerRadius" Value="12"/><Setter Property="Background" Value="{DynamicResource GscGlassStrongBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="HorizontalAlignment" Value="Right"/></Style>
+            <Style x:Key="MediaFirstColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}"><Setter Property="Tag"><Setter.Value><CornerRadius>11,0,0,0</CornerRadius></Setter.Value></Setter></Style>
+            <Style x:Key="MediaLastColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}"><Setter Property="Tag"><Setter.Value><CornerRadius>0,11,0,0</CornerRadius></Setter.Value></Setter></Style>
+            <Style x:Key="MediaTabControl" TargetType="TabControl"><Setter Property="Background" Value="Transparent"/><Setter Property="BorderThickness" Value="0"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="VerticalContentAlignment" Value="Stretch"/></Style>
+            <Style x:Key="MediaTabItem" TargetType="TabItem"><Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/><Setter Property="Padding" Value="14,7"/><Setter Property="MinHeight" Value="36"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="VerticalContentAlignment" Value="Stretch"/></Style>
+            <Style x:Key="GscTableFrame" TargetType="Border" BasedOn="{StaticResource MediaTableFrame}"/>
+            <Style x:Key="GscFirstColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource MediaFirstColumnHeader}"/>
+            <Style x:Key="GscLastColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource MediaLastColumnHeader}"/>
+            <Style x:Key="GscTabControl" TargetType="TabControl" BasedOn="{StaticResource MediaTabControl}"/>
+            <Style x:Key="GscTabItem" TargetType="TabItem" BasedOn="{StaticResource MediaTabItem}"/>
+            <Style x:Key="GscEmptyText" TargetType="TextBlock" BasedOn="{StaticResource MediaEmptyText}"/>
+            <Style x:Key="GscStatusPill" TargetType="Border" BasedOn="{StaticResource MediaStatusPill}"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid Margin="0,12,0,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <UniformGrid x:Name="MediaSummaryPanel" Columns="4" Margin="0,0,0,12">
+            <Border Style="{DynamicResource GscRedesignSectionCard}" Padding="13" Margin="0,0,10,0"><StackPanel><TextBlock Text="媒体总数" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding MediaSummary.TotalCount, Mode=OneWay}" FontSize="21" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+            <Border Style="{DynamicResource GscRedesignSectionCard}" Padding="13" Margin="0,0,10,0"><StackPanel><TextBlock Text="截图 / 录像" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock FontSize="18" FontWeight="SemiBold" Margin="0,4,0,0"><Run Text="{Binding MediaSummary.ScreenshotCount, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding MediaSummary.VideoCount, Mode=OneWay}"/></TextBlock></StackPanel></Border>
+            <Border Style="{DynamicResource GscRedesignSectionCard}" Padding="13" Margin="0,0,10,0"><StackPanel><TextBlock Text="收藏" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding MediaSummary.FavoriteCount, Mode=OneWay}" FontSize="21" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+            <Border Style="{DynamicResource GscRedesignSectionCard}" Padding="13"><StackPanel><TextBlock Text="待归类" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}" FontSize="21" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+        </UniformGrid>
+        <TabControl Grid.Row="1" Style="{StaticResource MediaTabControl}">
+            <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource MediaTabItem}"/></TabControl.Resources>
+            <TabItem Header="待归类">
+                <Grid Margin="0,12,0,0">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <Border Background="{DynamicResource GscAccentTintBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="12" Padding="14,11" Margin="0,0,0,10">
+                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel><TextBlock Text="待归类媒体" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="只保留无法唯一判断所属游戏的公共截图和录像，不会静默猜测。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,12,0"/></StackPanel>
+                            <Border Grid.Column="1" Style="{StaticResource MediaStatusPill}" VerticalAlignment="Center"><TextBlock Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}" FontSize="18" FontWeight="SemiBold"/></Border>
+                        </Grid>
+                    </Border>
+                    <Border Grid.Row="1" Style="{StaticResource MediaTableFrame}" MinHeight="190">
+                        <Grid>
+                            <DataGrid Style="{StaticResource MediaDataGrid}" ItemsSource="{Binding UnassignedMedia}" SelectedItem="{Binding SelectedInboxMedia}">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn HeaderStyle="{StaticResource MediaFirstColumnHeader}" Header="拍摄时间" Binding="{Binding CapturedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="110"/>
+                                    <DataGridTextColumn Header="类型" Binding="{Binding KindDisplay, Mode=OneWay}" Width="72"/>
+                                    <DataGridTextColumn Header="来源" Binding="{Binding SourceDisplay, Mode=OneWay}" Width="115"/>
+                                    <DataGridTextColumn Header="文件" Binding="{Binding FileName, Mode=OneWay}" Width="*" MinWidth="220"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource MediaLongText}"><Setter Property="ToolTip" Value="{Binding OriginalPath}"/></Style></DataGridTextColumn.ElementStyle></DataGridTextColumn>
+                                    <DataGridTextColumn HeaderStyle="{StaticResource MediaLastColumnHeader}" Header="原因" Binding="{Binding ClassificationReason, Mode=OneWay}" Width="1.1*" MinWidth="220"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource MediaLongText}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Text="当前没有等待归类的媒体。" IsHitTestVisible="False" Style="{StaticResource MediaEmptyText}"/>
+                        </Grid>
+                    </Border>
+                    <WrapPanel Grid.Row="2" Margin="0,10,0,0">
+                        <TextBlock Text="归类到：" VerticalAlignment="Center"/>
+                        <ComboBox Style="{DynamicResource GscWpfUiComboBox}" Width="250" ItemsSource="{Binding Games}" SelectedItem="{Binding InboxTargetGame}" Margin="7,0,8,8"><ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate></ComboBox>
+                        <ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding AssignInboxMediaCommand}" Content="确认归类"/>
+                        <ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding IgnoreInboxMediaCommand}" Content="忽略并保留副本"/>
+                    </WrapPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="当前游戏媒体">
+                <Grid Margin="0,12,0,0">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <WrapPanel Margin="0,0,0,10">
+                        <Border Style="{DynamicResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,8"><TextBlock><Run Text="媒体 "/><Run Text="{Binding MediaSummary.TotalCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
+                        <Border Style="{DynamicResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,8"><TextBlock><Run Text="截图 "/><Run Text="{Binding MediaSummary.ScreenshotCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
+                        <Border Style="{DynamicResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,8"><TextBlock><Run Text="录像 "/><Run Text="{Binding MediaSummary.VideoCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
+                        <Border Style="{DynamicResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,0,8"><TextBlock><Run Text="占用 "/><Run Text="{Binding MediaSummary.TotalSizeDisplay, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
+                    </WrapPanel>
+                    <Border Grid.Row="1" Style="{StaticResource MediaTableFrame}" MinHeight="190">
+                        <DataGrid x:Name="MediaGrid" Style="{StaticResource MediaDataGrid}" ItemsSource="{Binding MediaView}" SelectedItem="{Binding SelectedMedia}" SelectionMode="Extended">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn HeaderStyle="{StaticResource MediaFirstColumnHeader}" Header="预览" Width="82"><DataGridTemplateColumn.CellTemplate><DataTemplate><Border Width="64" Height="38" CornerRadius="6" Background="{DynamicResource GscControlFillBrush}" ClipToBounds="True" ToolTip="{Binding FileName}"><Image Source="{Binding ArchivePath, Converter={StaticResource MediaThumbnailConverter}, ConverterParameter=96}" Stretch="UniformToFill"/></Border></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+                                <DataGridTextColumn Header="拍摄时间" Binding="{Binding CapturedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="110"/>
+                                <DataGridTextColumn Header="类型" Binding="{Binding KindDisplay, Mode=OneWay}" Width="72"/>
+                                <DataGridTextColumn Header="来源" Binding="{Binding SourceDisplay, Mode=OneWay}" Width="115"/>
+                                <DataGridCheckBoxColumn Header="收藏" Binding="{Binding IsFavorite, Mode=OneWay}" Width="68"/>
+                                <DataGridTextColumn Header="云端" Binding="{Binding CloudStateDisplay, Mode=OneWay}" Width="90"/>
+                                <DataGridTextColumn Header="备注" Binding="{Binding Comment, Mode=OneWay}" Width="150"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource MediaLongText}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn>
+                                <DataGridTextColumn HeaderStyle="{StaticResource MediaLastColumnHeader}" Header="归档路径" Binding="{Binding ArchivePath, Mode=OneWay}" Width="*" MinWidth="320"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource MediaLongText}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Border>
+                    <Border x:Name="MediaInspectorPanel" Grid.Row="2" Style="{DynamicResource GscSurface}" CornerRadius="12" Padding="12" Margin="0,10,0,0">
+                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="170"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Border x:Name="MediaPreviewPanel" Grid.Column="0" Height="104" CornerRadius="10" ClipToBounds="True" Background="{DynamicResource GscControlFillBrush}" Margin="0,0,12,0"><Grid><TextBlock Text="选择媒体可在此预览" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" Margin="14" Foreground="{DynamicResource GscSecondaryTextBrush}"/><Image Source="{Binding SelectedMedia.ArchivePath, Converter={StaticResource MediaThumbnailConverter}}" Stretch="UniformToFill"/></Grid></Border>
+                            <StackPanel Grid.Column="1" x:Name="MediaMetadataPanel"><TextBlock Text="媒体详情" FontWeight="SemiBold"/><TextBlock Text="{Binding SelectedMedia.FileName, TargetNullValue=未选择媒体}" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedMedia.FileName}" Margin="0,5,0,0"/><TextBlock Text="{Binding SelectedMedia.ArchivePath}" Foreground="{DynamicResource GscMutedTextBrush}" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedMedia.ArchivePath}" Margin="0,4,0,0"/><WrapPanel Margin="0,10,0,0"><ui:Button Style="{DynamicResource GscWpfUiContextButton}" Command="{Binding OpenSelectedMediaCommand}" Content="打开"/><ui:Button Style="{DynamicResource GscWpfUiContextButton}" Command="{Binding RevealSelectedMediaCommand}" Content="打开目录"/><ui:Button Style="{DynamicResource GscWpfUiContextButton}" Command="{Binding FavoriteSelectedMediaCommand}" Content="收藏"/></WrapPanel></StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+            <TabItem Header="来源规则">
+                <Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <Border Style="{StaticResource MediaTableFrame}"><DataGrid Style="{StaticResource MediaDataGrid}" ItemsSource="{Binding MediaSources}"><DataGrid.Columns><DataGridTextColumn Header="来源" Binding="{Binding SourceKindDisplay}" Width="150"/><DataGridTextColumn Header="目录" Binding="{Binding RootPath}" Width="*" MinWidth="260"/><DataGridTextColumn HeaderStyle="{StaticResource MediaLastColumnHeader}" Header="状态" Binding="{Binding Enabled}" Width="90"/></DataGrid.Columns></DataGrid></Border>
+                    <WrapPanel Grid.Row="1" Margin="0,10,0,0"><ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding AddMediaSourceCommand}" Content="添加来源"/><TextBlock Text="来源规则可在原生设置中继续编辑。" Foreground="{DynamicResource GscSecondaryTextBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/></WrapPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>

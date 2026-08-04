@@ -346,6 +346,68 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void GlobalWorkspaceViewsHaveOneVisibleMigrationEntryAndKeepVirtualization()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var media = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml"));
+        var maintenance = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml"));
+        var saves = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "SaveCenterView.xaml"));
+        var trainers = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml"));
+
+        foreach (var marker in new[] { "MediaWorkspaceTab", "MaintenanceWorkspaceTab", "SaveWorkspaceTab", "TrainerWorkspaceTab" })
+            Assert.Contains($"x:Name=\"{marker}\"", dashboard);
+        Assert.Contains("SetVisibility(MediaTab, false)", dashboardCode);
+        Assert.Contains("SetVisibility(DiagnosticTab, false)", dashboardCode);
+        Assert.Contains("SetVisibility(SaveHistoryTab, false)", dashboardCode);
+        Assert.Contains("SetVisibility(TrainerTab, false)", dashboardCode);
+        foreach (var view in new[] { media, maintenance, saves, trainers })
+        {
+            Assert.True(view.Contains("VirtualizingPanel.IsVirtualizing=\"True\"") || view.Contains("EnableRowVirtualization\" Value=\"True\""));
+            Assert.True(view.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"") || view.Contains("EnableColumnVirtualization\" Value=\"True\""));
+            Assert.Contains("DynamicResource GscPrimaryTextBrush", view);
+        }
+        Assert.Contains("AssignInboxMediaCommand", media);
+        Assert.Contains("RefreshDiagnosticsCommand", maintenance);
+        Assert.Contains("RestoreCommand", saves);
+        Assert.Contains("DownloadTrainerCommand", trainers);
+    }
+
+    [Fact]
+    public void ExtractedWorkspaceViewsConstructInsideSta()
+    {
+        Exception? exception = null;
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                foreach (var pair in new (string Name, Action Factory)[]
+                         {
+                             ("Overview", () => _ = new OverviewView()),
+                             ("Save", () => _ = new SaveCenterView()),
+                             ("Trainer", () => _ = new TrainerCenterView()),
+                             ("Media", () => _ = new MediaCenterView()),
+                             ("Task", () => _ = new TaskCenterView()),
+                             ("Maintenance", () => _ = new MaintenanceView())
+                         })
+                {
+                    try { pair.Factory(); }
+                    catch (Exception caught) { exception = new InvalidOperationException(pair.Name, caught); break; }
+                }
+            }
+            catch (Exception caught)
+            {
+                exception = caught;
+            }
+        });
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+        Assert.Null(exception);
+    }
+
+    [Fact]
     public void MaintenanceWorkspaceReflowsHealthCardsAndMappingEditor()
     {
         var repositoryRoot = FindRepositoryRoot();

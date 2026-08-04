@@ -136,9 +136,9 @@ namespace GameSaveCenter.Playnite.Views
                 if (!IsLoaded) return;
                 NavMaintenance.IsChecked = true;
                 UpdateWorkspacePresentation();
-                DetailsTabControl.SelectedItem = LogsTab;
-                FindingsGrid.ScrollIntoView(viewModel.SelectedFinding);
-                FindingsGrid.Focus();
+                DetailsTabControl.SelectedItem = MaintenanceWorkspaceTab;
+                MaintenanceWorkspaceView.FindingsGridElement.ScrollIntoView(viewModel.SelectedFinding);
+                MaintenanceWorkspaceView.FindingsGridElement.Focus();
                 AnimateElement(DetailsTabControl, 10, 0, 0.2);
             }, DispatcherPriority.Background);
         }
@@ -338,10 +338,9 @@ namespace GameSaveCenter.Playnite.Views
                 TrainerSummaryPanel.Visibility = height >= 720 ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            if (MediaSummaryPanel != null)
+            if (MediaWorkspaceView != null)
             {
-                MediaSummaryPanel.Columns = width >= 1180 ? 4 : 2;
-                MediaSummaryPanel.Visibility = height >= 720 ? Visibility.Visible : Visibility.Collapsed;
+                MediaWorkspaceView.ApplyResponsiveLayout(width, height);
             }
 
             if (TaskSummaryPanel != null)
@@ -354,6 +353,12 @@ namespace GameSaveCenter.Playnite.Views
             {
                 DiagnosticHealthPanel.Columns = width >= 1320 ? 4 : width >= 980 ? 2 : 1;
             }
+            if (MaintenanceWorkspaceView != null)
+            {
+                MaintenanceWorkspaceView.ApplyResponsiveLayout(width, height);
+            }
+            SaveWorkspaceView?.ApplyResponsiveLayout(width, height);
+            TrainerWorkspaceView?.ApplyResponsiveLayout(width, height);
 
             if (SaveHistoryCompactInspectorRow != null && SaveHistoryListPanel != null
                 && SaveHistoryInspectorPanel != null && SaveHistoryListColumn != null
@@ -574,13 +579,20 @@ namespace GameSaveCenter.Playnite.Views
             SetVisibility(SaveHistoryTab, workspace == WorkspaceKind.Saves);
             SetVisibility(CandidateTab, workspace == WorkspaceKind.Saves);
             SetVisibility(TrainerTab, workspace == WorkspaceKind.Trainers);
-            SetVisibility(MediaTab, workspace == WorkspaceKind.Media);
+            SetVisibility(MediaWorkspaceTab, workspace == WorkspaceKind.Media);
+            SetVisibility(MediaTab, false);
             SetVisibility(TaskWorkspaceTab, workspace == WorkspaceKind.Tasks);
             SetVisibility(TaskTab, false);
-            SetVisibility(DiagnosticTab, workspace == WorkspaceKind.Maintenance);
-            SetVisibility(DeviceStatusTab, workspace == WorkspaceKind.Maintenance);
-            SetVisibility(LogsTab, workspace == WorkspaceKind.Maintenance);
-            SetVisibility(UiFrameworkProbeTab, workspace == WorkspaceKind.Maintenance);
+            SetVisibility(MaintenanceWorkspaceTab, workspace == WorkspaceKind.Maintenance);
+            SetVisibility(SaveWorkspaceTab, workspace == WorkspaceKind.Saves);
+            SetVisibility(TrainerWorkspaceTab, workspace == WorkspaceKind.Trainers);
+            SetVisibility(SaveHistoryTab, false);
+            SetVisibility(CandidateTab, false);
+            SetVisibility(TrainerTab, false);
+            SetVisibility(DiagnosticTab, false);
+            SetVisibility(DeviceStatusTab, false);
+            SetVisibility(LogsTab, false);
+            SetVisibility(UiFrameworkProbeTab, false);
 
             var saves = workspace == WorkspaceKind.Saves;
             // Game-scoped pages need breathing room between the selected-game identity and
