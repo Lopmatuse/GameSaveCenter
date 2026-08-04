@@ -789,3 +789,6 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 UI-071：外壳的边距现在随四档宽度和低高度状态收缩；共享 `DataGridRow.MinHeight` 使用
 `GscTableRowHeight`，不允许隐式模板把工作区表格降回旧的 48 DIP。紧凑窗口要把空间留给
 工作区的星号行和内部滚动区域，不得用全页面缩放或裁剪内容来“适配”。
+
+UI-072：DataGrid 交替行必须使用 `GscTableAlternateRowBrush` 动态资源；浅色/深色由
+Dashboard 调色板计算，高对比度返回透明，选中态和悬停态仍由共享行模板负责。

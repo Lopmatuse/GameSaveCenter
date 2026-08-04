@@ -461,6 +461,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Key=\"GscTableRowHeight\"", designTokens);
         Assert.Contains("x:Key=\"GscTableMinHeight\"", designTokens);
         Assert.Contains("x:Key=\"GscTableHeaderHeight\"", designTokens);
+        Assert.Contains("x:Key=\"GscTableAlternateRowBrush\"", designTokens);
 
         foreach (var workspace in new[] { "OverviewView.xaml", "SaveCenterView.xaml", "MediaCenterView.xaml", "TaskCenterView.xaml", "MaintenanceView.xaml" })
         {
@@ -473,6 +474,7 @@ public sealed class WpfUiResourceDictionaryTests
             Assert.Contains("Property=\"MinHeight\" Value=\"{DynamicResource GscTableMinHeight}\"", text);
             Assert.Contains("Property=\"RowHeight\" Value=\"{DynamicResource GscTableRowHeight}\"", text);
             Assert.Contains("Property=\"ColumnHeaderHeight\" Value=\"{DynamicResource GscTableHeaderHeight}\"", text);
+            Assert.Contains("Property=\"AlternatingRowBackground\" Value=\"{DynamicResource GscTableAlternateRowBrush}\"", text);
             Assert.DoesNotContain("BlurEffect", text);
         }
     }
@@ -1236,6 +1238,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("resources[\"GscSuccessBrush\"]", palette);
         Assert.Contains("resources[\"GscWarningBrush\"]", palette);
         Assert.Contains("resources[\"GscErrorBrush\"]", palette);
+        Assert.Contains("resources[\"GscTableAlternateRowBrush\"]", dashboardCode);
+        Assert.Contains("SystemParameters.HighContrast ? (byte)0", dashboardCode);
         Assert.Contains("highContrast ? primaryText", palette);
     }
 

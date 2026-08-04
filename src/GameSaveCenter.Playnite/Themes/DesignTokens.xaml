@@ -65,6 +65,7 @@
     <SolidColorBrush x:Key="GscTableDividerBrush" Color="#168E8E93"/>
     <SolidColorBrush x:Key="GscPopupBrush" Color="#FA202330"/>
     <SolidColorBrush x:Key="GscTableHeaderBrush" Color="#0DFFFFFF"/>
+    <SolidColorBrush x:Key="GscTableAlternateRowBrush" Color="#08000000"/>
     <SolidColorBrush x:Key="GscRowHoverBrush" Color="#0AFFFFFF"/>
     <SolidColorBrush x:Key="GscScrollTrackBrush" Color="#128E8E93"/>
     <SolidColorBrush x:Key="GscScrollThumbBrush" Color="#5A8E8E93"/>

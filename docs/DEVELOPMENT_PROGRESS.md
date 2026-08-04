@@ -1080,6 +1080,14 @@
 - 共享隐式 `DataGridRow` 的最小高度改为使用 `GscTableRowHeight`，避免公共模板仍以旧的 48 DIP 覆盖各工作区的 54 DIP 可读表格密度。
 - 这仍然不替代 Windows 宿主中的 DPI、主题、透明度和 Playnite 窗口实机回归。
 
+## 2026-08-04 0.6.22 UI-072 表格交替行与主题层次
+
+- 五个提取工作区和 Dashboard 兼容 DataGrid 样式现在统一使用 `GscTableAlternateRowBrush`，
+  交替行、悬停行和选中行具有明确但克制的层次。
+- 交替行颜色由 Dashboard 的自适应调色板按浅色/深色动态计算，高对比度下关闭额外填充，
+  避免覆盖系统对比色；默认 DesignTokens 仍提供离线解析回退。
+- 该改动只改变表面层，不改变 DataGrid 的内部滚动、排序、列宽和 Recycling 虚拟化。
+
 
 ## 2026-08-02 UI-005 全功能视觉重构（源码阶段）
 

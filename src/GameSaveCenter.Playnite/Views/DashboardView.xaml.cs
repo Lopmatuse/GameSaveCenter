@@ -1134,6 +1134,9 @@ namespace GameSaveCenter.Playnite.Views
             Resources["GscBackdropBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Backdrop);
             Resources["GscTableHeaderBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
                 palette.IsDark ? (byte)22 : (byte)12, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
+            Resources["GscTableAlternateRowBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
+                SystemParameters.HighContrast ? (byte)0 : palette.IsDark ? (byte)14 : (byte)7,
+                palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
             Resources["GscRowHoverBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
                 palette.IsDark ? (byte)18 : (byte)10, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
             Resources["GscScrollTrackBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(

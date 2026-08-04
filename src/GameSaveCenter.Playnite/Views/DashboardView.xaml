@@ -367,7 +367,7 @@
             <Setter Property="VerticalGridLinesBrush" Value="Transparent"/>
             <Setter Property="HeadersVisibility" Value="Column"/>
             <Setter Property="RowBackground" Value="Transparent"/>
-            <Setter Property="AlternatingRowBackground" Value="Transparent"/>
+            <Setter Property="AlternatingRowBackground" Value="{DynamicResource GscTableAlternateRowBrush}"/>
             <Setter Property="RowHeight" Value="{DynamicResource GscTableRowHeight}"/>
             <Setter Property="MinHeight" Value="{DynamicResource GscTableMinHeight}"/>
             <Setter Property="ColumnHeaderHeight" Value="{DynamicResource GscTableHeaderHeight}"/>
