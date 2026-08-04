@@ -48,10 +48,16 @@ public sealed class GameCatalogService
                 ? GameMatchInput.CreateHash(previous.Descriptor)
                 : previous.MatchInputHash;
             var inputChanged=!string.Equals(previousHash,inputHash,StringComparison.Ordinal);
+            // A large refresh queues matching outside the IPC request. If the Worker exits
+            // between persisting the descriptor and executing that queued item, the durable
+            // row has the new input hash but no match-attempt timestamp. Treat that state as
+            // pending on the next refresh so a restart cannot strand an unmatched game forever.
+            var matchWasNeverAttempted=string.IsNullOrWhiteSpace(previous.LudusaviName)
+                                       && !previous.LastMatchAttemptUtc.HasValue;
             var unmatchedRetryDue=string.IsNullOrWhiteSpace(previous.LudusaviName)
                                   && previous.LastMatchAttemptUtc.HasValue
                                   && previous.LastMatchAttemptUtc.Value<=retryBefore;
-            if(inputChanged||unmatchedRetryDue) pending.Add((game,inputHash));
+            if(inputChanged||matchWasNeverAttempted||unmatchedRetryDue) pending.Add((game,inputHash));
         }
 
         await _store.UpsertGamesAsync(list,token).ConfigureAwait(false);

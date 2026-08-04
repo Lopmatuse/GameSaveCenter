@@ -39,6 +39,7 @@ namespace GameSaveCenter.Playnite
         private int taskNotificationFailureCount;
         private DateTime lastTaskNotificationFailureLogUtc = DateTime.MinValue;
         private bool taskNotificationSnapshotInitialized;
+        private bool taskNotificationMonitorDeferred;
         private long lastTaskNotificationSequence;
         private string lastSynchronizedLibraryFingerprint = string.Empty;
         private DateTime lastLibrarySynchronizationUtc = DateTime.MinValue;
@@ -73,6 +74,8 @@ namespace GameSaveCenter.Playnite
             // startup delay and submitting hundreds of Ludusavi requests while Playnite is
             // still importing games.
             ConfigureLargeLibraryStartupGate();
+            var assembly = Assembly.GetExecutingAssembly();
+            logger.Info($"GameSaveCenter {assembly.GetName().Version} loaded from {assembly.Location}; observed {observedGameCount} Playnite games.");
             StartTaskNotificationMonitor();
             if (Settings.AutoStartWorker) FireAndForget(StartWorkerAndScheduleSynchronizationAsync);
         }
@@ -82,6 +85,7 @@ namespace GameSaveCenter.Playnite
             lifetimeCancellation.Cancel();
             taskNotificationTimer?.Dispose();
             taskNotificationTimer = null;
+            taskNotificationMonitorDeferred = false;
         }
 
         public override void OnLibraryUpdated(OnLibraryUpdatedEventArgs args) => RequestLibrarySynchronization("library update");
@@ -144,6 +148,7 @@ namespace GameSaveCenter.Playnite
             // Opening the dashboard is explicit user intent and releases this startup gate.
             observedGameCount = PlayniteApi.Database.Games.Count;
             interactiveSurfaceOpened = true;
+            StartTaskNotificationMonitor();
             try
             {
                 return new DashboardView(this);
@@ -162,6 +167,7 @@ namespace GameSaveCenter.Playnite
         {
             observedGameCount = PlayniteApi.Database.Games.Count;
             interactiveSurfaceOpened = true;
+            StartTaskNotificationMonitor();
             try
             {
                 return new GameSaveCenterSettingsView { DataContext = Settings };
@@ -318,6 +324,22 @@ namespace GameSaveCenter.Playnite
 
         private void StartTaskNotificationMonitor()
         {
+            if (taskNotificationTimer != null || taskNotificationMonitorDeferred && !interactiveSurfaceOpened)
+                return;
+
+            // A large Playnite library commonly has another Ludusavi integration importing
+            // hundreds of titles at the same time.  The task feed is a convenience channel,
+            // not the source of truth, so do not even open a long-poll pipe until the user has
+            // opened GameSaveCenter.  This avoids an otherwise idle extension competing with
+            // Playnite's startup and the other Ludusavi plugin.
+            if (observedGameCount >= 100 && !interactiveSurfaceOpened)
+            {
+                taskNotificationMonitorDeferred = true;
+                logger.Info($"Deferring task notification monitor until GameSaveCenter is opened ({observedGameCount} games).");
+                return;
+            }
+
+            taskNotificationMonitorDeferred = false;
             taskNotificationMonitorStartedUtc = DateTime.UtcNow;
             // Do not compete with Playnite's library import or the Worker's first SQLite
             // initialization.  In a large library the first sync can legitimately take a

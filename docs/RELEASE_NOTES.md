@@ -1,4 +1,9 @@
-# 0.6.33 Development Preview
+# 0.6.34 Development Preview
+
+- 大型游戏库在 Dashboard 打开前不启动任务通知长轮询，避免 Playnite 启动阶段与独立 Ludusavi 集成争抢命名管道。
+- 增加当前程序集版本和加载路径日志，便于确认 Playnite 是否仍运行旧安装目录。
+- 修复 Worker 在持久化了新匹配输入但尚未执行后台匹配时重启后丢失重试的问题。
+- 收紧维护/媒体页面筛选控件的最小/最大宽度，窄窗口不再因固定 ComboBox 宽度挤压布局。
 
 - 大型 Playnite 游戏库首次打开 Dashboard 时优先显示 SQLite 缓存；已有缓存等待 60 秒、空缓存等待 10 秒后才启动整库 Ludusavi 同步。
 - 手动刷新会取消延迟同步并接管当前同步周期；Dashboard 卸载时会取消尚未开始的后台同步，降低 Playnite 卡顿和进程争用风险。

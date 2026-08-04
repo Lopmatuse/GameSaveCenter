@@ -1596,6 +1596,20 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Opened = CreateDashboardViewSafely", pluginCode);
     }
 
+    [Fact]
+    public void LargeLibraryTaskNotificationsDoNotOpenAWorkerLongPollBeforeTheDashboardIsOpened()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var pluginCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "GameSaveCenterPlugin.cs"));
+
+        Assert.Contains("private bool taskNotificationMonitorDeferred;", pluginCode);
+        Assert.Contains("if (taskNotificationTimer != null || taskNotificationMonitorDeferred && !interactiveSurfaceOpened)", pluginCode);
+        Assert.Contains("if (observedGameCount >= 100 && !interactiveSurfaceOpened)", pluginCode);
+        Assert.Contains("Deferring task notification monitor until GameSaveCenter is opened", pluginCode);
+        Assert.Contains("taskNotificationMonitorDeferred = false;", pluginCode);
+        Assert.Contains("StartTaskNotificationMonitor();", pluginCode);
+    }
+
 
     [Fact]
     public void FinalRedesignKeepsNavigationAndStatusCardsInsideCompactSidebarBounds()
