@@ -1,3 +1,12 @@
+# 0.6.49 Development Preview
+
+## Worker version handshake and stale-process recovery
+
+- The stable Worker pipe now returns a typed version handshake.
+- The Playnite plugin no longer treats a healthy older Worker as compatible with the current extension.
+- A responding version mismatch is replaced even for very large libraries; an unresponsive busy current Worker remains protected from destructive restart.
+- The supplied crash logs load GameSaveCenter 0.6.22 and also show the separate LudusaviPlaynite extension matching 967 titles; verify 0.6.49 before comparing startup behavior.
+
 # 0.6.48 Development Preview
 
 ## Large-library observation and DataGrid scrolling

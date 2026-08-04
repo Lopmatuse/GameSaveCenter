@@ -1407,11 +1407,11 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("Observe(InitializeAsync())", viewModelCode);
         Assert.DoesNotContain("Run(InitializeAsync)", viewModelCode);
-        Assert.Contains("WaitForHealthAsync(TimeSpan.FromSeconds(45))", launcherCode);
+        Assert.Contains("WaitForHealthAsync(TimeSpan.FromSeconds(45), expectedVersion)", launcherCode);
         Assert.Contains("WaitForHealthAsync", launcherCode);
         Assert.Contains("var startupDeadline = DateTime.UtcNow + TimeSpan.FromSeconds(30);", launcherCode);
         Assert.Contains("while (DateTime.UtcNow < startupDeadline)", launcherCode);
-        Assert.Contains("IsHealthyAsync(TimeSpan.FromMilliseconds(650))", launcherCode);
+        Assert.Contains("IsHealthyAsync(TimeSpan.FromMilliseconds(650), expectedVersion)", launcherCode);
         Assert.DoesNotContain("for (var i = 0; i < 120; i++)", launcherCode);
     }
 
@@ -1434,6 +1434,25 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.DoesNotContain("observedGameCount = games.Count", pluginCode);
         Assert.DoesNotContain("observedGameCount = PlayniteApi.Database.Games.Count", pluginCode);
         Assert.Contains("return observedGameCount >= VeryLargeLibraryThreshold;", pluginCode);
+    }
+
+    [Fact]
+    public void WorkerHandshakeRejectsHealthyStaleVersionBeforeLargeLibraryReuse()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var launcherCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Infrastructure", "WorkerLauncher.cs"));
+        var pluginCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "GameSaveCenterPlugin.cs"));
+        var dispatcherCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Worker", "Ipc", "IpcRequestDispatcher.cs"));
+        var dtoPath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Contracts", "WorkerDtos.cs");
+
+        Assert.True(File.Exists(dtoPath));
+        Assert.Contains("WorkerPingDto", dispatcherCode);
+        Assert.Contains("expectedVersion", launcherCode);
+        Assert.Contains("ProbeHealthAsync", launcherCode);
+        Assert.Contains("HealthProbe.Incompatible", launcherCode);
+        Assert.Contains("expectedVersion: Assembly.GetExecutingAssembly().GetName().Version?.ToString()", pluginCode);
+        Assert.Contains("if (probe != HealthProbe.Incompatible && !terminateUnhealthyProcess)", launcherCode);
+        Assert.Contains("if (probe == HealthProbe.Healthy || probe == HealthProbe.Incompatible)", launcherCode);
     }
 
     [Fact]

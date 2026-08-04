@@ -1,7 +1,9 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-08-05
-当前版本：`0.6.48-development-preview`
+当前版本：`0.6.49-development-preview`
+
+> 0.6.49 增加 Worker 版本握手。稳定管道可继续复用，但插件会核对 Worker 程序集版本；响应旧版本会被替换，无法响应的超大库忙碌 Worker 仍不会因短 Ping 超时被杀掉。用户提供的 0.6.22 日志还显示独立 LudusaviPlaynite 执行 967 次匹配，需分别 A/B。
 
 > 0.6.48 在共享和 Dashboard 兼容作用域统一使用 WPF `SelectiveScrollingGrid` 行模板，让 DataGrid 的横向滚动、行详情和虚拟化保持标准承载；同时 `observedGameCount` 只增不减，避免 Playnite 库导入/关闭时的瞬时空快照让 900+ 游戏目录误走小库 Worker Kill/Restart 路径。真实 Playnite、主题、DPI 和 900+ 库回归仍待用户环境验证。
 

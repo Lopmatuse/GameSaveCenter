@@ -44,7 +44,11 @@ public sealed class IpcRequestDispatcher
         {
             object payload=request.Type switch
             {
-                MessageTypes.Ping=>new{utc=DateTime.UtcNow,version=typeof(IpcRequestDispatcher).Assembly.GetName().Version?.ToString()??"dev"},
+                MessageTypes.Ping=>new WorkerPingDto
+                {
+                    Utc = DateTime.UtcNow,
+                    Version = typeof(IpcRequestDispatcher).Assembly.GetName().Version?.ToString() ?? "dev"
+                },
                 MessageTypes.GetDashboard=>await _dashboard.GetAsync(token).ConfigureAwait(false),
                 MessageTypes.UpsertGames=>await UpsertAsync(Read<List<GameDescriptorDto>>(request),token).ConfigureAwait(false),
                 MessageTypes.GameSessionStarted=>await _sessions.StartAsync(Read<GameSessionEventDto>(request),token).ConfigureAwait(false),

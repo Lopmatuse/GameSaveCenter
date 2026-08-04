@@ -1,3 +1,10 @@
+## 0.6.49 旧 Worker 与 900+ 游戏回归
+
+- [ ] 安装后确认 `playnite.log` 加载 `GameSaveCenter, version 0.6.49`，并确认 Worker 为 `0.6.49.0`。
+- [ ] 若安装前已有旧 Worker 存活，确认新插件先检测版本不匹配并替换，而不是复用旧版进程。
+- [ ] 在 900+ 游戏库启动阶段观察 `worker-launch.log`，确认没有旧版连续每游戏一次的 `ludusavi.exe find`；同时单独禁用 `LudusaviPlaynite` 做 A/B。
+- [ ] 确认当前版本 Worker 短暂 Ping 超时时不会被误杀，版本不匹配时则会被替换。
+
 ## 0.6.48 900+ 游戏与 DataGrid 回归
 
 - [ ] 安装后确认 `playnite.log` 加载 `GameSaveCenter, version 0.6.48`，并确认 Worker `0.6.48.0`。

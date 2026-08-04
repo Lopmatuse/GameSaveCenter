@@ -1,10 +1,11 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.48
+  - Version: 0.6.49
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-08-05
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.48/GameSaveCenter-0.6.48.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.49/GameSaveCenter-0.6.49.pext
     Changelog:
+      - 0.6.49：增加 Worker 版本握手，拒绝复用旧版健康 Worker；针对 900+ 游戏库避免旧版全量 Ludusavi 启动逻辑残留。
       - 0.6.48：修复共享 DataGridRow 的标准选择性滚动结构，并防止 Playnite 导入/关闭阶段的瞬时空快照让 900+ 游戏目录降级为可终止 Worker 的小库路径。
       - 0.6.47：超大游戏库中不因短暂 Ping 超时杀掉仍在工作的 Worker，避免重启/管道超时循环；保留大库缓存优先和 UI 回调异常隔离。
       - 0.6.45：增加 Dispatcher 与动画异常隔离，避免共享 Freezable、窗口卸载或主题切换将 Playnite 扩展宿主打崩。

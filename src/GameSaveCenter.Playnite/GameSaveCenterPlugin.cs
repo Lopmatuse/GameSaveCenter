@@ -222,7 +222,8 @@ namespace GameSaveCenter.Playnite
             // for smaller libraries; large libraries may retry without destructive recovery.
             await launcher.EnsureStartedAsync(
                 Environment.ExpandEnvironmentVariables(Settings.WorkerExecutable),
-                terminateUnhealthyProcess: !IsVeryLargeLibrary());
+                terminateUnhealthyProcess: !IsVeryLargeLibrary(),
+                expectedVersion: Assembly.GetExecutingAssembly().GetName().Version?.ToString());
         }
 
         public void NotifyVisualSettingsChanged() => VisualSettingsChanged?.Invoke(this, EventArgs.Empty);
