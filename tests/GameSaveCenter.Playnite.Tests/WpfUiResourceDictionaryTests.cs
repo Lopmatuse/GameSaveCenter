@@ -1405,6 +1405,23 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void VeryLargeLibraryKeepsBusyWorkerInsteadOfKillingItAfterPingTimeout()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var pluginCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "GameSaveCenterPlugin.cs"));
+        var launcherCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Infrastructure", "WorkerLauncher.cs"));
+
+        Assert.Contains("terminateUnhealthyProcess: !IsVeryLargeLibrary()", pluginCode);
+        Assert.Contains("bool terminateUnhealthyProcess = true", launcherCode);
+        Assert.Contains("var existingBusyProcess = false;", launcherCode);
+        Assert.Contains("existingBusyProcess = !process.HasExited;", launcherCode);
+        Assert.Contains("已保留现有进程，稍后可重试", launcherCode);
+        Assert.Contains("if (existingBusyProcess)", launcherCode);
+        Assert.Contains("if (currentCount > observedGameCount)", pluginCode);
+        Assert.Contains("return observedGameCount >= VeryLargeLibraryThreshold;", pluginCode);
+    }
+
+    [Fact]
     public void LargeLibraryDashboardDelaysInitialFullSynchronization()
     {
         var repositoryRoot = FindRepositoryRoot();

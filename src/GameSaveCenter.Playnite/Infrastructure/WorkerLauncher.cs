@@ -22,7 +22,7 @@ namespace GameSaveCenter.Playnite.Infrastructure
         private Process? runningWorker;
         public WorkerLauncher(WorkerIpcClient client) { this.client = client; }
 
-        public async Task EnsureStartedAsync(string executable)
+        public async Task EnsureStartedAsync(string executable, bool terminateUnhealthyProcess = true)
         {
             if (await IsHealthyAsync().ConfigureAwait(false)) return;
             await startupGate.WaitAsync().ConfigureAwait(false);
@@ -42,6 +42,7 @@ namespace GameSaveCenter.Playnite.Infrastructure
                 // live instance merely because that first probe timed out: doing so loses the
                 // durable request queue and creates the restart/pipe-timeout loop seen in large
                 // Playnite libraries. Give the existing process a bounded grace period first.
+                var existingBusyProcess = false;
                 foreach (var process in Process.GetProcessesByName(processName))
                 {
                     try
@@ -58,9 +59,18 @@ namespace GameSaveCenter.Playnite.Infrastructure
                             var healthy = await WaitForHealthAsync(TimeSpan.FromSeconds(45)).ConfigureAwait(false);
                             if (healthy) return;
 
-                            // Only replace a process that is still alive after the grace period.
-                            // This is intentionally the last resort for a genuinely wedged or
-                            // stale process, not the normal recovery path for a busy Worker.
+                            // A large-library Worker may be healthy at the process level while
+                            // temporarily unable to answer a short Ping during SQLite/Ludusavi
+                            // work.  Never kill that live process from an interactive request;
+                            // the caller can surface a bounded unavailable state and retry later.
+                            // For small libraries retain the old last-resort recovery path for a
+                            // genuinely stale process.
+                            if (!terminateUnhealthyProcess)
+                            {
+                                existingBusyProcess = !process.HasExited;
+                                continue;
+                            }
+
                             if (!process.HasExited)
                             {
                                 process.Kill();
@@ -74,6 +84,9 @@ namespace GameSaveCenter.Playnite.Infrastructure
                     }
                     finally { process.Dispose(); }
                 }
+
+                if (existingBusyProcess)
+                    throw new TimeoutException("Worker 正在执行后台工作，暂时无法响应健康探测；已保留现有进程，稍后可重试。");
 
                 var logPath = Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),

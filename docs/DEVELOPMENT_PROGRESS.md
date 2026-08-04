@@ -1,7 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.46-development-preview`
+当前版本：`0.6.47-development-preview`
+
+- [x] 0.6.47：针对 900+ 游戏日志增加非破坏性 Worker 健康探测恢复：超大目录中若现有 Worker 只是暂时忙碌，不再因短 Ping 超时被杀掉并重启；新增静态回归门禁，仍需 Windows/Playnite 真机验证。
 
 - [x] 0.6.46：隔离通知/确认派发与 Dashboard 后台集合回写异常，并让超大目录缓存重试在视图卸载时可取消和安全收尾，避免视觉资源、关闭窗口或回调错误穿透到 Playnite Dispatcher；已完成源码门禁、130 项自动测试和 Release 构建，仍需 Windows/Playnite 真机验证。
 

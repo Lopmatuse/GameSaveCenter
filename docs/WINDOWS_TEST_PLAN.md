@@ -1,3 +1,10 @@
+## 0.6.47 900+ 游戏 Worker 保留进程回归
+
+- [ ] 安装后确认 `playnite.log` 加载 `GameSaveCenter, version 0.6.47`，并确认 Worker `0.6.47.0`。
+- [ ] 在 900+ 游戏库中打开/关闭 Dashboard，若短时 Ping 超时，确认 `worker-launch.log` 没有因为健康探测失败杀掉仍存活的 Worker。
+- [ ] 记录第一次打开耗时、Worker ready 时间以及是否出现管道超时；失败时同时禁用独立 `LudusaviPlaynite` 做 A/B 对照。
+- [ ] 确认旧版 `0.6.22` 的 XAML 资源崩溃不再出现；若日志仍显示 `0.6.22`，先重新安装 `artifacts/GameSaveCenter-0.6.47.pext`。
+
 ## 0.6.46 Playnite 崩溃隔离回归
 
 - [ ] 安装后确认 `playnite.log` 加载 `GameSaveCenter, version 0.6.46`。

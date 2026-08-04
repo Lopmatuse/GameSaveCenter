@@ -1,3 +1,11 @@
+# 0.6.47 Development Preview
+
+## Large-library Worker recovery
+
+- On 500+ game profiles, a live Worker that misses a short health probe is now preserved instead of being killed and restarted while SQLite/Ludusavi work may still be in flight.
+- This prevents the restart/pipe-timeout loop seen in the supplied 900+ game logs; a retry remains available and the UI can show a bounded unavailable state.
+- The package and sidebar version are `0.6.47`; Playnite logs must be checked before comparing runtime behavior.
+
 # 0.6.46 Development Preview
 
 ## Stability and UI callback isolation

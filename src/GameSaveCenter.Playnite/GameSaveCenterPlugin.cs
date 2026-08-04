@@ -215,7 +215,14 @@ namespace GameSaveCenter.Playnite
 
         public async Task EnsureWorkerAsync()
         {
-            await launcher.EnsureStartedAsync(Environment.ExpandEnvironmentVariables(Settings.WorkerExecutable));
+            // On a 500+ game profile, a busy Worker can legitimately miss a short Ping while
+            // SQLite or an explicit catalog refresh is running.  Killing that process loses
+            // the in-flight durable work and creates the restart/pipe-timeout loop observed in
+            // the user's 900+ game logs.  Keep the conservative stale-process recovery only
+            // for smaller libraries; large libraries may retry without destructive recovery.
+            await launcher.EnsureStartedAsync(
+                Environment.ExpandEnvironmentVariables(Settings.WorkerExecutable),
+                terminateUnhealthyProcess: !IsVeryLargeLibrary());
         }
 
         public void NotifyVisualSettingsChanged() => VisualSettingsChanged?.Invoke(this, EventArgs.Empty);
@@ -262,7 +269,16 @@ namespace GameSaveCenter.Playnite
 
         private bool IsLargeLibrary() => PlayniteApi.Database.Games.Count >= 100;
 
-        private bool IsVeryLargeLibrary() => PlayniteApi.Database.Games.Count >= VeryLargeLibraryThreshold;
+        private bool IsVeryLargeLibrary()
+        {
+            // Keep the largest settled snapshot observed so a transient Playnite database
+            // count of zero (library import, shutdown, or provider refresh) cannot make a
+            // 900+ game Worker look like a small-library process that is safe to terminate.
+            var currentCount = PlayniteApi.Database.Games.Count;
+            if (currentCount > observedGameCount)
+                observedGameCount = currentCount;
+            return observedGameCount >= VeryLargeLibraryThreshold;
+        }
 
         /// <summary>
         /// Lets the dashboard choose a cache-first startup path without exposing the
