@@ -50,6 +50,12 @@ namespace GameSaveCenter.Playnite
         private Task? synchronizationTask;
         private bool synchronizationRequested;
 
+        // A 500+ library must stay interactive even when the dashboard is opened for the
+        // first time.  The durable SQLite snapshot is enough to render the shell; a full
+        // catalog rematch is an explicit refresh operation, while game-started entries still
+        // get matched through the single-game UpsertGames path.
+        private const int VeryLargeLibraryThreshold = 500;
+
         public GameSaveCenterPlugin(IPlayniteAPI api) : base(api)
         {
             logger = LogManager.GetLogger();
@@ -218,6 +224,11 @@ namespace GameSaveCenter.Playnite
 
         private void RequestLibrarySynchronization(string reason)
         {
+            if (IsVeryLargeLibrary())
+            {
+                logger.Info($"Deferring automatic catalog synchronization for very large Playnite library ({observedGameCount} games); reason: {reason}. Use the dashboard refresh action to opt in.");
+                return;
+            }
             if (!interactiveSurfaceOpened && IsLargeLibrary())
             {
                 logger.Debug($"Deferring large-library synchronization until GameSaveCenter is opened ({reason}).");
@@ -229,11 +240,15 @@ namespace GameSaveCenter.Playnite
 
         private bool IsLargeLibrary() => PlayniteApi.Database.Games.Count >= 100;
 
+        private bool IsVeryLargeLibrary() => PlayniteApi.Database.Games.Count >= VeryLargeLibraryThreshold;
+
         /// <summary>
         /// Lets the dashboard choose a cache-first startup path without exposing the
         /// Playnite database or a full Game collection to the UI layer.
         /// </summary>
         public bool IsLargeLibraryForUi => observedGameCount >= 100;
+
+        public bool IsVeryLargeLibraryForUi => observedGameCount >= VeryLargeLibraryThreshold;
 
         public Task<T> RequestAsync<T>(string type, object payload, TimeSpan? timeout = null) => client.RequestAsync<T>(type, payload, timeout);
 
@@ -467,6 +482,11 @@ namespace GameSaveCenter.Playnite
         public Task SynchronizeFromDashboardAsync()
         {
             interactiveSurfaceOpened = true;
+            if (IsVeryLargeLibrary())
+            {
+                logger.Info($"Skipping automatic dashboard catalog synchronization for very large library ({observedGameCount} games); cache-first UI remains available and explicit refresh is required.");
+                return Task.CompletedTask;
+            }
             lock (synchronizationRequestGate)
             {
                 if (synchronizationTask != null && !synchronizationTask.IsCompleted)
@@ -577,6 +597,11 @@ namespace GameSaveCenter.Playnite
                     }
 
                     logger.Info($"Detected a large Playnite library ({gameCount} games); deferring initial catalog synchronization for 25 seconds.");
+                    if (gameCount >= VeryLargeLibraryThreshold)
+                    {
+                        logger.Info($"Very large Playnite library ({gameCount} games); Worker is ready but automatic catalog synchronization stays disabled until an explicit refresh.");
+                        return;
+                    }
                     await Task.Delay(TimeSpan.FromSeconds(25), lifetimeCancellation.Token).ConfigureAwait(false);
                 }
 

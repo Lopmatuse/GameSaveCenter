@@ -43,6 +43,18 @@
         <Setter Property="Effect" Value="{x:Null}"/>
     </Style>
 
+    <!-- All workspace tables share one opaque reading surface. Keeping this in the shared
+         dictionary prevents a host theme from falling back to square/default DataGrid chrome
+         and keeps rounded frames consistent across Saves, Media, Trainers and Maintenance. -->
+    <Style x:Key="GscRedesignTableFrame" TargetType="Border" BasedOn="{StaticResource GscRedesignSectionCard}">
+        <Setter Property="Background" Value="{DynamicResource GscGlassStrongBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding" Value="1"/>
+        <Setter Property="Effect" Value="{x:Null}"/>
+    </Style>
+
     <Style x:Key="GscRedesignHeroCard" TargetType="Border" BasedOn="{StaticResource GscRedesignSectionCard}">
         <Setter Property="Background" Value="{DynamicResource GscGlassStrongBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>

@@ -1,7 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.41-development-preview`
+当前版本：`0.6.42-development-preview`
+
+- [x] 0.6.42：共享 `GscRedesignTableFrame` 收口所有工作区表格表面，DataGrid 统一使用动态行高、表头高度、交替行和无网格线契约；普通窗口表格视口提高到 480–760 DIP，页面级滚动仍负责下方操作区。500+ 游戏库新增启动熔断：Dashboard 只读取持久化缓存，自动库事件与首次打开不再提交整库匹配，显式刷新和游戏启动仍可按需更新；新增对应源码门禁。Core 13、Worker 23、Playnite 94，共 130 项 Release 自动测试通过；真实 Playnite 渲染、DPI、主题和 900+ 游戏库回归仍待 Windows 验证。
 
 - [x] 0.6.41：禁用的上下文操作保留在布局中并使用 0.48 透明度，避免状态变化隐藏按钮和布局跳动；新增共享样式门禁。Core 13、Worker 23、Playnite 93，共 129 项 Release 自动测试通过；Release 构建与源码校验通过，真实 Playnite 渲染仍待 Windows 回归。
 

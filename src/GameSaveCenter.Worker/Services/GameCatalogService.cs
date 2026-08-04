@@ -21,6 +21,8 @@ public sealed class GameCatalogService
     // catalog refresh bounded to a useful foreground set; the next library refresh or the
     // game's own start event can enqueue the remaining entries later.
     private const int LargeLibraryBackgroundMatchBudget = 64;
+    private const int VeryLargeLibraryThreshold = 500;
+    private const int VeryLargeLibraryBackgroundMatchBudget = 12;
     private static readonly TimeSpan RecentlyPlayedPriorityWindow = TimeSpan.FromDays(90);
     private static readonly TimeSpan BackgroundMatchYieldDelay = TimeSpan.FromMilliseconds(180);
     private static readonly TimeSpan BackgroundMatchInitialDelay = TimeSpan.FromSeconds(30);
@@ -107,7 +109,9 @@ public sealed class GameCatalogService
                     .OrderByDescending(x => x.Game.IsInstalled)
                     .ThenByDescending(x => x.Game.LastPlayedUtc ?? DateTime.MinValue)
                     .ThenBy(x => x.Game.Name, StringComparer.OrdinalIgnoreCase)
-                    .Take(LargeLibraryBackgroundMatchBudget)
+                    .Take(list.Count >= VeryLargeLibraryThreshold
+                        ? VeryLargeLibraryBackgroundMatchBudget
+                        : LargeLibraryBackgroundMatchBudget)
                     .ToList()
                 : pending;
             QueueBackgroundMatches(backgroundPending);

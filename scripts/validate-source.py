@@ -587,9 +587,17 @@ def check_large_library_performance_guards() -> None:
                   "Library descriptors persisted"):
         if token not in catalog:
             fail(f"Large-library non-blocking matching guard missing: {token}")
-    for token in ("StartWorkerAndScheduleSynchronizationAsync", "largeLibraryStartupSyncNotBeforeUtc", "TimeSpan.FromSeconds(25)", "ConfigureLargeLibraryStartupGate", "TimeSpan.FromSeconds(60)"):
+    for token in ("VeryLargeLibraryThreshold = 500", "VeryLargeLibraryBackgroundMatchBudget = 12",
+                  "list.Count >= VeryLargeLibraryThreshold"):
+        if token not in catalog:
+            fail(f"Very-large-library matching budget guard missing: {token}")
+    for token in ("StartWorkerAndScheduleSynchronizationAsync", "largeLibraryStartupSyncNotBeforeUtc", "TimeSpan.FromSeconds(25)", "ConfigureLargeLibraryStartupGate", "TimeSpan.FromSeconds(60)",
+                  "VeryLargeLibraryThreshold = 500", "Skipping automatic dashboard catalog synchronization for very large library",
+                  "Very large Playnite library", "public bool IsVeryLargeLibraryForUi"):
         if token not in plugin:
             fail(f"Playnite large-library startup grace guard missing: {token}")
+    if "explicit Refresh command remains available" not in view_model:
+        fail("Dashboard must make very-large-library cache-first behavior explicit")
     for token in ("taskNotificationRetryAfterUtc", "taskNotificationFailureCount", "retrying in"):
         if token not in plugin:
             fail(f"Task notification backoff guard missing: {token}")
@@ -983,6 +991,15 @@ def check_shared_wpf_control_guards() -> None:
                   "<Setter Property=\"Opacity\" Value=\"0.48\"/>"):
         if token not in production:
             fail(f"Shared WPF-UI production adapter guard missing: {token}")
+    for token in ("AlternatingRowBackground\" Value=\"{DynamicResource GscTableAlternateRowBrush}\"",
+                  "RowHeight\" Value=\"{DynamicResource GscTableRowHeight}\"",
+                  "ColumnHeaderHeight\" Value=\"{DynamicResource GscTableHeaderHeight}\"",
+                  "HorizontalGridLinesBrush\" Value=\"{DynamicResource GscTableDividerBrush}\""):
+        if token not in production:
+            fail(f"Shared DataGrid geometry/theme guard missing: {token}")
+    redesign = (ROOT / "src/GameSaveCenter.Playnite/Themes/Redesign.xaml").read_text(encoding="utf-8")
+    if "x:Key=\"GscRedesignTableFrame\"" not in redesign:
+        fail("Shared rounded table frame guard missing")
     if 'ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiBase.xaml"' not in production:
         fail("WPF-UI production adapters must merge WpfUiBase in their own parse scope")
     for token in ('{StaticResource GscSoftShadowColor}', '{StaticResource GscSharedFocusVisual}'):

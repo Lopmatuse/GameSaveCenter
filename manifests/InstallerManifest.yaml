@@ -1,10 +1,11 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.41
+  - Version: 0.6.42
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-08-05
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.41/GameSaveCenter-0.6.41.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.42/GameSaveCenter-0.6.42.pext
     Changelog:
+      - 0.6.42：统一四档布局的表格圆角与共享 DataGrid 几何，提升表头/行高和有限视口；500+ 游戏库默认只显示持久化缓存，不自动提交整库匹配，显式刷新才执行，避免启动时 Ludusavi 进程风暴。
       - 0.6.41：禁用的上下文操作保留在布局中并降低透明度，不再因状态变化隐藏按钮或造成表格/卡片跳动；新增共享样式门禁。
       - 900+ 游戏库在未打开 GameSaveCenter 前不再自动提交整库匹配；打开面板后才释放同步闸门，持久化缓存仍可立即使用。
       - 可独立关闭 Steam、Xbox Game Bar、Windows 截图、游戏相邻目录和自定义媒体来源扫描。

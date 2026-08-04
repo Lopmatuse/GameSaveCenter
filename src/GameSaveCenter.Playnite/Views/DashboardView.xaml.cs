@@ -252,15 +252,15 @@ namespace GameSaveCenter.Playnite.Views
             // window. DynamicResource consumers resize together, while DataGrid keeps its own
             // internal scroll channel for the rows that no longer fit.
             var tableMinHeight = height < 650
-                ? 300d
+                ? 360d
                 : height < 760
-                    ? 360d
-                    : 420d;
+                    ? 420d
+                    : 460d;
             Resources["GscTableMinHeight"] = tableMinHeight;
             // Keep a finite, generous viewport so each table shows a useful batch of rows
             // without allowing a DataGrid to consume the entire page measure. The outer page
             // ScrollViewer remains responsible for reaching action/inspector sections below it.
-            var tableViewportHeight = Math.Max(420d, Math.Min(720d, height * (height < 700 ? 0.70 : 0.84)));
+            var tableViewportHeight = Math.Max(480d, Math.Min(760d, height * (height < 700 ? 0.88 : 0.92)));
             Resources["GscTableViewportHeight"] = tableViewportHeight;
             foreach (var workspaceView in GetWorkspaceViews())
             {

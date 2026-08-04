@@ -687,6 +687,14 @@ namespace GameSaveCenter.Playnite.ViewModels
                 StatusMessage = "正在启动后台服务，稍后刷新本地状态…";
                 Logger.Debug(ex, "GameSaveCenter dashboard cache read deferred until Worker startup completes.");
             }
+            // For 500+ game profiles the dashboard is intentionally cache-first. Do not keep a
+            // delayed task alive merely to discover that the plugin will skip the automatic full
+            // catalog rematch; an explicit Refresh command remains available to opt in.
+            if (plugin.IsVeryLargeLibraryForUi)
+            {
+                ApplyOnUi(() => StatusMessage = "已显示本地缓存；大型目录默认不自动全量匹配，可按需点击刷新。\n游戏启动时仍会按需更新当前游戏。 ");
+                return;
+            }
             // A large library already has durable game summaries in SQLite in the normal
             // case. Starting 100+ Ludusavi lookups while the user is opening the panel makes
             // Playnite appear frozen and competes with other Ludusavi integrations. Keep the

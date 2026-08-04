@@ -446,6 +446,10 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("<Style TargetType=\"DataGridCell\">", production);
         Assert.Contains("<Style TargetType=\"DataGridRow\">", production);
         Assert.Contains("<Style TargetType=\"DataGrid\">", production);
+        Assert.Contains("AlternatingRowBackground\" Value=\"{DynamicResource GscTableAlternateRowBrush}\"", production);
+        Assert.Contains("RowHeight\" Value=\"{DynamicResource GscTableRowHeight}\"", production);
+        Assert.Contains("ColumnHeaderHeight\" Value=\"{DynamicResource GscTableHeaderHeight}\"", production);
+        Assert.Contains("HorizontalGridLinesBrush\" Value=\"{DynamicResource GscTableDividerBrush}\"", production);
         Assert.Contains("ScrollViewer.PanningMode\" Value=\"Both\"", production);
         Assert.Contains("KeyboardNavigation.TabNavigation\" Value=\"Local\"", production);
         Assert.Contains("KeyboardNavigation.DirectionalNavigation\" Value=\"Contained\"", production);
@@ -469,6 +473,10 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Key=\"GscTableAlternateRowBrush\"", designTokens);
         Assert.Contains("x:Key=\"GscPageScrollViewer\"", designTokens);
         Assert.Contains("x:Key=\"GscInspectorScrollViewer\"", designTokens);
+
+        var redesign = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "Redesign.xaml"));
+        Assert.Contains("x:Key=\"GscRedesignTableFrame\"", redesign);
+        Assert.Contains("CornerRadius\" Value=\"16\"", redesign);
 
         foreach (var workspace in new[] { "OverviewView.xaml", "SaveCenterView.xaml", "MediaCenterView.xaml", "TaskCenterView.xaml", "MaintenanceView.xaml" })
         {
@@ -1607,11 +1615,11 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("mode == LayoutMode.Compact ? new Thickness(12)", dashboardCode);
         Assert.Contains("var tableMinHeight = height < 650", dashboardCode);
         Assert.Contains("workspaceView.Resources[\"GscTableMinHeight\"] = tableMinHeight", dashboardCode);
-        Assert.Contains("? 300d", dashboardCode);
         Assert.Contains("? 360d", dashboardCode);
-        Assert.Contains(": 420d", dashboardCode);
-        Assert.Contains("Math.Max(420d, Math.Min(720d", dashboardCode);
-        Assert.Contains("height < 700 ? 0.70 : 0.84", dashboardCode);
+        Assert.Contains("? 420d", dashboardCode);
+        Assert.Contains(": 460d", dashboardCode);
+        Assert.Contains("Math.Max(480d, Math.Min(760d", dashboardCode);
+        Assert.Contains("height < 700 ? 0.88 : 0.92", dashboardCode);
         Assert.Contains("mode == LayoutMode.Expanded ? 12", dashboardCode);
         Assert.Contains("viewModel.CurrentWorkspace == WorkspaceKind.Trainers", dashboardCode);
         Assert.Contains("DetailsTabControl.Margin =", dashboardCode);
@@ -1714,6 +1722,24 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("if (IsLargeLibrary())", pluginCode);
         Assert.Contains("FireAndForget(EnsureWorkerAsync);", pluginCode);
         Assert.Contains("until GameSaveCenter is opened or a game starts", pluginCode);
+    }
+
+    [Fact]
+    public void VeryLargeLibrariesDoNotAutomaticallyRematchOnDashboardOpen()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var pluginCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "GameSaveCenterPlugin.cs"));
+        var viewModelCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "ViewModels", "DashboardViewModel.cs"));
+        var catalogCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Worker", "Services", "GameCatalogService.cs"));
+
+        Assert.Contains("VeryLargeLibraryThreshold = 500", pluginCode);
+        Assert.Contains("public bool IsVeryLargeLibraryForUi", pluginCode);
+        Assert.Contains("Skipping automatic dashboard catalog synchronization for very large library", pluginCode);
+        Assert.Contains("Very large Playnite library", pluginCode);
+        Assert.Contains("if (plugin.IsVeryLargeLibraryForUi)", viewModelCode);
+        Assert.Contains("explicit Refresh command remains available", viewModelCode);
+        Assert.Contains("VeryLargeLibraryBackgroundMatchBudget = 12", catalogCode);
+        Assert.Contains("list.Count >= VeryLargeLibraryThreshold", catalogCode);
     }
 
 
