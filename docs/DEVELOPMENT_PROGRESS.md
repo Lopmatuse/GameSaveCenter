@@ -1143,3 +1143,4 @@
 - Dashboard 游戏选择器的悬停背景改为 `DynamicResource GscRowHoverStrongBrush`，不再把浅色默认悬停色冻结在 XAML。
 - `AdaptiveThemePalette` 现在为普通、深色和高对比度模式生成共享悬停资源，切换蓝色/紫色/自定义 Playnite 强调色时保持一致。
 - 新增资源门禁，避免生产页面重新引入静态悬停 Brush。
+- 兼容列表模板中的悬停状态也同步切换为 DynamicResource，防止隐藏迁移模板重新引入旧主题颜色。

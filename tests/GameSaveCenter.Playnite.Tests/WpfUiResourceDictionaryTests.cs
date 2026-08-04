@@ -1255,6 +1255,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.DoesNotContain("{StaticResource GscSuccessBrush}", dashboard + settings);
         Assert.DoesNotContain("{StaticResource GscWarningBrush}", dashboard + settings);
         Assert.DoesNotContain("{StaticResource GscErrorBrush}", dashboard + settings);
+        Assert.DoesNotContain("{StaticResource GscRowHoverStrongBrush}", dashboard);
         Assert.Contains("resources[\"GscInfoBrush\"]", palette);
         Assert.Contains("resources[\"GscSuccessBrush\"]", palette);
         Assert.Contains("resources[\"GscWarningBrush\"]", palette);
