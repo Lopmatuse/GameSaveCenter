@@ -28,6 +28,7 @@
                 <Setter Property="RowBackground" Value="Transparent"/>
                 <Setter Property="AlternatingRowBackground" Value="Transparent"/>
                 <Setter Property="RowHeight" Value="46"/>
+                <Setter Property="MinHeight" Value="180"/>
                 <Setter Property="ColumnHeaderHeight" Value="40"/>
                 <Setter Property="RowHeaderWidth" Value="0"/>
                 <Setter Property="SelectionUnit" Value="FullRow"/>

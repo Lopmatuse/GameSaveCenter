@@ -231,16 +231,21 @@
 
 ### 0.6.22 主题令牌边界
 
+- WPF-UI 生产适配层必须自己提供圆角输入模板：`GscWpfUiTextBoxTemplate`、`GscWpfUiComboBoxTemplate` 和隐式 `ComboBoxItem` 样式；不能让 Playnite 宿主重新注入默认白色 Popup。
+- TextBox 模板中的 `PART_ContentHost` 必须绑定水平/垂直滚动条可见性，否则诊断摘要和长路径在有限高度下会被裁切；按钮使用 `ui:Button.CornerRadius`，原生复选框使用 `GscCheckBox`。
+
 - 页面不得重新引入 `#RRGGBB` 或 `#AARRGGBB` 装饰色；语义状态、环境光、图标容器、提示面、主按钮和阴影必须从 `Themes/DesignTokens.xaml` 获取。
 - Playnite 页面级环境光只允许少量固定 Ellipse，且高对比度或关闭毛玻璃时由现有主题逻辑隐藏；列表、表格和滚动行不得新增 `BlurEffect`。
 
 ### 0.6.22 全局 GamePicker 详情加载边界
 
+- 语义状态面（恢复提示、风险提示、错误淡色、取消状态和环境光）必须由 `AdaptiveThemePaletteFactory.ApplyAccentResources` 统一生成；不得只依赖 `DesignTokens.xaml` 的静态默认色。高对比度下使用实色降级，透明关闭时不保留半透明材质或 BlurEffect。
 - 全局 GamePicker 只允许一个 `GamePicker.ItemsView` 列表入口；六个物理工作区不得复制全局游戏搜索/筛选器。
 - GamePicker 批量替换大量轻量摘要时必须抑制逐项 `ObservableCollection` 通知并在完成后发出一次 `Reset`；不要在 `ICollectionView.DeferRefresh()` 期间逐项修改集合，否则 WPF `ListCollectionView` 会抛出 deferred refresh 异常。列表仍必须保持虚拟化与 Recycling。
 - GamePicker 选择变化必须使用单一 `SelectedItem` 事件入口；`SelectedGame` 仅作为兼容绑定属性，不得再次触发同一详情加载。
 - 详情 IPC 不支持撤回已写入命名管道的请求，因此存档、媒体和修改器详情必须使用代际令牌与当前 `PlayniteId` 检查，旧响应只能被丢弃，不能回写新游戏界面。
 - Dashboard 卸载必须取消并释放详情加载、GamePicker 防抖和延迟设置保存；这不是业务任务取消，不能影响 Worker 中真实备份/恢复/同步任务。
+- 工作区 DataGrid 至少保留 180 DIP 的可读高度并使用内部滚动；媒体来源规则的表单可以局部滚动，但 DataGrid 必须处于星号行和有限容器内，不能放回无限测量的 StackPanel/ScrollViewer。
 
 ### 0.6.21 云端重试与 WPF 数值编辑边界
 

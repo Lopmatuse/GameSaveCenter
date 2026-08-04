@@ -32,11 +32,172 @@
         </Setter>
     </Style>
 
+    <!-- WPF-UI's type defaults are intentionally kept for the framework controls, but the
+         production adapters own the input chrome so a Playnite host theme cannot reintroduce
+         square white editors or an unthemed ComboBox popup.  These templates use only shared
+         DynamicResource tokens and keep the content host/keyboard behavior of native WPF. -->
+    <ControlTemplate x:Key="GscWpfUiTextBoxTemplate" TargetType="TextBox">
+        <Border x:Name="Chrome"
+                CornerRadius="10"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                SnapsToDevicePixels="True">
+            <ScrollViewer x:Name="PART_ContentHost"
+                          Margin="{TemplateBinding Padding}"
+                          VerticalAlignment="Stretch"
+                          HorizontalScrollBarVisibility="{TemplateBinding HorizontalScrollBarVisibility}"
+                          VerticalScrollBarVisibility="{TemplateBinding VerticalScrollBarVisibility}"
+                          CanContentScroll="True"/>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GscAccentBrush}"/>
+            </Trigger>
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GscErrorTintBrush}"/>
+                <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GscErrorBrush}"/>
+                <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Chrome" Property="Opacity" Value="0.45"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="GscWpfUiComboBoxTemplate" TargetType="ComboBox">
+        <Grid>
+            <ToggleButton x:Name="DropDownToggle"
+                          Focusable="False"
+                          ClickMode="Press"
+                          OverridesDefaultStyle="True"
+                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                <ToggleButton.Template>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Chrome"
+                                CornerRadius="10"
+                                Background="{Binding Background, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                BorderBrush="{Binding BorderBrush, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                BorderThickness="{Binding BorderThickness, RelativeSource={RelativeSource AncestorType=ComboBox}}">
+                            <Grid Margin="{Binding Padding, RelativeSource={RelativeSource AncestorType=ComboBox}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="20"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter Content="{Binding SelectionBoxItem, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                  ContentTemplate="{Binding SelectionBoxItemTemplate, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                  ContentStringFormat="{Binding SelectionBoxItemStringFormat, RelativeSource={RelativeSource AncestorType=ComboBox}}"
+                                                  VerticalAlignment="Center"
+                                                  TextElement.Foreground="{DynamicResource GscPrimaryTextBrush}"/>
+                                <Path x:Name="Chevron"
+                                      Grid.Column="1"
+                                      Data="M 1 2 L 5 6 L 9 2"
+                                      Stretch="None"
+                                      Stroke="{DynamicResource GscSecondaryTextBrush}"
+                                      StrokeThickness="1.6"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      HorizontalAlignment="Right"
+                                      VerticalAlignment="Center"
+                                      RenderTransformOrigin="0.5,0.5">
+                                    <Path.RenderTransform>
+                                        <RotateTransform Angle="0"/>
+                                    </Path.RenderTransform>
+                                </Path>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GscAccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GscAccentBrush}"/>
+                                <Setter TargetName="Chevron" Property="RenderTransform">
+                                    <Setter.Value><RotateTransform Angle="180"/></Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </ToggleButton.Template>
+            </ToggleButton>
+            <Popup x:Name="PART_Popup"
+                   Placement="Bottom"
+                   AllowsTransparency="{DynamicResource GscPopupAllowsTransparency}"
+                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                   Focusable="False"
+                   PopupAnimation="{DynamicResource GscPopupAnimation}">
+                <Border MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                        MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                        Margin="0,6,0,8"
+                        Padding="5"
+                        Background="{DynamicResource GscPopupBrush}"
+                        BorderBrush="{DynamicResource GscGlassStrokeBrush}"
+                        BorderThickness="1"
+                        CornerRadius="11"
+                        Effect="{DynamicResource GscPopupEffect}">
+                    <ScrollViewer CanContentScroll="True" VerticalScrollBarVisibility="Auto">
+                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
+                    </ScrollViewer>
+                </Border>
+            </Popup>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Opacity" Value="0.46"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!-- Implicit item styling is scoped to the plugin resource dictionaries. It prevents the
+         Popup from inheriting a bright host selection surface while preserving keyboard and
+         automation semantics of ComboBoxItem. -->
+    <Style TargetType="ComboBoxItem">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="FocusVisualStyle" Value="{DynamicResource GscSharedFocusVisual}"/>
+        <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="10,8"/>
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="ItemChrome"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="8"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="ItemChrome" Property="Background" Value="{DynamicResource GscAccentTintBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="ItemChrome" Property="Background" Value="{DynamicResource GscAccentTintStrongBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource GscSelectionTextBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.42"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="GscWpfUiButton"
            TargetType="{x:Type ui:Button}"
            BasedOn="{StaticResource {x:Type ui:Button}}">
         <Setter Property="MinHeight" Value="38"/>
         <Setter Property="Padding" Value="14,7"/>
+        <Setter Property="ui:Button.CornerRadius" Value="11"/>
         <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="FocusVisualStyle" Value="{DynamicResource GscSharedFocusVisual}"/>
@@ -113,6 +274,7 @@
     <Style x:Key="GscWpfUiTextBox"
            TargetType="TextBox"
            BasedOn="{StaticResource {x:Type TextBox}}">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="MinHeight" Value="38"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
@@ -120,13 +282,17 @@
         <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="12,5"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource GscAccentBrush}"/>
+        <Setter Property="SelectionBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>
         <Setter Property="FocusVisualStyle" Value="{DynamicResource GscSharedFocusVisual}"/>
         <Setter Property="ToolTipService.ShowDuration" Value="12000"/>
+        <Setter Property="Template" Value="{StaticResource GscWpfUiTextBoxTemplate}"/>
     </Style>
 
     <Style x:Key="GscWpfUiComboBox"
            TargetType="ComboBox"
            BasedOn="{StaticResource {x:Type ComboBox}}">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="MinHeight" Value="38"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
@@ -134,7 +300,9 @@
         <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="12,5"/>
+        <Setter Property="MaxDropDownHeight" Value="320"/>
         <Setter Property="FocusVisualStyle" Value="{DynamicResource GscSharedFocusVisual}"/>
         <Setter Property="ToolTipService.ShowDuration" Value="12000"/>
+        <Setter Property="Template" Value="{StaticResource GscWpfUiComboBoxTemplate}"/>
     </Style>
 </ResourceDictionary>

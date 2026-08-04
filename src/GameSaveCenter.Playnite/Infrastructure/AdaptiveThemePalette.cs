@@ -199,6 +199,17 @@ namespace GameSaveCenter.Playnite.Infrastructure
             resources["GscSuccessBrush"] = Brush(palette.Success);
             resources["GscWarningBrush"] = Brush(palette.Warning);
             resources["GscErrorBrush"] = Brush(palette.Error);
+            // These semantic surfaces are used by both the extracted workspaces and the
+            // settings page. Keep them in the same palette as their status strokes instead
+            // of leaving the static DesignTokens fallback active after a theme switch.
+            resources["GscErrorTintBrush"] = Brush(SemanticTint(palette.Error, palette.IsDark ? 0.20 : 0.12));
+            resources["GscRestoreInfoFillBrush"] = Brush(SemanticTint(palette.Info, palette.IsDark ? 0.20 : 0.11));
+            resources["GscRestoreInfoStrokeBrush"] = Brush(SemanticTint(palette.Info, palette.IsDark ? 0.46 : 0.32));
+            resources["GscSafetyFillBrush"] = Brush(SemanticTint(palette.Warning, palette.IsDark ? 0.20 : 0.12));
+            resources["GscSafetyStrokeBrush"] = Brush(SemanticTint(palette.Warning, palette.IsDark ? 0.48 : 0.34));
+            resources["GscAmbientInfoBrush"] = Brush(SemanticTint(palette.Info, palette.IsDark ? 0.13 : 0.09));
+            resources["GscAmbientSuccessBrush"] = Brush(SemanticTint(palette.Success, palette.IsDark ? 0.12 : 0.08));
+            resources["GscMutedStatusBrush"] = Brush(SemanticTint(palette.PrimaryText, palette.IsDark ? 0.54 : 0.46));
             resources["GscInfoIconFillBrush"] = Brush(palette.InfoIconFill);
             resources["GscSuccessIconFillBrush"] = Brush(palette.SuccessIconFill);
             resources["GscWarningIconFillBrush"] = Brush(palette.WarningIconFill);
@@ -393,6 +404,13 @@ namespace GameSaveCenter.Playnite.Infrastructure
         {
             var alpha = (byte)Math.Round(Math.Max(0, Math.Min(1, opacity)) * 255);
             return Color.FromArgb(alpha, color.R, color.G, color.B);
+        }
+
+        private static Color SemanticTint(Color color, double opacity)
+        {
+            // High-contrast themes do not reliably render translucent fills. Use the solid
+            // semantic color there so the associated border/status remains visible.
+            return SystemParameters.HighContrast ? color : WithAlpha(color, opacity);
         }
 
         private static double ContrastRatio(Color first, Color second)

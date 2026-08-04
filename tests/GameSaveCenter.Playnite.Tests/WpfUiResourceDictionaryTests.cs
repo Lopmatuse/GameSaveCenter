@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
@@ -46,6 +47,17 @@ public sealed class WpfUiResourceDictionaryTests
                 Assert.Equal(Colors.White, (Color)palette.GetType().GetProperty("OnAccentText")!.GetValue(palette)!);
 
                 var localResources = new ResourceDictionary();
+                factoryType.GetMethod("ApplyAccentResources", BindingFlags.Public | BindingFlags.Static)!.Invoke(
+                    null,
+                    new object[] { localResources, palette });
+                Assert.IsType<SolidColorBrush>(localResources["GscErrorTintBrush"]);
+                Assert.IsType<SolidColorBrush>(localResources["GscRestoreInfoFillBrush"]);
+                Assert.IsType<SolidColorBrush>(localResources["GscRestoreInfoStrokeBrush"]);
+                Assert.IsType<SolidColorBrush>(localResources["GscSafetyFillBrush"]);
+                Assert.IsType<SolidColorBrush>(localResources["GscSafetyStrokeBrush"]);
+                Assert.IsType<SolidColorBrush>(localResources["GscAmbientInfoBrush"]);
+                Assert.IsType<SolidColorBrush>(localResources["GscAmbientSuccessBrush"]);
+                Assert.IsType<SolidColorBrush>(localResources["GscMutedStatusBrush"]);
                 factoryType.GetMethod("ApplyWpfUiResources", BindingFlags.Public | BindingFlags.Static)!.Invoke(
                     null,
                     new object[] { localResources, palette });
@@ -116,7 +128,14 @@ public sealed class WpfUiResourceDictionaryTests
         var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
         var redesign = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "Redesign.xaml"));
         var tokens = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "DesignTokens.xaml"));
+        var production = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "WpfUiProduction.xaml"));
         Assert.Contains("resources[\"GscAmbientAccentBrush\"]", paletteSource);
+        Assert.Contains("resources[\"GscErrorTintBrush\"]", paletteSource);
+        Assert.Contains("resources[\"GscRestoreInfoFillBrush\"]", paletteSource);
+        Assert.Contains("resources[\"GscSafetyFillBrush\"]", paletteSource);
+        Assert.Contains("resources[\"GscAmbientInfoBrush\"]", paletteSource);
+        Assert.Contains("resources[\"GscAmbientSuccessBrush\"]", paletteSource);
+        Assert.Contains("SemanticTint", paletteSource);
         Assert.Contains("resources[\"GscAccentShadowColor\"]", paletteSource);
         Assert.Contains("resources[\"GscSelectionTextBrush\"]", paletteSource);
         Assert.Contains("resources[\"GscSurfaceEffect\"]", paletteSource);
@@ -138,6 +157,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("{DynamicResource GscSliderThumbEffect}", tokens);
         Assert.Contains("AllowsTransparency=\"{DynamicResource GscPopupAllowsTransparency}\"", tokens);
         Assert.Contains("PopupAnimation=\"{DynamicResource GscPopupAnimation}\"", tokens);
+        Assert.Contains("HorizontalScrollBarVisibility=\"{TemplateBinding HorizontalScrollBarVisibility}\"", tokens);
+        Assert.Contains("VerticalScrollBarVisibility=\"{TemplateBinding VerticalScrollBarVisibility}\"", tokens);
+        Assert.Contains("HorizontalScrollBarVisibility=\"{TemplateBinding HorizontalScrollBarVisibility}\"", production);
         Assert.Contains("x:Key=\"GscElevatedSurface\"", tokens);
         Assert.Contains("x:Key=\"GscElevatedSurface\"", dashboard);
         Assert.Contains("x:Name=\"GameBrowserPanel\" Grid.Row=\"0\" Grid.RowSpan=\"2\" Style=\"{StaticResource GscRedesignSectionCard}\"", dashboard);
@@ -175,9 +197,47 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Null(exception);
         var buttonStyle = Assert.IsType<Style>(resources!["GscWpfUiButton"]);
-        Assert.Equal(typeof(Button), buttonStyle.TargetType);
+        Assert.Equal(typeof(Wpf.Ui.Controls.Button), buttonStyle.TargetType);
         Assert.IsAssignableFrom<Brush>(resources["AccentFillColorDefaultBrush"]);
         Assert.IsAssignableFrom<Brush>(resources["TextOnAccentFillColorPrimaryBrush"]);
+    }
+
+    [Fact]
+    public void ProductionAdaptersOwnRoundedInputTemplatesAndPopupItems()
+    {
+        Exception? exception = null;
+        ResourceDictionary? resources = null;
+
+        var thread = new Thread(() =>
+        {
+            try
+            {
+                resources = (ResourceDictionary)XamlReader.Parse(@"
+<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+                    xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""><ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source=""/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml""/>
+    <ResourceDictionary Source=""/GameSaveCenter.Playnite;component/Themes/WpfUiProduction.xaml""/>
+</ResourceDictionary.MergedDictionaries></ResourceDictionary>");
+            }
+            catch (Exception caught)
+            {
+                exception = caught;
+            }
+        });
+
+        thread.SetApartmentState(ApartmentState.STA);
+        thread.Start();
+        thread.Join();
+
+        Assert.Null(exception);
+        Assert.IsType<ControlTemplate>(resources!["GscWpfUiTextBoxTemplate"]);
+        Assert.IsType<ControlTemplate>(resources["GscWpfUiComboBoxTemplate"]);
+        Assert.True(resources.Contains(typeof(ComboBoxItem)), "The local ComboBoxItem style must win over a bright host popup style.");
+
+        var buttonStyle = Assert.IsType<Style>(resources["GscWpfUiButton"]);
+        Assert.Contains(buttonStyle.Setters.OfType<Setter>(), setter => setter.Property.Name == "CornerRadius");
+        var comboStyle = Assert.IsType<Style>(resources["GscWpfUiComboBox"]);
+        Assert.Contains(comboStyle.Setters.OfType<Setter>(), setter => setter.Property.Name == "Template");
     }
 
     [Fact]
@@ -451,6 +511,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("BasedOn=\"{StaticResource GscRedesignWorkspaceTabControl}\"", media);
         Assert.Contains("BasedOn=\"{StaticResource GscRedesignWorkspaceTabControl}\"", maintenance);
         Assert.Contains("BasedOn=\"{StaticResource GscRedesignWorkspaceTabControl}\"", trainer);
+        Assert.Contains("<CheckBox Style=\"{DynamicResource GscCheckBox}\"", saves);
         foreach (var view in new[] { overview, saves, trainer, media, maintenance })
         {
             Assert.DoesNotContain("Background=\"#", view);
@@ -760,6 +821,21 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("CopyTaskErrorCommand", File.ReadAllText(taskPath));
         Assert.Contains("RetryTaskCommand", File.ReadAllText(taskPath));
         Assert.Contains("CancelTaskCommand", File.ReadAllText(taskPath));
+    }
+
+    [Fact]
+    public void MediaSourceRulesKeepTheTableInAStarRowWithAFormOnlyScroller()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var mediaPath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml");
+        var media = XDocument.Parse(File.ReadAllText(mediaPath));
+        var tabItem = media.Descendants().Single(element => element.Name.LocalName == "TabItem" && element.Attribute("Header")?.Value == "来源规则");
+        var dataGrid = tabItem.Descendants().Single(element => element.Name.LocalName == "DataGrid");
+        Assert.DoesNotContain(dataGrid.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
+        Assert.Contains(dataGrid.Ancestors(), ancestor => ancestor.Name.LocalName == "Border");
+        Assert.Contains(tabItem.Descendants(), element => element.Name.LocalName == "ScrollViewer" && element.Attribute("MaxHeight")?.Value == "190");
+        Assert.Contains(tabItem.Descendants(), element => element.Name.LocalName == "RowDefinition" && element.Attribute("Height")?.Value == "*");
+        Assert.Contains("Property=\"MinHeight\" Value=\"180\"", File.ReadAllText(mediaPath));
     }
 
     [Fact]

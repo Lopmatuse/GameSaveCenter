@@ -3,6 +3,29 @@
 更新时间：2026-08-04
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-04 UI-055 WPF-UI 输入控件圆角与滚动模板收口
+
+- [x] WPF-UI 生产适配层现在拥有插件级 TextBox/ComboBox 模板：输入框、下拉主体、Popup、ComboBoxItem 均使用统一圆角与 DynamicResource 主题资源，不再依赖 Playnite 宿主的方形/白色默认样式。
+- [x] WPF-UI Button 明确设置 `ui:Button.CornerRadius`；存档中心的锁定复选框改用共享 `GscCheckBox`，避免单个原生控件漏出宿主样式。
+- [x] TextBox 内容滚动器绑定 `HorizontalScrollBarVisibility` / `VerticalScrollBarVisibility`，诊断、长路径和多行只读内容在有限空间中保留内部滚动通道。
+- [x] 新增 STA 资源回归，确认生产模板、隐式 ComboBoxItem 样式和按钮圆角存在；补充共享控件与存档页签门禁。
+- [x] 已通过源码校验、XAML 结构检查、Release 测试（Core 13 + Worker 21 + Playnite UI 67 = 101 项）和 Release 构建（0 警告、0 错误）。
+- [ ] 独立 Playnite 宿主中的 WPF-UI Popup 实际渲染、滚动条拖动、125%/150% DPI 和高对比度仍需真机验证。
+
+## 2026-08-04 UI-056 表格最小可读高度与媒体来源滚动边界
+
+- [x] Dashboard、首页、存档、媒体、任务和维护工作区的 DataGrid 统一保留至少 180 DIP 的可读高度；数据超过可视区域时继续使用内部纵向/横向滚动，不让页面通过裁剪隐藏表格。
+- [x] 媒体“来源规则”改为“表单局部滚动 + DataGrid 占用剩余星号行”，避免 DataGrid 被外层 StackPanel/ScrollViewer 无限测量而失去虚拟化和滚动边界。
+- [x] 新增 XAML 结构回归，确认来源规则表格不位于 StackPanel，表单滚动器有明确高度上限；高对比度取消状态也改用实色语义降级。
+- [x] 已通过源码校验、XAML 结构检查、Release 测试和 Release 构建；Playnite 宿主中的真实表格拖动、DPI 与高对比度仍需真机验证。
+
+## 2026-08-04 UI-054 语义状态资源主题收口
+
+- [x] 将错误淡色、恢复提示、风险提示、设置页环境光和取消状态纳入 `AdaptiveThemePalette`，不再在浅色/深色/蓝色强调色切换后继续使用静态默认色。
+- [x] 高对比度下语义提示背景自动降级为实色，避免半透明填充导致状态不可辨识；普通模式仍使用克制的透明度。
+- [x] 增加 STA 资源回归和资源键门禁，确认共享资源能在主题切换后重新生成。
+- [ ] 真实 Playnite 主题、Windows 高对比度和关闭透明效果的宿主渲染仍需真机验证。
+
 ## 2026-08-04 UI-053 GamePicker 键盘确认与鼠标交互收口
 
 - [x] GamePicker 方向键只移动当前选择，不再因 `SelectionChanged` 立即关闭抽屉；鼠标点击或 Enter 确认后关闭，Esc 可随时关闭。
