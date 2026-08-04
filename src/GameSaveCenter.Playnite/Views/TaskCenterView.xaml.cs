@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -10,12 +11,16 @@ namespace GameSaveCenter.Playnite.Views
         public TaskCenterView() => InitializeComponent();
         public UniformGrid TaskSummaryPanelElement => TaskSummaryPanel;
         public Border TaskDetailCardElement => TaskDetailCard;
+        public ScrollViewer TaskDetailScrollViewerElement => TaskDetailScrollViewer;
 
         public void ApplyResponsiveLayout(double width, double height)
         {
             TaskSummaryPanel.Columns = width >= 1120 ? 3 : width >= 760 ? 2 : 1;
             TaskSummaryPanel.Visibility = height >= 650 ? Visibility.Visible : Visibility.Collapsed;
             TaskDetailActions.Orientation = width < 760 ? Orientation.Vertical : Orientation.Horizontal;
+            // Long task diagnostics and wrapped actions are secondary content. Keep them in
+            // their own finite scroll channel so the task table's star row remains reachable.
+            TaskDetailScrollViewer.MaxHeight = Math.Max(150, Math.Min(260, height * 0.32));
         }
     }
 }

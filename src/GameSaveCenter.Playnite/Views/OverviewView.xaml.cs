@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -23,6 +24,7 @@ namespace GameSaveCenter.Playnite.Views
         public ColumnDefinition OverviewSecondaryColumnDefinition => OverviewSecondaryColumn;
         public UIElement OverviewPrimaryPanelElement => OverviewPrimaryPanel;
         public UIElement OverviewSecondaryPanelElement => OverviewSecondaryPanel;
+        public ScrollViewer OverviewRiskScrollViewerElement => OverviewRiskScrollViewer;
 
         public void ApplyResponsiveColumns(bool stack)
         {
@@ -40,6 +42,18 @@ namespace GameSaveCenter.Playnite.Views
             OverviewSecondaryPanel.Margin = stack
                 ? new Thickness(0, 14, 0, 0)
                 : new Thickness(0);
+        }
+
+        public void ApplyResponsiveHeight(double height, bool stack)
+        {
+            // In stacked layouts the risk card is secondary content. Give it a bounded
+            // scroll channel so a long attention list cannot push recent activity away.
+            OverviewSecondaryPanel.MaxHeight = stack
+                ? Math.Max(260, Math.Min(480, height * 0.58))
+                : double.PositiveInfinity;
+            OverviewRiskScrollViewer.MaxHeight = stack
+                ? Math.Max(180, Math.Min(360, height * 0.42))
+                : double.PositiveInfinity;
         }
     }
 }
