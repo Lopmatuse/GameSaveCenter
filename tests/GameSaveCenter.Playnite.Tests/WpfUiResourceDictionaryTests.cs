@@ -1242,6 +1242,14 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("ApplyRuntimeThemeResources(Resources, palette", dashboardCode);
         Assert.Contains("ApplyRuntimeThemeResources(workspaceView.Resources, palette", dashboardCode);
         Assert.Contains("GetWorkspaceViews()", dashboardCode);
+        foreach (var workspaceName in new[]
+                 {
+                     "OverviewWorkspaceView", "MediaWorkspaceView", "MaintenanceWorkspaceView",
+                     "SaveWorkspaceView", "TrainerWorkspaceView", "TaskWorkspaceView"
+                 })
+        {
+            Assert.Contains($"yield return {workspaceName};", dashboardCode);
+        }
         Assert.Contains("highContrast ? primaryText", palette);
     }
 
