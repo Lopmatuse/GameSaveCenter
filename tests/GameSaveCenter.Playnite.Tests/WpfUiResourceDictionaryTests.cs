@@ -524,6 +524,23 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void MaintenanceDeviceStateKeepsSeveralRowsReachableBehindAWorkspaceScrollViewer()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var maintenancePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml");
+        var maintenanceText = File.ReadAllText(maintenancePath);
+        var maintenance = XDocument.Parse(maintenanceText);
+        var deviceScroll = maintenance.Descendants().Single(element =>
+            element.Name.LocalName == "ScrollViewer" &&
+            element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "MaintenanceDeviceScrollViewer");
+
+        Assert.Equal("Auto", deviceScroll.Attribute("VerticalScrollBarVisibility")?.Value);
+        Assert.Equal("Disabled", deviceScroll.Attribute("HorizontalScrollBarVisibility")?.Value);
+        Assert.Contains("x:Name=\"MaintenanceDeviceGrid\" Height=\"360\"", maintenanceText);
+        Assert.Contains("ItemsSource=\"{Binding DeviceComparisons}\"", maintenanceText);
+    }
+
+    [Fact]
     public void TrainerInspectorUsesAFiniteScrollChannelAtShortHeights()
     {
         var repositoryRoot = FindRepositoryRoot();
@@ -685,6 +702,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("TaskDetailScrollViewer.MaxHeight = Math.Max(150, Math.Min(260, height * 0.32))", taskCode);
         Assert.Contains("VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\" MaxHeight=\"220\"", taskView);
         Assert.Contains("TaskWorkspaceView.ApplyResponsiveLayout(width, height)", workspaceCode);
+        Assert.Contains("SaveWorkspaceView.ApplyResponsiveLayout(width, height)", workspaceCode);
+        Assert.Contains("TrainerWorkspaceView.ApplyResponsiveLayout(width, height)", workspaceCode);
+        Assert.Contains("MaintenanceWorkspaceView.ApplyResponsiveLayout(width, height)", workspaceCode);
         Assert.Contains("x:Key=\"GscRedesignWorkspaceTabControl\"", redesign);
         Assert.Contains("HorizontalScrollBarVisibility=\"Auto\"", redesign);
         Assert.Contains("x:Key=\"GscRedesignWorkspaceTabItem\"", redesign);

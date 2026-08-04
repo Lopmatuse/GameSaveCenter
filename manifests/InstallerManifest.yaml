@@ -1,9 +1,9 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.27
+  - Version: 0.6.28
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-08-05
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.27/GameSaveCenter-0.6.27.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.28/GameSaveCenter-0.6.28.pext
     Changelog:
       - 可独立关闭 Steam、Xbox Game Bar、Windows 截图、游戏相邻目录和自定义媒体来源扫描。
       - 每个游戏可独立关闭自动备份与自动媒体归档；自定义来源支持暂停和移除，不会删除已归档媒体。
@@ -16,5 +16,6 @@ Packages:
       - Dashboard 和 Settings 构造异常时返回隔离诊断视图，避免单次 XAML 资源回归让 Playnite 弹出扩展崩溃窗口。
       - 修复 Worker 忙碌时健康探测超时就被误杀的问题；现有进程会先获得 12 秒恢复窗口。
       - Dashboard 首次打开不再进入完整命令的 Worker 等待边界，先显示持久化缓存，Worker 就绪后后台刷新。
+      - Dashboard 外壳统一向存档、修改器和维护工作区转发响应式尺寸；设备状态页新增页面级滚动与有限 DataGrid 视口，矮窗口仍可访问多行和下方决策操作。
       - 云端备份复制失败后会持久化并按退避计划自动重试，成功后自动清理队列。
       - 全局数值输入改为完整编辑后提交，修复游戏策略分钟输入无法可靠输入多位数的问题。

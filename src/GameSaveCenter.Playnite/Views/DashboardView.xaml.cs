@@ -388,6 +388,24 @@ namespace GameSaveCenter.Playnite.Views
                 TaskWorkspaceView.ApplyResponsiveLayout(width, height);
             }
 
+            // Every extracted workspace owns its wrapped action/inspector channels.  Keeping
+            // these calls in the single shell coordinator prevents Save/Trainer/Maintenance
+            // from silently retaining their desktop-sized MaxHeight values after a resize.
+            if (SaveWorkspaceView != null)
+            {
+                SaveWorkspaceView.ApplyResponsiveLayout(width, height);
+            }
+
+            if (TrainerWorkspaceView != null)
+            {
+                TrainerWorkspaceView.ApplyResponsiveLayout(width, height);
+            }
+
+            if (MaintenanceWorkspaceView != null)
+            {
+                MaintenanceWorkspaceView.ApplyResponsiveLayout(width, height);
+            }
+
             // Responsive behavior now belongs to each extracted workspace view.
             RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves && height >= 680
                 ? Visibility.Visible : Visibility.Collapsed;

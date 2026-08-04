@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.6.27-development-preview`。** 大型 Playnite 游戏库同步先使用 SQLite 缓存并将大批量 Ludusavi 匹配移到 Worker 后台队列；后台匹配按已安装/最近游玩优先，并在 Playnite 启动后的 25 秒空闲窗口之后才开始，避免 900+ 游戏启动时长期占用进程和磁盘。通知轮询在 Worker 启动/繁忙时指数退避。Dashboard/Settings 页面构造失败时会返回隔离的诊断降级视图；Worker 健康探测会先等待忙碌实例恢复，不会因一次短暂超时误杀现有进程。
+> **当前状态：`0.6.28-development-preview`。** 大型 Playnite 游戏库同步先使用 SQLite 缓存并将大批量 Ludusavi 匹配移到 Worker 后台队列；后台匹配按已安装/最近游玩优先，并在 Playnite 启动后的 25 秒空闲窗口之后才开始，避免 900+ 游戏启动时长期占用进程和磁盘。通知轮询在 Worker 启动/繁忙时指数退避。Dashboard/Settings 页面构造失败时会返回隔离的诊断降级视图；Worker 健康探测会先等待忙碌实例恢复，不会因一次短暂超时误杀现有进程。维护中心设备状态、诊断和审计表格现在保留有限视口并由页面级滚动承载，矮窗口不会把后续操作裁掉；Dashboard 外壳会统一转发所有工作区的响应式尺寸状态。
 
 ## 核心原则
 

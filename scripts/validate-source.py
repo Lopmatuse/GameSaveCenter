@@ -1182,7 +1182,11 @@ def check_final_redesign_guards() -> None:
         # the outer scroll channel is only there to reach the second table on short hosts.
         allowed_page_scroll = (
             control.attrib.get("Height") == "360"
-            and control.attrib.get("ItemsSource", "") in {"{Binding Findings}", "{Binding Audit}"}
+            and control.attrib.get("ItemsSource", "") in {
+                "{Binding Findings}",
+                "{Binding Audit}",
+                "{Binding DeviceComparisons}",
+            }
         )
         if (("StackPanel" in ancestors or "ScrollViewer" in ancestors) and not allowed_page_scroll) or "Grid" not in ancestors:
             fail(
