@@ -447,6 +447,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("GscRowHoverBrush", production);
         Assert.Contains("GscAccentTintBrush", production);
         Assert.Contains("CornerRadius=\"10\"", production);
+        Assert.Contains("x:Name=\"SortGlyph\"", production);
+        Assert.Contains("Property=\"SortDirection\" Value=\"Ascending\"", production);
+        Assert.Contains("Property=\"SortDirection\" Value=\"Descending\"", production);
 
         foreach (var workspace in new[] { "OverviewView.xaml", "SaveCenterView.xaml", "MediaCenterView.xaml", "TaskCenterView.xaml", "MaintenanceView.xaml" })
         {
