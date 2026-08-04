@@ -485,6 +485,34 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void SaveCenterKeepsTableRowsVisibleWhenMetadataActionsWrap()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var savePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "SaveCenterView.xaml");
+        var saveCodePath = savePath + ".cs";
+        var saveText = File.ReadAllText(savePath);
+        var saveCode = File.ReadAllText(saveCodePath);
+        var save = XDocument.Parse(saveText);
+
+        foreach (var name in new[] { "SaveHistoryActionsScrollViewer", "SaveCandidateReasonScrollViewer", "SaveCandidateActionsScrollViewer" })
+        {
+            var viewer = save.Descendants().Single(element =>
+                element.Name.LocalName == "ScrollViewer" &&
+                element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == name);
+            Assert.Equal("Auto", viewer.Attribute("VerticalScrollBarVisibility")?.Value);
+            Assert.Equal("Disabled", viewer.Attribute("HorizontalScrollBarVisibility")?.Value);
+        }
+
+        Assert.Contains("SaveHistoryActionsScrollViewer.MaxHeight = Math.Max(130, Math.Min(220, height * (compact ? 0.24 : 0.30)))", saveCode);
+        Assert.Contains("SaveCandidateReasonScrollViewer.MaxHeight = Math.Max(90, Math.Min(180, height * (compact ? 0.18 : 0.22)))", saveCode);
+        Assert.Contains("SaveCandidateActionsScrollViewer.MaxHeight = Math.Max(70, Math.Min(140, height * (compact ? 0.14 : 0.18)))", saveCode);
+        Assert.Contains("MaxHeight=\"220\"", saveText);
+        Assert.Contains("MaxHeight=\"180\"", saveText);
+        Assert.Contains("MaxHeight=\"140\"", saveText);
+        Assert.DoesNotContain("<Border Grid.Row=\"1\" Style=\"{DynamicResource GscSurface}\"", saveText);
+    }
+
+    [Fact]
     public void ExtractedWorkspaceViewsConstructInsideSta()
     {
         Exception? exception = null;

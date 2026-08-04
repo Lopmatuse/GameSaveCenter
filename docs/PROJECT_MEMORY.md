@@ -740,3 +740,9 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 ## 2026-08-04 0.6.22 UI-062 GamePicker 键盘规则
 
 - GamePicker 的搜索框和虚拟化列表共用 Enter/Esc 处理；搜索框焦点下 Enter 确认、Esc 关闭，不能只把事件挂在列表上。
+
+## 2026-08-04 0.6.22 UI-063 存档中心低高度规则
+
+- 存档历史底部元数据/恢复操作、候选路径判断依据和候选操作不得作为无限 Auto 行；必须分别放入有限高度的 ScrollViewer，避免窄窗口或长文案推走上方 DataGrid。
+- SaveCenter 的表格仍位于 `Grid` 的 `*` 行，DataGrid 自身保留纵横滚动、CanContentScroll、行/列虚拟化；次级区域只滚动自身，不得用页面级 ScrollViewer 掩盖测量问题。
+- 三个次级滚动区的 MaxHeight 由 SaveCenter 响应式代码按窗口实际宽高计算，最低高度用于保留操作可达性；最终仍需 Windows 低高度、DPI 与真实长文案回归。
