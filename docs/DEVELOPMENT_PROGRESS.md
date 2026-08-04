@@ -987,6 +987,14 @@
 - `WpfUiResourceDictionaryTests` 新增列表滚动门禁和需关注入口可访问性门禁；Release 测试 103 项通过，Release 构建 0 警告、0 错误。
 - 当前仍未声称完成 Playnite 宿主渲染、125/150% DPI、透明关闭、高对比度和拖动缩放的真机验证；这些仍需 Windows 回归。
 
+## 2026-08-04 0.6.22 UI-058 共享表格视觉与低高度滚动收口
+
+- `WpfUiProduction.xaml` 新增隐式 `DataGridColumnHeader`、`DataGridCell`、`DataGridRow` Apple-inspired 共享模板：统一表头、圆角行、悬停/选中状态、键盘焦点和动态主题色；列表行没有使用 BlurEffect。
+- 概览、存档、媒体、任务和维护工作区的 DataGrid 继承共享模板，保留行/列虚拟化、内部横纵滚动，并将最小视口提高到 220 DIP、行高提高到 48–54 DIP，避免内容挤成一行。
+- 修改器中心的工具设置改为有限高度 ScrollViewer；短窗口下设置区自身滚动，不再把主要工具列表或工作区标签推到可视区域之外。
+- 增加共享表格模板、工作区 DataGrid 契约和修改器设置滚动的自动测试；Release 测试 105 项通过，Release 构建 0 警告、0 错误。
+- 本次仍未声称完成 Playnite 宿主渲染、DPI、透明关闭、高对比度、键盘 Popup 和真实窗口拖动缩放的真机验证；这些仍需 Windows/Playnite 回归。
+
 
 ## 2026-08-02 UI-005 全功能视觉重构（源码阶段）
 

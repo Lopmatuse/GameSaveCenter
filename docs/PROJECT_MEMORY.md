@@ -714,3 +714,10 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 - `DataGrid` 必须位于有限 `Grid` 测量路径，统一复用共享样式并保留内部滚动与虚拟化；媒体来源规则的表单可滚动，但表格必须处于独立 `*` 行。
 - 首页需关注入口必须以按钮/键盘可达，提供无障碍名称；具体原因来自持久化的 `AttentionFindings`，不能只显示数字。
 - WPF-UI 输入控件继续使用共享圆角模板和 `DynamicResource`；不得回退到系统白色 TextBox/ComboBox 或共享冻结 Transform。
+
+## 2026-08-04 0.6.22 UI-058 共享表格和低高度滚动规则
+
+- 提取工作区的 DataGrid 必须继承 `WpfUiProduction.xaml` 中的隐式表头、单元格和行模板；局部 DataGrid 样式应使用 `BasedOn="{StaticResource {x:Type DataGrid}}"`，避免回退到宿主默认白色/方形行。
+- 表格视口默认至少 220 DIP、行高约 48–54 DIP，表格必须保留内部横纵滚动、`CanContentScroll`、行/列虚拟化；MinHeight 不是用来掩盖错误测量，父级仍需是有限的 `Grid` `*` 行。
+- 修改器设置是次级检查器，低高度时必须放入有限高度 ScrollViewer；主工具列表保留 star 行和独立滚动，不能被设置表单推走。
+- 共享表格行只使用动态主题刷和轻微圆角；禁止对大型滚动区域或列表行添加 BlurEffect。

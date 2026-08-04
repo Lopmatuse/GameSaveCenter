@@ -435,6 +435,53 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void SharedDataGridChromeCoversHeadersCellsAndRowsAcrossExtractedWorkspaces()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var production = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "WpfUiProduction.xaml"));
+
+        Assert.Contains("<Style TargetType=\"DataGridColumnHeader\">", production);
+        Assert.Contains("<Style TargetType=\"DataGridCell\">", production);
+        Assert.Contains("<Style TargetType=\"DataGridRow\">", production);
+        Assert.Contains("GscTableHeaderBrush", production);
+        Assert.Contains("GscRowHoverBrush", production);
+        Assert.Contains("GscAccentTintBrush", production);
+        Assert.Contains("CornerRadius=\"10\"", production);
+
+        foreach (var workspace in new[] { "OverviewView.xaml", "SaveCenterView.xaml", "MediaCenterView.xaml", "TaskCenterView.xaml", "MaintenanceView.xaml" })
+        {
+            var text = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", workspace));
+            Assert.Contains("BasedOn=\"{StaticResource {x:Type DataGrid}}\"", text);
+            Assert.Contains("ScrollViewer.HorizontalScrollBarVisibility\" Value=\"Auto\"", text);
+            Assert.Contains("ScrollViewer.VerticalScrollBarVisibility\" Value=\"Auto\"", text);
+            Assert.Contains("EnableRowVirtualization\" Value=\"True\"", text);
+            Assert.Contains("EnableColumnVirtualization\" Value=\"True\"", text);
+            Assert.Contains("Property=\"MinHeight\" Value=\"220\"", text);
+            Assert.DoesNotContain("BlurEffect", text);
+        }
+    }
+
+    [Fact]
+    public void TrainerInspectorUsesAFiniteScrollChannelAtShortHeights()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var trainerPath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml");
+        var trainerCodePath = trainerPath + ".cs";
+        var trainerText = File.ReadAllText(trainerPath);
+        var trainer = XDocument.Parse(trainerText);
+        var trainerCode = File.ReadAllText(trainerCodePath);
+        var scrollViewer = trainer.Descendants().Single(element =>
+            element.Name.LocalName == "ScrollViewer" && element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "TrainerToolsSettingsScrollViewer");
+
+        Assert.Equal("Auto", scrollViewer.Attribute("VerticalScrollBarVisibility")?.Value);
+        Assert.Equal("Disabled", scrollViewer.Attribute("HorizontalScrollBarVisibility")?.Value);
+        Assert.Equal("280", scrollViewer.Attribute("MaxHeight")?.Value);
+        Assert.Contains("TrainerToolsSettingsScrollViewer.MaxHeight = Math.Max(190, Math.Min(280, height * 0.36))", trainerCode);
+        Assert.Contains("ScrollViewer.VerticalScrollBarVisibility\" Value=\"Auto\"", trainerText);
+        Assert.Contains("ScrollViewer.HorizontalScrollBarVisibility\" Value=\"Disabled\"", trainerText);
+    }
+
+    [Fact]
     public void ExtractedWorkspaceViewsConstructInsideSta()
     {
         Exception? exception = null;
@@ -852,7 +899,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains(dataGrid.Ancestors(), ancestor => ancestor.Name.LocalName == "Border");
         Assert.Contains(tabItem.Descendants(), element => element.Name.LocalName == "ScrollViewer" && element.Attribute("MaxHeight")?.Value == "190");
         Assert.Contains(tabItem.Descendants(), element => element.Name.LocalName == "RowDefinition" && element.Attribute("Height")?.Value == "*");
-        Assert.Contains("Property=\"MinHeight\" Value=\"180\"", File.ReadAllText(mediaPath));
+        Assert.Contains("Property=\"MinHeight\" Value=\"220\"", File.ReadAllText(mediaPath));
     }
 
     [Fact]

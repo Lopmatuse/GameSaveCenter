@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -9,6 +10,10 @@ namespace GameSaveCenter.Playnite.Views
 
         public void ApplyResponsiveLayout(double width, double height)
         {
+            // Keep the selected-tool inspector reachable at short heights. The list remains
+            // the primary star row; only the secondary settings card receives a finite scroll
+            // channel so it cannot push the list or the tab content outside the viewport.
+            TrainerToolsSettingsScrollViewer.MaxHeight = Math.Max(190, Math.Min(280, height * 0.36));
             var stackCatalog = width < 980;
             TrainerCatalogLayout.RowDefinitions[0].Height = new GridLength(1, GridUnitType.Star);
             TrainerCatalogLayout.RowDefinitions[1].Height = stackCatalog

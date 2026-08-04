@@ -16,7 +16,7 @@
             </ResourceDictionary.MergedDictionaries>
             <converters:MediaThumbnailConverter x:Key="MediaThumbnailConverter"/>
             <converters:MediaVideoSourceConverter x:Key="MediaVideoSourceConverter"/>
-            <Style x:Key="MediaDataGrid" TargetType="DataGrid">
+            <Style x:Key="MediaDataGrid" TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
                 <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderThickness" Value="0"/>
@@ -24,8 +24,8 @@
                 <Setter Property="HeadersVisibility" Value="Column"/>
                 <Setter Property="RowBackground" Value="Transparent"/>
                 <Setter Property="AlternatingRowBackground" Value="Transparent"/>
-                <Setter Property="RowHeight" Value="52"/>
-                <Setter Property="MinHeight" Value="180"/>
+                <Setter Property="RowHeight" Value="54"/>
+                <Setter Property="MinHeight" Value="220"/>
                 <Setter Property="ColumnHeaderHeight" Value="40"/>
                 <Setter Property="RowHeaderWidth" Value="0"/>
                 <Setter Property="SelectionUnit" Value="FullRow"/>
