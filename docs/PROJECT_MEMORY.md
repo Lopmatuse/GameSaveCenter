@@ -771,3 +771,11 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 
 - `OverviewView` 是首页摘要、需关注和最近活动的唯一视觉归属；Dashboard 外壳不得重新渲染旧的六张统计卡片。
 - 删除重复摘要时必须保留 `OpenAttentionCenterCommand`、`AttentionFindings` 和维护中心定位行为；目标是释放垂直空间，不是删除关注信息。
+
+## 2026-08-04 0.6.22 UI-069 工作区提取完成规则
+
+- Dashboard 是导航/上下文外壳，不再保留旧工作区的隐藏 Tab 或开发探针视觉树；生产内容唯一归属为 `OverviewView`、`SaveCenterView`、`TrainerCenterView`、`MediaCenterView`、`TaskCenterView`、`MaintenanceView`。
+- 响应式代码必须就近维护：Dashboard 只负责六个工作区可见性和全局 GamePicker，工作区 code-behind 负责自身检查器、表格和低高度滚动。
+- 媒体中心当前游戏媒体页必须提供本地 `MediaSearchText`/`MediaFilter` 筛选；筛选应使用 CollectionView 本地刷新，不能因每次输入产生 Worker IPC。
+- 源码门禁和 WPF 测试遇到架构提取时，优先读取真实工作区文件并验证命令/绑定/虚拟化，不得通过恢复旧隐藏控件来满足历史字符串检查。
+- 删除旧开发探针入口后，不再从 Dashboard 构造 `UiFrameworkProbeView`；若未来保留探针，只能作为独立诊断加载器，不得进入 Playnite 共享窗口解析路径。

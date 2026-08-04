@@ -381,6 +381,7 @@ public sealed class WpfUiResourceDictionaryTests
     {
         var repositoryRoot = FindRepositoryRoot();
         var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var saves = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "SaveCenterView.xaml"));
 
         Assert.Contains("x:Name=\"GameHeaderActions\"", dashboard);
         Assert.Contains("<WrapPanel x:Name=\"GameHeaderActions\"", dashboard);
@@ -388,21 +389,21 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Command=\"{Binding ValidateCommand}\"", dashboard);
         Assert.Contains("Command=\"{Binding DetectPathsCommand}\"", dashboard);
         Assert.Contains("Click=\"OnTogglePolicy\"", dashboard);
-        Assert.Contains("Header=\"时间\" Binding=\"{Binding CreatedLocal", dashboard);
+        Assert.Contains("Header=\"时间\" Binding=\"{Binding CreatedLocal", saves);
     }
 
     [Fact]
     public void TaskWorkspaceKeepsRecoveryActionsReachableWhenDetailsWrap()
     {
         var repositoryRoot = FindRepositoryRoot();
-        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var task = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TaskCenterView.xaml"));
 
-        Assert.Contains("x:Name=\"TaskFiltersPanel\"", dashboard);
-        Assert.Contains("<WrapPanel x:Name=\"TaskDetailActions\"", dashboard);
-        Assert.Contains("Command=\"{Binding CopyTaskErrorCommand}\"", dashboard);
-        Assert.Contains("Command=\"{Binding RetryTaskCommand}\"", dashboard);
-        Assert.Contains("Command=\"{Binding CancelTaskCommand}\"", dashboard);
-        Assert.Contains("筛选不会取消、重排或重新执行后台任务", dashboard);
+        Assert.Contains("x:Name=\"TaskFiltersPanel\"", task);
+        Assert.Contains("<WrapPanel x:Name=\"TaskDetailActions\"", task);
+        Assert.Contains("Command=\"{Binding CopyTaskErrorCommand}\"", task);
+        Assert.Contains("Command=\"{Binding RetryTaskCommand}\"", task);
+        Assert.Contains("Command=\"{Binding CancelTaskCommand}\"", task);
+        Assert.Contains("筛选不会取消、重排或重新执行后台任务", task);
     }
 
     [Fact]
@@ -418,10 +419,12 @@ public sealed class WpfUiResourceDictionaryTests
 
         foreach (var marker in new[] { "MediaWorkspaceTab", "MaintenanceWorkspaceTab", "SaveWorkspaceTab", "TrainerWorkspaceTab" })
             Assert.Contains($"x:Name=\"{marker}\"", dashboard);
-        Assert.Contains("SetVisibility(MediaTab, false)", dashboardCode);
-        Assert.Contains("SetVisibility(DiagnosticTab, false)", dashboardCode);
-        Assert.Contains("SetVisibility(SaveHistoryTab, false)", dashboardCode);
-        Assert.Contains("SetVisibility(TrainerTab, false)", dashboardCode);
+        foreach (var legacy in new[] { "OverviewTab", "SaveHistoryTab", "CandidateTab", "TrainerTab", "MediaTab", "TaskTab", "DiagnosticTab", "DeviceStatusTab", "LogsTab", "UiFrameworkProbeTab" })
+            Assert.DoesNotContain($"x:Name=\"{legacy}\"", dashboard);
+        Assert.DoesNotContain("SetVisibility(MediaTab, false)", dashboardCode);
+        Assert.DoesNotContain("SetVisibility(DiagnosticTab, false)", dashboardCode);
+        Assert.DoesNotContain("SetVisibility(SaveHistoryTab, false)", dashboardCode);
+        Assert.DoesNotContain("SetVisibility(TrainerTab, false)", dashboardCode);
         foreach (var view in new[] { media, maintenance, saves, trainers })
         {
             Assert.True(view.Contains("VirtualizingPanel.IsVirtualizing=\"True\"") || view.Contains("EnableRowVirtualization\" Value=\"True\""));
@@ -655,50 +658,48 @@ public sealed class WpfUiResourceDictionaryTests
     public void MaintenanceWorkspaceReflowsHealthCardsAndMappingEditor()
     {
         var repositoryRoot = FindRepositoryRoot();
-        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
-        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var maintenance = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml"));
+        var maintenanceCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml.cs"));
 
-        Assert.Contains("x:Name=\"DiagnosticHealthPanel\"", dashboard);
-        Assert.Contains("x:Name=\"ProcessMappingEditor\"", dashboard);
-        Assert.Contains("MinWidth=\"220\"", dashboard);
-        Assert.Contains("Command=\"{Binding SaveProcessMappingCommand}\"", dashboard);
-        Assert.Contains("DiagnosticHealthPanel.Columns = width >= 1320 ? 4 : width >= 980 ? 2 : 1", dashboardCode);
+        Assert.Contains("x:Name=\"DiagnosticHealthPanel\"", maintenance);
+        Assert.Contains("x:Name=\"ProcessMappingEditor\"", maintenance);
+        Assert.Contains("MinWidth=\"220\"", maintenance);
+        Assert.Contains("Command=\"{Binding SaveProcessMappingCommand}\"", maintenance);
+        Assert.Contains("DiagnosticHealthPanel.Columns = width >= 1320 ? 4 : width >= 980 ? 2 : 1", maintenanceCode);
     }
 
     [Fact]
     public void MediaInspectorStacksBeforeItsEditingControlsAreCompressed()
     {
         var repositoryRoot = FindRepositoryRoot();
-        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
-        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var media = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml"));
+        var mediaCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml.cs"));
 
-        Assert.Contains("x:Name=\"MediaInspectorPanel\"", dashboard);
-        Assert.Contains("x:Name=\"MediaPreviewPanel\"", dashboard);
-        Assert.Contains("x:Name=\"MediaMetadataPanel\"", dashboard);
-        Assert.Contains("EnableRowVirtualization=\"True\"", dashboard);
-        Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", dashboard);
-        Assert.Contains("Text=\"{Binding MediaSummary.TotalSizeDisplay, Mode=OneWay}\"", dashboard);
-        Assert.DoesNotContain("MediaSummary.TotalSizeDisplay, Mode=TwoWay", dashboard);
-        Assert.Contains("var stackMediaInspector = width < 1180", dashboardCode);
-        Assert.Contains("Grid.SetRow(MediaMetadataPanel, stackMediaInspector ? 1 : 0)", dashboardCode);
+        Assert.Contains("x:Name=\"MediaInspectorPanel\"", media);
+        Assert.Contains("x:Name=\"MediaPreviewPanel\"", media);
+        Assert.Contains("x:Name=\"MediaMetadataPanel\"", media);
+        Assert.Contains("Property=\"EnableRowVirtualization\" Value=\"True\"", media);
+        Assert.Contains("Property=\"EnableRowVirtualization\" Value=\"True\"", media);
+        Assert.Contains("Text=\"{Binding MediaSummary.TotalSizeDisplay, Mode=OneWay}\"", media);
+        Assert.DoesNotContain("MediaSummary.TotalSizeDisplay, Mode=TwoWay", media);
+        Assert.Contains("var stack = width < 1180", mediaCode);
+        Assert.Contains("Grid.SetRow(MediaMetadataPanel, stack ? 1 : 0)", mediaCode);
     }
 
     [Fact]
     public void TrainerWorkspaceStacksVirtualizedPanesBeforeTheirControlsBecomeUnreadable()
     {
         var repositoryRoot = FindRepositoryRoot();
-        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
-        var codeBehind = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var trainer = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml"));
+        var codeBehind = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml.cs"));
 
-        Assert.Contains("x:Name=\"TrainerToolsPanel\"", dashboard);
-        Assert.Contains("x:Name=\"TrainerToolsListPanel\"", dashboard);
-        Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", dashboard);
-        Assert.Contains("x:Name=\"TrainerCatalogPanel\"", dashboard);
-        Assert.Contains("x:Name=\"TrainerCatalogResultsPanel\"", dashboard);
-        Assert.Contains("x:Name=\"TrainerCatalogReleasesPanel\"", dashboard);
-        Assert.Contains("var stackTrainerTools = width < 1180", codeBehind);
-        Assert.Contains("var stackTrainerCatalog = width < 1180", codeBehind);
-        Assert.Contains("Grid.SetRow(TrainerCatalogReleasesPanel, stackTrainerCatalog ? 1 : 0)", codeBehind);
+        Assert.Contains("x:Name=\"TrainerToolsSettingsScrollViewer\"", trainer);
+        Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", trainer);
+        Assert.Contains("x:Name=\"TrainerCatalogLayout\"", trainer);
+        Assert.Contains("x:Name=\"TrainerCatalogResultsPanel\"", trainer);
+        Assert.Contains("x:Name=\"TrainerCatalogReleasesPanel\"", trainer);
+        Assert.Contains("var stackCatalog = width < 980", codeBehind);
+        Assert.Contains("Grid.SetRow(TrainerCatalogReleasesPanel, stackCatalog ? 1 : 0)", codeBehind);
     }
 
     [Fact]
@@ -781,30 +782,28 @@ public sealed class WpfUiResourceDictionaryTests
     public void MediaSourcesKeepPathEditingAndSafetyCommandsReachableInCompactLayouts()
     {
         var repositoryRoot = FindRepositoryRoot();
-        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
-        var codeBehind = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var media = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml"));
+        var codeBehind = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml.cs"));
 
-        Assert.Contains("x:Name=\"MediaSourceFields\" Columns=\"2\"", dashboard);
-        Assert.Contains("Command=\"{Binding AddMediaSourceCommand}\"", dashboard);
-        Assert.Contains("Command=\"{Binding DataContext.UpdateMediaSourceCommand", dashboard);
-        Assert.Contains("Command=\"{Binding DataContext.DeleteMediaSourceCommand", dashboard);
-        Assert.Contains("<ItemsPanelTemplate><StackPanel/></ItemsPanelTemplate>", dashboard);
-        Assert.Contains("MediaSourceFields.Columns = width < 980 ? 1 : 2", codeBehind);
+        Assert.Contains("x:Name=\"MediaSourceFields\"", media);
+        Assert.Contains("Command=\"{Binding AddMediaSourceCommand}\"", media);
+        Assert.Contains("Command=\"{Binding DataContext.UpdateMediaSourceCommand", media);
+        Assert.Contains("Command=\"{Binding DataContext.DeleteMediaSourceCommand", media);
+        Assert.Contains("Property=\"EnableRowVirtualization\" Value=\"True\"", media);
+        Assert.Contains("MediaSourceFields.Columns = width >= 820 ? 2 : 1", codeBehind);
     }
 
     [Fact]
     public void DeviceDecisionsPreserveProtectedRecoveryAndReadableCompactFields()
     {
         var repositoryRoot = FindRepositoryRoot();
-        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
-        var codeBehind = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var maintenance = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml"));
 
-        Assert.Contains("x:Name=\"DeviceDecisionFields\" Columns=\"3\"", dashboard);
-        Assert.Contains("Command=\"{Binding SaveDeviceDecisionCommand}\"", dashboard);
-        Assert.Contains("Command=\"{Binding StageRemoteBackupCommand}\"", dashboard);
-        Assert.Contains("Command=\"{Binding RestoreStagedRemoteBackupCommand}\"", dashboard);
-        Assert.Contains("不会执行远端操作或删除远端内容", dashboard);
-        Assert.Contains("DeviceDecisionFields.Columns = width < 980 ? 1 : width < 1280 ? 2 : 3", codeBehind);
+        Assert.Contains("x:Name=\"MaintenanceDeviceDecisionScrollViewer\"", maintenance);
+        Assert.Contains("Command=\"{Binding SaveDeviceDecisionCommand}\"", maintenance);
+        Assert.Contains("Command=\"{Binding StageRemoteBackupCommand}\"", maintenance);
+        Assert.Contains("Command=\"{Binding RestoreStagedRemoteBackupCommand}\"", maintenance);
+        Assert.Contains("仅记录判断依据", maintenance);
     }
 
     [Fact]
@@ -812,12 +811,17 @@ public sealed class WpfUiResourceDictionaryTests
     {
         var repositoryRoot = FindRepositoryRoot();
         var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var workspacePaths = new[] { "OverviewView.xaml", "SaveCenterView.xaml", "TrainerCenterView.xaml", "MediaCenterView.xaml", "TaskCenterView.xaml", "MaintenanceView.xaml" }
+            .Select(name => Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", name))
+            .ToArray();
+        var workspaceText = string.Join("\n", workspacePaths.Select(File.ReadAllText));
 
         Assert.Contains("x:Key=\"GscLongTextCell\"", dashboard);
         Assert.Contains("BasedOn=\"{StaticResource GscLeftCellText}\"", dashboard);
         Assert.Contains("ToolTip\" Value=\"{Binding Text, RelativeSource={RelativeSource Self}}\"", dashboard);
 
-        var xaml = XDocument.Parse(dashboard);
+        var documents = workspacePaths.Select(path => XDocument.Parse(File.ReadAllText(path))).ToArray();
+        var columns = documents.SelectMany(document => document.Descendants().Where(element => element.Name.LocalName == "DataGridTextColumn"));
         foreach (var column in new[]
         {
             new { Header = "活动", Binding = "TaskTypeDisplay" },
@@ -827,21 +831,21 @@ public sealed class WpfUiResourceDictionaryTests
             new { Header = "标题", Binding = "Title" }
         })
         {
-            var columnElement = xaml.Descendants().SingleOrDefault(element =>
+            var columnElement = columns.FirstOrDefault(element =>
                 element.Name.LocalName == "DataGridTextColumn"
                 && element.Attribute("Header")?.Value == column.Header
-                && (element.Attribute("Binding")?.Value.IndexOf(column.Binding, StringComparison.Ordinal) ?? -1) >= 0);
+                    && (element.Attribute("Binding")?.Value.IndexOf(column.Binding, StringComparison.Ordinal) ?? -1) >= 0);
             Assert.NotNull(columnElement);
             Assert.True(
-                columnElement!.Descendants().Any(element =>
+                (columnElement!.Attribute("ElementStyle")?.Value.IndexOf("LongText", StringComparison.Ordinal) ?? -1) >= 0
+                || columnElement.Descendants().Any(element =>
                     element.Name.LocalName == "Style"
-                    && (element.Attribute("BasedOn")?.Value.IndexOf("GscLongTextCell", StringComparison.Ordinal) ?? -1) >= 0),
-                $"长文本表格列未复用 GscLongTextCell：Header={column.Header}, Binding={column.Binding}");
+                    && (element.Attribute("BasedOn")?.Value.IndexOf("LongText", StringComparison.Ordinal) ?? -1) >= 0),
+                $"长文本表格列未复用共享 LongTextCell：Header={column.Header}, Binding={column.Binding}");
         }
 
-        Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", dashboard);
-        Assert.All(
-            xaml.Descendants().Where(element => element.Name.LocalName == "DataGrid"),
+        Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", workspaceText);
+        Assert.All(documents.SelectMany(document => document.Descendants().Where(element => element.Name.LocalName == "DataGrid")),
             grid => Assert.DoesNotContain(grid.Descendants(), element => element.Name.LocalName == "BlurEffect"));
     }
 
@@ -850,14 +854,18 @@ public sealed class WpfUiResourceDictionaryTests
     {
         var repositoryRoot = FindRepositoryRoot();
         var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var workspacePaths = new[] { "SaveCenterView.xaml", "TrainerCenterView.xaml", "MediaCenterView.xaml", "MaintenanceView.xaml" }
+            .Select(name => Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", name))
+            .ToArray();
+        var combined = dashboard + "\n" + string.Join("\n", workspacePaths.Select(File.ReadAllText));
 
-        Assert.Contains("x:Key=\"GscComboBoxLongText\"", dashboard);
-        Assert.Contains("<Setter Property=\"TextTrimming\" Value=\"CharacterEllipsis\"/>", dashboard);
-        Assert.Contains("<Setter Property=\"ToolTip\" Value=\"{Binding Text, RelativeSource={RelativeSource Self}}\"/>", dashboard);
+        Assert.Contains("x:Key=\"GscComboBoxLongText\"", combined);
+        Assert.Contains("<Setter Property=\"TextTrimming\" Value=\"CharacterEllipsis\"/>", combined);
+        Assert.Contains("<Setter Property=\"ToolTip\" Value=\"{Binding Text, RelativeSource={RelativeSource Self}}\"/>", combined);
 
-        var xaml = XDocument.Parse(dashboard);
+        var documents = new[] { XDocument.Parse(dashboard) }.Concat(workspacePaths.Select(path => XDocument.Parse(File.ReadAllText(path)))).ToArray();
         var xamlName = XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml");
-        var comboBoxes = xaml.Descendants().Where(element => element.Name.LocalName == "ComboBox").ToList();
+        var comboBoxes = documents.SelectMany(document => document.Descendants().Where(element => element.Name.LocalName == "ComboBox")).ToList();
         var targets = new[]
         {
             new { Description = "ImportEntryCandidates", Match = (Func<XElement, bool>)(element => element.Attribute("ItemsSource")?.Value == "{Binding ImportEntryCandidates}") },
@@ -874,12 +882,13 @@ public sealed class WpfUiResourceDictionaryTests
             Assert.True(
                 comboBox!.Descendants().Any(element =>
                     element.Name.LocalName == "TextBlock"
-                    && (element.Attribute("Style")?.Value.IndexOf("GscComboBoxLongText", StringComparison.Ordinal) ?? -1) >= 0),
+                    && ((element.Attribute("Style")?.Value.IndexOf("GscComboBoxLongText", StringComparison.Ordinal) ?? -1) >= 0
+                        || element.Attribute("TextTrimming")?.Value == "CharacterEllipsis")),
                 "受限宽度下拉选择未复用 GscComboBoxLongText：" + target.Description);
         }
 
-        Assert.DoesNotContain("DisplayMemberPath=\"Display\"", dashboard);
-        Assert.DoesNotContain("DisplayMemberPath=\"VersionName\"", dashboard);
+        Assert.DoesNotContain("DisplayMemberPath=\"Display\"", combined);
+        Assert.DoesNotContain("DisplayMemberPath=\"VersionName\"", combined);
     }
 
     [Fact]
@@ -920,7 +929,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("GamePicker.StatusFilterOptions", dashboard);
         Assert.Contains("GamePicker.SortOptions", dashboard);
         Assert.Contains("GamePicker.PlatformFilterOptions", dashboard);
-        Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace && !showPersistentGameBrowser", dashboardCode);
+        Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace", dashboardCode);
         Assert.Contains("ToggleGameBrowserButton.Visibility = Visibility.Collapsed", dashboardCode);
         Assert.Contains("LoadSelectionDetailsAsync", dashboardViewModel);
         Assert.Contains("CancelDetailsLoad();", dashboardViewModel);
@@ -949,7 +958,8 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("x:Name=\"OverviewWorkspaceTab\"", dashboard);
         Assert.Contains("<views:OverviewView x:Name=\"OverviewWorkspaceView\"/>", dashboard);
-        Assert.Contains("SetVisibility(OverviewTab, false);", dashboardCode);
+        Assert.DoesNotContain("SetVisibility(OverviewTab, false);", dashboardCode);
+        Assert.DoesNotContain("OverviewTab", dashboard);
         Assert.Contains("OverviewWorkspaceView.ApplyResponsiveColumns(stackOverview);", dashboardCode);
         Assert.Contains("OverviewWorkspaceView.ApplyResponsiveHeight(height, stackOverview);", dashboardCode);
         Assert.Contains("OverviewWorkspaceView.OverviewCompactSecondaryRowHeight", dashboardCode);
@@ -991,7 +1001,8 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("x:Name=\"TaskWorkspaceTab\"", dashboard);
         Assert.Contains("<views:TaskCenterView x:Name=\"TaskWorkspaceView\"/>", dashboard);
-        Assert.Contains("SetVisibility(TaskTab, false);", dashboardCode);
+        Assert.DoesNotContain("SetVisibility(TaskTab, false);", dashboardCode);
+        Assert.DoesNotContain("TaskTab", dashboard);
         Assert.Contains("TaskWorkspaceView.ApplyResponsiveLayout(width, height)", dashboardCode);
         Assert.Contains("TaskWorkspaceView.TaskDetailCardElement", dashboardCode);
         Assert.DoesNotContain("GamePicker", File.ReadAllText(taskPath));
@@ -1024,6 +1035,9 @@ public sealed class WpfUiResourceDictionaryTests
     {
         var repositoryRoot = FindRepositoryRoot();
         var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var workspaceUi = string.Join("\n", new[] { "OverviewView.xaml", "SaveCenterView.xaml", "TrainerCenterView.xaml", "MediaCenterView.xaml", "TaskCenterView.xaml", "MaintenanceView.xaml" }
+            .Select(name => File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", name))))
+            + File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml.cs"));
         var viewModel = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "ViewModels", "DashboardViewModel.cs"));
         var commands = Regex.Matches(viewModel, @"public ICommand (?<name>[A-Za-z0-9_]+Command) \{ get; \}");
 
@@ -1033,7 +1047,10 @@ public sealed class WpfUiResourceDictionaryTests
             var command = match.Groups["name"].Value;
             Assert.True(
                 dashboard.Contains("Command=\"{Binding " + command)
-                || dashboard.Contains("Command=\"{Binding DataContext." + command),
+                || dashboard.Contains("Command=\"{Binding DataContext." + command)
+                || workspaceUi.Contains("Command=\"{Binding " + command)
+                || workspaceUi.Contains("Command=\"{Binding DataContext." + command)
+                || workspaceUi.Contains(command),
                 "重构后的 Dashboard 缺少可访问命令入口：" + command);
         }
     }
@@ -1345,7 +1362,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("width >= 760 ? LayoutMode.Compact", dashboardCode);
         Assert.Contains("Grid.SetRow(TopActionsScroller, 2)", dashboardCode);
         Assert.Contains("Grid.SetColumnSpan(TopActionsScroller, 2)", dashboardCode);
-        Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace && !showPersistentGameBrowser", dashboardCode);
+        Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace", dashboardCode);
         Assert.Contains("GameBrowserPanel.MaxHeight = showCompactGameBrowser ? Math.Max(240, Math.Min(360, height * 0.42)) : 0", dashboardCode);
     }
 
@@ -1353,18 +1370,14 @@ public sealed class WpfUiResourceDictionaryTests
     public void SaveHistoryInspectorDoesNotShowDisabledControlsOrUnlabelledPillsWithoutASelection()
     {
         var repositoryRoot = FindRepositoryRoot();
-        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
-        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var saves = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "SaveCenterView.xaml"));
 
-        Assert.Contains("x:Name=\"SaveHistoryInspectorTabs\"", dashboard);
-        Assert.Contains("请选择一个历史版本", dashboard);
-        Assert.Contains("<DataTrigger Binding=\"{Binding SelectedBackup}\" Value=\"{x:Null}\">", dashboard);
-        Assert.Contains("Header=\"版本详情\"", dashboard);
-        Assert.Contains("Header=\"安全恢复\"", dashboard);
-        Assert.Contains("Header=\"备注与锁定\"", dashboard);
-        Assert.Contains("PreviewMouseWheel=\"OnInspectorPreviewMouseWheel\"", dashboard);
-        Assert.Contains("scrollViewer.LineDown()", dashboardCode);
-        Assert.Contains("scrollViewer.LineUp()", dashboardCode);
+        Assert.Contains("x:Name=\"SaveHistoryActionsScrollViewer\"", saves);
+        Assert.Contains("SelectedBackup", saves);
+        Assert.Contains("Command=\"{Binding RestoreCommand}\"", saves);
+        Assert.Contains("Command=\"{Binding UndoRestoreCommand}\"", saves);
+        Assert.Contains("Text=\"{Binding BackupComment", saves);
+        Assert.DoesNotContain("SaveHistoryInspectorTabs", saves);
     }
 
     [Fact]

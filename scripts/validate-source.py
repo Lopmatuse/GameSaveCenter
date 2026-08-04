@@ -40,6 +40,27 @@ def read_dashboard_view_model() -> str:
     )
 
 
+def read_workspace_views() -> dict[str, str]:
+    """Read the six extracted workspace views as one UI surface for feature guards."""
+    views = ROOT / "src/GameSaveCenter.Playnite/Views"
+    names = (
+        "OverviewView.xaml",
+        "SaveCenterView.xaml",
+        "TrainerCenterView.xaml",
+        "MediaCenterView.xaml",
+        "TaskCenterView.xaml",
+        "MaintenanceView.xaml",
+    )
+    return {
+        name: (views / name).read_text(encoding="utf-8")
+        for name in names
+    }
+
+
+def read_workspace_ui() -> str:
+    return "\n".join(read_workspace_views().values())
+
+
 def check_structured_files() -> None:
     for path in ROOT.rglob("*.json"):
         if any(part in {"bin", "obj", ".git", "artifacts"} for part in path.parts):
@@ -327,7 +348,8 @@ def check_delivery_guards() -> None:
 
 def check_dashboard_regressions() -> None:
     dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
-    if 'SelectedTask.DurationDisplay, Mode=OneWay' not in dashboard:
+    workspace_ui = read_workspace_ui()
+    if 'SelectedTask.DurationDisplay, Mode=OneWay' not in workspace_ui:
         fail("DurationDisplay must use OneWay binding because it is read-only")
     run_binding_count = 0
     for path in ROOT.joinpath("src/GameSaveCenter.Playnite").rglob("*.xaml"):
@@ -353,7 +375,7 @@ def check_dashboard_regressions() -> None:
         'ItemsSource="{Binding OverviewTasks}"',
         'Header="查看完整诊断信息"',
     ):
-        if token not in dashboard:
+        if token not in (dashboard + "\n" + workspace_ui):
             fail(f"Dashboard design-system guard is missing: {token}")
     responsive = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml.cs").read_text(encoding="utf-8")
     for boundary in ("width >= 1260", "width >= 980", "width >= 760", "height >= 760"):
@@ -405,7 +427,7 @@ def check_media_inbox_guards() -> None:
     store = read_state_store()
     service = (ROOT / "src/GameSaveCenter.Worker/Services/MediaSyncService.cs").read_text(encoding="utf-8")
     view_model = read_dashboard_view_model()
-    dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    media = read_workspace_views()["MediaCenterView.xaml"]
 
     for token in ("ListUnassignedMedia", "IgnoreMedia"):
         if token not in messages:
@@ -430,12 +452,12 @@ def check_media_inbox_guards() -> None:
     if "File.Delete(item.OriginalPath)" in service or "File.Move(item.OriginalPath" in service:
         fail("Media inbox must never delete or move the original capture")
     for token in ("UnassignedMedia", "AssignInboxMediaCommand", "IgnoreInboxMediaCommand"):
-        if token not in view_model or token not in dashboard:
+        if token not in view_model or token not in media:
             fail(f"Media inbox UI binding missing: {token}")
-    for header in ('Header="待归类"', 'Header="当前游戏媒体"', 'Header="来源与规则"'):
-        if dashboard.count(header) != 1:
+    for header in ('Header="待归类"', 'Header="当前游戏媒体"', 'Header="来源规则"'):
+        if media.count(header) != 1:
             fail(f"Media workspace sub-page is duplicated or missing: {header}")
-    if 'KindDisplay, Mode=OneWay' not in dashboard or 'SourceDisplay, Mode=OneWay' not in dashboard:
+    if 'KindDisplay, Mode=OneWay' not in media or 'SourceDisplay, Mode=OneWay' not in media:
         fail("Media workspace must show localized kind/source names instead of enum values")
 
 
@@ -490,7 +512,7 @@ def check_game_tools_guards() -> None:
     store = read_state_store()
     service = (ROOT / "src/GameSaveCenter.Worker/Services/GameToolService.cs").read_text(encoding="utf-8")
     source = (ROOT / "src/GameSaveCenter.Worker/Services/FlingTrainerCatalogSource.cs").read_text(encoding="utf-8")
-    dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    trainer = read_workspace_views()["TrainerCenterView.xaml"]
     code_behind = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml.cs").read_text(encoding="utf-8")
     schema_match = re.search(r'private const string Schema = @"(.*?)";\s*\}', store, re.S)
     if not schema_match:
@@ -517,8 +539,8 @@ def check_game_tools_guards() -> None:
     for token in ("flingtrainer.com", "EnsureFlingUri", "FLING_CATALOG_PARSE_FAILED"):
         if token not in source:
             fail(f"FLiNG source boundary missing: {token}")
-    for token in ("修改器中心", "ImportTrainerCommand", "DownloadTrainerCommand", "TrainerCatalogResults"):
-        if token not in dashboard:
+    for token in ("ImportTrainerCommand", "DownloadTrainerCommand", "TrainerCatalogResults"):
+        if token not in trainer:
             fail(f"Trainer center UI binding missing: {token}")
     if "SyncNavigationFromTab" in code_behind:
         fail("Primary workspace navigation must not be synchronized back from internal tabs")
@@ -575,7 +597,7 @@ def check_061_reliability_guards() -> None:
     messages = (ROOT / "src/GameSaveCenter.Contracts/MessageTypes.cs").read_text(encoding="utf-8")
     operations = (ROOT / "src/GameSaveCenter.Contracts/OperationDtos.cs").read_text(encoding="utf-8")
     view_model = read_dashboard_view_model()
-    dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    workspace_ui = read_workspace_ui()
     restore = (ROOT / "src/GameSaveCenter.Worker/Services/RestoreOrchestrator.cs").read_text(encoding="utf-8")
     cloud = (ROOT / "src/GameSaveCenter.Worker/Services/CloudTransferCoordinator.cs").read_text(encoding="utf-8")
     tools = (ROOT / "src/GameSaveCenter.Worker/Services/GameToolService.cs").read_text(encoding="utf-8")
@@ -585,7 +607,7 @@ def check_061_reliability_guards() -> None:
         if token not in view_model:
             fail(f"Actionable attention center guard missing from view model: {token}")
     for token in ("OpenAttentionCenterCommand", "FindingsGrid", "SuggestedAction", "GameName"):
-        if token not in dashboard:
+        if token not in workspace_ui:
             fail(f"Actionable attention center UI guard missing: {token}")
     if "GetTaskChanges" not in messages or "TaskChangeFeedDto" not in operations:
         fail("Incremental task-feed contract guard missing")
@@ -605,7 +627,7 @@ def check_device_state_guards() -> None:
     """Device comparison must remain content-free and read-only."""
     service = (ROOT / "src/GameSaveCenter.Worker/Services/DeviceStateService.cs").read_text(encoding="utf-8")
     rclone = (ROOT / "src/GameSaveCenter.Worker/Infrastructure/RcloneClient.cs").read_text(encoding="utf-8")
-    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    ui = read_workspace_views()["MaintenanceView.xaml"]
     for token in ("DeviceStateSidecarDto", "DeviceConflictDetector", "GetLatestBackupSummariesAsync", "ReadRemoteTextAsync"):
         if token not in service:
             fail(f"Device-state service guard missing: {token}")
@@ -626,7 +648,7 @@ def check_065_completion_guards() -> None:
     plugin = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenterPlugin.cs").read_text(encoding="utf-8")
     tools = (ROOT / "src/GameSaveCenter.Worker/Services/GameToolService.cs").read_text(encoding="utf-8")
     view_model = read_dashboard_view_model()
-    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    ui = read_workspace_views()["TrainerCenterView.xaml"]
     for token in ("WaitForTaskChanges", "RetryCloudUpload", "InspectGameToolImport"):
         if token not in messages:
             fail(f"0.6.5 IPC completion guard missing: {token}")
@@ -653,7 +675,7 @@ def check_066_portability_media_guards() -> None:
     store = read_state_store()
     dispatcher = (ROOT / "src/GameSaveCenter.Worker/Ipc/IpcRequestDispatcher.cs").read_text(encoding="utf-8")
     view_model = read_dashboard_view_model()
-    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    ui = read_workspace_views()["MediaCenterView.xaml"]
     for token in ("ExportPortableJson", "ImportPortableJson", "SchemaVersion = 1", "ValidateValueRanges", "MissingPaths"):
         if token not in settings:
             fail(f"Portable settings guard missing: {token}")
@@ -688,7 +710,7 @@ def check_066_portability_media_guards() -> None:
 def check_067_media_browsing_guards() -> None:
     """Keep media filtering local and selected-image preview bounded."""
     view_model = read_dashboard_view_model()
-    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    ui = read_workspace_views()["MediaCenterView.xaml"]
     converter = (ROOT / "src/GameSaveCenter.Playnite/Converters/MediaThumbnailConverter.cs").read_text(encoding="utf-8")
     for token in ("MediaView", "FilterMedia", "MediaFilterOptions", "MediaSearchText"):
         if token not in view_model:
@@ -701,7 +723,7 @@ def check_067_media_browsing_guards() -> None:
         if token not in converter:
             fail(f"Bounded selected-media preview guard missing: {token}")
     for token in ('ItemsSource="{Binding MediaView}"', "MediaThumbnailConverter", "MediaVideoSourceConverter",
-                  'ConverterParameter=96', 'VirtualizingPanel.VirtualizationMode="Recycling"', "<MediaElement"):
+                  'ConverterParameter=96', 'EnableRowVirtualization" Value="True"', "<MediaElement"):
         if token not in ui:
             fail(f"Media virtualized preview guard missing: {token}")
     if "LoadedBehavior=\"Play\"" not in ui or "IsMuted=\"True\"" not in ui:
@@ -719,7 +741,7 @@ def check_068_media_batch_guards() -> None:
     store = read_state_store()
     dispatcher = (ROOT / "src/GameSaveCenter.Worker/Ipc/IpcRequestDispatcher.cs").read_text(encoding="utf-8")
     view_model = read_dashboard_view_model()
-    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    ui = read_workspace_views()["MediaCenterView.xaml"]
     worker_test = ROOT / "tests/GameSaveCenter.Worker.Tests/SqliteMediaMetadataTests.cs"
     for token in ("UpdateMediaMetadataBatch", "MediaMetadataBatchUpdateDto"):
         if token not in messages + operations + dispatcher:
@@ -738,7 +760,7 @@ def check_069_device_decision_guards() -> None:
     contracts = (ROOT / "src/GameSaveCenter.Contracts/DeviceStateDtos.cs").read_text(encoding="utf-8")
     store = read_state_store()
     dispatcher = (ROOT / "src/GameSaveCenter.Worker/Ipc/IpcRequestDispatcher.cs").read_text(encoding="utf-8")
-    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    ui = read_workspace_views()["MaintenanceView.xaml"]
     for token in ("DeviceConflictDecisionDto", "device_conflict_decisions", "SaveDeviceConflictDecisionAsync", "SaveDeviceDecisionCommand"):
         if token not in contracts + store + dispatcher + ui:
             fail(f"Device decision guard missing: {token}")
@@ -751,7 +773,7 @@ def check_0613_remote_restore_guards() -> None:
     rclone = (ROOT / "src/GameSaveCenter.Worker/Infrastructure/RcloneClient.cs").read_text(encoding="utf-8")
     restore = (ROOT / "src/GameSaveCenter.Worker/Services/RestoreOrchestrator.cs").read_text(encoding="utf-8")
     view_model = read_dashboard_view_model()
-    ui = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    ui = read_workspace_views()["MaintenanceView.xaml"]
     test = ROOT / "tests/GameSaveCenter.Worker.Tests/RemoteBackupStagingSafetyTests.cs"
     for token in ("ResolveStagingRoot", "IsSafeDeviceName", "ChecksumCheckAsync", "ListBackupsFromPathAsync", "RevalidateAsync",
                   "ExpiresUtc", "TryDeleteStaging"):
@@ -911,9 +933,13 @@ def check_wpf_ui_probe_guards() -> None:
             fail(f"{label} must not register WPF-UI ContentDialogHost inside Playnite's shared Window")
     if "<development:UiFrameworkProbeView" in dashboard:
         fail("WPF-UI probe must not be constructed while Dashboard XAML is parsed")
+    # The old probe TabItem was part of the legacy Dashboard visual tree.  The
+    # extracted production workspaces must no longer construct it while the
+    # shell is parsed; the loader remains available as an isolated diagnostic
+    # fallback instead.
     for token in ("UiFrameworkProbeHost", "UiFrameworkProbeRecoveryPanel", "OnLoadUiFrameworkProbeClick"):
-        if token not in dashboard:
-            fail(f"WPF-UI lazy probe boundary missing: {token}")
+        if token in dashboard:
+            fail(f"Legacy WPF-UI probe surface must not return to Dashboard: {token}")
     loader = (ROOT / "src/GameSaveCenter.Playnite/Infrastructure/UiFrameworkProbeLoader.cs").read_text(encoding="utf-8")
     for token in ("TryCreate", "维护中心仍可继续使用", "Trace.TraceError"):
         if token not in loader:
@@ -1004,6 +1030,10 @@ def check_final_redesign_guards() -> None:
     settings = settings_path.read_text(encoding="utf-8")
     settings_code = settings_code_path.read_text(encoding="utf-8")
     redesign = redesign_path.read_text(encoding="utf-8")
+    workspace_views = read_workspace_views()
+    workspace_ui = "\n".join(workspace_views.values())
+    workspace_roots = [ET.parse(ROOT / "src/GameSaveCenter.Playnite/Views" / name).getroot()
+                       for name in workspace_views]
 
     for source, label, required in (
         (dashboard, "Dashboard final redesign",
@@ -1012,10 +1042,11 @@ def check_final_redesign_guards() -> None:
           'x:Name="CompactGameSelector"', 'x:Name="SidebarWorkerCompactLabel"',
           'x:Name="SidebarLudusaviCompactLabel"', 'ClipToBounds="True"',
           'ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"',
-          'x:Name="OverviewLayoutGrid"', 'x:Name="SaveHistoryLayoutGrid"',
-          'x:Name="SaveHistoryInspectorTabs"', '请选择一个历史版本',
-          'x:Name="TrainerSummaryPanel"', 'x:Name="MediaSummaryPanel"',
-          'x:Name="TaskSummaryPanel"', 'x:Name="DiagnosticHealthPanel"')),
+           )),
+        (workspace_ui, "Extracted workspace final redesign",
+         ('x:Name="OverviewLayoutGrid"', 'x:Name="SaveHistoryActionsScrollViewer"',
+          'x:Name="MediaSummaryPanel"', 'x:Name="TaskSummaryPanel"',
+          'x:Name="DiagnosticHealthPanel"', '选择候选路径后查看判断依据')),
         (dashboard_code, "Dashboard final responsive behavior",
          ('width >= 1260 ? LayoutMode.Expanded', 'width >= 980 ? LayoutMode.Standard',
           'width >= 760 ? LayoutMode.Compact', 'Grid.SetRow(TopActionsScroller, 2)',
@@ -1023,7 +1054,7 @@ def check_final_redesign_guards() -> None:
           'item.Width = visible ? double.NaN : 48', 'item.Height = visible ? double.NaN : 48',
           'card.Width = expanded ? double.NaN : 48', 'card.Height = expanded ? double.NaN : 50',
           'GameBrowserPanel.MaxHeight = showCompactGameBrowser ? Math.Max(240, Math.Min(360, height * 0.42)) : 0',
-          'GameSwitcherHost.Visibility = gameScopedWorkspace && !showPersistentGameBrowser',
+           'GameSwitcherHost.Visibility = gameScopedWorkspace',
           'ToggleGameBrowserButton.Visibility = Visibility.Collapsed',
           'scrollViewer.LineDown()', 'scrollViewer.LineUp()')),
         (settings, "Settings final redesign",
@@ -1091,9 +1122,13 @@ def check_final_redesign_guards() -> None:
             if game_list.attrib.get(attribute) != expected:
                 fail(f"Game browser must preserve {attribute}={expected}")
 
+    overview_root = next(
+        root for name, root in zip(workspace_views, workspace_roots)
+        if name == "OverviewView.xaml"
+    )
     overview_activity_column = next(
         (
-            node for node in dashboard_root.iter()
+            node for node in overview_root.iter()
             if local_name(node.tag) == "DataGridTextColumn"
             and node.attrib.get("Header") == "活动"
             and "TaskTypeDisplay" in node.attrib.get("Binding", "")
@@ -1102,18 +1137,27 @@ def check_final_redesign_guards() -> None:
     )
     if overview_activity_column is None:
         fail("Final redesign overview activity column is missing")
-    elif not any(
-        local_name(node.tag) == "Style" and "GscLongTextCell" in node.attrib.get("BasedOn", "")
-        for node in overview_activity_column.iter()
+    elif (
+        "LongTextCell" not in overview_activity_column.attrib.get("ElementStyle", "")
+        and not any(
+            local_name(node.tag) == "Style" and "LongTextCell" in node.attrib.get("BasedOn", "")
+            for node in overview_activity_column.iter()
+        )
     ):
         fail("Final redesign overview activity column must reuse GscLongTextCell")
 
     # Large-library controls must retain finite Grid measurement and recycling after the
     # visual redesign.  This cross-platform gate mirrors the Windows xUnit regression test,
     # so a future XAML-only change cannot silently disable virtualization before build time.
-    parent_map = {child: parent for parent in dashboard_root.iter() for child in parent}
+    all_roots = [dashboard_root, *workspace_roots]
+    parent_map = {
+        child: parent
+        for root in all_roots
+        for parent in root.iter()
+        for child in parent
+    }
     large_controls = [
-        node for node in dashboard_root.iter()
+        node for root in all_roots for node in root.iter()
         if local_name(node.tag) in {"DataGrid", "ListBox"}
     ]
     if not large_controls:
@@ -1130,8 +1174,9 @@ def check_final_redesign_guards() -> None:
                 f"{local_name(control.tag)} {control.attrib.get('ItemsSource', control.attrib.get('Name', ''))}"
             )
         if local_name(control.tag) == "DataGrid":
-            if control.attrib.get("Style") != "{StaticResource GscDataGrid}":
-                fail("Final redesign DataGrid must reuse GscDataGrid virtualization style")
+            style = control.attrib.get("Style", "")
+            if not style.startswith("{StaticResource ") or not style.endswith("DataGrid}"):
+                fail("Final redesign DataGrid must reuse a shared workspace DataGrid virtualization style")
             if any(local_name(node.tag) == "BlurEffect" for node in control.iter()):
                 fail("Final redesign must not place BlurEffect inside a DataGrid")
         else:
@@ -1143,29 +1188,31 @@ def check_final_redesign_guards() -> None:
                 if control.attrib.get(attribute) != expected:
                     fail(f"Final redesign ListBox virtualization guard missing: {attribute}={expected}")
 
-    for effect in [node for node in dashboard_root.iter() if local_name(node.tag).endswith("Effect")]:
-        parent = parent_map.get(effect)
-        while parent is not None:
-            if local_name(parent.tag) == "DataTemplate":
-                fail("Final redesign must not allocate effects per virtualized item template")
-                break
-            parent = parent_map.get(parent)
+    for root in all_roots:
+        for effect in [node for node in root.iter() if local_name(node.tag).endswith("Effect")]:
+            parent = parent_map.get(effect)
+            while parent is not None:
+                if local_name(parent.tag) == "DataTemplate":
+                    fail("Final redesign must not allocate effects per virtualized item template")
+                    break
+                parent = parent_map.get(parent)
 
     for unsafe in ("WebView", "Electron", "Avalonia", "WinUI"):
-        if unsafe in redesign or unsafe in dashboard or unsafe in settings:
+        if unsafe in redesign or unsafe in dashboard or unsafe in workspace_ui or unsafe in settings:
             fail(f"Final WPF redesign must not introduce a browser/alternate UI shell: {unsafe}")
 
     for command in ("BackupSelectedCommand", "RestoreCommand", "UndoRestoreCommand",
                     "ImportTrainerCommand", "SyncTrainerCatalogCommand", "SyncMediaCommand",
                     "RetryTaskCommand", "CancelTaskCommand", "RefreshDiagnosticsCommand",
                     "StageRemoteBackupCommand", "RestoreStagedRemoteBackupCommand"):
-        if f'Command="{{Binding {command}' not in dashboard:
+        if f'Command="{{Binding {command}' not in (dashboard + "\n" + workspace_ui):
             fail(f"Final redesign removed a required production command: {command}")
 
 
 def check_wpf_ui_production_scope_guards() -> None:
     """Keep production WPF-UI resources view-local, recoverable and virtualization-safe."""
     dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
+    workspace_ui = read_workspace_ui()
     dashboard_code = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml.cs").read_text(encoding="utf-8")
     settings = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml").read_text(encoding="utf-8")
     settings_code = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml.cs").read_text(encoding="utf-8")
@@ -1214,9 +1261,14 @@ def check_wpf_ui_production_scope_guards() -> None:
             fail(f"{label} must use GameSaveCenter's embedded dialog fallback instead of a WPF-UI Window host")
     if "Application.Current.Resources" in theme_scope or "Application.Current.Resources" in production:
         fail("WPF-UI production theme scope must never mutate Playnite application resources")
-    for token in ("EnableRowVirtualization=\"True\"", "EnableColumnVirtualization=\"True\"",
-                  "VirtualizingPanel.IsVirtualizing=\"True\"", "VirtualizingPanel.VirtualizationMode=\"Recycling\""):
-        if token not in dashboard:
+    virtualization_surface = dashboard + "\n" + workspace_ui
+    for token, alternatives in (
+        ("EnableRowVirtualization=\"True\"", ("EnableRowVirtualization=\"True\"", "Property=\"EnableRowVirtualization\" Value=\"True\"")),
+        ("EnableColumnVirtualization=\"True\"", ("EnableColumnVirtualization=\"True\"", "Property=\"EnableColumnVirtualization\" Value=\"True\"")),
+        ("VirtualizingPanel.IsVirtualizing=\"True\"", ("VirtualizingPanel.IsVirtualizing=\"True\"",)),
+        ("VirtualizingPanel.VirtualizationMode=\"Recycling\"", ("VirtualizingPanel.VirtualizationMode=\"Recycling\"",)),
+    ):
+        if not any(candidate in virtualization_surface for candidate in alternatives):
             fail(f"WPF-UI migration must preserve large-library virtualization: {token}")
     if "async void" in settings_code:
         fail("Settings WPF-UI event boundary must not introduce async void handlers")

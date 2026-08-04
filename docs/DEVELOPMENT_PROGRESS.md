@@ -1058,6 +1058,15 @@
 - 保留 `OpenAttentionCenterCommand` 和 `AttentionFindings` 的具体原因入口，不改变业务数据或命令行为。
 - 新增结构门禁；Release 测试 110 项通过，Release 构建 0 警告、0 错误。
 
+## 2026-08-04 0.6.22 UI-069 Dashboard 旧工作区清理与媒体筛选补足
+
+- 删除 Dashboard 中已由六个提取工作区替代的旧 Overview、存档、修改器、媒体、任务、诊断、设备、日志和开发探针 Tab，避免隐藏视觉树重复测量、旧事件入口和无效的响应式字段残留。
+- 响应式协调收口为 Dashboard 外壳只切换六个工作区；存档、媒体、修改器、任务和维护的局部滚动/换行由各自 View 负责，保留虚拟化与键盘入口。
+- 媒体中心“当前游戏媒体”补回本地搜索框和类型筛选 ComboBox，绑定 `MediaSearchText`、`MediaFilterOptions` 和 `MediaFilter`，不在输入时访问 Worker。
+- 维护中心设备对比、进程映射和诊断文本列统一复用长文本省略/Tooltip 样式；同步更新结构校验器和 WPF 回归测试，使门禁检查提取后的真实归属。
+- 源码校验、XAML 结构检查、Release 测试 110 项（Core 13、Worker 21、Playnite 76）和 Release 构建均通过，0 警告、0 错误。
+- 当前仍未声称完成 Playnite 宿主渲染、DPI、主题切换、透明降级和真实窗口缩放回归；需在 Windows/Playnite 继续验证。
+
 
 ## 2026-08-02 UI-005 全功能视觉重构（源码阶段）
 

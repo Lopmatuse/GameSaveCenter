@@ -21,7 +21,6 @@ namespace GameSaveCenter.Playnite.Views
         private readonly GameSaveCenterPlugin plugin;
         private readonly DispatcherTimer refreshTimer;
         private readonly Dictionary<Border, DispatcherTimer> toastTimers = new Dictionary<Border, DispatcherTimer>();
-        private readonly UiFrameworkProbeLoader uiFrameworkProbeLoader;
         private DashboardViewModel viewModel;
         private bool hasPlayedEntrance;
         private bool viewModelSubscribed;
@@ -39,7 +38,6 @@ namespace GameSaveCenter.Playnite.Views
         {
             this.plugin = plugin;
             InitializeComponent();
-            uiFrameworkProbeLoader = new UiFrameworkProbeLoader(exception => Logger.Error(exception, "GameSaveCenter WPF-UI probe could not be loaded."));
 
             viewModel = new DashboardViewModel(plugin);
             DataContext = viewModel;
@@ -231,7 +229,6 @@ namespace GameSaveCenter.Playnite.Views
             // Tasks and maintenance remain global and intentionally have no game picker.
             var gameScopedWorkspace = viewModel.CurrentWorkspace != WorkspaceKind.Tasks
                 && viewModel.CurrentWorkspace != WorkspaceKind.Maintenance;
-            var showPersistentGameBrowser = false;
             var showCompactGameBrowser = gameScopedWorkspace && compactGameBrowserOpen;
 
             SidebarColumn.Width = new GridLength(mode == LayoutMode.Expanded ? 228
@@ -249,7 +246,7 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetRow(HeaderTitlePanel, 0);
             Grid.SetColumn(HeaderTitlePanel, 0);
             Grid.SetColumnSpan(HeaderTitlePanel, mode == LayoutMode.Expanded ? 1 : 2);
-            GameSwitcherHost.Visibility = gameScopedWorkspace && !showPersistentGameBrowser
+            GameSwitcherHost.Visibility = gameScopedWorkspace
                 ? Visibility.Visible
                 : Visibility.Collapsed;
             Grid.SetRow(GameSwitcherHost, 1);
@@ -292,47 +289,25 @@ namespace GameSaveCenter.Playnite.Views
 
             // The complete game search/filter/sort surface is an explicit, finite-height drawer;
             // it is never left permanently beside the details view.
-            GameBrowserPanel.Visibility = showPersistentGameBrowser || showCompactGameBrowser
+            GameBrowserPanel.Visibility = showCompactGameBrowser
                 ? Visibility.Visible
                 : Visibility.Collapsed;
-            if (showPersistentGameBrowser)
-            {
-                WorkspaceCompactBrowserRow.Height = new GridLength(0);
-                WorkspaceDetailRow.Height = new GridLength(1, GridUnitType.Star);
-                Grid.SetRow(GameBrowserPanel, 0);
-                Grid.SetRowSpan(GameBrowserPanel, 2);
-                Grid.SetColumn(GameBrowserPanel, 0);
-                Grid.SetColumnSpan(GameBrowserPanel, 1);
-                GameBrowserPanel.MaxHeight = double.PositiveInfinity;
-                GameBrowserPanel.Margin = new Thickness(0);
-                WorkspaceGutterColumn.Width = new GridLength(14);
-                GameListColumn.Width = new GridLength(310);
-                GameDetailColumn.Width = new GridLength(1, GridUnitType.Star);
-                Grid.SetRow(GameDetailCard, 0);
-                Grid.SetRowSpan(GameDetailCard, 2);
-                Grid.SetColumn(GameDetailCard, 2);
-                Grid.SetColumnSpan(GameDetailCard, 1);
-                GameDetailCard.Margin = new Thickness(0);
-            }
-            else
-            {
-                WorkspaceCompactBrowserRow.Height = showCompactGameBrowser ? GridLength.Auto : new GridLength(0);
-                WorkspaceDetailRow.Height = new GridLength(1, GridUnitType.Star);
-                WorkspaceGutterColumn.Width = new GridLength(0);
-                GameListColumn.Width = new GridLength(1, GridUnitType.Star);
-                GameDetailColumn.Width = new GridLength(0);
-                Grid.SetRow(GameBrowserPanel, 0);
-                Grid.SetRowSpan(GameBrowserPanel, 1);
-                Grid.SetColumn(GameBrowserPanel, 0);
-                Grid.SetColumnSpan(GameBrowserPanel, 3);
-                GameBrowserPanel.MaxHeight = showCompactGameBrowser ? Math.Max(240, Math.Min(360, height * 0.42)) : 0;
-                GameBrowserPanel.Margin = showCompactGameBrowser ? new Thickness(0, 0, 0, 12) : new Thickness(0);
-                Grid.SetRow(GameDetailCard, 1);
-                Grid.SetRowSpan(GameDetailCard, 1);
-                Grid.SetColumn(GameDetailCard, 0);
-                Grid.SetColumnSpan(GameDetailCard, 3);
-                GameDetailCard.Margin = new Thickness(0);
-            }
+            WorkspaceCompactBrowserRow.Height = showCompactGameBrowser ? GridLength.Auto : new GridLength(0);
+            WorkspaceDetailRow.Height = new GridLength(1, GridUnitType.Star);
+            WorkspaceGutterColumn.Width = new GridLength(0);
+            GameListColumn.Width = new GridLength(1, GridUnitType.Star);
+            GameDetailColumn.Width = new GridLength(0);
+            Grid.SetRow(GameBrowserPanel, 0);
+            Grid.SetRowSpan(GameBrowserPanel, 1);
+            Grid.SetColumn(GameBrowserPanel, 0);
+            Grid.SetColumnSpan(GameBrowserPanel, 3);
+            GameBrowserPanel.MaxHeight = showCompactGameBrowser ? Math.Max(240, Math.Min(360, height * 0.42)) : 0;
+            GameBrowserPanel.Margin = showCompactGameBrowser ? new Thickness(0, 0, 0, 12) : new Thickness(0);
+            Grid.SetRow(GameDetailCard, 1);
+            Grid.SetRowSpan(GameDetailCard, 1);
+            Grid.SetColumn(GameDetailCard, 0);
+            Grid.SetColumnSpan(GameDetailCard, 3);
+            GameDetailCard.Margin = new Thickness(0);
 
             PageSubtitleText.Visibility = height >= 760 ? Visibility.Visible : Visibility.Collapsed;
             if (OverviewWorkspaceView != null)
@@ -351,12 +326,6 @@ namespace GameSaveCenter.Playnite.Views
                     : new Thickness(0, 12, 0, 0);
             }
 
-            if (TrainerSummaryPanel != null)
-            {
-                TrainerSummaryPanel.Columns = width >= 1120 ? 3 : 1;
-                TrainerSummaryPanel.Visibility = height >= 720 ? Visibility.Visible : Visibility.Collapsed;
-            }
-
             if (MediaWorkspaceView != null)
             {
                 MediaWorkspaceView.ApplyResponsiveLayout(width, height);
@@ -367,103 +336,7 @@ namespace GameSaveCenter.Playnite.Views
                 TaskWorkspaceView.ApplyResponsiveLayout(width, height);
             }
 
-            if (DiagnosticHealthPanel != null)
-            {
-                DiagnosticHealthPanel.Columns = width >= 1320 ? 4 : width >= 980 ? 2 : 1;
-            }
-            if (MaintenanceWorkspaceView != null)
-            {
-                MaintenanceWorkspaceView.ApplyResponsiveLayout(width, height);
-            }
-            SaveWorkspaceView?.ApplyResponsiveLayout(width, height);
-            TrainerWorkspaceView?.ApplyResponsiveLayout(width, height);
-
-            if (SaveHistoryCompactInspectorRow != null && SaveHistoryListPanel != null
-                && SaveHistoryInspectorPanel != null && SaveHistoryListColumn != null
-                && SaveHistoryGutterColumn != null && SaveHistoryInspectorColumn != null)
-            {
-                var stackSaveHistory = width < 1180;
-                SaveHistoryCompactInspectorRow.Height = stackSaveHistory ? GridLength.Auto : new GridLength(0);
-                SaveHistoryListColumn.Width = new GridLength(1.25, GridUnitType.Star);
-                SaveHistoryGutterColumn.Width = new GridLength(stackSaveHistory ? 0 : 14);
-                SaveHistoryInspectorColumn.Width = stackSaveHistory ? new GridLength(0) : new GridLength(0.75, GridUnitType.Star);
-                Grid.SetRow(SaveHistoryListPanel, 0);
-                Grid.SetColumn(SaveHistoryListPanel, 0);
-                Grid.SetColumnSpan(SaveHistoryListPanel, stackSaveHistory ? 3 : 1);
-                Grid.SetRow(SaveHistoryInspectorPanel, stackSaveHistory ? 1 : 0);
-                Grid.SetColumn(SaveHistoryInspectorPanel, stackSaveHistory ? 0 : 2);
-                Grid.SetColumnSpan(SaveHistoryInspectorPanel, stackSaveHistory ? 3 : 1);
-                SaveHistoryInspectorPanel.Margin = stackSaveHistory
-                    ? new Thickness(0, 14, 0, 0)
-                    : new Thickness(0);
-                SaveHistoryInspectorPanel.MaxHeight = stackSaveHistory
-                    ? Math.Max(360, Math.Min(620, height * 0.7))
-                    : double.PositiveInfinity;
-            }
-
-            if (MediaInspectorPanel != null && MediaInspectorCompactRow != null
-                && MediaPreviewPanel != null && MediaMetadataPanel != null)
-            {
-                var stackMediaInspector = width < 1180;
-                MediaInspectorCompactRow.Height = stackMediaInspector ? GridLength.Auto : new GridLength(0);
-                Grid.SetColumnSpan(MediaPreviewPanel, stackMediaInspector ? 2 : 1);
-                MediaPreviewPanel.Margin = stackMediaInspector
-                    ? new Thickness(0, 0, 0, 12)
-                    : new Thickness(0, 0, 12, 0);
-                Grid.SetRow(MediaMetadataPanel, stackMediaInspector ? 1 : 0);
-                Grid.SetColumn(MediaMetadataPanel, stackMediaInspector ? 0 : 1);
-                Grid.SetColumnSpan(MediaMetadataPanel, stackMediaInspector ? 2 : 1);
-            }
-
-            if (TrainerToolsCompactRow != null && TrainerToolsListPanel != null
-                && TrainerToolsInspectorPanel != null && TrainerToolsListColumn != null
-                && TrainerToolsGutterColumn != null && TrainerToolsInspectorColumn != null)
-            {
-                var stackTrainerTools = width < 1180;
-                TrainerToolsCompactRow.Height = stackTrainerTools ? GridLength.Auto : new GridLength(0);
-                TrainerToolsListColumn.Width = stackTrainerTools
-                    ? new GridLength(1, GridUnitType.Star)
-                    : new GridLength(1.25, GridUnitType.Star);
-                TrainerToolsGutterColumn.Width = new GridLength(stackTrainerTools ? 0 : 14);
-                TrainerToolsInspectorColumn.Width = stackTrainerTools ? new GridLength(0) : new GridLength(0.9, GridUnitType.Star);
-                Grid.SetRow(TrainerToolsListPanel, 2);
-                Grid.SetColumn(TrainerToolsListPanel, 0);
-                Grid.SetColumnSpan(TrainerToolsListPanel, stackTrainerTools ? 3 : 1);
-                Grid.SetRow(TrainerToolsInspectorPanel, stackTrainerTools ? 3 : 2);
-                Grid.SetColumn(TrainerToolsInspectorPanel, stackTrainerTools ? 0 : 2);
-                Grid.SetColumnSpan(TrainerToolsInspectorPanel, stackTrainerTools ? 3 : 1);
-            }
-
-            if (TrainerCatalogCompactRow != null && TrainerCatalogResultsPanel != null
-                && TrainerCatalogReleasesPanel != null && TrainerCatalogResultsColumn != null
-                && TrainerCatalogGutterColumn != null && TrainerCatalogReleasesColumn != null)
-            {
-                var stackTrainerCatalog = width < 1180;
-                TrainerCatalogCompactRow.Height = stackTrainerCatalog ? GridLength.Auto : new GridLength(0);
-                TrainerCatalogResultsColumn.Width = new GridLength(1, GridUnitType.Star);
-                TrainerCatalogGutterColumn.Width = new GridLength(stackTrainerCatalog ? 0 : 14);
-                TrainerCatalogReleasesColumn.Width = stackTrainerCatalog ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
-                Grid.SetRow(TrainerCatalogResultsPanel, 0);
-                Grid.SetColumn(TrainerCatalogResultsPanel, 0);
-                Grid.SetColumnSpan(TrainerCatalogResultsPanel, stackTrainerCatalog ? 3 : 1);
-                Grid.SetRow(TrainerCatalogReleasesPanel, stackTrainerCatalog ? 1 : 0);
-                Grid.SetColumn(TrainerCatalogReleasesPanel, stackTrainerCatalog ? 0 : 2);
-                Grid.SetColumnSpan(TrainerCatalogReleasesPanel, stackTrainerCatalog ? 3 : 1);
-                TrainerCatalogReleasesPanel.Margin = stackTrainerCatalog
-                    ? new Thickness(0, 12, 0, 0)
-                    : new Thickness(0);
-            }
-
-            if (MediaSourceFields != null)
-            {
-                MediaSourceFields.Columns = width < 980 ? 1 : 2;
-            }
-
-            if (DeviceDecisionFields != null)
-            {
-                DeviceDecisionFields.Columns = width < 980 ? 1 : width < 1280 ? 2 : 3;
-            }
-
+            // Responsive behavior now belongs to each extracted workspace view.
             RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves && height >= 680
                 ? Visibility.Visible : Visibility.Collapsed;
             if (viewModel.CurrentWorkspace != WorkspaceKind.Saves)
@@ -525,39 +398,6 @@ namespace GameSaveCenter.Playnite.Views
             Keyboard.Focus(textBox);
         }
 
-        private void OnLoadUiFrameworkProbeClick(object sender, RoutedEventArgs e)
-        {
-            if (UiFrameworkProbeHost.Content != null)
-            {
-                UiFrameworkProbeHost.Visibility = Visibility.Visible;
-                UiFrameworkProbeRecoveryPanel.Visibility = Visibility.Collapsed;
-                return;
-            }
-
-            if (!uiFrameworkProbeLoader.TryCreate(CreateUiFrameworkProbe, out var probe, out var failure))
-            {
-                UiFrameworkProbeLoadFailureText.Text = failure;
-                UiFrameworkProbeLoadFailurePanel.Visibility = Visibility.Visible;
-                UiFrameworkProbeRecoveryPanel.Visibility = Visibility.Visible;
-                UiFrameworkProbeHost.Visibility = Visibility.Collapsed;
-                return;
-            }
-
-            UiFrameworkProbeHost.Content = probe;
-            UiFrameworkProbeHost.Visibility = Visibility.Visible;
-            UiFrameworkProbeRecoveryPanel.Visibility = Visibility.Collapsed;
-        }
-
-        private static UIElement CreateUiFrameworkProbe()
-        {
-            var probeType = typeof(DashboardView).Assembly.GetType(
-                "GameSaveCenter.Playnite.Views.Development.UiFrameworkProbeView",
-                throwOnError: true);
-            var probe = Activator.CreateInstance(probeType!);
-            return probe as UIElement
-                ?? throw new InvalidOperationException("WPF-UI 探针未创建可显示的 WPF 控件。");
-        }
-
         private void OnNavigationChecked(object sender, RoutedEventArgs e)
         {
             if (viewModel == null || DetailsTabControl == null) return;
@@ -590,27 +430,14 @@ namespace GameSaveCenter.Playnite.Views
         private void UpdateWorkspacePresentation()
         {
             var workspace = viewModel.CurrentWorkspace;
-            // Overview is now rendered by the extracted physical workspace. Keep the old
-            // tab collapsed as a migration fallback until the remaining workspaces move out.
+            // Each workspace is now rendered by its extracted physical view. The shell only
+            // coordinates which workspace tab is visible and delegates local layout to it.
             SetVisibility(OverviewWorkspaceTab, workspace == WorkspaceKind.Overview);
-            SetVisibility(OverviewTab, false);
-            SetVisibility(SaveHistoryTab, workspace == WorkspaceKind.Saves);
-            SetVisibility(CandidateTab, workspace == WorkspaceKind.Saves);
-            SetVisibility(TrainerTab, workspace == WorkspaceKind.Trainers);
             SetVisibility(MediaWorkspaceTab, workspace == WorkspaceKind.Media);
-            SetVisibility(MediaTab, false);
             SetVisibility(TaskWorkspaceTab, workspace == WorkspaceKind.Tasks);
-            SetVisibility(TaskTab, false);
             SetVisibility(MaintenanceWorkspaceTab, workspace == WorkspaceKind.Maintenance);
             SetVisibility(SaveWorkspaceTab, workspace == WorkspaceKind.Saves);
             SetVisibility(TrainerWorkspaceTab, workspace == WorkspaceKind.Trainers);
-            SetVisibility(SaveHistoryTab, false);
-            SetVisibility(CandidateTab, false);
-            SetVisibility(TrainerTab, false);
-            SetVisibility(DiagnosticTab, false);
-            SetVisibility(DeviceStatusTab, false);
-            SetVisibility(LogsTab, false);
-            SetVisibility(UiFrameworkProbeTab, false);
 
             var saves = workspace == WorkspaceKind.Saves;
             // Game-scoped pages need breathing room between the selected-game identity and
@@ -780,15 +607,6 @@ namespace GameSaveCenter.Playnite.Views
         {
             if (!ReferenceEquals(e.Source, DetailsTabControl)) return;
             AnimateElement(DetailsTabControl, 10, 0, 0.2);
-        }
-
-        private void OnTrainerCatalogSelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.AddedItems.Count == 0 || viewModel == null) return;
-            if (viewModel.LoadTrainerReleasesCommand.CanExecute(null))
-            {
-                viewModel.LoadTrainerReleasesCommand.Execute(null);
-            }
         }
 
         private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
