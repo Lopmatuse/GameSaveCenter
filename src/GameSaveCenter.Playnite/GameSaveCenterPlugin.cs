@@ -77,7 +77,17 @@ namespace GameSaveCenter.Playnite
             var assembly = Assembly.GetExecutingAssembly();
             logger.Info($"GameSaveCenter {assembly.GetName().Version} loaded from {assembly.Location}; observed {observedGameCount} Playnite games.");
             StartTaskNotificationMonitor();
-            if (Settings.AutoStartWorker) FireAndForget(StartWorkerAndScheduleSynchronizationAsync);
+            if (Settings.AutoStartWorker)
+            {
+                // A 900+ game Playnite profile should not start the Worker (and its process
+                // detector/SQLite initialization) merely because the host loaded extensions.
+                // Playnite game-start callbacks and an explicit dashboard open still start it
+                // on demand, while small libraries keep the existing automatic behavior.
+                if (IsLargeLibrary())
+                    logger.Info($"Deferring Worker startup for large Playnite library ({observedGameCount} games) until GameSaveCenter is opened or a game starts.");
+                else
+                    FireAndForget(StartWorkerAndScheduleSynchronizationAsync);
+            }
         }
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
@@ -149,6 +159,10 @@ namespace GameSaveCenter.Playnite
             observedGameCount = PlayniteApi.Database.Games.Count;
             interactiveSurfaceOpened = true;
             StartTaskNotificationMonitor();
+            // Opening the dashboard is explicit user intent. Start the Worker in the
+            // background so cache-first rendering remains non-blocking while commands and
+            // the delayed catalog refresh can use a healthy pipe.
+            FireAndForget(EnsureWorkerAsync);
             try
             {
                 return new DashboardView(this);

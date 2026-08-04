@@ -1,7 +1,17 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.34-development-preview`
+当前版本：`0.6.35-development-preview`
+
+- [x] 0.6.35：大型游戏库启用插件时不自动启动 Worker，打开 Dashboard/启动游戏才按需启动；首次进程侦测改为基线采样；进程映射 20 秒缓存；未完成 Ludusavi 匹配的 SQLite 记录保持空尝试时间并支持重启后重新排队；筛选控件改为 Min/Max 宽度。
+
+## 2026-08-05 P0 大型库按需启动与匹配恢复
+
+- [x] 900+ 游戏库在 Playnite 启动阶段不启动 GameSaveCenter Worker，避免后台进程扫描、SQLite 初始化和 Ludusavi 争用宿主启动资源。
+- [x] 打开 Dashboard 时后台启动 Worker；Playnite 游戏启动和设置保存仍可按需启动 Worker。
+- [x] Worker 第一次外部进程扫描仅建立基线，不为启动前已运行的进程创建会话或触发备份。
+- [x] 新增游戏写入 SQLite 时不再伪造 `last_match_attempt_utc`，Worker 中断后可重新排队未完成匹配。
+- [ ] 仍需在真实 900+ 游戏 Playnite 中验证：未打开 Dashboard 时自动备份/外部进程侦测的预期取舍，以及打开后只启动一个 Worker。
 
 - [x] 0.6.34：大型库 Dashboard 首次打开先读持久化缓存，已有缓存延迟 60 秒、空缓存延迟 10 秒再释放整库同步；Dashboard 打开前不启动任务通知长轮询，手动刷新和视图卸载具备取消/接管语义。
 

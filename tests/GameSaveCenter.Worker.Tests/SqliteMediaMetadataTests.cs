@@ -95,6 +95,27 @@ public sealed class SqliteMediaMetadataTests : IDisposable
         Assert.True(Directory.Exists(root));
     }
 
+    [Fact]
+    public async Task UpsertedGameKeepsMatchAttemptUnsetUntilMatchingCompletes()
+    {
+        await store.UpsertGamesAsync(new[]
+        {
+            new GameDescriptorDto
+            {
+                PlayniteId="pending-game",
+                Name="Pending Game",
+                Platform=GamePlatformKind.Steam,
+                PlatformGameId="123",
+                IsInstalled=true
+            }
+        }, CancellationToken.None);
+
+        var cache = await store.GetGameMatchCacheAsync(CancellationToken.None);
+        Assert.True(cache.ContainsKey("pending-game"));
+        Assert.Null(cache["pending-game"].LastMatchAttemptUtc);
+        Assert.Empty(cache["pending-game"].LudusaviName);
+    }
+
     public void Dispose()
     {
         SqliteConnection.ClearAllPools();

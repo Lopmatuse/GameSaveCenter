@@ -1610,6 +1610,18 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("StartTaskNotificationMonitor();", pluginCode);
     }
 
+    [Fact]
+    public void LargeLibraryStartupDefersWorkerUntilExplicitUserIntent()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var pluginCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "GameSaveCenterPlugin.cs"));
+
+        Assert.Contains("Deferring Worker startup for large Playnite library", pluginCode);
+        Assert.Contains("if (IsLargeLibrary())", pluginCode);
+        Assert.Contains("FireAndForget(EnsureWorkerAsync);", pluginCode);
+        Assert.Contains("until GameSaveCenter is opened or a game starts", pluginCode);
+    }
+
 
     [Fact]
     public void FinalRedesignKeepsNavigationAndStatusCardsInsideCompactSidebarBounds()

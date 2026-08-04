@@ -346,7 +346,7 @@ CREATE INDEX IF NOT EXISTS ix_backup_versions_game_time ON backup_versions(playn
                 command.Transaction = (SqliteTransaction)transaction;
                 command.CommandText = @"
 INSERT INTO games(playnite_id, name, platform, platform_game_id, install_directory, descriptor_json, match_input_hash, last_match_attempt_utc, updated_utc)
-VALUES($id,$name,$platform,$platformId,$install,$json,$matchHash,$utc,$utc)
+VALUES($id,$name,$platform,$platformId,$install,$json,$matchHash,$matchAttemptUtc,$utc)
 ON CONFLICT(playnite_id) DO UPDATE SET
  name=excluded.name, platform=excluded.platform, platform_game_id=excluded.platform_game_id,
  install_directory=excluded.install_directory, descriptor_json=excluded.descriptor_json,
@@ -360,6 +360,10 @@ ON CONFLICT(playnite_id) DO UPDATE SET
                 command.Parameters.AddWithValue("$install", game.InstallDirectory ?? string.Empty);
                 command.Parameters.AddWithValue("$json", JsonSerializer.Serialize(game, _json));
                 command.Parameters.AddWithValue("$matchHash", GameMatchInput.CreateHash(game));
+                // A descriptor can be persisted before its background Ludusavi match runs.
+                // Keep the attempt timestamp NULL until SetGameMatchAsync completes so a
+                // Worker restart can safely re-queue an item that was stranded mid-refresh.
+                command.Parameters.AddWithValue("$matchAttemptUtc", DBNull.Value);
                 command.Parameters.AddWithValue("$utc", DateTime.UtcNow.ToString("O"));
                 await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
             }
