@@ -3,6 +3,13 @@
 更新时间：2026-08-04
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-04 共享页签与滚动通道
+
+- 六个物理工作区的内部页签必须使用 `GscRedesignWorkspaceTabControl` / `GscRedesignWorkspaceTabItem`；页签标题放在独立横向 `ScrollViewer` 中，内容区保持独立的星号测量行，不能让页签把工作区撑出水平溢出。
+- 首页风险提醒、GamePicker 抽屉和修改器/FLiNG 列表必须有明确的纵向滚动通道；大型列表继续使用虚拟化与 Recycling。任何后续布局调整都不能把这些列表放回无限测量的 StackPanel。
+- 共享勾选标记的前景使用 `GscOnAccentTextBrush`，禁止写死白色/黑色；所有新工作区颜色、页签选中态和边框继续使用 DynamicResource。
+- 新增的共享页签模板只动画渲染属性；真实宿主页签滚动、主题、高对比度和 DPI 仍需隔离 Playnite 实例验证。
+
 ### 2026-08-04 六工作区功能入口补齐
 
 - `MediaCenterView` 不再只是媒体列表：可预览截图/录像、编辑备注/收藏、批量收藏/应用备注、重新归类，并可新增、启停、移除媒体来源。

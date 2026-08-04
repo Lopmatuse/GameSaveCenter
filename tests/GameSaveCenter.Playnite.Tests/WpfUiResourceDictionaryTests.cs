@@ -416,9 +416,12 @@ public sealed class WpfUiResourceDictionaryTests
         var trainer = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml"));
         var trainerCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml.cs"));
         var taskCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TaskCenterView.xaml.cs"));
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
         var overview = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml"));
         var saves = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "SaveCenterView.xaml"));
         var workspaceCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var redesign = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "Redesign.xaml"));
+        var tokens = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "DesignTokens.xaml"));
 
         Assert.Contains("MediaVideoSourceConverter", media);
         Assert.Contains("UpdateMediaMetadataCommand", media);
@@ -436,6 +439,18 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("TrainerCatalogLayout.RowDefinitions", trainerCode);
         Assert.Contains("TaskSummaryPanel.Columns", taskCode);
         Assert.Contains("TaskWorkspaceView.ApplyResponsiveLayout(width, height)", workspaceCode);
+        Assert.Contains("x:Key=\"GscRedesignWorkspaceTabControl\"", redesign);
+        Assert.Contains("HorizontalScrollBarVisibility=\"Auto\"", redesign);
+        Assert.Contains("x:Key=\"GscRedesignWorkspaceTabItem\"", redesign);
+        Assert.Contains("CornerRadius=\"12\"", redesign);
+        Assert.Contains("Stroke=\"{DynamicResource GscOnAccentTextBrush}\"", tokens);
+        Assert.Contains("ScrollViewer.VerticalScrollBarVisibility=\"Auto\"", dashboard);
+        Assert.Contains("Property=\"ScrollViewer.VerticalScrollBarVisibility\" Value=\"Auto\"", trainer);
+        Assert.Contains("VerticalScrollBarVisibility=\"Auto\"", overview);
+        Assert.Contains("BasedOn=\"{StaticResource GscRedesignWorkspaceTabControl}\"", saves);
+        Assert.Contains("BasedOn=\"{StaticResource GscRedesignWorkspaceTabControl}\"", media);
+        Assert.Contains("BasedOn=\"{StaticResource GscRedesignWorkspaceTabControl}\"", maintenance);
+        Assert.Contains("BasedOn=\"{StaticResource GscRedesignWorkspaceTabControl}\"", trainer);
         foreach (var view in new[] { overview, saves, trainer, media, maintenance })
         {
             Assert.DoesNotContain("Background=\"#", view);

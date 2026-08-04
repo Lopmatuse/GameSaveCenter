@@ -1012,7 +1012,7 @@
                     </Grid>
                     <Grid Grid.Row="2">
                     <ListBox ItemsSource="{Binding GamePicker.ItemsView}" SelectedItem="{Binding GamePicker.SelectedItem, Mode=TwoWay}" SelectionChanged="OnGameSelectionChanged"
-                             BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto"
                              VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">

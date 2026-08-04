@@ -3,6 +3,14 @@
 更新时间：2026-08-04
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-04 UI-050 共享页签、滚动与主题适配收口
+
+- [x] 为六个物理工作区统一接入 `GscRedesignWorkspaceTabControl` / `GscRedesignWorkspaceTabItem`：页签使用圆角胶囊、动态主题色和独立横向滚动通道，窄窗口不会裁切最后一个页签。
+- [x] 首页风险与提醒区域增加局部纵向滚动；全局 GamePicker、修改器列表和 FLiNG 列表显式启用纵向滚动与虚拟化，避免低高度或大库下内容被顶出。
+- [x] 共享复选框勾选标记改用 `GscOnAccentTextBrush`，不再写死白色；新工作区继续使用 `DynamicResource`，普通内容不添加 BlurEffect。
+- [x] 新增资源/页签/滚动门禁并通过源码校验、Release 测试和 Release 构建；当前仍为 Core 13 + Worker 21 + Playnite UI 65 = 99 项测试。
+- [ ] 独立 Playnite 宿主中的页签滚动、Popup、主题、高对比度、125%/150% DPI 和反复卸载仍需 Windows 实机验证。
+
 ## 2026-08-04 UI-049 抽取工作区功能入口补齐
 
 - [x] 媒体中心补回视频预览、单项备注/收藏保存、重新归类、批量收藏/备注、来源目录新增/启停/移除等真实命令入口；预览使用现有 `MediaVideoSourceConverter`，未给媒体列表增加 BlurEffect。
