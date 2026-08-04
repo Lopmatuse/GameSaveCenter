@@ -1,6 +1,7 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 
 namespace GameSaveCenter.Playnite.Views
 {
@@ -26,6 +27,7 @@ namespace GameSaveCenter.Playnite.Views
         public UIElement OverviewSecondaryPanelElement => OverviewSecondaryPanel;
         public ScrollViewer OverviewSecondaryScrollViewerElement => OverviewSecondaryScrollViewer;
         public ScrollViewer OverviewRiskScrollViewerElement => OverviewRiskScrollViewer;
+        public UniformGrid OverviewMetricPanelElement => OverviewMetricPanel;
 
         public void ApplyResponsiveColumns(bool stack)
         {
@@ -45,17 +47,26 @@ namespace GameSaveCenter.Playnite.Views
                 : new Thickness(0);
         }
 
+        public void ApplyResponsiveWidth(double width)
+        {
+            // The hero card is still useful in a compact window, but four fixed metric
+            // columns make the labels unreadable long before the page needs to stack. Keep
+            // the card readable by switching to two or one columns instead of shrinking text.
+            OverviewMetricPanel.Columns = width >= 1180 ? 4 : width >= 760 ? 2 : 1;
+        }
+
         public void ApplyResponsiveHeight(double height, bool stack)
         {
             // In stacked layouts the risk card is secondary content. Give it a bounded
             // scroll channel so a long attention list cannot push recent activity away.
-            OverviewSecondaryScrollViewer.MaxHeight = stack
+            var compactHeight = height < 760;
+            OverviewSecondaryScrollViewer.MaxHeight = stack || compactHeight
                 ? Math.Max(260, Math.Min(480, height * 0.58))
                 : double.PositiveInfinity;
-            OverviewSecondaryScrollViewer.VerticalScrollBarVisibility = stack
+            OverviewSecondaryScrollViewer.VerticalScrollBarVisibility = stack || compactHeight
                 ? ScrollBarVisibility.Auto
                 : ScrollBarVisibility.Disabled;
-            OverviewRiskScrollViewer.MaxHeight = stack
+            OverviewRiskScrollViewer.MaxHeight = stack || compactHeight
                 ? Math.Max(180, Math.Min(360, height * 0.42))
                 : double.PositiveInfinity;
         }

@@ -1,9 +1,9 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.24
+  - Version: 0.6.25
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-08-04
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.24/GameSaveCenter-0.6.24.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.25/GameSaveCenter-0.6.25.pext
     Changelog:
       - 可独立关闭 Steam、Xbox Game Bar、Windows 截图、游戏相邻目录和自定义媒体来源扫描。
       - 每个游戏可独立关闭自动备份与自动媒体归档；自定义来源支持暂停和移除，不会删除已归档媒体。

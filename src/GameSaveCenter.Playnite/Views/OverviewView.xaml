@@ -85,7 +85,7 @@
                                 <Run Text="{Binding SelectedGame.PlatformDisplay, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding SelectedGame.HealthStateDisplay, Mode=OneWay}"/>
                             </TextBlock>
                         </StackPanel>
-                        <UniformGrid Grid.Row="1" Columns="4" Margin="0,14,0,0">
+                        <UniformGrid x:Name="OverviewMetricPanel" Grid.Row="1" Columns="4" Margin="0,14,0,0">
                             <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="最新备份" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding SelectedGame.LastBackupLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}, TargetNullValue=暂无}" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
                             <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="版本数量" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock FontWeight="SemiBold" Margin="0,4,0,0"><Run Text="{Binding SelectedGame.BackupVersionCount, Mode=OneWay}"/><Run Text=" 个"/></TextBlock></StackPanel></Border>
                             <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="媒体" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock FontWeight="SemiBold" Margin="0,4,0,0"><Run Text="{Binding SelectedGame.MediaCount, Mode=OneWay}"/><Run Text=" 项"/></TextBlock></StackPanel></Border>

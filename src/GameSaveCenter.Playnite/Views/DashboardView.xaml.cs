@@ -366,6 +366,7 @@ namespace GameSaveCenter.Playnite.Views
                 var stackOverview = width < 1180;
                 OverviewWorkspaceView.OverviewCompactSecondaryRowHeight = stackOverview ? GridLength.Auto : new GridLength(0);
                 OverviewWorkspaceView.ApplyResponsiveColumns(stackOverview);
+                OverviewWorkspaceView.ApplyResponsiveWidth(width);
                 OverviewWorkspaceView.ApplyResponsiveHeight(height, stackOverview);
             }
 

@@ -14,6 +14,8 @@ public sealed class GameCatalogService
     // Playnite while Ludusavi is being started once per game. Keep the durable descriptor
     // update synchronous, but let large refreshes drain in the background.
     private const int BackgroundMatchThreshold = 20;
+    private const int BackgroundMatchBatchSize = 4;
+    private static readonly TimeSpan BackgroundMatchYieldDelay = TimeSpan.FromMilliseconds(180);
     private readonly SqliteStateStore _store;
     private readonly LudusaviClient _ludusavi;
     private readonly ILogger<GameCatalogService> _logger;
@@ -96,15 +98,26 @@ public sealed class GameCatalogService
                         return;
                     }
 
-                    // Small batches keep the Worker responsive to backup, task and UI requests
-                    // while a very large library is being indexed.
-                    batch = _backgroundMatches.Values.Take(8).ToList();
+                    // Small, prioritized batches keep the Worker responsive to backup, task and
+                    // UI requests while a very large library is being indexed. Installed and
+                    // recently played games are useful first because they are the only entries
+                    // that can immediately participate in a backup/session operation.
+                    batch = _backgroundMatches.Values
+                        .OrderBy(x => x.Game.IsInstalled ? 0 : 1)
+                        .ThenByDescending(x => x.Game.LastPlayedUtc ?? DateTime.MinValue)
+                        .ThenBy(x => x.Game.Name, StringComparer.OrdinalIgnoreCase)
+                        .Take(BackgroundMatchBatchSize)
+                        .ToList();
                     foreach (var item in batch) _backgroundMatches.Remove(item.Game.PlayniteId);
                 }
 
                 foreach (var item in batch)
                     await MatchOneAsync(item, CancellationToken.None).ConfigureAwait(false);
-                await Task.Yield();
+                // Do not let hundreds of short-lived Ludusavi processes monopolize the
+                // machine. The pause is deliberately outside the store lock and does not
+                // block IPC request handling; the next batch can resume after UI/backup work
+                // has had an opportunity to run.
+                await Task.Delay(BackgroundMatchYieldDelay).ConfigureAwait(false);
             }
         }
         catch (Exception ex)
