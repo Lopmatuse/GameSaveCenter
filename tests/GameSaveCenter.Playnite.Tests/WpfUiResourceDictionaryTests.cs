@@ -1284,6 +1284,9 @@ public sealed class WpfUiResourceDictionaryTests
         var trainer = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml"));
 
         Assert.Contains("<Style TargetType=\"ListBoxItem\">", production);
+        Assert.Contains("<Style TargetType=\"ListBox\">", production);
+        Assert.Contains("ScrollViewer.VerticalScrollBarVisibility\" Value=\"Auto\"", production);
+        Assert.Contains("VirtualizingPanel.VirtualizationMode\" Value=\"Recycling\"", production);
         Assert.Contains("FocusVisualStyle\" Value=\"{DynamicResource GscSharedFocusVisual}\"", production);
         Assert.Contains("CornerRadius=\"{DynamicResource GscCornerSmall}\"", production);
         Assert.Contains("Value=\"{DynamicResource GscRowHoverBrush}\"", production);

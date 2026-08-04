@@ -808,3 +808,7 @@ UI-076：自定义游戏上下文按钮和设置分类 `TabItem` 也必须显式
 
 UI-077：诊断和高级设置区域不得回退到宿主默认 `Expander`。统一使用共享 `GscExpander` 圆角模板，
 内容区仍由消费方的 `TextBox`/`ScrollViewer` 负责长文本滚动；共享模板不得引入列表级 BlurEffect。
+
+UI-078：生产 `ListBox` 必须继承共享滚动契约：`CanContentScroll=True`、纵向 `Auto`、横向禁用、
+`VirtualizingPanel.IsVirtualizing=True` 与 `Recycling`。列表项模板可以局部覆盖，但不得让大列表退回
+宿主默认方形选中态或关闭虚拟化。

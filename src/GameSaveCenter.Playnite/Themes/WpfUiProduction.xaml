@@ -192,6 +192,20 @@
         </Setter>
     </Style>
 
+    <!-- Keep every production ListBox on the same local scrolling/virtualization contract.
+         Item cards own their rounded chrome below; the host ListBox itself stays transparent
+         so nested workspaces do not acquire a second square panel or an infinite measure. -->
+    <Style TargetType="ListBox">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
+        <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
+        <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Contained"/>
+    </Style>
+
     <!-- Shared rounded list-item chrome. Workspace-specific lists may override the template,
          but every implicit ListBox now keeps the same hover, selection and keyboard-focus
          language instead of falling back to the Playnite host's square blue item surface. -->
