@@ -3,6 +3,15 @@
 更新时间：2026-08-04
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-04 首页物理工作区迁移
+
+- `OverviewView` 已从 `DashboardView` 的巨型 XAML 中提取为真实 UserControl，保留 `OverviewWorkspaceView` 对现有响应式布局协调器的窄接口；布局只能通过 `ApplyResponsiveColumns` 和只读列/面板访问器调整。
+- 首页新 Tab 是唯一可见渲染入口；旧 `OverviewTab` 暂时保持隐藏，仅作为迁移回退，不能重新显示或与新首页同时渲染。删除旧块前先完成剩余五个工作区迁移并补齐独立宿主回归。
+- 新工作区必须继续从父级继承 Dashboard DataContext，不能复制 `SelectedGame`、GamePicker 或 Worker 请求；如果需要局部资源，优先使用 `DynamicResource` 和共享字典，不在 View 中静态捕获主题。
+- `OverviewView` 的最近任务 DataGrid 必须保持有限 Grid 祖先、行/列虚拟化和 Recycling；风险提醒中的 `OpenAttentionFindingCommand` 必须保留真实 finding 参数与维护中心导航。
+
+当前自动化基线为 Core 13、Worker 21、Playnite UI 61，共 95 项 Release 测试；这只代表源码/自动化通过，不能替代独立 Playnite 的宿主渲染、主题、DPI、键盘和页面生命周期回归。
+
 ### 2026-08-04 全局 GamePicker 单一上下文
 
 - `GamePickerViewModel` 是全局游戏选择器的轻量本地状态层。它只接收 `GameStatusDto` 摘要，不持有 Playnite `Game`，不在搜索输入时调用 Worker。

@@ -317,24 +317,11 @@ namespace GameSaveCenter.Playnite.Views
             MetricsPanel.Columns = width >= 1480 ? 6 : width >= 1120 ? 3 : 2;
             MetricsPanel.Margin = showMetrics ? new Thickness(0, 0, 0, 16) : new Thickness(0);
 
-            if (OverviewCompactSecondaryRow != null && OverviewPrimaryPanel != null
-                && OverviewSecondaryPanel != null && OverviewPrimaryColumn != null
-                && OverviewGutterColumn != null && OverviewSecondaryColumn != null)
+            if (OverviewWorkspaceView != null)
             {
                 var stackOverview = width < 1180;
-                OverviewCompactSecondaryRow.Height = stackOverview ? GridLength.Auto : new GridLength(0);
-                OverviewPrimaryColumn.Width = new GridLength(1.2, GridUnitType.Star);
-                OverviewGutterColumn.Width = new GridLength(stackOverview ? 0 : 14);
-                OverviewSecondaryColumn.Width = stackOverview ? new GridLength(0) : new GridLength(0.8, GridUnitType.Star);
-                Grid.SetRow(OverviewPrimaryPanel, 0);
-                Grid.SetColumn(OverviewPrimaryPanel, 0);
-                Grid.SetColumnSpan(OverviewPrimaryPanel, stackOverview ? 3 : 1);
-                Grid.SetRow(OverviewSecondaryPanel, stackOverview ? 1 : 0);
-                Grid.SetColumn(OverviewSecondaryPanel, stackOverview ? 0 : 2);
-                Grid.SetColumnSpan(OverviewSecondaryPanel, stackOverview ? 3 : 1);
-                OverviewSecondaryPanel.Margin = stackOverview
-                    ? new Thickness(0, 14, 0, 0)
-                    : new Thickness(0);
+                OverviewWorkspaceView.OverviewCompactSecondaryRowHeight = stackOverview ? GridLength.Auto : new GridLength(0);
+                OverviewWorkspaceView.ApplyResponsiveColumns(stackOverview);
             }
 
             if (SelectedGameMetricPanel != null)
@@ -580,7 +567,10 @@ namespace GameSaveCenter.Playnite.Views
         private void UpdateWorkspacePresentation()
         {
             var workspace = viewModel.CurrentWorkspace;
-            SetVisibility(OverviewTab, workspace == WorkspaceKind.Overview);
+            // Overview is now rendered by the extracted physical workspace. Keep the old
+            // tab collapsed as a migration fallback until the remaining workspaces move out.
+            SetVisibility(OverviewWorkspaceTab, workspace == WorkspaceKind.Overview);
+            SetVisibility(OverviewTab, false);
             SetVisibility(SaveHistoryTab, workspace == WorkspaceKind.Saves);
             SetVisibility(CandidateTab, workspace == WorkspaceKind.Saves);
             SetVisibility(TrainerTab, workspace == WorkspaceKind.Trainers);

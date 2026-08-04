@@ -3,6 +3,15 @@
 更新时间：2026-08-04
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-04 UI-043 首页工作区物理拆分
+
+- [x] 新增 `Views/OverviewView.xaml` 与代码后置，将首页概览、最近任务、风险提醒和关注原因从巨型 `DashboardView.xaml` 提取为独立 UserControl。
+- [x] 首页继续复用真实 Dashboard 命令、绑定、关注项导航和任务数据；响应式协调器通过 `OverviewView.ApplyResponsiveColumns` 更新宽屏/堆叠布局，不复制选中游戏或 Worker 状态。
+- [x] 首页最近任务保持有限 Grid 测量、DataGrid 行/列虚拟化、长文本 Tooltip 和主题资源；没有给滚动行添加 BlurEffect。
+- [x] 保留旧首页 Tab 作为隐藏迁移回退，当前只渲染新 `OverviewWorkspaceTab`；后续工作区迁移完成后删除旧块。
+- [x] 新增物理拆分与虚拟化结构回归测试；源码校验、Playnite UI 61 项测试和 Release 构建通过。
+- [ ] Playnite 宿主中首页 XAML 解析、主题、键盘、DPI 和旧 Tab 清理仍需独立实例验证；当前不能宣称完整六工作区拆分完成。
+
 ## 2026-08-04 UI-042 全局游戏上下文与唯一 GamePicker
 
 - [x] 新增轻量 `GamePickerItem` / `GamePickerViewModel`，搜索在本地缓存上执行并经过 180ms 防抖；快速输入会取消旧筛选，不会按字符请求 Worker。
@@ -11,7 +20,7 @@
 - [x] Expanded/Standard/Compact/Narrow 均使用顶部唯一游戏上下文入口；取消 Expanded 常驻游戏浏览栏，抽屉仍保留虚拟化/Recycling 列表，删除首页重复游戏 ComboBox。
 - [x] 首页“需要关注”卡片现在直接显示缓存中的游戏、标题和原因摘要，并可进入维护中心查看完整详情。
 - [x] 新增 GamePicker 筛选、排序、持久化、回退和本地搜索测试；更新大型游戏库 UI 门禁与 0.6.22 响应式断点。
-- [x] `validate-source.py`、Release 测试 94 项、Release 构建 0 警告/0 错误、`git diff --check` 通过。
+- [x] `validate-source.py`、Release 测试 95 项、Release 构建 0 警告/0 错误、`git diff --check` 通过。
 - [ ] Playnite 宿主实际渲染、100/500/1000 游戏规模、125%/150% DPI、主题和键盘回归仍需 Windows 环境验证；当前不能据此宣称真机 UI 完成。
 
 ## 2026-08-01 UI-041 可选探针的有限列表布局

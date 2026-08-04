@@ -583,6 +583,30 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void OverviewWorkspaceIsPhysicallyExtractedWithoutBreakingResponsiveCoordinator()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var overviewPath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml");
+        var overview = XDocument.Parse(File.ReadAllText(overviewPath));
+
+        Assert.Contains("x:Name=\"OverviewWorkspaceTab\"", dashboard);
+        Assert.Contains("<views:OverviewView x:Name=\"OverviewWorkspaceView\"/>", dashboard);
+        Assert.Contains("SetVisibility(OverviewTab, false);", dashboardCode);
+        Assert.Contains("OverviewWorkspaceView.ApplyResponsiveColumns(stackOverview);", dashboardCode);
+        Assert.Contains("OverviewWorkspaceView.OverviewCompactSecondaryRowHeight", dashboardCode);
+
+        var overviewGrid = overview.Descendants().Single(element => element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "OverviewLayoutGrid");
+        Assert.Contains(overviewGrid.Descendants(), element => element.Name.LocalName == "Grid");
+        var dataGrid = overview.Descendants().Single(element => element.Name.LocalName == "DataGrid");
+        Assert.Contains("x:Key=\"OverviewDataGrid\"", File.ReadAllText(overviewPath));
+        Assert.Contains("<Setter Property=\"EnableRowVirtualization\" Value=\"True\"/>", File.ReadAllText(overviewPath));
+        Assert.DoesNotContain(dataGrid.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
+        Assert.Contains("OpenAttentionFindingCommand", File.ReadAllText(overviewPath));
+    }
+
+    [Fact]
     public void EveryDashboardViewModelCommandRemainsReachableFromTheRedesignedDashboard()
     {
         var repositoryRoot = FindRepositoryRoot();

@@ -1,0 +1,172 @@
+<UserControl x:Class="GameSaveCenter.Playnite.Views.OverviewView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             Foreground="{DynamicResource GscPrimaryTextBrush}"
+             TextElement.Foreground="{DynamicResource GscPrimaryTextBrush}"
+             Background="Transparent"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/DesignTokens.xaml"/>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiProduction.xaml"/>
+                <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/Redesign.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="OverviewLongTextCell" TargetType="TextBlock">
+                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                <Setter Property="TextWrapping" Value="NoWrap"/>
+                <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
+            </Style>
+            <Style x:Key="OverviewEmptyText" TargetType="TextBlock">
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="TextAlignment" Value="Center"/>
+                <Setter Property="Foreground" Value="{DynamicResource GscMutedTextBrush}"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="Margin" Value="22"/>
+            </Style>
+            <Style x:Key="OverviewDataGrid" TargetType="DataGrid">
+                <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="GridLinesVisibility" Value="None"/>
+                <Setter Property="HeadersVisibility" Value="Column"/>
+                <Setter Property="RowBackground" Value="Transparent"/>
+                <Setter Property="AlternatingRowBackground" Value="Transparent"/>
+                <Setter Property="RowHeight" Value="46"/>
+                <Setter Property="ColumnHeaderHeight" Value="42"/>
+                <Setter Property="RowHeaderWidth" Value="0"/>
+                <Setter Property="SelectionUnit" Value="FullRow"/>
+                <Setter Property="CanUserAddRows" Value="False"/>
+                <Setter Property="CanUserResizeColumns" Value="True"/>
+                <Setter Property="CanUserReorderColumns" Value="False"/>
+                <Setter Property="CanUserSortColumns" Value="True"/>
+                <Setter Property="IsReadOnly" Value="True"/>
+                <Setter Property="AutoGenerateColumns" Value="False"/>
+                <Setter Property="EnableRowVirtualization" Value="True"/>
+                <Setter Property="EnableColumnVirtualization" Value="True"/>
+                <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+            </Style>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid x:Name="OverviewLayoutGrid" Margin="0,12,0,0" MinHeight="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition x:Name="OverviewCompactSecondaryRow" Height="0"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="OverviewPrimaryColumn" Width="1.2*"/>
+            <ColumnDefinition x:Name="OverviewGutterColumn" Width="14"/>
+            <ColumnDefinition x:Name="OverviewSecondaryColumn" Width="0.8*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid x:Name="OverviewPrimaryPanel" Grid.Row="0" Grid.Column="0" MinWidth="0">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+            <Border Style="{DynamicResource GscRedesignHeroCard}">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="84"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <Border Width="68" Height="68" CornerRadius="20" Background="{DynamicResource GscAccentTintBrush}" VerticalAlignment="Top" HorizontalAlignment="Left">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" FontSize="27" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <Grid Grid.Column="1" MinWidth="0">
+                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                        <StackPanel MinWidth="0">
+                            <TextBlock Text="当前游戏" Foreground="{DynamicResource GscAccentBrush}" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding SelectedGame.Name, Mode=OneWay, TargetNullValue=请选择游戏}" FontSize="24" FontWeight="SemiBold" Margin="0,5,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedGame.Name, Mode=OneWay}"/>
+                            <TextBlock FontSize="12" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis">
+                                <Run Text="{Binding SelectedGame.PlatformDisplay, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding SelectedGame.HealthStateDisplay, Mode=OneWay}"/>
+                            </TextBlock>
+                        </StackPanel>
+                        <UniformGrid Grid.Row="1" Columns="4" Margin="0,14,0,0">
+                            <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="最新备份" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding SelectedGame.LastBackupLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}, TargetNullValue=暂无}" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+                            <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="版本数量" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock FontWeight="SemiBold" Margin="0,4,0,0"><Run Text="{Binding SelectedGame.BackupVersionCount, Mode=OneWay}"/><Run Text=" 个"/></TextBlock></StackPanel></Border>
+                            <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="媒体" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock FontWeight="SemiBold" Margin="0,4,0,0"><Run Text="{Binding SelectedGame.MediaCount, Mode=OneWay}"/><Run Text=" 项"/></TextBlock></StackPanel></Border>
+                            <Border Style="{DynamicResource GscRedesignContextPill}"><StackPanel><TextBlock Text="云端" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding SelectedGame.CloudStateDisplay, Mode=OneWay}" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+                        </UniformGrid>
+                        <WrapPanel Grid.Row="2" Margin="0,14,0,0">
+                            <ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份"/>
+                            <ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding LoadDetailsCommand}" Content="刷新详情"/>
+                            <ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding OpenAttentionCenterCommand}" Content="查看需关注项" Margin="0"/>
+                        </WrapPanel>
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" Style="{DynamicResource GscRedesignSectionCard}" Margin="0,14,0,0" MinHeight="0">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <StackPanel><TextBlock Style="{DynamicResource GscRedesignSectionTitle}" Text="最近活动"/><TextBlock Style="{DynamicResource GscRedesignSectionSubtitle}" Text="最多显示最近 8 条真实任务记录" Margin="0,4,0,0"/></StackPanel>
+                        <ui:Button Grid.Column="1" Style="{DynamicResource GscWpfUiCompactButton}" Command="{Binding RefreshCommand}" Content="刷新"/>
+                    </Grid>
+                    <Border Grid.Row="1" Style="{DynamicResource GscSurface}">
+                        <Grid>
+                            <DataGrid Style="{StaticResource OverviewDataGrid}" ItemsSource="{Binding OverviewTasks}" SelectedItem="{Binding SelectedTask}" IsReadOnly="True">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="时间" Binding="{Binding CreatedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="128"/>
+                                    <DataGridTextColumn Header="活动" Binding="{Binding TaskTypeDisplay, Mode=OneWay}" Width="145" ElementStyle="{StaticResource OverviewLongTextCell}"/>
+                                    <DataGridTextColumn Header="游戏" Binding="{Binding GameName, Mode=OneWay}" Width="*" MinWidth="150" ElementStyle="{StaticResource OverviewLongTextCell}"/>
+                                    <DataGridTextColumn Header="状态" Binding="{Binding StateDisplay, Mode=OneWay}" Width="100" ElementStyle="{StaticResource OverviewLongTextCell}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                            <TextBlock Text="暂无任务记录&#x0a;完成备份、同步或维护操作后会显示在这里。" IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource OverviewEmptyText}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding OverviewTasks.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Grid x:Name="OverviewSecondaryPanel" Grid.Row="0" Grid.Column="2" MinWidth="0">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+            <Border Style="{DynamicResource GscRedesignSectionCard}">
+                <StackPanel>
+                    <TextBlock Style="{DynamicResource GscRedesignSectionTitle}" Text="今日概览"/>
+                    <UniformGrid Columns="2" Margin="0,12,0,0">
+                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,8"><StackPanel><TextBlock Text="管理游戏" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.ManagedGames, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,0,8"><StackPanel><TextBlock Text="已匹配存档" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.MatchedGames, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="云端队列" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.PendingCloudTasks, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+                        <Border Style="{DynamicResource GscRedesignContextPill}"><StackPanel><TextBlock Text="待归类媒体" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+                    </UniformGrid>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="1" Style="{DynamicResource GscRedesignSectionCard}" Margin="0,14,0,0">
+                <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                    <TextBlock Style="{DynamicResource GscRedesignSectionTitle}" Text="风险与提醒"/>
+                    <StackPanel Grid.Row="1" Margin="0,12,0,0">
+                        <Border Background="{DynamicResource GscSafetyFillBrush}" BorderBrush="{DynamicResource GscSafetyStrokeBrush}" BorderThickness="1" CornerRadius="14" Padding="13" Margin="0,0,0,10">
+                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE946;" Foreground="{DynamicResource GscWarningBrush}" FontSize="17"/><StackPanel Grid.Column="1"><TextBlock Text="安全恢复提示" FontWeight="SemiBold"/><TextBlock Text="恢复始终需要人工确认，并会先创建当前快照。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/></StackPanel></Grid>
+                        </Border>
+                        <Border Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="14" Padding="13" Margin="0,0,0,10">
+                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7BA;" Foreground="{DynamicResource GscWarningBrush}" FontSize="17"/><StackPanel Grid.Column="1"><TextBlock FontWeight="SemiBold"><Run Text="{Binding Snapshot.WarningGames, Mode=OneWay}"/><Run Text=" 个游戏需要关注"/></TextBlock><TextBlock Text="以下是当前缓存中的具体原因：" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/><ItemsControl ItemsSource="{Binding AttentionFindings}" Margin="0,7,0,0"><ItemsControl.ItemTemplate><DataTemplate><ui:Button Style="{DynamicResource GscWpfUiCompactButton}" Command="{Binding DataContext.OpenAttentionFindingCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" HorizontalContentAlignment="Left" Padding="0" Margin="0,2,0,0" AutomationProperties.Name="查看关注原因"><TextBlock TextTrimming="CharacterEllipsis" ToolTip="{Binding Detail}"><Run Text="• "/><Run Text="{Binding GameName, Mode=OneWay}" FontWeight="SemiBold"/><Run Text="："/><Run Text="{Binding Title, Mode=OneWay}"/></TextBlock></ui:Button></DataTemplate></ItemsControl.ItemTemplate></ItemsControl><TextBlock Text="点击“打开维护中心”查看完整详情与建议处理方式。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/></StackPanel></Grid>
+                        </Border>
+                        <Border Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="14" Padding="13">
+                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" Foreground="{DynamicResource GscInfoBrush}" FontSize="17"/><StackPanel Grid.Column="1"><TextBlock Text="云端失败不会撤销本地备份" FontWeight="SemiBold"/><TextBlock Text="本地副本始终为主副本，失败任务可在任务中心诊断和重试。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/></StackPanel></Grid>
+                        </Border>
+                    </StackPanel>
+                    <ui:Button Grid.Row="2" Style="{DynamicResource GscWpfUiPrimaryButton}" Command="{Binding OpenAttentionCenterCommand}" Content="打开维护中心" HorizontalAlignment="Stretch" Margin="0,14,0,0"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

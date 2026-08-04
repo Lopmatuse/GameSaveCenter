@@ -4,6 +4,7 @@
              xmlns:contracts="clr-namespace:GameSaveCenter.Contracts;assembly=GameSaveCenter.Contracts"
              xmlns:converters="clr-namespace:GameSaveCenter.Playnite.Converters"
              xmlns:infra="clr-namespace:GameSaveCenter.Playnite.Infrastructure"
+             xmlns:views="clr-namespace:GameSaveCenter.Playnite.Views"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              Foreground="{DynamicResource GscPrimaryTextBrush}" TextElement.Foreground="{DynamicResource GscPrimaryTextBrush}" Background="Transparent"
              TextElement.FontFamily="Segoe UI Variable Text, Segoe UI"
@@ -1161,6 +1162,9 @@
                                 Style="{StaticResource GscTabControl}"
                                 SelectionChanged="OnDetailsTabSelectionChanged">
                         <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource GscTabItem}"/></TabControl.Resources>
+                        <TabItem x:Name="OverviewWorkspaceTab" Header="首页概览">
+                            <views:OverviewView x:Name="OverviewWorkspaceView"/>
+                        </TabItem>
                         <TabItem x:Name="OverviewTab" Header="首页概览">
                             <Grid x:Name="OverviewLayoutGrid" Margin="0,12,0,0" MinHeight="0">
                                 <Grid.RowDefinitions>
