@@ -370,6 +370,7 @@
             <Setter Property="AlternatingRowBackground" Value="{DynamicResource GscTableAlternateRowBrush}"/>
             <Setter Property="RowHeight" Value="{DynamicResource GscTableRowHeight}"/>
             <Setter Property="MinHeight" Value="{DynamicResource GscTableMinHeight}"/>
+            <Setter Property="Height" Value="{DynamicResource GscTableViewportHeight}"/>
             <Setter Property="ColumnHeaderHeight" Value="{DynamicResource GscTableHeaderHeight}"/>
             <Setter Property="RowHeaderWidth" Value="0"/>
             <Setter Property="SelectionUnit" Value="FullRow"/>
@@ -675,7 +676,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-                                <TextBlock x:Name="SidebarVersionText" Text="v0.6.30" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+<TextBlock x:Name="SidebarVersionText" Text="v0.6.31" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>

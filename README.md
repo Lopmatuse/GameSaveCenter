@@ -9,7 +9,7 @@ GameSaveCenter 是一个面向 Windows PC 游戏的本地优先存档与媒体�
 
 目标平台包括 Steam、Xbox PC / Game Pass、Epic、Ubisoft Connect、EA App、GOG，以及通过 MOD Organizer 2、SKSE、SMAPI、Mod Engine、Reloaded-II 等加载器启动的游戏。
 
-> **当前状态：`0.6.30-development-preview`。** 大型 Playnite 游戏库同步先使用 SQLite 缓存并将大批量 Ludusavi 匹配移到 Worker 后台队列；后台匹配按已安装/最近游玩优先，并在 Playnite 启动后的 25 秒空闲窗口之后才开始，避免 900+ 游戏启动时长期占用进程和磁盘。通知轮询在大型库中延后至 Worker 初始化稳定后再开始，并继续使用指数退避。Dashboard/Settings 页面构造失败时会返回隔离的诊断降级视图；Worker 健康探测会先等待忙碌实例恢复，不会因一次短暂超时误杀现有进程。六个工作区现在统一使用页面级纵向滚动，表格/ListBox 使用有限共享视口并保持虚拟化，矮窗口可以继续访问下方操作；Dashboard 外壳会统一转发所有工作区的响应式尺寸状态。
+> **当前状态：`0.6.31-development-preview`。** 大型 Playnite 游戏库同步先使用 SQLite 缓存并将大批量 Ludusavi 匹配移到 Worker 后台队列；后台匹配按已安装/最近游玩优先，并在 Playnite 启动后的 25 秒空闲窗口之后才开始，避免 900+ 游戏启动时长期占用进程和磁盘。通知轮询在大型库中延后至 Worker 初始化稳定后再开始，并继续使用指数退避。Dashboard 首屏优先显示持久化缓存，打开侧栏时会加入已有同步任务，不再因点击插件重复排队全库刷新。Dashboard/Settings 页面构造失败时会返回隔离的诊断降级视图；Worker 健康探测会先等待忙碌实例恢复，不会因一次短暂超时误杀现有进程。六个工作区现在统一使用页面级纵向滚动，表格/ListBox 使用显式有限共享视口并保持虚拟化，矮窗口可以继续访问下方操作；Dashboard 外壳会统一转发所有工作区的响应式尺寸状态。
 
 ## 核心原则
 

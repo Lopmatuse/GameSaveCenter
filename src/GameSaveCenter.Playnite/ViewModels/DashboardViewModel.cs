@@ -648,7 +648,10 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             try
             {
-                await plugin.SynchronizeAsync();
+                // The startup hook may already be synchronizing a large Playnite library. Join
+                // that task instead of marking another full refresh as pending when the user
+                // opens the sidebar. The cache-first snapshot is already rendered above.
+                await plugin.SynchronizeFromDashboardAsync();
                 await RefreshDashboardAsync(false, false);
             }
             catch (Exception ex)

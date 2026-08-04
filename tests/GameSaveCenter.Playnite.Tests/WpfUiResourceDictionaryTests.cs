@@ -477,6 +477,7 @@ public sealed class WpfUiResourceDictionaryTests
             Assert.Contains("EnableRowVirtualization\" Value=\"True\"", text);
             Assert.Contains("EnableColumnVirtualization\" Value=\"True\"", text);
             Assert.Contains("Property=\"MinHeight\" Value=\"{DynamicResource GscTableMinHeight}\"", text);
+            Assert.Contains("Property=\"Height\" Value=\"{DynamicResource GscTableViewportHeight}\"", text);
             Assert.Contains("Property=\"RowHeight\" Value=\"{DynamicResource GscTableRowHeight}\"", text);
             Assert.Contains("Property=\"ColumnHeaderHeight\" Value=\"{DynamicResource GscTableHeaderHeight}\"", text);
             Assert.Contains("Property=\"AlternatingRowBackground\" Value=\"{DynamicResource GscTableAlternateRowBrush}\"", text);
@@ -1264,6 +1265,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.DoesNotContain("private async void FireAndForget", pluginCode);
         Assert.Contains("private async Task PollTaskNotificationsAsync()", pluginCode);
         Assert.Contains("private async Task StartWorkerAndScheduleSynchronizationAsync()", pluginCode);
+        Assert.Contains("public Task SynchronizeFromDashboardAsync()", pluginCode);
+        Assert.Contains("await plugin.SynchronizeFromDashboardAsync();", viewModelCode);
+        Assert.Contains("synchronizationTask != null && !synchronizationTask.IsCompleted", pluginCode);
         Assert.Contains("largeLibraryStartupSyncNotBeforeUtc", pluginCode);
         Assert.Contains("private async Task SynchronizeLoopAsync()", pluginCode);
         Assert.Contains("TimeSpan.FromMilliseconds(180)", pluginCode);

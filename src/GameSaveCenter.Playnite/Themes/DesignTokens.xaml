@@ -89,8 +89,8 @@
          virtualization active while the page itself can reveal the action/inspector
          sections below a table on short windows. DashboardView updates this token at
          each breakpoint so normal hosts show several readable rows without clipping. -->
-    <sys:Double x:Key="GscTableViewportHeight">420</sys:Double>
-    <sys:Double x:Key="GscListViewportHeight">420</sys:Double>
+    <sys:Double x:Key="GscTableViewportHeight">520</sys:Double>
+    <sys:Double x:Key="GscListViewportHeight">520</sys:Double>
     <sys:Double x:Key="GscTableHeaderHeight">44</sys:Double>
 
     <!-- Stable, mostly opaque reading surface. Views may add their own layout-only padding

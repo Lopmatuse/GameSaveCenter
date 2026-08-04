@@ -383,6 +383,28 @@ namespace GameSaveCenter.Playnite
             }
         }
 
+        /// <summary>
+        /// Requests a catalog refresh from a dashboard without turning an already-running
+        /// large-library startup refresh into a second back-to-back full refresh. The first
+        /// dashboard instance is opened while Playnite may still be importing hundreds of
+        /// games; joining the existing task keeps the UI cache-first and avoids re-queuing the
+        /// same 900-game snapshot simply because the sidebar was clicked.
+        /// </summary>
+        public Task SynchronizeFromDashboardAsync()
+        {
+            lock (synchronizationRequestGate)
+            {
+                if (synchronizationTask != null && !synchronizationTask.IsCompleted)
+                    return synchronizationTask;
+
+                if (lastLibrarySynchronizationUtc != DateTime.MinValue
+                    && DateTime.UtcNow - lastLibrarySynchronizationUtc < TimeSpan.FromMinutes(5))
+                    return Task.CompletedTask;
+            }
+
+            return SynchronizeAsync();
+        }
+
         private async Task SynchronizeLoopAsync()
         {
             while (true)

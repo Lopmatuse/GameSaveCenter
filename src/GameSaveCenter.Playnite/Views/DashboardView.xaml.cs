@@ -257,7 +257,10 @@ namespace GameSaveCenter.Playnite.Views
                     ? 300d
                     : 360d;
             Resources["GscTableMinHeight"] = tableMinHeight;
-            var tableViewportHeight = Math.Max(320d, Math.Min(560d, height * (height < 700 ? 0.58 : 0.68)));
+            // Keep a finite, generous viewport so each table shows a useful batch of rows
+            // without allowing a DataGrid to consume the entire page measure. The outer page
+            // ScrollViewer remains responsible for reaching action/inspector sections below it.
+            var tableViewportHeight = Math.Max(360d, Math.Min(640d, height * (height < 700 ? 0.62 : 0.76)));
             Resources["GscTableViewportHeight"] = tableViewportHeight;
             foreach (var workspaceView in GetWorkspaceViews())
             {
