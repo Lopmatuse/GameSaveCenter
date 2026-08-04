@@ -1,9 +1,9 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.32
+  - Version: 0.6.33
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-08-05
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.32/GameSaveCenter-0.6.32.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.33/GameSaveCenter-0.6.33.pext
     Changelog:
       - 900+ 游戏库在未打开 GameSaveCenter 前不再自动提交整库匹配；打开面板后才释放同步闸门，持久化缓存仍可立即使用。
       - 可独立关闭 Steam、Xbox Game Bar、Windows 截图、游戏相邻目录和自定义媒体来源扫描。

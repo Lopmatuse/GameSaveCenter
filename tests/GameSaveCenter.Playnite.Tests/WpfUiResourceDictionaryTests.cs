@@ -1261,6 +1261,8 @@ public sealed class WpfUiResourceDictionaryTests
         // boundaries. Keep their work as observable Tasks so a notification failure cannot
         // escape from an async-void continuation into Playnite.
         Assert.DoesNotContain("public async void ApplySettingsAsync()", pluginCode);
+        Assert.Contains("Settings changes do not change the Playnite game descriptors", pluginCode);
+        Assert.Contains("await ApplySettingsCoreAsync().ConfigureAwait(false);", pluginCode);
         Assert.DoesNotContain("private async void PollTaskNotifications()", pluginCode);
         Assert.DoesNotContain("private async void FireAndForget", pluginCode);
         Assert.Contains("private async Task PollTaskNotificationsAsync()", pluginCode);
@@ -1292,6 +1294,27 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.DoesNotContain("Run(InitializeAsync)", viewModelCode);
         Assert.Contains("WaitForHealthAsync(TimeSpan.FromSeconds(12))", launcherCode);
         Assert.Contains("WaitForHealthAsync", launcherCode);
+    }
+
+    [Fact]
+    public void LargeLibraryDashboardDelaysInitialFullSynchronization()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var viewModelCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "ViewModels", "DashboardViewModel.cs"));
+        var pluginCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "GameSaveCenterPlugin.cs"));
+
+        Assert.Contains("private volatile int observedGameCount;", pluginCode);
+        Assert.Contains("public bool IsLargeLibraryForUi => observedGameCount >= 100;", pluginCode);
+        Assert.Contains("var largeLibraryDelay = plugin.IsLargeLibraryForUi", viewModelCode);
+        Assert.Contains("Games.Count > 0 ? TimeSpan.FromSeconds(60) : TimeSpan.FromSeconds(10)", viewModelCode);
+        Assert.Contains("private CancellationTokenSource? initialSynchronizationCancellation;", viewModelCode);
+        Assert.Contains("private long deferredUiWorkGeneration;", viewModelCode);
+        Assert.Contains("Interlocked.Increment(ref deferredUiWorkGeneration);", viewModelCode);
+        Assert.Contains("Interlocked.Read(ref deferredUiWorkGeneration)", viewModelCode);
+        Assert.Contains("CancelInitialSynchronization();", viewModelCode);
+        Assert.Contains("await Task.Delay(delay, cancellation.Token)", viewModelCode);
+        Assert.Contains("catch (OperationCanceledException) when (cancellation.IsCancellationRequested)", viewModelCode);
+        Assert.Contains("大型目录同步将在空闲时进行", viewModelCode);
     }
 
     [Fact]

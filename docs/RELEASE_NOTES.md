@@ -1,3 +1,8 @@
+# 0.6.33 Development Preview
+
+- 大型 Playnite 游戏库首次打开 Dashboard 时优先显示 SQLite 缓存；已有缓存等待 60 秒、空缓存等待 10 秒后才启动整库 Ludusavi 同步。
+- 手动刷新会取消延迟同步并接管当前同步周期；Dashboard 卸载时会取消尚未开始的后台同步，降低 Playnite 卡顿和进程争用风险。
+
 # 0.6.22 Development Preview
 
 - 将 Dashboard 与设置页残留的环境光、图标底色、安全提示、主按钮渐变、状态点和浮层阴影迁移到 `DesignTokens.xaml`，不再让主题相关颜色散落在页面中。

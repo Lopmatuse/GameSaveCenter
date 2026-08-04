@@ -44,6 +44,7 @@ namespace GameSaveCenter.Playnite
         private DateTime lastLibrarySynchronizationUtc = DateTime.MinValue;
         private readonly CancellationTokenSource lifetimeCancellation = new CancellationTokenSource();
         private DateTime largeLibraryStartupSyncNotBeforeUtc = DateTime.MinValue;
+        private volatile int observedGameCount;
         private volatile bool interactiveSurfaceOpened;
         private Task? synchronizationTask;
         private bool synchronizationRequested;
@@ -141,6 +142,7 @@ namespace GameSaveCenter.Playnite
         {
             // Enabling the extension should not submit a full 900+ game catalog job by itself.
             // Opening the dashboard is explicit user intent and releases this startup gate.
+            observedGameCount = PlayniteApi.Database.Games.Count;
             interactiveSurfaceOpened = true;
             try
             {
@@ -158,6 +160,7 @@ namespace GameSaveCenter.Playnite
 
         private UserControl CreateSettingsViewSafely()
         {
+            observedGameCount = PlayniteApi.Database.Games.Count;
             interactiveSurfaceOpened = true;
             try
             {
@@ -180,7 +183,18 @@ namespace GameSaveCenter.Playnite
 
         public void NotifyVisualSettingsChanged() => VisualSettingsChanged?.Invoke(this, EventArgs.Empty);
 
-        public void ApplySettingsAsync() => RequestLibrarySynchronization("settings applied");
+        public void ApplySettingsAsync()
+        {
+            // Settings changes do not change the Playnite game descriptors. Sending the
+            // settings directly avoids turning every settings save into a 900-game Ludusavi
+            // catalog refresh. Library callbacks and the explicit Dashboard refresh remain the
+            // only paths that request catalog synchronization.
+            FireAndForget(async () =>
+            {
+                await EnsureWorkerAsync().ConfigureAwait(false);
+                await ApplySettingsCoreAsync().ConfigureAwait(false);
+            });
+        }
 
         private void RequestLibrarySynchronization(string reason)
         {
@@ -194,6 +208,12 @@ namespace GameSaveCenter.Playnite
         }
 
         private bool IsLargeLibrary() => PlayniteApi.Database.Games.Count >= 100;
+
+        /// <summary>
+        /// Lets the dashboard choose a cache-first startup path without exposing the
+        /// Playnite database or a full Game collection to the UI layer.
+        /// </summary>
+        public bool IsLargeLibraryForUi => observedGameCount >= 100;
 
         public Task<T> RequestAsync<T>(string type, object payload, TimeSpan? timeout = null) => client.RequestAsync<T>(type, payload, timeout);
 
@@ -530,6 +550,7 @@ namespace GameSaveCenter.Playnite
         private void ConfigureLargeLibraryStartupGate()
         {
             var gameCount = PlayniteApi.Database.Games.Count;
+            observedGameCount = gameCount;
             if (gameCount >= 100)
             {
                 if (largeLibraryStartupSyncNotBeforeUtc == DateTime.MinValue

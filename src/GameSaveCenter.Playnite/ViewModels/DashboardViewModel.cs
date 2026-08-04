@@ -36,6 +36,8 @@ namespace GameSaveCenter.Playnite.ViewModels
         private CancellationTokenSource? taskEventSubscription;
         private CancellationTokenSource? gamePickerPersistenceCancellation;
         private CancellationTokenSource? detailsLoadCancellation;
+        private CancellationTokenSource? initialSynchronizationCancellation;
+        private long deferredUiWorkGeneration;
         private long detailsLoadGeneration;
         private Task? taskEventListener;
         private DateTime lastFullDashboardRefreshUtc=DateTime.MinValue;
@@ -536,7 +538,14 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand LoadTrainerReleasesCommand { get; }
         public ICommand DownloadTrainerCommand { get; }
 
-        public Task RefreshAsync() => RefreshCoreAsync(true);
+        public Task RefreshAsync()
+        {
+            // A manual refresh is explicit user intent. Do not leave the idle, delayed
+            // large-library startup sync queued behind it; the explicit operation becomes
+            // the single source of truth for this refresh cycle.
+            CancelInitialSynchronization();
+            return RefreshCoreAsync(true);
+        }
 
         /// <summary>Turns the overview warning count into a route to its concrete reasons.</summary>
         private void OpenAttentionCenter()
@@ -589,11 +598,24 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             gamePicker.CancelPendingRefresh();
             CancelDetailsLoad();
+            CancelInitialSynchronization();
             var persistence = gamePickerPersistenceCancellation;
             gamePickerPersistenceCancellation = null;
             if (persistence == null) return;
             try { persistence.Cancel(); }
             finally { persistence.Dispose(); }
+        }
+
+        private void CancelInitialSynchronization()
+        {
+            Interlocked.Increment(ref deferredUiWorkGeneration);
+            var pending = initialSynchronizationCancellation;
+            initialSynchronizationCancellation = null;
+            if (pending == null) return;
+            // The delayed task owns disposal in its finally block. Disposing the source here
+            // races with Task.Delay's cancellation registration on the WPF dispatcher and can
+            // turn an intentional unload into an ObjectDisposedException.
+            pending.Cancel();
         }
 
         private async Task ApplyTaskEventAsync(TaskChangeEventDto change)
@@ -641,22 +663,55 @@ namespace GameSaveCenter.Playnite.ViewModels
                 StatusMessage = "正在启动后台服务，稍后刷新本地状态…";
                 Logger.Debug(ex, "GameSaveCenter dashboard cache read deferred until Worker startup completes.");
             }
-            _ = RefreshAfterSynchronizationAsync();
+            // A large library already has durable game summaries in SQLite in the normal
+            // case. Starting 100+ Ludusavi lookups while the user is opening the panel makes
+            // Playnite appear frozen and competes with other Ludusavi integrations. Keep the
+            // shell immediately usable and release the background catalog sync only after a
+            // quiet period. An empty cache uses a shorter delay so first-run installations
+            // still begin indexing without making the sidebar activation synchronous.
+            var largeLibraryDelay = plugin.IsLargeLibraryForUi
+                ? (Games.Count > 0 ? TimeSpan.FromSeconds(60) : TimeSpan.FromSeconds(10))
+                : TimeSpan.Zero;
+            var generation = Interlocked.Read(ref deferredUiWorkGeneration);
+            _ = RefreshAfterSynchronizationAsync(largeLibraryDelay, generation);
         }
 
-        private async Task RefreshAfterSynchronizationAsync()
+        private async Task RefreshAfterSynchronizationAsync(TimeSpan delay, long generation)
         {
+            if (generation != Interlocked.Read(ref deferredUiWorkGeneration)) return;
+            var cancellation = new CancellationTokenSource();
+            initialSynchronizationCancellation = cancellation;
             try
             {
+                if (generation != Interlocked.Read(ref deferredUiWorkGeneration)) return;
+                if (delay > TimeSpan.Zero)
+                {
+                    ApplyOnUi(() => StatusMessage = Games.Count > 0
+                        ? "已显示本地缓存；大型目录同步将在空闲时进行。"
+                        : "已打开工作区；大型目录同步将在后台开始。\n首次索引可能需要一些时间。\n");
+                    await Task.Delay(delay, cancellation.Token).ConfigureAwait(false);
+                }
+
                 // The startup hook may already be synchronizing a large Playnite library. Join
                 // that task instead of marking another full refresh as pending when the user
                 // opens the sidebar. The cache-first snapshot is already rendered above.
                 await plugin.SynchronizeFromDashboardAsync();
                 await RefreshDashboardAsync(false, false);
             }
+            catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
+            {
+                // The view was unloaded or the user requested an explicit refresh. The
+                // cancellation is intentional and must not surface as a Playnite exception.
+            }
             catch (Exception ex)
             {
                 ApplyOnUi(() => StatusMessage = "已显示本地缓存；后台同步暂不可用：" + ex.Message);
+            }
+            finally
+            {
+                if (ReferenceEquals(initialSynchronizationCancellation, cancellation))
+                    initialSynchronizationCancellation = null;
+                cancellation.Dispose();
             }
         }
 
