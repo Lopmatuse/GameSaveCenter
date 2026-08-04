@@ -135,6 +135,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             RetryTaskCommand = new RelayCommand(_ => Run(RetrySelectedTaskAsync), _ => !IsBusy && CanRetrySelectedTask());
             CopyTaskErrorCommand = new RelayCommand(_ => RunLocal(CopySelectedTaskError), _ => SelectedTask != null && !string.IsNullOrWhiteSpace(SelectedTask.DetailMessage));
             OpenAttentionCenterCommand = new RelayCommand(_ => OpenAttentionCenter());
+            OpenAttentionFindingCommand = new RelayCommand(value => OpenAttentionFinding(value as ValidationFindingDto));
             RefreshDiagnosticsCommand = new RelayCommand(_ => Run(RefreshDiagnosticsAsync), _ => !IsBusy);
             SyncDeviceStatesCommand = new RelayCommand(_ => Run(SyncDeviceStatesAsync), _ => !IsBusy);
             SaveDeviceDecisionCommand = new RelayCommand(_ => Run(SaveDeviceDecisionAsync), _ => !IsBusy && SelectedDeviceComparison != null);
@@ -448,6 +449,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ICommand RetryTaskCommand { get; }
         public ICommand CopyTaskErrorCommand { get; }
         public ICommand OpenAttentionCenterCommand { get; }
+        public ICommand OpenAttentionFindingCommand { get; }
         public ICommand RefreshDiagnosticsCommand { get; }
         public ICommand SyncDeviceStatesCommand { get; }
         public ICommand SaveDeviceDecisionCommand { get; }
@@ -541,6 +543,14 @@ namespace GameSaveCenter.Playnite.ViewModels
             SelectedFinding=finding;
             CurrentWorkspace=WorkspaceKind.Maintenance;
             AttentionCenterRequested?.Invoke(this,EventArgs.Empty);
+        }
+
+        private void OpenAttentionFinding(ValidationFindingDto? finding)
+        {
+            if (finding == null) { OpenAttentionCenter(); return; }
+            SelectedFinding = finding;
+            CurrentWorkspace = WorkspaceKind.Maintenance;
+            AttentionCenterRequested?.Invoke(this, EventArgs.Empty);
         }
 
         public event EventHandler? AttentionCenterRequested;
