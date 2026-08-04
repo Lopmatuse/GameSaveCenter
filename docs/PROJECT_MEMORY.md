@@ -792,3 +792,6 @@ UI-071：外壳的边距现在随四档宽度和低高度状态收缩；共享 `
 
 UI-072：DataGrid 交替行必须使用 `GscTableAlternateRowBrush` 动态资源；浅色/深色由
 Dashboard 调色板计算，高对比度返回透明，选中态和悬停态仍由共享行模板负责。
+
+UI-073：`GscTableMinHeight` 的正常值是 280 DIP，但 Dashboard 在低于 760/650 DIP 时动态降为
+220/180 DIP；这是防止最小视口挤压检查器的布局保护，不得改成全页面裁剪或外层无限滚动。

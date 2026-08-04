@@ -247,6 +247,16 @@ namespace GameSaveCenter.Playnite.Views
                 : mode == LayoutMode.Compact ? new Thickness(12)
                 : new Thickness(10);
 
+            // The normal table viewport is intentionally generous, but a 700-DIP host must
+            // not turn that token into a hard minimum that pushes the inspector below the
+            // window. DynamicResource consumers resize together, while DataGrid keeps its own
+            // internal scroll channel for the rows that no longer fit.
+            Resources["GscTableMinHeight"] = height < 650
+                ? 180d
+                : height < 760
+                    ? 220d
+                    : 280d;
+
             var iconSidebar = mode == LayoutMode.Compact || mode == LayoutMode.Narrow;
             // The game picker is a single global context entry. It is never a permanent
             // third column: all widths use the same top button and the same finite drawer.

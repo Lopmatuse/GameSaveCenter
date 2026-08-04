@@ -1227,6 +1227,7 @@ public sealed class WpfUiResourceDictionaryTests
     {
         var repositoryRoot = FindRepositoryRoot();
         var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
         var settings = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml"));
         var palette = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Infrastructure", "AdaptiveThemePalette.cs"));
 
@@ -1238,7 +1239,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("resources[\"GscSuccessBrush\"]", palette);
         Assert.Contains("resources[\"GscWarningBrush\"]", palette);
         Assert.Contains("resources[\"GscErrorBrush\"]", palette);
-        Assert.Contains("resources[\"GscTableAlternateRowBrush\"]", dashboardCode);
+        Assert.Contains("Resources[\"GscTableAlternateRowBrush\"]", dashboardCode);
         Assert.Contains("SystemParameters.HighContrast ? (byte)0", dashboardCode);
         Assert.Contains("highContrast ? primaryText", palette);
     }
@@ -1284,6 +1285,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("ResponsiveShell.Margin = new Thickness(", dashboardCode);
         Assert.Contains("GameDetailCard.Padding = mode == LayoutMode.Expanded ? new Thickness(18)", dashboardCode);
         Assert.Contains("mode == LayoutMode.Compact ? new Thickness(12)", dashboardCode);
+        Assert.Contains("Resources[\"GscTableMinHeight\"] = height < 650", dashboardCode);
+        Assert.Contains("? 180d", dashboardCode);
+        Assert.Contains("? 220d", dashboardCode);
         Assert.Contains("mode == LayoutMode.Expanded ? 12", dashboardCode);
         Assert.Contains("viewModel.CurrentWorkspace == WorkspaceKind.Trainers", dashboardCode);
         Assert.Contains("DetailsTabControl.Margin =", dashboardCode);
