@@ -1246,6 +1246,21 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void SharedListBoxItemsStayRoundedAndKeyboardFocusable()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var production = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "WpfUiProduction.xaml"));
+        var trainer = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml"));
+
+        Assert.Contains("<Style TargetType=\"ListBoxItem\">", production);
+        Assert.Contains("FocusVisualStyle\" Value=\"{DynamicResource GscSharedFocusVisual}\"", production);
+        Assert.Contains("CornerRadius=\"{DynamicResource GscCornerSmall}\"", production);
+        Assert.Contains("Value=\"{DynamicResource GscRowHoverBrush}\"", production);
+        Assert.DoesNotContain("FocusVisualStyle\" Value=\"{x:Null}\"", trainer);
+        Assert.Contains("FocusVisualStyle\" Value=\"{DynamicResource GscSharedFocusVisual}\"", trainer);
+    }
+
+    [Fact]
     public void SettingsAsyncFeedbackDoesNotTargetAnUnloadedPlaynitePage()
     {
         var repositoryRoot = FindRepositoryRoot();

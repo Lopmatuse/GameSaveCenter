@@ -799,3 +799,6 @@ UI-073：`GscTableMinHeight` 的正常值是 280 DIP，但 Dashboard 在低于 7
 UI-074：抽出的工作区拥有自己的 ResourceDictionary，主题切换时必须通过
 `AdaptiveThemePaletteFactory.ApplyRuntimeThemeResources` 同步到每个工作区；只更新 Dashboard
 根资源会让工作区继续使用静态 DesignTokens 颜色。
+
+UI-075：所有可键盘选择的 `ListBoxItem` 必须保留 `GscSharedFocusVisual`；不得用 `FocusVisualStyle={x:Null}`
+掩盖自定义卡片模板。隐式列表项使用共享圆角、悬停和选中资源，工作区特化模板也必须复用焦点环。
