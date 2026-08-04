@@ -832,3 +832,9 @@ UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，
 
 - 共享 `DataGrid` 隐式样式必须保持 `CanContentScroll=True`、`PanningMode=VerticalOnly`、纵向/横向 Auto、`TabNavigation=Local`、`DirectionalNavigation=Contained` 和 Recycling 虚拟化。
 - 工作区 keyed 样式可以覆盖视觉或只读属性，但不得关闭共享虚拟化、局部滚动或键盘导航；大表格仍必须位于有限 Grid 行内。
+
+### UI-084：空状态必须保留局部滚动契约
+
+- 空状态属于 DataGrid/ListBox 容器的叠加提示，不得用外层页面 `ScrollViewer` 或 `StackPanel` 改变表格测量。
+- 统一使用 `GscEmptyStateText`，文案应说明当前为空的原因和下一步动作；`IsHitTestVisible=False`，保证表格仍可获得键盘焦点。
+- 新增空状态时优先绑定 `ICollectionView.IsEmpty` 或可观察集合 `Count`，不得为显示提示额外发起 Worker 查询。

@@ -1067,6 +1067,47 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void EmptyDataSurfacesExplainNextStepsWithoutBreakingLocalScrolling()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var tokens = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "DesignTokens.xaml"));
+        Assert.Contains("x:Key=\"GscEmptyStateText\"", tokens);
+        Assert.Contains("IsHitTestVisible\" Value=\"False\"", tokens);
+
+        var views = new[]
+        {
+            ("TaskCenterView.xaml", "TasksView.IsEmpty"),
+            ("SaveCenterView.xaml", "Backups.Count"),
+            ("SaveCenterView.xaml", "SaveCandidates.Count"),
+            ("MediaCenterView.xaml", "MediaView.IsEmpty"),
+            ("MediaCenterView.xaml", "MediaSources.Count"),
+            ("TrainerCenterView.xaml", "GameTools.Count"),
+            ("TrainerCenterView.xaml", "TrainerCatalogResults.Count"),
+            ("TrainerCenterView.xaml", "TrainerReleases.Count"),
+            ("MaintenanceView.xaml", "Findings.Count"),
+            ("MaintenanceView.xaml", "DeviceComparisons.Count")
+        };
+
+        foreach (var (file, trigger) in views)
+        {
+            var text = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", file));
+            Assert.Contains("BasedOn=\"{StaticResource GscEmptyStateText}\"", text);
+            Assert.Contains(trigger, text);
+            Assert.Contains("IsHitTestVisible=\"False\"", text);
+        }
+
+        var xamlFiles = views.Select(x => x.Item1).Distinct().ToArray();
+        foreach (var file in xamlFiles)
+        {
+            var document = XDocument.Parse(File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", file)));
+            foreach (var overlay in document.Descendants().Where(element => element.Name.LocalName == "TextBlock" && element.Attribute("IsHitTestVisible")?.Value == "False"))
+            {
+                Assert.DoesNotContain(overlay.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
+            }
+        }
+    }
+
+    [Fact]
     public void EveryDashboardViewModelCommandRemainsReachableFromTheRedesignedDashboard()
     {
         var repositoryRoot = FindRepositoryRoot();

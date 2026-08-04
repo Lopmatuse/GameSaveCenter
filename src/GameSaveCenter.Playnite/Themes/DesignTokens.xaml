@@ -97,6 +97,22 @@
         <Setter Property="Effect" Value="{x:Null}"/>
     </Style>
 
+    <!-- Shared empty-state copy for finite list/table surfaces. Keep the message
+         centered and hit-test free so the underlying DataGrid/ListBox retains its
+         keyboard and scrolling contract even when there are no rows. -->
+    <Style x:Key="GscEmptyStateText" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource GscMutedTextBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="24"/>
+        <Setter Property="MaxWidth" Value="480"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+
     <!-- Only primary workspaces use elevation; lists, compact metrics and form groups remain
          on GscSurface so scrolling and repeated content never accumulate DropShadowEffects. -->
     <Style x:Key="GscElevatedSurface" TargetType="Border" BasedOn="{StaticResource GscSurface}">

@@ -1154,3 +1154,9 @@
 
 - `WpfUiProduction.xaml` 新增隐式 `DataGrid` 滚动契约，统一 `CanContentScroll`、纵向触控板滚动、Auto 滚动条、局部键盘导航和 Recycling 虚拟化。
 - 工作区现有 keyed DataGrid 样式继续保留各自的圆角表头、行高、交替行和列宽设置；共享契约只补齐行为，不改变命令、编辑权限或数据绑定。
+
+### UI-084：空表面状态与下一步提示
+
+- `DesignTokens.xaml` 新增共享 `GscEmptyStateText`，在保持 DataGrid/ListBox 局部滚动、虚拟化和键盘焦点的同时，提供统一的圆润、可读、不可拦截的空状态文案。
+- 存档历史、路径候选、媒体库、媒体来源、任务队列、已安装工具、FLiNG 搜索结果/版本、诊断和设备比较表在无记录或筛选为空时显示明确的下一步操作提示，不再留下“空白卡片”让用户误以为加载失败。
+- 本次只增加视图层叠加提示，不改变 Worker、IPC、备份、媒体、任务和修改器业务逻辑；待 Windows/Playnite 继续回归低高度、主题、DPI 和真实筛选状态。
