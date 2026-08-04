@@ -306,6 +306,9 @@ namespace GameSaveCenter.Playnite.Infrastructure
                 palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
             resources["GscRowHoverBrush"] = Brush(Color.FromArgb(
                 palette.IsDark ? (byte)18 : (byte)10, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
+            resources["GscRowHoverStrongBrush"] = Brush(Color.FromArgb(
+                SystemParameters.HighContrast ? (byte)0 : palette.IsDark ? (byte)32 : (byte)18,
+                palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
             resources["GscScrollTrackBrush"] = Brush(Color.FromArgb(
                 palette.IsDark ? (byte)28 : (byte)20, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
             resources["GscScrollThumbBrush"] = Brush(Color.FromArgb(

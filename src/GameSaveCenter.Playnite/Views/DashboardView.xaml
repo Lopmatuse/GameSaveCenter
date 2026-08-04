@@ -999,7 +999,7 @@
                                                     <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
                                                     <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
                                                 </Trigger>
-                                                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Row" Property="Background" Value="{StaticResource GscRowHoverStrongBrush}"/></Trigger>
+                                                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Row" Property="Background" Value="{DynamicResource GscRowHoverStrongBrush}"/></Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
                                     </Setter.Value>

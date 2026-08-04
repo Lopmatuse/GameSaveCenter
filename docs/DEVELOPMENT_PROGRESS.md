@@ -1138,3 +1138,8 @@
 - 生产 `ListBox` 隐式样式统一启用 `ScrollViewer.PanningMode=VerticalOnly`，让触控、触摸板和滚轮事件在列表内部消费，避免外层工作区发生意外滚动。
 - 统一 `KeyboardNavigation.TabNavigation=Local` 与 Recycling 虚拟化，确保大库列表在 Tab 导航时保持局部焦点语义，不改变现有命令和选择绑定。
 - 本次只修改共享资源，并以资源门禁锁定滚动、虚拟化和键盘导航属性。
+### UI-081：修复游戏列表悬停色主题同步
+
+- Dashboard 游戏选择器的悬停背景改为 `DynamicResource GscRowHoverStrongBrush`，不再把浅色默认悬停色冻结在 XAML。
+- `AdaptiveThemePalette` 现在为普通、深色和高对比度模式生成共享悬停资源，切换蓝色/紫色/自定义 Playnite 强调色时保持一致。
+- 新增资源门禁，避免生产页面重新引入静态悬停 Brush。

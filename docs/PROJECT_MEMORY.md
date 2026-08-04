@@ -819,3 +819,7 @@ UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，
 
 - `WpfUiProduction.xaml` 的隐式 `ListBox` 现在统一使用 `PanningMode=VerticalOnly`、`TabNavigation=Local`、`DirectionalNavigation=Contained` 与 Recycling 虚拟化。
 - 该契约覆盖全局游戏选择器、修改器列表、FLiNG 目录和其他生产列表；页面仍可为特殊列表显式覆盖，但不能退回宿主默认滚动行为。
+### UI-081：悬停色必须来自运行时调色板
+
+- Dashboard 游戏列表的强悬停色不得使用 `StaticResource`；必须绑定 `GscRowHoverStrongBrush` 的 `DynamicResource`。
+- 调色板在高对比度下将该资源降为透明，保留系统高亮、焦点和选中状态的可读语义。
