@@ -511,10 +511,28 @@ public sealed class WpfUiResourceDictionaryTests
 
             Assert.Equal("Auto", pageScroll.Attribute("VerticalScrollBarVisibility")?.Value);
             Assert.Equal("Disabled", pageScroll.Attribute("HorizontalScrollBarVisibility")?.Value);
+            Assert.Equal("{DynamicResource GscPageScrollViewer}", pageScroll.Attribute("Style")?.Value);
         }
 
         var trainer = File.ReadAllText(Path.Combine(viewDirectory, "TrainerCenterView.xaml"));
         Assert.Contains("GscListViewportHeight", trainer);
+    }
+
+    [Fact]
+    public void NestedWorkspaceScrollChannelsUseSharedPageOrInspectorStyles()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var viewDirectory = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views");
+        var overview = File.ReadAllText(Path.Combine(viewDirectory, "OverviewView.xaml"));
+        var save = File.ReadAllText(Path.Combine(viewDirectory, "SaveCenterView.xaml"));
+        var media = File.ReadAllText(Path.Combine(viewDirectory, "MediaCenterView.xaml"));
+        var maintenance = File.ReadAllText(Path.Combine(viewDirectory, "MaintenanceView.xaml"));
+
+        Assert.Contains("x:Name=\"OverviewRiskScrollViewer\" Style=\"{DynamicResource GscPageScrollViewer}\"", overview);
+        Assert.Contains("<ScrollViewer Style=\"{DynamicResource GscPageScrollViewer}\" VerticalScrollBarVisibility=\"Auto\"", save);
+        Assert.Contains("<ScrollViewer Style=\"{DynamicResource GscPageScrollViewer}\" Grid.Row=\"0\" MaxHeight=\"190\"", media);
+        Assert.Contains("x:Name=\"MaintenanceDeviceScrollViewer\" Style=\"{DynamicResource GscPageScrollViewer}\"", maintenance);
+        Assert.Contains("x:Name=\"MaintenanceAuditScrollViewer\" Style=\"{DynamicResource GscPageScrollViewer}\"", maintenance);
     }
 
     [Fact]
@@ -612,6 +630,7 @@ public sealed class WpfUiResourceDictionaryTests
                 element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == name);
             Assert.Equal("Auto", viewer.Attribute("VerticalScrollBarVisibility")?.Value);
             Assert.Equal("Disabled", viewer.Attribute("HorizontalScrollBarVisibility")?.Value);
+            Assert.Equal("{DynamicResource GscInspectorScrollViewer}", viewer.Attribute("Style")?.Value);
         }
 
         Assert.Contains("SaveHistoryActionsScrollViewer.MaxHeight = Math.Max(130, Math.Min(220, height * (compact ? 0.24 : 0.30)))", saveCode);
@@ -639,6 +658,7 @@ public sealed class WpfUiResourceDictionaryTests
                 element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == name);
             Assert.Equal("Auto", viewer.Attribute("VerticalScrollBarVisibility")?.Value);
             Assert.Equal("Disabled", viewer.Attribute("HorizontalScrollBarVisibility")?.Value);
+            Assert.Equal("{DynamicResource GscInspectorScrollViewer}", viewer.Attribute("Style")?.Value);
         }
 
         Assert.Contains("MaintenanceDeviceDecisionScrollViewer.MaxHeight = Math.Max(90, Math.Min(150, height * (compact ? 0.16 : 0.20)))", maintenanceCode);
