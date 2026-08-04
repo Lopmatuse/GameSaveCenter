@@ -1,7 +1,7 @@
 # 已知缺陷与回归状态
 
 更新时间：2026-08-01
-目标版本：`0.6.23-development-preview`
+目标版本：`0.6.24-development-preview`
 
 本文档是持续缺陷台账。任何修复必须同步更新 `DEVELOPMENT_PROGRESS.md` 与 `PROJECT_MEMORY.md`。
 
@@ -169,6 +169,7 @@
 | GSC-091 | WPF-UI 框架控件可能沿用其默认 Fluent 调色板，与动态 GameSaveCenter Accent 产生视觉断层 | 源码已修复，待隔离 Playnite 回归 | 页面局部覆盖已验证的 WPF-UI Accent/Text/Control/Card/Focus 资源键；在隔离 Playnite 切换多色主题时，原生与 WPF-UI 按钮、开关、输入、下拉和 Card 必须同步更新且不污染宿主 |
 | GSC-092 | 插件生命周期、设置同步或后台通知中的 `async void` 在错误反馈再次失败时可能把异常送入宿主 | 源码已修复，待隔离 Playnite 回归 | 生命周期工作必须是可观测 Task；故障及错误呈现故障都写入日志。反复更新设置、导入库、启动/退出游戏和断开 Worker 时不得出现未处理异常 |
 | GSC-093 | 900+ 游戏库首次启动时，变化游戏的 Ludusavi 匹配会让 IPC 请求保持数分钟，通知轮询同时连续超时 | 0.6.23 源码已修复，待大库回归 | 先持久化游戏描述并立即返回；超过 20 个待匹配项改为 Worker 后台分批校准；Playnite 轮询在 Worker 启动/繁忙期间指数退避，避免反复连接命名管道 |
+| GSC-094 | 页面资源解析回归可能让 Playnite 显示扩展崩溃窗口 | 0.6.24 增加安全降级视图，待宿主回归 | Dashboard/Settings 构造统一捕获异常，返回不依赖插件资源字典的诊断视图；仍需在独立 Playnite 数据根重复打开页面确认无新 XAML 异常 |
 
 ### GSC-083：WPF-UI Button 同级资源字典作用域导致 Dashboard 崩溃
 

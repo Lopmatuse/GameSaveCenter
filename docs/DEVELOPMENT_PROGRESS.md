@@ -1,7 +1,7 @@
 # 开发实现进度
 
 更新时间：2026-08-04
-当前版本：`0.6.23-development-preview`
+当前版本：`0.6.24-development-preview`
 
 ## 2026-08-04 UI-055 WPF-UI 输入控件圆角与滚动模板收口
 

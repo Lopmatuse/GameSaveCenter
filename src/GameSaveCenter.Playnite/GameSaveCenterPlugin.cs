@@ -114,12 +114,47 @@ namespace GameSaveCenter.Playnite
                 Title = "GameSaveCenter",
                 Type = SiderbarItemType.View,
                 Icon = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "icon.png"),
-                Opened = () => new DashboardView(this)
+                // A malformed XAML resource must not bring down Playnite's extension host. The
+                // fallback keeps the sidebar usable and exposes the real exception in the
+                // extension log instead of letting Playnite show its generic crash dialog.
+                Opened = CreateDashboardViewSafely
             };
         }
 
         public override ISettings GetSettings(bool firstRunSettings) => Settings;
-        public override UserControl GetSettingsView(bool firstRunSettings) => new GameSaveCenterSettingsView { DataContext = Settings };
+        public override UserControl GetSettingsView(bool firstRunSettings) => CreateSettingsViewSafely();
+
+        private UserControl CreateDashboardViewSafely()
+        {
+            try
+            {
+                return new DashboardView(this);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "GameSaveCenter Dashboard failed to construct; showing the safe fallback view.");
+                return SafeViewFactory.Create(
+                    "GameSaveCenter 界面暂时无法加载",
+                    "插件已阻止这次界面异常向 Playnite 冒泡。请查看 extensions.log 中的 GameSaveCenter 错误，并确认已安装最新版本。",
+                    ex);
+            }
+        }
+
+        private UserControl CreateSettingsViewSafely()
+        {
+            try
+            {
+                return new GameSaveCenterSettingsView { DataContext = Settings };
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "GameSaveCenter settings view failed to construct; showing the safe fallback view.");
+                return SafeViewFactory.Create(
+                    "GameSaveCenter 设置界面暂时无法加载",
+                    "请查看 extensions.log 中的 GameSaveCenter 错误，并确认已安装最新版本。",
+                    ex);
+            }
+        }
 
         public async Task EnsureWorkerAsync()
         {

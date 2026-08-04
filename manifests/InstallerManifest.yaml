@@ -1,9 +1,9 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.23
+  - Version: 0.6.24
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-08-04
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.23/GameSaveCenter-0.6.23.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.24/GameSaveCenter-0.6.24.pext
     Changelog:
       - 可独立关闭 Steam、Xbox Game Bar、Windows 截图、游戏相邻目录和自定义媒体来源扫描。
       - 每个游戏可独立关闭自动备份与自动媒体归档；自定义来源支持暂停和移除，不会删除已归档媒体。
@@ -13,5 +13,6 @@ Packages:
       - View 属性变更先切回 Dispatcher，再读取任何 WPF 状态。
       - 自动刷新与初始化同步均改用可观察的 Task 流程。
       - 900+ 游戏库同步先持久化并立即可用，大批量 Ludusavi 匹配改为后台分批处理；Worker 忙碌时 Playnite 通知轮询指数退避。
+      - Dashboard 和 Settings 构造异常时返回隔离诊断视图，避免单次 XAML 资源回归让 Playnite 弹出扩展崩溃窗口。
       - 云端备份复制失败后会持久化并按退避计划自动重试，成功后自动清理队列。
       - 全局数值输入改为完整编辑后提交，修复游戏策略分钟输入无法可靠输入多位数的问题。

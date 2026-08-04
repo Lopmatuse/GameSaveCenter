@@ -853,7 +853,12 @@
 
 - 为待归类媒体分别准备 0 条和至少 1 条记录；确认空状态只在 0 条时出现，有媒体时不会覆盖表格行。
 
-### 0.6.23 P0-001 大型 Playnite 库启动回归
+### 0.6.24 P0-001/P0-002 大型 Playnite 库与页面安全降级回归
+
+- [ ] 确认 Playnite 附加组件页和 `playnite.log` 加载的是 `GameSaveCenter 0.6.24`，不是此前日志中的 `0.6.22`。
+- [ ] 在 900+ 游戏库启动后，优先看到已持久化 Dashboard；`worker-launch.log` 记录 `Library descriptors persisted` 后，窗口不应等待全部 Ludusavi `find` 完成。
+- [ ] 观察通知轮询：Worker 启动或后台匹配期间最多偶发一次调试日志，后续应按退避重试，不应每秒连续超时。
+- [ ] 重复打开/关闭 GameSaveCenter；即使人为制造资源构造异常，也应显示插件诊断降级页，而不是 Playnite 扩展崩溃窗口。
 
 - [ ] 使用 900–1000 款游戏的真实 Playnite 库启动并启用 GameSaveCenter；确认 Worker 先进入可用状态，Dashboard 能先显示 SQLite 缓存，不等待全部 Ludusavi 匹配结束。
 - [ ] 检查 `worker-launch.log`：大批量同步应出现“descriptors persisted”和“matches queued in the background”，而不是在 IPC 请求内连续等待数分钟。
