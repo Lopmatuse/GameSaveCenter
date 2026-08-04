@@ -721,3 +721,9 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 - 表格视口默认至少 220 DIP、行高约 48–54 DIP，表格必须保留内部横纵滚动、`CanContentScroll`、行/列虚拟化；MinHeight 不是用来掩盖错误测量，父级仍需是有限的 `Grid` `*` 行。
 - 修改器设置是次级检查器，低高度时必须放入有限高度 ScrollViewer；主工具列表保留 star 行和独立滚动，不能被设置表单推走。
 - 共享表格行只使用动态主题刷和轻微圆角；禁止对大型滚动区域或列表行添加 BlurEffect。
+
+## 2026-08-04 0.6.22 UI-059 低高度检查器与系统偏好规则
+
+- 媒体详情检查器属于次级信息，必须放在有限高度的独立 `ScrollViewer` 中；低高度时优先保证媒体主表格仍可见和可滚动。
+- 维护诊断摘要不得放在无限测量的 Auto 行；文本区域设置有限 `MinHeight/MaxHeight` 并使用内部滚动，避免诊断内容推走 Findings 表格。
+- Dashboard 和设置页监听 `SystemParameters.StaticPropertyChanged`，运行中系统高对比度、透明效果或动画偏好变化时重新应用局部色板和布局；视图卸载必须取消订阅，防止 Playnite 生命周期泄漏。

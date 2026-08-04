@@ -522,6 +522,7 @@ public sealed class WpfUiResourceDictionaryTests
         var maintenance = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml"));
         var trainer = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml"));
         var trainerCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml.cs"));
+        var mediaCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml.cs"));
         var taskCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TaskCenterView.xaml.cs"));
         var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
         var overview = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml"));
@@ -544,6 +545,10 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("SelectedGameToolVersion", trainer);
         Assert.Contains("RequiresAdmin", trainer);
         Assert.Contains("TrainerCatalogLayout.RowDefinitions", trainerCode);
+        Assert.Contains("x:Name=\"MediaInspectorScrollViewer\"", media);
+        Assert.Contains("VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\" MaxHeight=\"240\"", media);
+        Assert.Contains("MediaInspectorScrollViewer.MaxHeight = Math.Max(190, Math.Min(300, height * 0.42))", mediaCode);
+        Assert.Contains("MinHeight=\"90\" MaxHeight=\"220\"", maintenance);
         Assert.Contains("TaskSummaryPanel.Columns", taskCode);
         Assert.Contains("TaskWorkspaceView.ApplyResponsiveLayout(width, height)", workspaceCode);
         Assert.Contains("x:Key=\"GscRedesignWorkspaceTabControl\"", redesign);
@@ -940,6 +945,13 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("if (!IsLoaded || adaptiveThemePending) return;", settingsCode);
         Assert.Contains("adaptiveThemePending = false;", settingsCode);
         Assert.Contains("QueueAdaptiveThemeUpdate();", settingsCode);
+        Assert.Contains("SystemParameters.StaticPropertyChanged += OnSystemParametersChanged;", dashboardCode);
+        Assert.Contains("SystemParameters.StaticPropertyChanged -= OnSystemParametersChanged;", dashboardCode);
+        Assert.Contains("private void OnSystemParametersChanged(object? sender, PropertyChangedEventArgs e)", dashboardCode);
+        Assert.Contains("ApplyAdaptiveTheme();", dashboardCode);
+        Assert.Contains("SystemParameters.StaticPropertyChanged += OnSystemParametersChanged;", settingsCode);
+        Assert.Contains("SystemParameters.StaticPropertyChanged -= OnSystemParametersChanged;", settingsCode);
+        Assert.Contains("private void OnSystemParametersChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)", settingsCode);
     }
 
     [Fact]

@@ -20,6 +20,7 @@ namespace GameSaveCenter.Playnite.Settings
         private bool settingsTransferInProgress;
         private bool responsiveLayoutPending;
         private bool adaptiveThemePending;
+        private bool systemParametersSubscribed;
         private Size pendingResponsiveSize;
 
         public GameSaveCenterSettingsView()
@@ -37,6 +38,11 @@ namespace GameSaveCenter.Playnite.Settings
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
+            if (!systemParametersSubscribed)
+            {
+                SystemParameters.StaticPropertyChanged += OnSystemParametersChanged;
+                systemParametersSubscribed = true;
+            }
             ApplyAdaptiveTheme();
             ApplyResponsiveLayout(ActualWidth, ActualHeight);
             if (entrancePlayed)
@@ -70,6 +76,16 @@ namespace GameSaveCenter.Playnite.Settings
             }
             responsiveLayoutPending = false;
             adaptiveThemePending = false;
+            if (systemParametersSubscribed)
+            {
+                SystemParameters.StaticPropertyChanged -= OnSystemParametersChanged;
+                systemParametersSubscribed = false;
+            }
+        }
+
+        private void OnSystemParametersChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            QueueAdaptiveThemeUpdate();
         }
 
         private void QueueResponsiveLayout(Size size)

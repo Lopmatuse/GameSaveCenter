@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -13,9 +14,13 @@ namespace GameSaveCenter.Playnite.Views
         public Border MediaInspectorPanelElement => MediaInspectorPanel;
         public Border MediaPreviewPanelElement => MediaPreviewPanel;
         public StackPanel MediaMetadataPanelElement => MediaMetadataPanel;
+        public ScrollViewer MediaInspectorScrollViewerElement => MediaInspectorScrollViewer;
 
         public void ApplyResponsiveLayout(double width, double height)
         {
+            // The inspector contains wrapping controls and media metadata. Give it its own
+            // finite scroll channel at low heights so the media table above remains reachable.
+            MediaInspectorScrollViewer.MaxHeight = Math.Max(190, Math.Min(300, height * 0.42));
             MediaSummaryPanel.Columns = width >= 1180 ? 4 : width >= 820 ? 2 : 1;
             MediaSummaryPanel.Visibility = height >= 660 ? Visibility.Visible : Visibility.Collapsed;
             MediaSourceFields.Columns = width >= 820 ? 2 : 1;

@@ -26,6 +26,7 @@ namespace GameSaveCenter.Playnite.Views
         private bool hasPlayedEntrance;
         private bool viewModelSubscribed;
         private bool visualSettingsSubscribed;
+        private bool systemParametersSubscribed;
         private bool uiFeedbackSubscribed;
         private UiConfirmationEventArgs? activeConfirmation;
         private bool dialogShowsResult;
@@ -61,6 +62,11 @@ namespace GameSaveCenter.Playnite.Views
             {
                 plugin.VisualSettingsChanged += OnVisualSettingsChanged;
                 visualSettingsSubscribed = true;
+            }
+            if (!systemParametersSubscribed)
+            {
+                SystemParameters.StaticPropertyChanged += OnSystemParametersChanged;
+                systemParametersSubscribed = true;
             }
             if (!uiFeedbackSubscribed)
             {
@@ -98,6 +104,11 @@ namespace GameSaveCenter.Playnite.Views
             {
                 plugin.VisualSettingsChanged -= OnVisualSettingsChanged;
                 visualSettingsSubscribed = false;
+            }
+            if (systemParametersSubscribed)
+            {
+                SystemParameters.StaticPropertyChanged -= OnSystemParametersChanged;
+                systemParametersSubscribed = false;
             }
             if (uiFeedbackSubscribed)
             {
@@ -151,6 +162,18 @@ namespace GameSaveCenter.Playnite.Views
                 ApplyAdaptiveTheme();
                 refreshTimer.Interval = TimeSpan.FromSeconds(Math.Max(5, Math.Min(300, plugin.Settings.DashboardRefreshSeconds)));
                 if (plugin.Settings.EnableDashboardAutoRefresh) refreshTimer.Start(); else refreshTimer.Stop();
+            }, DispatcherPriority.Background);
+        }
+
+        private void OnSystemParametersChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            // High contrast, client-area animation and transparency preferences can change
+            // while Playnite remains open. Rebuild the local palette without touching the host.
+            BeginUiSafely(() =>
+            {
+                if (!IsLoaded) return;
+                ApplyAdaptiveTheme();
+                ApplyResponsiveLayout(ActualWidth, ActualHeight);
             }, DispatcherPriority.Background);
         }
 
