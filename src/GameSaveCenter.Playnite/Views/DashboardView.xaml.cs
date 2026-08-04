@@ -257,10 +257,15 @@ namespace GameSaveCenter.Playnite.Views
                     ? 300d
                     : 360d;
             Resources["GscTableMinHeight"] = tableMinHeight;
+            var tableViewportHeight = Math.Max(320d, Math.Min(560d, height * (height < 700 ? 0.58 : 0.68)));
+            Resources["GscTableViewportHeight"] = tableViewportHeight;
             foreach (var workspaceView in GetWorkspaceViews())
             {
                 workspaceView.Resources["GscTableMinHeight"] = tableMinHeight;
+                workspaceView.Resources["GscTableViewportHeight"] = tableViewportHeight;
+                workspaceView.Resources["GscListViewportHeight"] = tableViewportHeight;
             }
+            Resources["GscListViewportHeight"] = tableViewportHeight;
 
             var iconSidebar = mode == LayoutMode.Compact || mode == LayoutMode.Narrow;
             // The game picker is a single global context entry. It is never a permanent

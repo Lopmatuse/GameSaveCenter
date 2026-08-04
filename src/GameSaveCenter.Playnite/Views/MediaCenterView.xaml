@@ -65,7 +65,8 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="0,12,0,0">
+    <ScrollViewer x:Name="MediaPageScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
+    <Grid Margin="0,12,0,12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -183,4 +184,5 @@
             </TabItem>
         </TabControl>
     </Grid>
+    </ScrollViewer>
 </UserControl>

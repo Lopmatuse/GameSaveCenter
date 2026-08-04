@@ -1,21 +1,29 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.28-development-preview`
+当前版本：`0.6.29-development-preview`
+
+## 2026-08-05 P1 全工作区滚动与表格视口
+
+- [x] Overview、Save、Media、Task、Trainer、Maintenance 六个工作区增加页面级纵向 ScrollViewer，避免下方检查器、操作区和第二表格被裁剪。
+- [x] 共享 DataGrid 现在使用 `GscTableViewportHeight`（320–560 DIP 动态范围），Trainer 列表使用 `GscListViewportHeight`，表格内部仍保持 Recycling/虚拟化。
+- [x] 所有页面滚动通道使用主题化 ScrollBar、Disabled 横向滚动和统一圆角资源，避免系统白色/方角控件漏出。
+- [x] 新增工作区滚动和有限视口回归测试；本轮源码校验、测试和构建已完成。
+- [ ] 仍需在真实 Playnite 中验证外层滚动与 DataGrid 内层滚动的鼠标滚轮优先级，以及 125%/150% DPI 下没有重复滚动条误导。
 
 ## 2026-08-05 P1 工作区滚动与响应式转发收口
 
 - [x] Dashboard 外壳在统一尺寸变化入口中转发存档、修改器和维护工作区的响应式状态，避免抽取后的页面保留桌面尺寸 MaxHeight。
 - [x] 维护中心“设备状态”使用页面级纵向滚动承载有限 360 DIP DataGrid，保留多个可见行并让矮窗口继续到达决策和远端恢复操作。
 - [x] 新增 XAML/源码门禁和 Playnite UI 回归测试，确认设备比较表共享虚拟化样式且不会因为外层滚动失去有限测量。
-- [x] 0.6.28 源码校验、Release 测试、Release 构建和打包仍需本轮完成。
+- [x] 0.6.28 源码校验、Release 测试、Release 构建和打包已在上一轮完成。
 - [ ] 仍需在真实 Playnite 中验证 700 DIP、125%/150% DPI、深浅主题和窗口卸载后的实际渲染。
 
 ## 2026-08-05 P0 Worker 恢复与缓存首屏
 
 - [x] Worker 启动器在同路径进程响应超时后先等待 12 秒，不再直接杀掉可能正在初始化 SQLite 或让出 Ludusavi 批次的现有 Worker。
 - [x] Dashboard 构造不再通过完整命令边界等待 Worker 启动；先尝试读取持久化快照，失败时保留可用壳体并交给后台同步重试。
-- [ ] 仍需在 900+ 游戏的真实 Playnite 环境确认扩展版本为 0.6.28，并验证旧 Worker 不会被误杀。
+- [ ] 仍需在 900+ 游戏的真实 Playnite 环境确认扩展版本为 0.6.29，并验证旧 Worker 不会被误杀。
 
 ## 2026-08-05 P0 大型 Playnite 启动保护
 
@@ -23,7 +31,7 @@
 - [x] 任务通知轮询从启动后 15 秒开始、每 2 秒一次，并继续使用指数退避，减少 Worker 冷启动期间的命名管道超时。
 - [x] 同步指纹在启动 Worker/发送设置前快速去重，避免 Playnite 连续库事件反复唤醒 Worker。
 - [x] 0.6.27 源码校验、Release 测试、Release 构建和 Worker smoke 已在上一轮完成。
-- [ ] 仍需在真实 Playnite 中确认加载的是 `GameSaveCenter 0.6.28`，并与独立 `LudusaviPlaynite` 扩展分开测量。
+- [ ] 仍需在真实 Playnite 中确认加载的是 `GameSaveCenter 0.6.29`，并与独立 `LudusaviPlaynite` 扩展分开测量。
 
 ## 2026-08-04 P0 大型游戏库后台匹配让出策略
 

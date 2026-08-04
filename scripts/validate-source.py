@@ -1039,6 +1039,8 @@ def check_final_redesign_guards() -> None:
     settings = settings_path.read_text(encoding="utf-8")
     settings_code = settings_code_path.read_text(encoding="utf-8")
     redesign = redesign_path.read_text(encoding="utf-8")
+    design_tokens_text = (ROOT / "src/GameSaveCenter.Playnite/Themes/DesignTokens.xaml").read_text(encoding="utf-8")
+    wpf_ui_production_text = (ROOT / "src/GameSaveCenter.Playnite/Themes/WpfUiProduction.xaml").read_text(encoding="utf-8")
     workspace_views = read_workspace_views()
     workspace_ui = "\n".join(workspace_views.values())
     workspace_roots = [ET.parse(ROOT / "src/GameSaveCenter.Playnite/Views" / name).getroot()
@@ -1171,11 +1173,18 @@ def check_final_redesign_guards() -> None:
     ]
     if not large_controls:
         fail("Final redesign contains no large-library controls to validate")
+    shared_viewport_contract = (
+        "GscTableViewportHeight" in design_tokens_text
+        and "GscListViewportHeight" in design_tokens_text
+        and "GscTableViewportHeight" in wpf_ui_production_text
+    )
     for control in large_controls:
         ancestors: list[str] = []
+        ancestor_nodes = []
         parent = parent_map.get(control)
         while parent is not None:
             ancestors.append(local_name(parent.tag))
+            ancestor_nodes.append(parent)
             parent = parent_map.get(parent)
         # Maintenance audit deliberately uses a page-level ScrollViewer around two finite
         # tables. Each DataGrid keeps a fixed 360-DIP viewport and its own virtualization;
@@ -1188,6 +1197,19 @@ def check_final_redesign_guards() -> None:
                 "{Binding DeviceComparisons}",
             }
         )
+        # Extracted workspaces now expose one named page-level scroll channel. Their
+        # DataGrid/ListBox receives a finite shared viewport through the production
+        # type style, so the page can scroll to actions without sacrificing recycling.
+        page_scroll_contract = (
+            shared_viewport_contract
+            and any(
+                local_name(node.tag) == "ScrollViewer"
+                and node.attrib.get("{http://schemas.microsoft.com/winfx/2006/xaml}Name", "").endswith("PageScrollViewer")
+                for node in ancestor_nodes
+            )
+            and local_name(control.tag) in {"DataGrid", "ListBox"}
+        )
+        allowed_page_scroll = allowed_page_scroll or page_scroll_contract
         if (("StackPanel" in ancestors or "ScrollViewer" in ancestors) and not allowed_page_scroll) or "Grid" not in ancestors:
             fail(
                 "Large-library control lost finite Grid measurement: "

@@ -27,7 +27,8 @@
             <Style x:Key="GscTabItem" TargetType="TabItem" BasedOn="{StaticResource MaintenanceTabItem}"/>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid Margin="0,12,0,0">
+    <ScrollViewer x:Name="MaintenancePageScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
+    <Grid Margin="0,12,0,12">
         <TabControl Style="{StaticResource MaintenanceTabControl}">
             <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource MaintenanceTabItem}"/></TabControl.Resources>
             <TabItem Header="诊断">
@@ -94,4 +95,5 @@
             </TabItem>
         </TabControl>
     </Grid>
+    </ScrollViewer>
 </UserControl>

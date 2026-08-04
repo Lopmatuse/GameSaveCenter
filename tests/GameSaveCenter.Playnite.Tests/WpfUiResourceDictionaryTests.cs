@@ -463,6 +463,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Property=\"SortDirection\" Value=\"Descending\"", production);
         Assert.Contains("x:Key=\"GscTableRowHeight\"", designTokens);
         Assert.Contains("x:Key=\"GscTableMinHeight\"", designTokens);
+        Assert.Contains("x:Key=\"GscTableViewportHeight\"", designTokens);
+        Assert.Contains("Property=\"Height\" Value=\"{DynamicResource GscTableViewportHeight}\"", production);
         Assert.Contains("x:Key=\"GscTableHeaderHeight\"", designTokens);
         Assert.Contains("x:Key=\"GscTableAlternateRowBrush\"", designTokens);
 
@@ -480,6 +482,35 @@ public sealed class WpfUiResourceDictionaryTests
             Assert.Contains("Property=\"AlternatingRowBackground\" Value=\"{DynamicResource GscTableAlternateRowBrush}\"", text);
             Assert.DoesNotContain("BlurEffect", text);
         }
+    }
+
+    [Fact]
+    public void ExtractedWorkspacesExposePageScrollAndFiniteViewportContracts()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var viewDirectory = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views");
+        foreach (var (file, pageScrollName) in new[]
+        {
+            ("OverviewView.xaml", "OverviewPageScrollViewer"),
+            ("SaveCenterView.xaml", "SavePageScrollViewer"),
+            ("MediaCenterView.xaml", "MediaPageScrollViewer"),
+            ("TaskCenterView.xaml", "TaskPageScrollViewer"),
+            ("TrainerCenterView.xaml", "TrainerPageScrollViewer"),
+            ("MaintenanceView.xaml", "MaintenancePageScrollViewer")
+        })
+        {
+            var text = File.ReadAllText(Path.Combine(viewDirectory, file));
+            var root = XDocument.Parse(text);
+            var pageScroll = root.Descendants().Single(element =>
+                element.Name.LocalName == "ScrollViewer" &&
+                element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == pageScrollName);
+
+            Assert.Equal("Auto", pageScroll.Attribute("VerticalScrollBarVisibility")?.Value);
+            Assert.Equal("Disabled", pageScroll.Attribute("HorizontalScrollBarVisibility")?.Value);
+        }
+
+        var trainer = File.ReadAllText(Path.Combine(viewDirectory, "TrainerCenterView.xaml"));
+        Assert.Contains("GscListViewportHeight", trainer);
     }
 
     [Fact]
