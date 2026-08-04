@@ -1559,6 +1559,20 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("skipped {operation} because the Playnite UI dispatcher is unavailable", pluginCode);
     }
 
+    [Fact]
+    public void LargeLibrarySynchronizationWaitsForAnInteractiveSurface()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var pluginCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "GameSaveCenterPlugin.cs"));
+
+        Assert.Contains("private volatile bool interactiveSurfaceOpened;", pluginCode);
+        Assert.Contains("private void RequestLibrarySynchronization(string reason)", pluginCode);
+        Assert.Contains("if (!interactiveSurfaceOpened && IsLargeLibrary())", pluginCode);
+        Assert.Contains("catalog synchronization is deferred until GameSaveCenter is opened", pluginCode);
+        Assert.Contains("interactiveSurfaceOpened = true;", pluginCode);
+        Assert.Contains("Opened = CreateDashboardViewSafely", pluginCode);
+    }
+
 
     [Fact]
     public void FinalRedesignKeepsNavigationAndStatusCardsInsideCompactSidebarBounds()

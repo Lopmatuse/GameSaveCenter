@@ -44,6 +44,7 @@ namespace GameSaveCenter.Playnite
         private DateTime lastLibrarySynchronizationUtc = DateTime.MinValue;
         private readonly CancellationTokenSource lifetimeCancellation = new CancellationTokenSource();
         private DateTime largeLibraryStartupSyncNotBeforeUtc = DateTime.MinValue;
+        private volatile bool interactiveSurfaceOpened;
         private Task? synchronizationTask;
         private bool synchronizationRequested;
 
@@ -82,9 +83,9 @@ namespace GameSaveCenter.Playnite
             taskNotificationTimer = null;
         }
 
-        public override void OnLibraryUpdated(OnLibraryUpdatedEventArgs args) => FireAndForget(SynchronizeAsync);
-        public override void OnGameInstalled(OnGameInstalledEventArgs args) => FireAndForget(SynchronizeAsync);
-        public override void OnGameUninstalled(OnGameUninstalledEventArgs args) => FireAndForget(SynchronizeAsync);
+        public override void OnLibraryUpdated(OnLibraryUpdatedEventArgs args) => RequestLibrarySynchronization("library update");
+        public override void OnGameInstalled(OnGameInstalledEventArgs args) => RequestLibrarySynchronization("game installed");
+        public override void OnGameUninstalled(OnGameUninstalledEventArgs args) => RequestLibrarySynchronization("game uninstalled");
 
         public override void OnGameStarted(OnGameStartedEventArgs args)
         {
@@ -138,6 +139,9 @@ namespace GameSaveCenter.Playnite
 
         private UserControl CreateDashboardViewSafely()
         {
+            // Enabling the extension should not submit a full 900+ game catalog job by itself.
+            // Opening the dashboard is explicit user intent and releases this startup gate.
+            interactiveSurfaceOpened = true;
             try
             {
                 return new DashboardView(this);
@@ -154,6 +158,7 @@ namespace GameSaveCenter.Playnite
 
         private UserControl CreateSettingsViewSafely()
         {
+            interactiveSurfaceOpened = true;
             try
             {
                 return new GameSaveCenterSettingsView { DataContext = Settings };
@@ -175,7 +180,20 @@ namespace GameSaveCenter.Playnite
 
         public void NotifyVisualSettingsChanged() => VisualSettingsChanged?.Invoke(this, EventArgs.Empty);
 
-        public void ApplySettingsAsync() => FireAndForget(SynchronizeAsync);
+        public void ApplySettingsAsync() => RequestLibrarySynchronization("settings applied");
+
+        private void RequestLibrarySynchronization(string reason)
+        {
+            if (!interactiveSurfaceOpened && IsLargeLibrary())
+            {
+                logger.Debug($"Deferring large-library synchronization until GameSaveCenter is opened ({reason}).");
+                return;
+            }
+
+            FireAndForget(SynchronizeAsync);
+        }
+
+        private bool IsLargeLibrary() => PlayniteApi.Database.Games.Count >= 100;
 
         public Task<T> RequestAsync<T>(string type, object payload, TimeSpan? timeout = null) => client.RequestAsync<T>(type, payload, timeout);
 
@@ -392,6 +410,7 @@ namespace GameSaveCenter.Playnite
         /// </summary>
         public Task SynchronizeFromDashboardAsync()
         {
+            interactiveSurfaceOpened = true;
             lock (synchronizationRequestGate)
             {
                 if (synchronizationTask != null && !synchronizationTask.IsCompleted)
@@ -489,6 +508,12 @@ namespace GameSaveCenter.Playnite
                 await ApplySettingsCoreAsync().ConfigureAwait(false);
                 if (isLargeLibrary)
                 {
+                    if (!interactiveSurfaceOpened)
+                    {
+                        logger.Info($"Detected a large Playnite library ({gameCount} games); catalog synchronization is deferred until GameSaveCenter is opened.");
+                        return;
+                    }
+
                     logger.Info($"Detected a large Playnite library ({gameCount} games); deferring initial catalog synchronization for 25 seconds.");
                     await Task.Delay(TimeSpan.FromSeconds(25), lifetimeCancellation.Token).ConfigureAwait(false);
                 }

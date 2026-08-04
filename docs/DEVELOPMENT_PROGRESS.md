@@ -1,7 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.31-development-preview`
+当前版本：`0.6.32-development-preview`
+
+- [x] 0.6.32：大型游戏库在插件启用但用户尚未打开 GameSaveCenter 时不自动提交整库 Ludusavi 匹配；打开 Dashboard/Settings 后释放同步闸门，避免 Playnite 启动阶段与其他 Ludusavi 插件争用。
 
 - [x] 0.6.31：Dashboard 打开时加入已有的大库同步任务，避免因点击侧栏再次排队全量刷新；工作区 DataGrid 显式绑定有限滚动视口，普通窗口可显示更多行。
 
@@ -32,7 +34,7 @@
 
 - [x] Worker 启动器在同路径进程响应超时后先等待 12 秒，不再直接杀掉可能正在初始化 SQLite 或让出 Ludusavi 批次的现有 Worker。
 - [x] Dashboard 构造不再通过完整命令边界等待 Worker 启动；先尝试读取持久化快照，失败时保留可用壳体并交给后台同步重试。
-- [ ] 仍需在 900+ 游戏的真实 Playnite 环境确认扩展版本为 0.6.31，并验证旧 Worker 不会被误杀。
+- [ ] 仍需在 900+ 游戏的真实 Playnite 环境确认扩展版本为 0.6.32，并验证旧 Worker 不会被误杀。
 
 ## 2026-08-05 P0 大型 Playnite 启动保护
 
@@ -40,7 +42,7 @@
 - [x] 任务通知轮询从启动后 15 秒开始、每 2 秒一次，并继续使用指数退避，减少 Worker 冷启动期间的命名管道超时。
 - [x] 同步指纹在启动 Worker/发送设置前快速去重，避免 Playnite 连续库事件反复唤醒 Worker。
 - [x] 0.6.27 源码校验、Release 测试、Release 构建和 Worker smoke 已在上一轮完成。
-- [ ] 仍需在真实 Playnite 中确认加载的是 `GameSaveCenter 0.6.31`，并与独立 `LudusaviPlaynite` 扩展分开测量。
+- [ ] 仍需在真实 Playnite 中确认加载的是 `GameSaveCenter 0.6.32`，并与独立 `LudusaviPlaynite` 扩展分开测量。
 
 ## 2026-08-04 P0 大型游戏库后台匹配让出策略
 
