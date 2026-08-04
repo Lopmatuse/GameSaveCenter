@@ -3,6 +3,21 @@
 更新时间：2026-08-04
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-04 UI-053 GamePicker 键盘确认与鼠标交互收口
+
+- [x] GamePicker 方向键只移动当前选择，不再因 `SelectionChanged` 立即关闭抽屉；鼠标点击或 Enter 确认后关闭，Esc 可随时关闭。
+- [x] 新增列表级 `PreviewMouseLeftButtonUp` / `PreviewKeyDown` 入口和结构门禁，保留 Tab、方向键、Enter、Esc 的原生焦点路径。
+- [x] 重新运行源码校验、XAML 结构检查、Release 测试（Core 13 + Worker 21 + Playnite UI 66 = 100 项）和 Release 构建（0 警告、0 错误）。
+- [ ] 独立 Playnite 宿主中的键盘焦点可见性、输入法、DPI、主题和卸载后的实际行为仍需 Windows 真机回归。
+
+## 2026-08-04 UI-052 GamePicker 大库批量刷新优化
+
+- [x] 全局 `GamePickerViewModel.SetItems` 使用批量通知集合替换轻量游戏摘要，250/1000 款游戏刷新不会逐项触发 WPF 视图重测量；对外仍保持 `ObservableCollection` 绑定兼容。
+- [x] 保留本地筛选、排序、平台选项重建和已选游戏回退语义；批量结束后只发送一次 `Reset`，再执行一次筛选/排序刷新。
+- [x] 新增 250 项替换通知回归测试，确保不会退回逐项 `Add` 通知，也不在 `CollectionView.DeferRefresh()` 期间修改集合。
+- [x] 串行运行源码校验、XAML 结构检查、Release 测试（Core 13 + Worker 21 + Playnite UI 66 = 100 项）和 Release 构建（0 警告、0 错误）。
+- [ ] 1000 款真实 Playnite 游戏库的首次加载、窗口打开耗时、虚拟化滚动和 DPI/主题宿主渲染仍需 Windows 真机回归。
+
 ## 2026-08-04 UI-051 快速切换详情的代际取消与单一入口门禁
 
 - [x] 顶部 GamePicker 选择变化只响应一次 `SelectedItem` 通知，避免同一选择重复排队详情 IPC 请求。

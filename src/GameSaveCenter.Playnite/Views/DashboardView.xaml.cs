@@ -717,10 +717,26 @@ namespace GameSaveCenter.Playnite.Views
         {
             if (e.AddedItems.Count > 0 && viewModel != null && e.AddedItems[0] is GamePickerItem pickerItem)
                 viewModel.SelectedGame = pickerItem.Game;
+        }
+
+        private void OnGamePickerMouseUp(object sender, MouseButtonEventArgs e)
+        {
             if (!compactGameBrowserOpen || viewModel == null || viewModel.SelectedGame == null) return;
             compactGameBrowserOpen = false;
             CompactGameSelector.ToolTip = "打开游戏搜索、状态筛选和排序";
             ApplyResponsiveLayout(ActualWidth, ActualHeight);
+        }
+
+        private void OnGamePickerPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (!compactGameBrowserOpen || viewModel == null) return;
+            if (e.Key == Key.Escape || (e.Key == Key.Enter && viewModel.SelectedGame != null))
+            {
+                compactGameBrowserOpen = false;
+                CompactGameSelector.ToolTip = "打开游戏搜索、状态筛选和排序";
+                ApplyResponsiveLayout(ActualWidth, ActualHeight);
+                e.Handled = true;
+            }
         }
 
         private void OnInspectorPreviewMouseWheel(object sender, MouseWheelEventArgs e)

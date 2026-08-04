@@ -237,6 +237,7 @@
 ### 0.6.22 全局 GamePicker 详情加载边界
 
 - 全局 GamePicker 只允许一个 `GamePicker.ItemsView` 列表入口；六个物理工作区不得复制全局游戏搜索/筛选器。
+- GamePicker 批量替换大量轻量摘要时必须抑制逐项 `ObservableCollection` 通知并在完成后发出一次 `Reset`；不要在 `ICollectionView.DeferRefresh()` 期间逐项修改集合，否则 WPF `ListCollectionView` 会抛出 deferred refresh 异常。列表仍必须保持虚拟化与 Recycling。
 - GamePicker 选择变化必须使用单一 `SelectedItem` 事件入口；`SelectedGame` 仅作为兼容绑定属性，不得再次触发同一详情加载。
 - 详情 IPC 不支持撤回已写入命名管道的请求，因此存档、媒体和修改器详情必须使用代际令牌与当前 `PlayniteId` 检查，旧响应只能被丢弃，不能回写新游戏界面。
 - Dashboard 卸载必须取消并释放详情加载、GamePicker 防抖和延迟设置保存；这不是业务任务取消，不能影响 Worker 中真实备份/恢复/同步任务。

@@ -94,6 +94,25 @@ namespace GameSaveCenter.Playnite.Tests
             Assert.Equal("最近游玩", picker.SortMode);
         }
 
+        [Fact]
+        public void LargeSetReplacementEmitsOneResetNotification()
+        {
+            using var picker = new GamePickerViewModel();
+            var resetCount = 0;
+            var addCount = 0;
+            picker.Items.CollectionChanged += (_, args) =>
+            {
+                if (args.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset) resetCount++;
+                if (args.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add) addCount++;
+            };
+
+            picker.SetItems(Enumerable.Range(0, 250).Select(i => Game("Game " + i)));
+
+            Assert.Equal(1, resetCount);
+            Assert.Equal(0, addCount);
+            Assert.Equal(250, picker.Items.Count);
+        }
+
         private static GameStatusDto Game(string name, bool installed = true, bool matched = true,
             int backups = 0, string health = "Ready", GamePlatformKind platform = GamePlatformKind.Other,
             DateTime? backup = null, DateTime? played = null)

@@ -37,7 +37,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             RebuildSortDescriptions();
         }
 
-        public ObservableCollection<GamePickerItem> Items { get; } = new ObservableCollection<GamePickerItem>();
+        public ObservableCollection<GamePickerItem> Items { get; } = new BatchObservableCollection<GamePickerItem>();
         public ICollectionView ItemsView { get; }
         public IReadOnlyList<string> StatusFilterOptions { get; } = new[] { "已安装", "全部", "已匹配", "有备份", "需处理", "未匹配" };
         public IReadOnlyList<string> SortOptions { get; } = new[] { "名称", "最近游玩", "最近备份" };
@@ -150,10 +150,25 @@ namespace GameSaveCenter.Playnite.ViewModels
             rebuildingItems = true;
             try
             {
-                Items.Clear();
-                foreach (var game in games ?? Enumerable.Empty<GameStatusDto>())
-                    Items.Add(new GamePickerItem(game));
-                RebuildPlatformOptions();
+                // A dashboard refresh can replace hundreds or thousands of lightweight
+                // summaries. Batch the collection notifications so WPF does not repeatedly
+                // measure and filter the same list for every item. A ListCollectionView cannot
+                // safely process ObservableCollection changes while DeferRefresh is active, so
+                // the collection itself suppresses intermediate notifications and emits one
+                // Reset after the replacement is complete.
+                var batch = Items as BatchObservableCollection<GamePickerItem>;
+                batch?.BeginUpdate();
+                try
+                {
+                    Items.Clear();
+                    foreach (var game in games ?? Enumerable.Empty<GameStatusDto>())
+                        Items.Add(new GamePickerItem(game));
+                    RebuildPlatformOptions();
+                }
+                finally
+                {
+                    batch?.EndUpdate();
+                }
                 RefreshNow();
             }
             finally { rebuildingItems = false; }
@@ -267,5 +282,58 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         private void OnItemsChanged(object? sender, NotifyCollectionChangedEventArgs e) { }
         private void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+
+        /// <summary>
+        /// Keeps a large game-picker replacement from raising one WPF collection change per
+        /// game. The public type remains ObservableCollection for binding compatibility.
+        /// </summary>
+        private sealed class BatchObservableCollection<T> : ObservableCollection<T>
+        {
+            private bool batching;
+            private bool collectionChanged;
+            private bool propertyChanged;
+
+            public void BeginUpdate()
+            {
+                batching = true;
+                collectionChanged = false;
+                propertyChanged = false;
+            }
+
+            public void EndUpdate()
+            {
+                if (!batching) return;
+                batching = false;
+                if (propertyChanged)
+                {
+                    base.OnPropertyChanged(new PropertyChangedEventArgs(nameof(Count)));
+                    base.OnPropertyChanged(new PropertyChangedEventArgs("Item[]"));
+                }
+                if (collectionChanged)
+                    base.OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+                collectionChanged = false;
+                propertyChanged = false;
+            }
+
+            protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+            {
+                if (batching)
+                {
+                    propertyChanged = true;
+                    return;
+                }
+                base.OnPropertyChanged(e);
+            }
+
+            protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+            {
+                if (batching)
+                {
+                    collectionChanged = true;
+                    return;
+                }
+                base.OnCollectionChanged(e);
+            }
+        }
     }
 }

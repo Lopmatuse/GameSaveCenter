@@ -689,6 +689,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Equal("Recycling", gameList.Attribute("VirtualizingPanel.VirtualizationMode")?.Value);
         Assert.Equal("True", gameList.Attribute("ScrollViewer.CanContentScroll")?.Value);
         Assert.Equal("OnGameSelectionChanged", gameList.Attribute("SelectionChanged")?.Value);
+        Assert.Equal("OnGamePickerMouseUp", gameList.Attribute("PreviewMouseLeftButtonUp")?.Value);
+        Assert.Equal("OnGamePickerPreviewKeyDown", gameList.Attribute("PreviewKeyDown")?.Value);
 
         Assert.Contains("GamePicker.SearchText", dashboard);
         Assert.Contains("GamePicker.StatusFilterOptions", dashboard);
@@ -699,6 +701,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("LoadSelectionDetailsAsync", dashboardViewModel);
         Assert.Contains("CancelDetailsLoad();", dashboardViewModel);
         Assert.Contains("expectedGeneration", dashboardViewModel);
+        Assert.Contains("OnGamePickerPreviewKeyDown", dashboardCode);
         Assert.DoesNotContain("x:Name=\"OverviewGameSelector\"", dashboard);
         Assert.Equal(1, xaml.Descendants().Count(element => element.Name.LocalName == "Button" && element.Attribute(xamlName)?.Value == "CompactGameSelector"));
         Assert.Contains("gameScopedWorkspace = viewModel.CurrentWorkspace != WorkspaceKind.Tasks", dashboardCode);
