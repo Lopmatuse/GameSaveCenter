@@ -1,7 +1,11 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.43-development-preview`
+当前版本：`0.6.45-development-preview`
+
+- [x] 0.6.45：为延迟 Dispatcher UI 回调和 Hover/Pressed 动画增加异常隔离；共享或冻结 Freezable、主题切换、窗口卸载时的视觉异常不会再冒泡到 Playnite 扩展宿主。当前日志中的旧版冻结 Transform 崩溃可由此类防护覆盖，但仍需 Windows/Playnite 真机复测。
+
+- [x] 0.6.44：提高共享表格行高、表头高度和有限视口；在 700–2000 DIP/不同窗口高度下保持表格内部滚动与页面级滚动并存，普通窗口可显示更多历史、任务、诊断和媒体行。真实 Playnite 渲染与 DPI 回归仍待 Windows 环境验证。
 
 - [x] 0.6.43：修复 Playnite 在库导入阶段 `Database.Games.Count == 0` 的启动竞态；延迟 Worker/任务通知监视器，并在实际捕获到 500+ 游戏且用户尚未打开 Dashboard 时于 IPC 前熔断自动整库同步。该修复针对用户提供的 0.6.22 日志中 967 次 Ludusavi 请求与 Worker 管道超时，待 Windows/Playnite 真机验证。
 

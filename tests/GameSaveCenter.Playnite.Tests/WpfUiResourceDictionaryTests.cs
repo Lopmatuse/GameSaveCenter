@@ -441,6 +441,7 @@ public sealed class WpfUiResourceDictionaryTests
         var repositoryRoot = FindRepositoryRoot();
         var production = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "WpfUiProduction.xaml"));
         var designTokens = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "DesignTokens.xaml"));
+        var redesign = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "Redesign.xaml"));
 
         Assert.Contains("<Style TargetType=\"DataGridColumnHeader\">", production);
         Assert.Contains("<Style TargetType=\"DataGridCell\">", production);
@@ -468,13 +469,17 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Key=\"GscTableRowHeight\"", designTokens);
         Assert.Contains("x:Key=\"GscTableMinHeight\"", designTokens);
         Assert.Contains("x:Key=\"GscTableViewportHeight\"", designTokens);
+        Assert.Contains("x:Key=\"GscTableRowHeight\">60</sys:Double>", designTokens);
+        Assert.Contains("x:Key=\"GscTableMinHeight\">520</sys:Double>", designTokens);
+        Assert.Contains("x:Key=\"GscTableViewportHeight\">720</sys:Double>", designTokens);
+        Assert.Contains("x:Key=\"GscTableHeaderHeight\">50</sys:Double>", designTokens);
+        Assert.Contains("<Setter Property=\"ClipToBounds\" Value=\"True\"/>", redesign);
         Assert.Contains("Property=\"Height\" Value=\"{DynamicResource GscTableViewportHeight}\"", production);
         Assert.Contains("x:Key=\"GscTableHeaderHeight\"", designTokens);
         Assert.Contains("x:Key=\"GscTableAlternateRowBrush\"", designTokens);
         Assert.Contains("x:Key=\"GscPageScrollViewer\"", designTokens);
         Assert.Contains("x:Key=\"GscInspectorScrollViewer\"", designTokens);
 
-        var redesign = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "Redesign.xaml"));
         Assert.Contains("x:Key=\"GscRedesignTableFrame\"", redesign);
         Assert.Contains("CornerRadius\" Value=\"16\"", redesign);
 
@@ -1304,6 +1309,8 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("private void BeginUiSafely(Action action, DispatcherPriority priority)", dashboardCode);
         Assert.Contains("Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished", dashboardCode);
+        Assert.Contains("Dispatcher.BeginInvoke(new Action(() =>", dashboardCode);
+        Assert.Contains("ignored a deferred Dashboard UI callback failure", dashboardCode);
         Assert.Contains("catch (InvalidOperationException ex)", dashboardCode);
         Assert.Contains("BeginUiSafely(() => OnViewModelPropertyChanged(sender, e)", dashboardCode);
         Assert.Contains("BeginUiSafely(PlayEntranceAnimation, DispatcherPriority.Loaded)", dashboardCode);
@@ -1321,6 +1328,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("SystemParameters.StaticPropertyChanged += OnSystemParametersChanged;", settingsCode);
         Assert.Contains("SystemParameters.StaticPropertyChanged -= OnSystemParametersChanged;", settingsCode);
         Assert.Contains("private void OnSystemParametersChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)", settingsCode);
+        Assert.Contains("skipped a translate animation because the visual was unavailable", dashboardCode);
+        Assert.Contains("skipped a scale animation because the visual was unavailable", dashboardCode);
     }
 
     [Fact]
@@ -1617,11 +1626,11 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("mode == LayoutMode.Compact ? new Thickness(12)", dashboardCode);
         Assert.Contains("var tableMinHeight = height < 650", dashboardCode);
         Assert.Contains("workspaceView.Resources[\"GscTableMinHeight\"] = tableMinHeight", dashboardCode);
-        Assert.Contains("? 360d", dashboardCode);
-        Assert.Contains("? 420d", dashboardCode);
-        Assert.Contains(": 460d", dashboardCode);
-        Assert.Contains("Math.Max(480d, Math.Min(760d", dashboardCode);
-        Assert.Contains("height < 700 ? 0.88 : 0.92", dashboardCode);
+        Assert.Contains("? 440d", dashboardCode);
+        Assert.Contains("? 500d", dashboardCode);
+        Assert.Contains(": 520d", dashboardCode);
+        Assert.Contains("Math.Max(520d, Math.Min(820d", dashboardCode);
+        Assert.Contains("height < 700 ? 0.94 : 0.95", dashboardCode);
         Assert.Contains("mode == LayoutMode.Expanded ? 12", dashboardCode);
         Assert.Contains("viewModel.CurrentWorkspace == WorkspaceKind.Trainers", dashboardCode);
         Assert.Contains("DetailsTabControl.Margin =", dashboardCode);

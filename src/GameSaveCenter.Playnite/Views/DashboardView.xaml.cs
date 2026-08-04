@@ -205,7 +205,19 @@ namespace GameSaveCenter.Playnite.Views
             if (Dispatcher.HasShutdownStarted || Dispatcher.HasShutdownFinished) return;
             try
             {
-                Dispatcher.BeginInvoke(action, priority);
+                // Dispatcher callbacks are invoked by Playnite's shared UI loop.  An
+                // exception escaping one of these callbacks is treated as an extension
+                // crash by Playnite, even when the fault is only a stale visual resource or
+                // a closing window.  Keep the isolation at the callback boundary rather
+                // than relying on every animation/layout helper to remember its own catch.
+                Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    try { action(); }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex, "GameSaveCenter ignored a deferred Dashboard UI callback failure.");
+                    }
+                }), priority);
             }
             catch (InvalidOperationException ex)
             {
@@ -252,15 +264,15 @@ namespace GameSaveCenter.Playnite.Views
             // window. DynamicResource consumers resize together, while DataGrid keeps its own
             // internal scroll channel for the rows that no longer fit.
             var tableMinHeight = height < 650
-                ? 360d
+                ? 440d
                 : height < 760
-                    ? 420d
-                    : 460d;
+                    ? 500d
+                    : 520d;
             Resources["GscTableMinHeight"] = tableMinHeight;
             // Keep a finite, generous viewport so each table shows a useful batch of rows
             // without allowing a DataGrid to consume the entire page measure. The outer page
             // ScrollViewer remains responsible for reaching action/inspector sections below it.
-            var tableViewportHeight = Math.Max(480d, Math.Min(760d, height * (height < 700 ? 0.88 : 0.92)));
+            var tableViewportHeight = Math.Max(520d, Math.Min(820d, height * (height < 700 ? 0.94 : 0.95)));
             Resources["GscTableViewportHeight"] = tableViewportHeight;
             foreach (var workspaceView in GetWorkspaceViews())
             {
@@ -741,21 +753,37 @@ namespace GameSaveCenter.Playnite.Views
 
         private void AnimateTranslate(FrameworkElement? element, double x, double y, int milliseconds)
         {
-            if (element == null || !MotionEnabled) return;
-            var translate = GetMutableTranslateTransform(element);
-            var easing = new CubicEase { EasingMode = EasingMode.EaseOut };
-            translate.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(x, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
-            translate.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(y, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
+            try
+            {
+                if (element == null || !MotionEnabled) return;
+                var translate = GetMutableTranslateTransform(element);
+                var easing = new CubicEase { EasingMode = EasingMode.EaseOut };
+                translate.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(x, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
+                translate.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(y, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
+            }
+            catch (Exception ex)
+            {
+                // Hover feedback is optional. Never let a frozen/shared Freezable or a
+                // theme unload turn a harmless mouse event into a Playnite crash.
+                Logger.Debug(ex, "GameSaveCenter skipped a translate animation because the visual was unavailable.");
+            }
         }
 
         private void AnimateScale(FrameworkElement? element, double scaleValue, int milliseconds)
         {
-            if (element == null || !MotionEnabled) return;
-            var scale = GetMutableScaleTransform(element);
-            element.RenderTransformOrigin = new Point(0.5, 0.5);
-            var easing = new CubicEase { EasingMode = EasingMode.EaseOut };
-            scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(scaleValue, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
-            scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(scaleValue, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
+            try
+            {
+                if (element == null || !MotionEnabled) return;
+                var scale = GetMutableScaleTransform(element);
+                element.RenderTransformOrigin = new Point(0.5, 0.5);
+                var easing = new CubicEase { EasingMode = EasingMode.EaseOut };
+                scale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(scaleValue, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
+                scale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(scaleValue, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
+            }
+            catch (Exception ex)
+            {
+                Logger.Debug(ex, "GameSaveCenter skipped a scale animation because the visual was unavailable.");
+            }
         }
 
         private void PlayEntranceAnimation()

@@ -1,7 +1,11 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-08-05
-当前版本：`0.6.43-development-preview`
+当前版本：`0.6.45-development-preview`
+
+> 0.6.45 对 Dashboard 延迟 UI 回调、平移/缩放动画增加异常边界；动画是非关键反馈，任何 Freezable、主题或卸载异常都不应再穿透到 Playnite Dispatcher。
+
+> 0.6.44 将共享表格行高提高到 60 DIP、表头提高到 50 DIP，视口提升到 520–820 DIP；外层页面滚动不被取消，短窗口仍可通过页面滚动访问表格下方内容。
 
 > 0.6.43 针对 900+ 游戏 Playnite 启动竞态增加了第二道熔断：如果 `OnApplicationStarted` 时 Playnite 游戏库暂时为空，插件会等待宿主库稳定后再决定是否启动 Worker；自动同步在实际捕获到 500+ 游戏且 Dashboard 尚未打开时会直接返回，不创建 Worker/IPC 整库匹配任务。这样可以避免 0.6.22 日志中出现的 967 次 Ludusavi 启动和启动期管道超时循环。真实 Playnite 回归仍需在用户环境验证。
 

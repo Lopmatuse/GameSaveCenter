@@ -1,3 +1,17 @@
+## 0.6.45 Playnite 崩溃隔离回归
+
+- [ ] 安装后确认 `playnite.log` 加载 `GameSaveCenter, version 0.6.45`。
+- [ ] 在 Dashboard 加载、卸载、重复打开/关闭以及主题切换时悬停导航、卡片和按钮，确认无 `Unhandled exception`。
+- [ ] 打开 900+ 游戏库，确认 Worker/缓存加载失败只显示状态，不导致 Playnite 扩展崩溃；记录 `extensions.log` 和 `worker-launch.log`。
+- [ ] 若仍崩溃，保存完整堆栈并确认不是独立 `LudusaviPlaynite` 插件或旧版 GameSaveCenter。
+
+## 0.6.44 表格可读高度与双层滚动回归
+
+- [ ] 在 1600×900、1280×720、1024×700、850×650、700×620 DIP 检查存档、媒体、任务和维护表格是否至少显示多行。
+- [ ] 滚动表格内部时只移动表格行；继续向下滚动页面时，能到达检查器、第二张表和底部操作。
+- [ ] 浅色、深色、跟随 Playnite、高对比度和关闭透明下，表头、圆角行、滚动条和文字均可读。
+- [ ] Windows 125%/150% DPI 下无裁剪、重叠或只剩单行的表格。
+
 ## 0.6.43 900+ 游戏启动竞态回归
 
 - [ ] 安装 `0.6.43`，确认 `playnite.log` 加载的是 `GameSaveCenter, version 0.6.43`，不是 0.6.22。

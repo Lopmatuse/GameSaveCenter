@@ -1,3 +1,14 @@
+# 0.6.45 Development Preview
+
+- 为 Dashboard 的 Dispatcher 延迟回调、平移动画和缩放动画增加异常隔离，降低共享 Freezable、主题切换和视图卸载引发的 Playnite 扩展崩溃风险。
+- 继续保留 0.6.43/0.6.44 的大型游戏库启动熔断、缓存优先和表格双层滚动行为。
+
+# 0.6.44 Development Preview
+
+- 提高所有工作区表格和列表的可读高度，减少普通窗口只显示两三行的问题。
+- 保留表格内部虚拟化滚动与页面级滚动双通道；检查器、第二张表和底部操作不会被裁剪。
+- 行高、表头、圆角表面和滚动条继续使用共享主题资源，浅色、深色、跟随 Playnite 和高对比度沿用同一套动态色板。
+
 # 0.6.43 Development Preview
 
 - 修复 Playnite 库导入期间 `Database.Games.Count == 0` 导致的启动竞态。

@@ -52,6 +52,9 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="16"/>
         <Setter Property="Padding" Value="1"/>
+        <!-- Clip the DataGrid viewport to the rounded frame so the first/last header and
+             scrollbar never leak square pixels over the Apple-style corners. -->
+        <Setter Property="ClipToBounds" Value="True"/>
         <Setter Property="Effect" Value="{x:Null}"/>
     </Style>
 

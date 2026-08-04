@@ -57,6 +57,7 @@
         <Style x:Key="GscTableFrame" TargetType="Border" BasedOn="{StaticResource GscRedesignTableFrame}">
             <Setter Property="CornerRadius" Value="16"/>
             <Setter Property="Padding" Value="1"/>
+            <Setter Property="ClipToBounds" Value="True"/>
             <Setter Property="Effect" Value="{x:Null}"/>
             <Setter Property="Background" Value="{DynamicResource GscGlassFillBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
@@ -676,7 +677,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-<TextBlock x:Name="SidebarVersionText" Text="v0.6.43" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+<TextBlock x:Name="SidebarVersionText" Text="v0.6.45" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>

@@ -80,19 +80,22 @@
 
     <!-- Shared table geometry. Each workspace keeps its DataGrid in a finite Grid row, while
          these tokens provide one readable density across light, dark and host themes. -->
-    <sys:Double x:Key="GscTableRowHeight">58</sys:Double>
+    <!-- Keep rows comfortably readable instead of collapsing a table to two or three lines.
+         The surrounding page owns the overflow channel, while the DataGrid keeps its own
+         virtualized scrollbar for the remaining rows. -->
+    <sys:Double x:Key="GscTableRowHeight">60</sys:Double>
     <!-- A readable table should expose several rows at normal window sizes. Short hosts still
          get an internal DataGrid scrollbar; the page-level viewer reveals lower actions. The
          page-level ScrollViewer remains the
          overflow channel, so a taller viewport never hides the action/inspector sections. -->
-    <sys:Double x:Key="GscTableMinHeight">460</sys:Double>
+    <sys:Double x:Key="GscTableMinHeight">520</sys:Double>
     <!-- Finite viewport used by page-level scroll channels. A fixed viewport keeps
          virtualization active while the page itself can reveal the action/inspector
          sections below a table on short windows. DashboardView updates this token at
          each breakpoint so normal hosts show several readable rows without clipping. -->
-    <sys:Double x:Key="GscTableViewportHeight">660</sys:Double>
-    <sys:Double x:Key="GscListViewportHeight">660</sys:Double>
-    <sys:Double x:Key="GscTableHeaderHeight">48</sys:Double>
+    <sys:Double x:Key="GscTableViewportHeight">720</sys:Double>
+    <sys:Double x:Key="GscListViewportHeight">720</sys:Double>
+    <sys:Double x:Key="GscTableHeaderHeight">50</sys:Double>
 
     <!-- Page-level scrolling is deliberately keyed instead of implicit.  A page owns one
          vertical scroll channel; tables and lists own their own internal channels.  Keeping
