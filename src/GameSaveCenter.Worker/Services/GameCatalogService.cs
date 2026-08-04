@@ -42,12 +42,14 @@ public sealed class GameCatalogService
         var now=DateTime.UtcNow;
         var retryBefore=now.AddDays(-7);
         var pending=new List<(GameDescriptorDto Game,string InputHash)>();
+        var changedDescriptors=new List<GameDescriptorDto>();
         foreach(var game in list)
         {
             var inputHash=GameMatchInput.CreateHash(game);
             if(!cached.TryGetValue(game.PlayniteId,out var previous))
             {
                 pending.Add((game,inputHash));
+                changedDescriptors.Add(game);
                 continue;
             }
 
@@ -64,10 +66,31 @@ public sealed class GameCatalogService
             var unmatchedRetryDue=string.IsNullOrWhiteSpace(previous.LudusaviName)
                                   && previous.LastMatchAttemptUtc.HasValue
                                   && previous.LastMatchAttemptUtc.Value<=retryBefore;
-            if(inputChanged||matchWasNeverAttempted||unmatchedRetryDue) pending.Add((game,inputHash));
+            // An unavailable Ludusavi must not make every restart look like a changed game.
+            // Keep a never-matched descriptor durable, but retry it only once the executable
+            // is actually configured and can service the queued lookup.
+            var retryMatch = _ludusavi.IsAvailable && (matchWasNeverAttempted || unmatchedRetryDue);
+            if(inputChanged||retryMatch)
+            {
+                pending.Add((game,inputHash));
+                changedDescriptors.Add(game);
+            }
         }
 
-        await _store.UpsertGamesAsync(list,token).ConfigureAwait(false);
+        // The Playnite host can raise a full-library synchronization after every restart.
+        // The durable match-input hash is the cache contract: when nothing changed, avoid
+        // rewriting hundreds or thousands of descriptor rows and updating their timestamps.
+        // When a subset changed, persist only that subset; unchanged rows remain durable and
+        // their backup/media/policy history is untouched. This keeps a 900+ game profile from
+        // turning a harmless refresh into a long SQLite write transaction.
+        if(changedDescriptors.Count>0)
+            await _store.UpsertGamesAsync(changedDescriptors,token).ConfigureAwait(false);
+        else
+        {
+            _logger.LogDebug("Skipped unchanged game descriptor persistence for {GameCount} games.", list.Count);
+            return;
+        }
+
         if(!_ludusavi.IsAvailable||pending.Count==0) return;
         _logger.LogInformation(
             "Ludusavi matching {PendingCount} changed or new games; {CachedCount} cached descriptors were reused.",

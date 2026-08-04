@@ -581,7 +581,28 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             if (taskEventSubscription != null) return;
             taskEventSubscription = new CancellationTokenSource();
-            taskEventListener = plugin.ListenForTaskEventsAsync(ApplyTaskEventAsync, taskEventSubscription.Token);
+            var token = taskEventSubscription.Token;
+            taskEventListener = ListenForTaskEventsWhenReadyAsync(token);
+        }
+
+        private async Task ListenForTaskEventsWhenReadyAsync(CancellationToken token)
+        {
+            try
+            {
+                // A large Playnite profile can take a few seconds to start the Worker and open
+                // SQLite. Do not spin an event-pipe reconnect loop while the host is importing
+                // hundreds of games; the durable snapshot poll remains the fallback and the
+                // event stream becomes useful once the dashboard has settled.
+                if (plugin.IsLargeLibraryForUi)
+                    await Task.Delay(TimeSpan.FromSeconds(60), token).ConfigureAwait(false);
+                await plugin.ListenForTaskEventsAsync(ApplyTaskEventAsync, token).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (token.IsCancellationRequested)
+            {
+                // Unloading the dashboard intentionally cancels the delayed listener. Observe
+                // the cancellation here so the fire-and-forget task cannot surface as a
+                // Dispatcher/Playnite unhandled exception.
+            }
         }
 
         public void StopTaskEventSubscription()
@@ -654,7 +675,10 @@ namespace GameSaveCenter.Playnite.ViewModels
             // opening the panel never waits for a large Playnite library to be rematched.
             try
             {
-                await RefreshCoreAsync(false);
+                // A first dashboard paint must not wait the full IPC default timeout when the
+                // Worker is still being started. Fail fast to the cache/empty state and let the
+                // scheduled background refresh retry once the pipe is ready.
+                await RefreshCoreAsync(false, TimeSpan.FromSeconds(5));
             }
             catch (Exception ex)
             {
@@ -756,20 +780,20 @@ namespace GameSaveCenter.Playnite.ViewModels
             }
         }
 
-        private async Task RefreshCoreAsync(bool synchronize)
+        private async Task RefreshCoreAsync(bool synchronize, TimeSpan? snapshotTimeout = null)
         {
             StatusMessage = synchronize ? "正在同步设置与游戏库…" : "正在读取本地状态…";
-            await RefreshDashboardAsync(synchronize, false);
+            await RefreshDashboardAsync(synchronize, false, snapshotTimeout);
             if (CurrentWorkspace == WorkspaceKind.Media) await LoadInboxAsync();
             if (CurrentWorkspace == WorkspaceKind.Maintenance) await LoadDiagnosticsAsync();
             if (SelectedGame != null && IsGameScopedWorkspace(CurrentWorkspace)) await LoadDetailsAsync();
             else ClearSelectedGameDetails();
         }
 
-        private async Task<bool> RefreshDashboardAsync(bool synchronize, bool notifyTaskChanges)
+        private async Task<bool> RefreshDashboardAsync(bool synchronize, bool notifyTaskChanges, TimeSpan? snapshotTimeout = null)
         {
             if (synchronize) await plugin.SynchronizeAsync();
-            var data = await plugin.RequestAsync<DashboardSnapshotDto>(MessageTypes.GetDashboard, new { });
+            var data = await plugin.RequestAsync<DashboardSnapshotDto>(MessageTypes.GetDashboard, new { }, snapshotTimeout);
             var notifications = new List<TaskStatusDto>();
             var selectedTaskCompleted = false;
             ApplyOnUi(() =>

@@ -6,9 +6,9 @@
     <Deterministic>true</Deterministic>
     <DebugType>portable</DebugType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <VersionPrefix>0.6.37</VersionPrefix>
-    <AssemblyVersion>0.6.37.0</AssemblyVersion>
-    <FileVersion>0.6.37.0</FileVersion>
+    <VersionPrefix>0.6.38</VersionPrefix>
+    <AssemblyVersion>0.6.38.0</AssemblyVersion>
+    <FileVersion>0.6.38.0</FileVersion>
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 </Project>

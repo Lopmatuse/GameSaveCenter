@@ -1,6 +1,24 @@
+## 0.6.38 大型游戏库、Worker 冷启动与主题令牌最终 UI 回归
+
+### GSC-012 900+ 游戏库启动隔离（0.6.38）
+
+- [ ] 确认 Playnite `playnite.log` 加载的是 `GameSaveCenter 0.6.38`，而不是旧版 0.6.22/0.6.37。
+- [ ] 关闭独立 `LudusaviPlaynite` 扩展，冷启动 900+ 游戏 Playnite；确认仅启用 GameSaveCenter 不会在前 60 秒提交整库 Ludusavi 匹配，也不会因 Worker 健康探针失败卡住数分钟。
+- [ ] 打开 Dashboard，确认已有 SQLite 缓存可在约 5 秒内显示或进入可用空状态；同步在后台释放，任务事件监听延迟 60 秒。
+- [ ] 修改一款游戏的安装路径/平台描述后再次同步，确认旧匹配被清理并重新排队；不变游戏不会反复更新 `updated_utc`。
+- [ ] 重新启用独立 `LudusaviPlaynite` 做对照，记录 60 秒内 `find` 请求数、CPU/磁盘占用和命名管道超时；两套集成不应同时在 Playnite 启动阶段发起全库请求。
+- [ ] 连续打开/关闭侧栏至少 5 次，确认没有重复 Worker、XAML 资源异常、崩溃对话框或旧版本 DLL 被加载；同时确认 Worker 进程数始终为 1。
+
+### GSC-013 旧版崩溃与 Worker 超时回归（0.6.38）
+
+- [ ] 任何日志出现 `Wpf.Ui.Controls.Button`、`GscSoftShadowColor`、`ContentDialogHost` 或只读 DTO TwoWay 绑定错误时，停止功能测试，确认安装目录已被新 PEXT 完整替换并检查程序集版本 `0.6.38.0`。
+- [ ] 人为阻止 Worker 管道创建，确认 Dashboard 首次打开不会等待超过 5 秒缓存请求，Worker 启动失败在真实 30 秒内返回明确状态，不出现 4–5 分钟无响应。
+
+源码/自动化当前基线：Core 13、Worker 23、Playnite UI 89，共 125 项 Release 测试；真实 Playnite 主题、DPI、键盘和大库回归仍须在具备独立数据根及 PID 边界的环境执行。
+
 ## 0.6.37 大型游戏库、Worker 单实例与主题令牌最终 UI 回归
 
-### GSC-012 900+ 游戏库启动隔离
+### GSC-012 900+ 游戏库启动隔离（历史 0.6.37）
 
 - [ ] 确认 Playnite `playnite.log` 加载的是 `GameSaveCenter 0.6.37`，而不是旧版 0.6.22。
 - [ ] 关闭独立 `LudusaviPlaynite` 扩展，冷启动 Playnite，确认仅启用 GameSaveCenter 不会在前 60 秒提交整库 Ludusavi 匹配；大型库在 Dashboard 或游戏启动前也不应自动启动 Worker。

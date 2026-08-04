@@ -528,6 +528,8 @@ public sealed class WpfUiResourceDictionaryTests
         var media = File.ReadAllText(Path.Combine(viewDirectory, "MediaCenterView.xaml"));
         var maintenance = File.ReadAllText(Path.Combine(viewDirectory, "MaintenanceView.xaml"));
 
+        Assert.Contains("x:Name=\"OverviewSecondaryScrollViewer\"", overview);
+        Assert.Contains("x:Name=\"OverviewSecondaryScrollViewer\"\n                      Style=\"{DynamicResource GscPageScrollViewer}\"", overview);
         Assert.Contains("x:Name=\"OverviewRiskScrollViewer\" Style=\"{DynamicResource GscPageScrollViewer}\"", overview);
         Assert.Contains("<ScrollViewer Style=\"{DynamicResource GscPageScrollViewer}\" VerticalScrollBarVisibility=\"Auto\"", save);
         Assert.Contains("<ScrollViewer Style=\"{DynamicResource GscPageScrollViewer}\" Grid.Row=\"0\" MaxHeight=\"190\"", media);
@@ -1317,6 +1319,10 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.DoesNotContain("Run(InitializeAsync)", viewModelCode);
         Assert.Contains("WaitForHealthAsync(TimeSpan.FromSeconds(45))", launcherCode);
         Assert.Contains("WaitForHealthAsync", launcherCode);
+        Assert.Contains("var startupDeadline = DateTime.UtcNow + TimeSpan.FromSeconds(30);", launcherCode);
+        Assert.Contains("while (DateTime.UtcNow < startupDeadline)", launcherCode);
+        Assert.Contains("IsHealthyAsync(TimeSpan.FromMilliseconds(650))", launcherCode);
+        Assert.DoesNotContain("for (var i = 0; i < 120; i++)", launcherCode);
     }
 
     [Fact]
@@ -1338,6 +1344,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("await Task.Delay(delay, cancellation.Token)", viewModelCode);
         Assert.Contains("catch (OperationCanceledException) when (cancellation.IsCancellationRequested)", viewModelCode);
         Assert.Contains("大型目录同步将在空闲时进行", viewModelCode);
+        Assert.Contains("await RefreshCoreAsync(false, TimeSpan.FromSeconds(5));", viewModelCode);
+        Assert.Contains("private async Task ListenForTaskEventsWhenReadyAsync(CancellationToken token)", viewModelCode);
+        Assert.Contains("await Task.Delay(TimeSpan.FromSeconds(60), token)", viewModelCode);
     }
 
     [Fact]

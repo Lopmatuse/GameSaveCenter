@@ -108,12 +108,17 @@ namespace GameSaveCenter.Playnite.Infrastructure
                 worker.BeginOutputReadLine();
                 worker.BeginErrorReadLine();
 
-                for (var i = 0; i < 120; i++)
+                var startupDeadline = DateTime.UtcNow + TimeSpan.FromSeconds(30);
+                while (DateTime.UtcNow < startupDeadline)
                 {
                     await Task.Delay(250).ConfigureAwait(false);
                     if (worker.HasExited)
                         throw new InvalidOperationException($"Worker 启动后立即退出，退出码 {worker.ExitCode}。日志：{logPath}");
-                    if (await IsHealthyAsync().ConfigureAwait(false)) return;
+                    // A failed pipe connect is expected during cold start. Keep each probe
+                    // short and enforce one real wall-clock deadline; the previous fixed
+                    // 120-iteration loop multiplied a 2-second probe timeout into several
+                    // minutes when the Worker never created its pipe.
+                    if (await IsHealthyAsync(TimeSpan.FromMilliseconds(650)).ConfigureAwait(false)) return;
                 }
                 throw new TimeoutException($"Worker 已启动，但 30 秒内未就绪。请查看日志：{logPath}");
             }
@@ -123,11 +128,11 @@ namespace GameSaveCenter.Playnite.Infrastructure
             }
         }
 
-        public async Task<bool> IsHealthyAsync()
+        public async Task<bool> IsHealthyAsync(TimeSpan? timeout = null)
         {
             try
             {
-                await client.RequestAsync<object>(MessageTypes.Ping, new { }, TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+                await client.RequestAsync<object>(MessageTypes.Ping, new { }, timeout ?? TimeSpan.FromSeconds(2)).ConfigureAwait(false);
                 return true;
             }
             catch { return false; }

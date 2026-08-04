@@ -138,6 +138,7 @@
         </Grid>
 
         <ScrollViewer x:Name="OverviewSecondaryScrollViewer"
+                      Style="{DynamicResource GscPageScrollViewer}"
                       Grid.Row="0"
                       Grid.Column="2"
                       VerticalScrollBarVisibility="Disabled"

@@ -350,8 +350,10 @@ VALUES($id,$name,$platform,$platformId,$install,$json,$matchHash,$matchAttemptUt
 ON CONFLICT(playnite_id) DO UPDATE SET
  name=excluded.name, platform=excluded.platform, platform_game_id=excluded.platform_game_id,
  install_directory=excluded.install_directory, descriptor_json=excluded.descriptor_json,
- match_input_hash=CASE WHEN COALESCE(games.match_input_hash,'')='' THEN excluded.match_input_hash ELSE games.match_input_hash END,
- last_match_attempt_utc=CASE WHEN games.last_match_attempt_utc IS NULL THEN excluded.last_match_attempt_utc ELSE games.last_match_attempt_utc END,
+ ludusavi_name=CASE WHEN COALESCE(games.match_input_hash,'')<>excluded.match_input_hash THEN '' ELSE games.ludusavi_name END,
+ match_confidence=CASE WHEN COALESCE(games.match_input_hash,'')<>excluded.match_input_hash THEN 0 ELSE games.match_confidence END,
+ match_input_hash=excluded.match_input_hash,
+ last_match_attempt_utc=CASE WHEN COALESCE(games.match_input_hash,'')<>excluded.match_input_hash THEN NULL ELSE games.last_match_attempt_utc END,
  updated_utc=excluded.updated_utc;";
                 command.Parameters.AddWithValue("$id", game.PlayniteId);
                 command.Parameters.AddWithValue("$name", game.Name);
