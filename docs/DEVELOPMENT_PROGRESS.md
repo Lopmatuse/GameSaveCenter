@@ -3,6 +3,15 @@
 更新时间：2026-08-04
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-04 UI-051 快速切换详情的代际取消与单一入口门禁
+
+- [x] 顶部 GamePicker 选择变化只响应一次 `SelectedItem` 通知，避免同一选择重复排队详情 IPC 请求。
+- [x] 存档、媒体和修改器详情加载增加代际令牌；旧请求即使已写入命名管道，也不会在新游戏选择后回写过期集合或选中项。
+- [x] 页面卸载会取消并释放详情加载、GamePicker 筛选和延迟设置保存，避免 Dispatcher/Timer 残留。
+- [x] 新增源码门禁：GamePicker 列表绑定只出现一次，六个工作区不包含全局 GamePicker 入口，并锁定详情代际保护。
+- [x] 串行运行源码校验、Release 测试（Core 13 + Worker 21 + Playnite UI 65 = 99 项）和 Release 构建（0 警告、0 错误）。
+- [ ] 快速切换、键盘、125%/150% DPI 和卸载后的实际宿主行为仍需隔离 Playnite 真机回归；当前不把源码门禁当作宿主渲染证据。
+
 ## 2026-08-04 UI-050 共享页签、滚动与主题适配收口
 
 - [x] 为六个物理工作区统一接入 `GscRedesignWorkspaceTabControl` / `GscRedesignWorkspaceTabItem`：页签使用圆角胶囊、动态主题色和独立横向滚动通道，窄窗口不会裁切最后一个页签。

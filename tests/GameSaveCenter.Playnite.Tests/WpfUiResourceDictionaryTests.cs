@@ -666,6 +666,7 @@ public sealed class WpfUiResourceDictionaryTests
         var repositoryRoot = FindRepositoryRoot();
         var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
         var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var dashboardViewModel = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "ViewModels", "DashboardViewModel.cs"));
         var xaml = XDocument.Parse(dashboard);
         var xamlName = XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml");
 
@@ -681,6 +682,9 @@ public sealed class WpfUiResourceDictionaryTests
             element.Name.LocalName == "ListBox"
             && element.Attribute("ItemsSource")?.Value == "{Binding GamePicker.ItemsView}");
         Assert.NotNull(gameList);
+        Assert.Equal(1, xaml.Descendants().Count(element =>
+            element.Name.LocalName == "ListBox"
+            && element.Attribute("ItemsSource")?.Value == "{Binding GamePicker.ItemsView}"));
         Assert.Equal("True", gameList!.Attribute("VirtualizingPanel.IsVirtualizing")?.Value);
         Assert.Equal("Recycling", gameList.Attribute("VirtualizingPanel.VirtualizationMode")?.Value);
         Assert.Equal("True", gameList.Attribute("ScrollViewer.CanContentScroll")?.Value);
@@ -692,9 +696,19 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("GamePicker.PlatformFilterOptions", dashboard);
         Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace && !showPersistentGameBrowser", dashboardCode);
         Assert.Contains("ToggleGameBrowserButton.Visibility = Visibility.Collapsed", dashboardCode);
+        Assert.Contains("LoadSelectionDetailsAsync", dashboardViewModel);
+        Assert.Contains("CancelDetailsLoad();", dashboardViewModel);
+        Assert.Contains("expectedGeneration", dashboardViewModel);
         Assert.DoesNotContain("x:Name=\"OverviewGameSelector\"", dashboard);
         Assert.Equal(1, xaml.Descendants().Count(element => element.Name.LocalName == "Button" && element.Attribute(xamlName)?.Value == "CompactGameSelector"));
         Assert.Contains("gameScopedWorkspace = viewModel.CurrentWorkspace != WorkspaceKind.Tasks", dashboardCode);
+
+        foreach (var workspace in new[] { "OverviewView.xaml", "SaveCenterView.xaml", "TrainerCenterView.xaml", "MediaCenterView.xaml", "TaskCenterView.xaml", "MaintenanceView.xaml" })
+        {
+            var workspaceText = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", workspace));
+            Assert.DoesNotContain("GamePicker.ItemsView", workspaceText);
+            Assert.DoesNotContain("CompactGameSelector", workspaceText);
+        }
     }
 
     [Fact]

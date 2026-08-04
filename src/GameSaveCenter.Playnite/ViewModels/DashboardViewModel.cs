@@ -35,6 +35,8 @@ namespace GameSaveCenter.Playnite.ViewModels
         private long lastTaskEventSequence;
         private CancellationTokenSource? taskEventSubscription;
         private CancellationTokenSource? gamePickerPersistenceCancellation;
+        private CancellationTokenSource? detailsLoadCancellation;
+        private long detailsLoadGeneration;
         private Task? taskEventListener;
         private DateTime lastFullDashboardRefreshUtc=DateTime.MinValue;
         private string statusMessage = "准备就绪";
@@ -581,6 +583,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         public void CancelDeferredUiWork()
         {
             gamePicker.CancelPendingRefresh();
+            CancelDetailsLoad();
             var persistence = gamePickerPersistenceCancellation;
             gamePickerPersistenceCancellation = null;
             if (persistence == null) return;
@@ -843,10 +846,12 @@ namespace GameSaveCenter.Playnite.ViewModels
             NotifyTaskResults(new[]{task});
         }
 
-        private async Task LoadDetailsAsync(bool forceBackupHistory = false)
+        private async Task LoadDetailsAsync(bool forceBackupHistory = false, CancellationToken cancellationToken = default(CancellationToken), long expectedGeneration = 0, string? expectedGameId = null)
         {
             if (SelectedGame == null) return;
             var id = SelectedGame.PlayniteId;
+            if (!string.IsNullOrWhiteSpace(expectedGameId)
+                && !string.Equals(expectedGameId, id, StringComparison.OrdinalIgnoreCase)) return;
             switch (CurrentWorkspace)
             {
                 case WorkspaceKind.Saves:
@@ -854,9 +859,10 @@ namespace GameSaveCenter.Playnite.ViewModels
                     var backupsTask = plugin.RequestAsync<BackupVersionDto[]>(MessageTypes.ListBackups, new GameQueryDto { PlayniteId = id, Limit = 500, ForceRefresh = forceBackupHistory });
                     var candidatesTask = plugin.RequestAsync<SavePathCandidateDto[]>(MessageTypes.ListSaveCandidates, new GameQueryDto { PlayniteId = id });
                     await Task.WhenAll(backupsTask, candidatesTask);
+                    if (!IsCurrentDetailsLoad(id, cancellationToken, expectedGeneration)) return;
                     ApplyOnUi(() =>
                     {
-                        if (!IsSelectedGame(id)) return;
+                        if (!IsCurrentDetailsLoad(id, cancellationToken, expectedGeneration)) return;
                         Replace(Backups, backupsTask.Result);
                         Replace(SaveCandidates, candidatesTask.Result);
                         SelectedBackup = Backups.FirstOrDefault();
@@ -872,9 +878,10 @@ namespace GameSaveCenter.Playnite.ViewModels
                     var sourcesTask = plugin.RequestAsync<MediaSourceRuleDto[]>(MessageTypes.ListMediaSources, new GameQueryDto { PlayniteId = id });
                     var summaryTask = plugin.RequestAsync<MediaStorageSummaryDto>(MessageTypes.GetMediaSummary, new GameQueryDto { PlayniteId = id });
                     await Task.WhenAll(mediaTask, sourcesTask, summaryTask);
+                    if (!IsCurrentDetailsLoad(id, cancellationToken, expectedGeneration)) return;
                     ApplyOnUi(() =>
                     {
-                        if (!IsSelectedGame(id)) return;
+                        if (!IsCurrentDetailsLoad(id, cancellationToken, expectedGeneration)) return;
                         Replace(Media, mediaTask.Result);
                         MediaView.Refresh();
                         Replace(MediaSources, sourcesTask.Result);
@@ -890,9 +897,10 @@ namespace GameSaveCenter.Playnite.ViewModels
                 case WorkspaceKind.Trainers:
                 {
                     var gameTools = await plugin.RequestAsync<GameToolDto[]>(MessageTypes.ListGameTools, new GameQueryDto { PlayniteId = id });
+                    if (!IsCurrentDetailsLoad(id, cancellationToken, expectedGeneration)) return;
                     ApplyOnUi(() =>
                     {
-                        if (!IsSelectedGame(id)) return;
+                        if (!IsCurrentDetailsLoad(id, cancellationToken, expectedGeneration)) return;
                         var selectedToolId = SelectedGameTool?.ToolId;
                         Replace(GameTools, gameTools);
                         SelectedGameTool = GameTools.FirstOrDefault(x => string.Equals(x.ToolId, selectedToolId, StringComparison.OrdinalIgnoreCase))
@@ -903,6 +911,11 @@ namespace GameSaveCenter.Playnite.ViewModels
                 }
             }
         }
+
+        private bool IsCurrentDetailsLoad(string playniteId, CancellationToken cancellationToken, long expectedGeneration)
+            => !cancellationToken.IsCancellationRequested
+               && (expectedGeneration == 0 || expectedGeneration == Interlocked.Read(ref detailsLoadGeneration))
+               && IsSelectedGame(playniteId);
 
         public void RequestWorkspaceLoad()
         {
@@ -1509,6 +1522,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             suppressSelectionLoad = true;
             try { SelectedGame = GamesView.Cast<GameStatusDto>().FirstOrDefault(); }
             finally { suppressSelectionLoad = false; }
+            CancelDetailsLoad();
             if (SelectedGame != null) Run(() => LoadDetailsAsync());
             else ClearSelectedGameDetails();
         }
@@ -1531,14 +1545,54 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         private void OnGamePickerPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (!string.Equals(e.PropertyName, nameof(GamePickerViewModel.SelectedItem), StringComparison.Ordinal)
-                && !string.Equals(e.PropertyName, nameof(GamePickerViewModel.SelectedGame), StringComparison.Ordinal)) return;
+            // SelectedItem raises both SelectedItem and SelectedGame notifications. Respond once
+            // to the source notification so a rapid keyboard/mouse selection does not enqueue
+            // duplicate IPC requests for the same game.
+            if (!string.Equals(e.PropertyName, nameof(GamePickerViewModel.SelectedItem), StringComparison.Ordinal)) return;
             var selected = gamePicker.SelectedGame;
             OnPropertyChanged(nameof(SelectedGame));
             RaiseCommandStates();
             if (suppressSelectionLoad) return;
             ClearSelectedGameDetails();
-            if (selected != null && IsGameScopedWorkspace(CurrentWorkspace)) Run(() => LoadDetailsAsync());
+            CancelDetailsLoad();
+            if (selected != null && IsGameScopedWorkspace(CurrentWorkspace))
+                Observe(LoadSelectionDetailsAsync(selected.PlayniteId));
+        }
+
+        /// <summary>
+        /// Loads only the currently selected game's detail surface. The IPC client does not
+        /// expose cancellation for an already-written named-pipe request, so a generation token
+        /// is used as a second safety boundary: stale responses are ignored and never overwrite
+        /// the newly selected game's UI. This path deliberately does not toggle IsBusy, allowing
+        /// a fast picker sequence to converge on the latest selection while a normal command is
+        /// still running.
+        /// </summary>
+        private async Task LoadSelectionDetailsAsync(string playniteId)
+        {
+            var next = new CancellationTokenSource();
+            var previous = Interlocked.Exchange(ref detailsLoadCancellation, next);
+            previous?.Cancel();
+            previous?.Dispose();
+            var generation = Interlocked.Increment(ref detailsLoadGeneration);
+            try
+            {
+                await LoadDetailsAsync(false, next.Token, generation, playniteId).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) { }
+            finally
+            {
+                if (ReferenceEquals(Interlocked.CompareExchange(ref detailsLoadCancellation, null, next), next))
+                    next.Dispose();
+            }
+        }
+
+        private void CancelDetailsLoad()
+        {
+            Interlocked.Increment(ref detailsLoadGeneration);
+            var cancellation = Interlocked.Exchange(ref detailsLoadCancellation, null);
+            if (cancellation == null) return;
+            try { cancellation.Cancel(); }
+            finally { cancellation.Dispose(); }
         }
 
         private async Task PersistGamePickerStateAsync(CancellationToken token)
