@@ -828,6 +828,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Equal("OnGameSelectionChanged", gameList.Attribute("SelectionChanged")?.Value);
         Assert.Equal("OnGamePickerMouseUp", gameList.Attribute("PreviewMouseLeftButtonUp")?.Value);
         Assert.Equal("OnGamePickerPreviewKeyDown", gameList.Attribute("PreviewKeyDown")?.Value);
+        var gameSearch = xaml.Descendants().Single(element => element.Name.LocalName == "TextBox" && element.Attribute(xamlName)?.Value == "GameSearchTextBox");
+        Assert.Equal("OnGamePickerPreviewKeyDown", gameSearch.Attribute("PreviewKeyDown")?.Value);
 
         Assert.Contains("GamePicker.SearchText", dashboard);
         Assert.Contains("GamePicker.StatusFilterOptions", dashboard);

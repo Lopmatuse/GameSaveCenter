@@ -953,6 +953,7 @@
                             <TextBox x:Name="GameSearchTextBox"
                                      Style="{StaticResource GscWpfUiTextBox}"
                                      Text="{Binding GamePicker.SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     PreviewKeyDown="OnGamePickerPreviewKeyDown"
                                      ToolTip="搜索游戏名、Ludusavi 名称、平台或状态"
                                      Padding="32,7,38,7"/>
                             <TextBlock FontFamily="Segoe MDL2 Assets"
