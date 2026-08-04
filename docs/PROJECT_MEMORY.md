@@ -779,3 +779,13 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 - 媒体中心当前游戏媒体页必须提供本地 `MediaSearchText`/`MediaFilter` 筛选；筛选应使用 CollectionView 本地刷新，不能因每次输入产生 Worker IPC。
 - 源码门禁和 WPF 测试遇到架构提取时，优先读取真实工作区文件并验证命令/绑定/虚拟化，不得通过恢复旧隐藏控件来满足历史字符串检查。
 - 删除旧开发探针入口后，不再从 Dashboard 构造 `UiFrameworkProbeView`；若未来保留探针，只能作为独立诊断加载器，不得进入 Playnite 共享窗口解析路径。
+
+## 2026-08-04 UI-070 共享表格密度规则
+
+- 工作区 DataGrid 的行高、表头高度和最小可读视口统一由 `DesignTokens.xaml` 的 `GscTableRowHeight`、`GscTableHeaderHeight`、`GscTableMinHeight` 提供；不要在单个 View 中重新写固定 220/50/40 数值。
+- 表格必须仍位于有限 `Grid` 行内，并由 DataGrid 自身提供 `CanContentScroll`、纵向/横向滚动和虚拟化。不要用页面级 ScrollViewer 包住 DataGrid 来解决高度问题。
+- 低高度时应压缩或滚动次级操作区；表格默认保留约四行可读内容，再由内部滚动访问更多记录。
+
+UI-071：外壳的边距现在随四档宽度和低高度状态收缩；共享 `DataGridRow.MinHeight` 使用
+`GscTableRowHeight`，不允许隐式模板把工作区表格降回旧的 48 DIP。紧凑窗口要把空间留给
+工作区的星号行和内部滚动区域，不得用全页面缩放或裁剪内容来“适配”。

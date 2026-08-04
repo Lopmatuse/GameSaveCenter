@@ -77,6 +77,12 @@
     <CornerRadius x:Key="GscCornerPanel">22</CornerRadius>
     <Thickness x:Key="GscFocusThickness">2</Thickness>
 
+    <!-- Shared table geometry. Each workspace keeps its DataGrid in a finite Grid row, while
+         these tokens provide one readable density across light, dark and host themes. -->
+    <sys:Double x:Key="GscTableRowHeight">54</sys:Double>
+    <sys:Double x:Key="GscTableMinHeight">280</sys:Double>
+    <sys:Double x:Key="GscTableHeaderHeight">44</sys:Double>
+
     <!-- Stable, mostly opaque reading surface. Views may add their own layout-only padding
          but must not recreate a different card material for every settings section. It stays
          effect-free so dense pages do not attach a compositor effect to every small group. -->

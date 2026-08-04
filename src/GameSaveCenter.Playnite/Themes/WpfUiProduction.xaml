@@ -290,7 +290,7 @@
     </Style>
 
     <Style TargetType="DataGridRow">
-        <Setter Property="MinHeight" Value="48"/>
+        <Setter Property="MinHeight" Value="{DynamicResource GscTableRowHeight}"/>
         <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
         <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
         <Setter Property="Background" Value="Transparent"/>

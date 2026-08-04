@@ -1067,6 +1067,19 @@
 - 源码校验、XAML 结构检查、Release 测试 110 项（Core 13、Worker 21、Playnite 76）和 Release 构建均通过，0 警告、0 错误。
 - 当前仍未声称完成 Playnite 宿主渲染、DPI、主题切换、透明降级和真实窗口缩放回归；需在 Windows/Playnite 继续验证。
 
+## 2026-08-04 0.6.22 UI-070 共享表格密度与滚动可读性收口
+
+- 新增 `GscTableRowHeight`、`GscTableMinHeight` 和 `GscTableHeaderHeight` 设计令牌，统一六个工作区及 Dashboard 兼容样式的表格密度；默认行高 54 DIP、表头 44 DIP、最小可读视口 280 DIP。
+- 概览、存档、媒体、任务和维护表格继续使用有限 Grid 测量、内部纵向/横向滚动和行列虚拟化；没有给 DataGrid 外层增加 ScrollViewer，避免破坏大库性能。
+- 任务中心移除页面实例上的硬编码行高，避免共享主题与局部属性冲突；所有状态点、进度条和操作列仍保留各自模板对齐。
+- 更新 WPF 结构测试，门禁现在验证共享表格令牌而不是散落的 220 DIP 硬编码；仍需 Windows/Playnite 在 1600/1280/1024/850/700 DIP、125%/150% DPI 和四种主题下确认真实测量。
+
+## 2026-08-04 0.6.22 UI-071 紧凑窗口留白与共享行高一致性
+
+- `DashboardView.ApplyResponsiveLayout` 现在按 Expanded / Standard / Compact / Narrow 动态调整外壳边距、详情卡片内边距以及工作区标签上间距；低高度窗口会回收装饰性留白，将有限空间优先交给工作区的星号行和内部滚动区。
+- 共享隐式 `DataGridRow` 的最小高度改为使用 `GscTableRowHeight`，避免公共模板仍以旧的 48 DIP 覆盖各工作区的 54 DIP 可读表格密度。
+- 这仍然不替代 Windows 宿主中的 DPI、主题、透明度和 Playnite 窗口实机回归。
+
 
 ## 2026-08-02 UI-005 全功能视觉重构（源码阶段）
 

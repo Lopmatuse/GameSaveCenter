@@ -223,6 +223,30 @@ namespace GameSaveCenter.Playnite.Views
                 : LayoutMode.Narrow;
             viewModel.LayoutMode = mode;
 
+            // Keep the shell breathable at the normal window sizes people actually use.
+            // These are layout-only changes: the workspaces still own their finite Grid rows
+            // and local scroll viewers, while the outer card gives them a little more room at
+            // 700–1024 DIP instead of forcing every control into the desktop-sized padding.
+            var shellHorizontalPadding = mode == LayoutMode.Expanded ? 18
+                : mode == LayoutMode.Standard ? 16
+                : mode == LayoutMode.Compact ? 12
+                : 10;
+            var shellTopPadding = height < 760
+                ? (mode == LayoutMode.Narrow ? 8 : 10)
+                : (mode == LayoutMode.Expanded ? 16 : 14);
+            var shellBottomPadding = height < 760
+                ? (mode == LayoutMode.Narrow ? 8 : 10)
+                : (mode == LayoutMode.Expanded ? 14 : 12);
+            ResponsiveShell.Margin = new Thickness(
+                shellHorizontalPadding,
+                shellTopPadding,
+                shellHorizontalPadding,
+                shellBottomPadding);
+            GameDetailCard.Padding = mode == LayoutMode.Expanded ? new Thickness(18)
+                : mode == LayoutMode.Standard ? new Thickness(16)
+                : mode == LayoutMode.Compact ? new Thickness(12)
+                : new Thickness(10);
+
             var iconSidebar = mode == LayoutMode.Compact || mode == LayoutMode.Narrow;
             // The game picker is a single global context entry. It is never a permanent
             // third column: all widths use the same top button and the same finite drawer.
@@ -308,6 +332,18 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetColumn(GameDetailCard, 0);
             Grid.SetColumnSpan(GameDetailCard, 3);
             GameDetailCard.Margin = new Thickness(0);
+
+            // Trainers and media have a local pill row below the selected-game header. Keep
+            // that breathing room, but reclaim a few DIP in compact windows so the table's
+            // star row remains the first thing that scrolls instead of disappearing below the
+            // fold.
+            var workspaceTopGap = mode == LayoutMode.Expanded ? 12
+                : mode == LayoutMode.Standard ? 10
+                : 8;
+            DetailsTabControl.Margin = viewModel.CurrentWorkspace == WorkspaceKind.Trainers
+                || viewModel.CurrentWorkspace == WorkspaceKind.Media
+                ? new Thickness(0, workspaceTopGap, 0, 0)
+                : new Thickness(0);
 
             PageSubtitleText.Visibility = height >= 760 ? Visibility.Visible : Visibility.Collapsed;
             if (OverviewWorkspaceView != null)
