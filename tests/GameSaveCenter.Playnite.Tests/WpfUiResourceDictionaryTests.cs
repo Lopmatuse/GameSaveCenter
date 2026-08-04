@@ -702,6 +702,20 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void TrainerCatalogSelectionLoadsReleasesInTheExtractedWorkspace()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var trainerPath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml");
+        var trainerCodePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml.cs");
+        var trainer = File.ReadAllText(trainerPath);
+        var trainerCode = File.ReadAllText(trainerCodePath);
+
+        Assert.Contains("SelectedItem=\"{Binding SelectedTrainerCatalogItem}\" SelectionChanged=\"OnTrainerCatalogSelectionChanged\"", trainer);
+        Assert.Contains("LoadTrainerReleasesCommand.CanExecute(null)", trainerCode);
+        Assert.Contains("LoadTrainerReleasesCommand.Execute(null)", trainerCode);
+    }
+
+    [Fact]
     public void DashboardLargeScrollableControlsStayInsideFiniteGridLayouts()
     {
         var repositoryRoot = FindRepositoryRoot();

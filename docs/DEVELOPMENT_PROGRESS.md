@@ -1045,6 +1045,13 @@
 - 窄模式仍隐藏非必要按钮文字，保留图标、Tooltip 和键盘可达性；页面主体不引入全局水平滚动。
 - 新增 HeaderActions 的 XAML 门禁，待 Windows 700/850 DIP 和 125/150% DPI 实机确认滚动条与焦点效果。
 
+## 2026-08-04 0.6.22 UI-067 修改器在线库版本联动修复
+
+- 修复提取后的 `TrainerCenterView` 只更新 `SelectedTrainerCatalogItem`、却没有触发 `LoadTrainerReleasesCommand` 的工作区回归；现在选择 FLiNG 搜索结果会真实加载可下载版本列表。
+- 事件处理位于修改器工作区自身，不再依赖已隐藏的旧 Dashboard 标签页事件，保持六个工作区提取后的行为闭环。
+- 新增 XAML/代码门禁；Release 测试 109 项通过，Release 构建 0 警告、0 错误。
+- 仍需 Windows/Playnite 验证 FLiNG 目录同步、版本列表加载、下载绑定和主题/DPI 下的可达性。
+
 
 ## 2026-08-02 UI-005 全功能视觉重构（源码阶段）
 

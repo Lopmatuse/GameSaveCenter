@@ -761,3 +761,8 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 
 - Dashboard 顶部操作区属于局部滚动通道，必须允许水平 Auto；禁止用 Hidden 掩盖高 DPI、第三方主题或新增模块操作造成的裁剪。
 - Narrow/Compact 继续隐藏非必要文字，但不得隐藏按钮本身；页面主体和工作区列表仍禁止全局水平滚动。
+
+## 2026-08-04 0.6.22 UI-067 修改器目录联动规则
+
+- FLiNG 在线库的搜索结果属于独立工作区；选择结果必须在 `TrainerCenterView` 内触发 `LoadTrainerReleasesCommand`，不能依赖已隐藏的旧 Dashboard 标签页事件。
+- 提取工作区后，任何原先挂在 `DashboardView` 旧内容上的选择变化行为，都必须迁移到对应工作区的 XAML/code-behind，并用门禁测试确认仍可达。

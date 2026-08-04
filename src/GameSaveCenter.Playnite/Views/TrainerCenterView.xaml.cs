@@ -1,12 +1,22 @@
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using GameSaveCenter.Playnite.ViewModels;
 
 namespace GameSaveCenter.Playnite.Views
 {
     public partial class TrainerCenterView : UserControl
     {
         public TrainerCenterView() => InitializeComponent();
+
+        private void OnTrainerCatalogSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count == 0 || DataContext is not DashboardViewModel viewModel)
+                return;
+
+            if (viewModel.LoadTrainerReleasesCommand.CanExecute(null))
+                viewModel.LoadTrainerReleasesCommand.Execute(null);
+        }
 
         public void ApplyResponsiveLayout(double width, double height)
         {
