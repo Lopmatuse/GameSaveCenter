@@ -516,6 +516,30 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void MaintenanceDeviceActionsUseFiniteScrollChannels()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var maintenancePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml");
+        var maintenanceText = File.ReadAllText(maintenancePath);
+        var maintenanceCode = File.ReadAllText(maintenancePath + ".cs");
+        var maintenance = XDocument.Parse(maintenanceText);
+
+        foreach (var name in new[] { "MaintenanceDeviceDecisionScrollViewer", "MaintenanceRemoteRestoreScrollViewer" })
+        {
+            var viewer = maintenance.Descendants().Single(element =>
+                element.Name.LocalName == "ScrollViewer" &&
+                element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == name);
+            Assert.Equal("Auto", viewer.Attribute("VerticalScrollBarVisibility")?.Value);
+            Assert.Equal("Disabled", viewer.Attribute("HorizontalScrollBarVisibility")?.Value);
+        }
+
+        Assert.Contains("MaintenanceDeviceDecisionScrollViewer.MaxHeight = Math.Max(90, Math.Min(150, height * (compact ? 0.16 : 0.20)))", maintenanceCode);
+        Assert.Contains("MaintenanceRemoteRestoreScrollViewer.MaxHeight = Math.Max(120, Math.Min(210, height * (compact ? 0.22 : 0.28)))", maintenanceCode);
+        Assert.Contains("MaxHeight=\"150\"", maintenanceText);
+        Assert.Contains("MaxHeight=\"210\"", maintenanceText);
+    }
+
+    [Fact]
     public void ExtractedWorkspaceViewsConstructInsideSta()
     {
         Exception? exception = null;

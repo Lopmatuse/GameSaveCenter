@@ -751,3 +751,8 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 
 - 提取工作区共享 `DataGridCell` 默认左对齐，适合游戏名、路径、详情和原因等阅读型文本；状态、进度、操作类模板必须显式指定 Center 或 Stretch，不能依赖默认值。
 - 共享表头、单元格、行和排序箭头继续使用 DynamicResource 与圆角模板；不可为修正单个表格而回退到宿主默认 DataGrid 样式。
+
+## 2026-08-04 0.6.22 UI-065 维护中心设备页规则
+
+- 设备对比表上方和下方的人工决策/远端恢复操作属于次级内容，必须各自有限滚动；不能让 WrapPanel 或长状态文本占用无限 Auto 行。
+- `MaintenanceView.ApplyResponsiveLayout` 统一管理设备操作区限高；表格继续位于 `*` 行并保留虚拟化，不使用页面级 ScrollViewer。
