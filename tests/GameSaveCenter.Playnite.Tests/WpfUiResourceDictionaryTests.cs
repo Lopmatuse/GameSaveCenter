@@ -538,6 +538,35 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void SettingsAndSidebarUseTheSharedPageScrollChannel()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var settings = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml"));
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+
+        Assert.Contains("x:Name=\"SettingsScroller\" Style=\"{DynamicResource GscPageScrollViewer}\"", settings);
+        Assert.Contains("x:Name=\"SidebarNavigationScrollViewer\"", dashboard);
+        Assert.Contains("Style=\"{DynamicResource GscPageScrollViewer}\"", dashboard);
+        Assert.DoesNotContain("SettingsScroller\" VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\" KeyboardNavigation", settings);
+    }
+
+    [Fact]
+    public void CompactLayoutsKeepSummaryInformationAndUseThePageScroller()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var mediaCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml.cs"));
+        var tasksCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TaskCenterView.xaml.cs"));
+        var maintenanceCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml.cs"));
+
+        Assert.Contains("PageSubtitleText.Visibility = Visibility.Visible", dashboardCode);
+        Assert.Contains("SelectedGameMetricPanel.Visibility = Visibility.Visible", dashboardCode);
+        Assert.Contains("MediaSummaryPanel.Visibility = Visibility.Visible", mediaCode);
+        Assert.Contains("TaskSummaryPanel.Visibility = Visibility.Visible", tasksCode);
+        Assert.Contains("DiagnosticHealthPanel.Visibility = Visibility.Visible", maintenanceCode);
+    }
+
+    [Fact]
     public void DiagnosticExpanderUsesSharedRoundedThemeAndKeepsLongContentScrollable()
     {
         var repositoryRoot = FindRepositoryRoot();
@@ -1296,6 +1325,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("await plugin.SynchronizeFromDashboardAsync();", viewModelCode);
         Assert.Contains("synchronizationTask != null && !synchronizationTask.IsCompleted", pluginCode);
         Assert.Contains("largeLibraryStartupSyncNotBeforeUtc", pluginCode);
+        Assert.Contains("await Task.Delay(quietDelay, lifetimeCancellation.Token).ConfigureAwait(false);", pluginCode);
+        Assert.Contains("first-run libraries eventually synchronize", pluginCode);
         Assert.Contains("private async Task SynchronizeLoopAsync()", pluginCode);
         Assert.Contains("TimeSpan.FromMilliseconds(180)", pluginCode);
         Assert.Contains("synchronizationRequested", pluginCode);
@@ -1373,7 +1404,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Name=\"CoreToolFields\" Columns=\"2\"", settings);
         Assert.Contains("x:Name=\"AppearanceFields\" Columns=\"2\"", settings);
         Assert.Contains("x:Name=\"AutomationIntervalFields\" Columns=\"3\"", settings);
-        Assert.Contains("x:Name=\"SettingsScroller\" VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\"", settings);
+        Assert.Contains("x:Name=\"SettingsScroller\" Style=\"{DynamicResource GscPageScrollViewer}\" VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\"", settings);
         Assert.Contains("Path=\"DefaultBackupIntervalMinutes\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("Path=\"ProcessPollingSeconds\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("Path=\"DashboardRefreshSeconds\" UpdateSourceTrigger=\"LostFocus\"", settings);
@@ -1547,9 +1578,11 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("mode == LayoutMode.Compact ? new Thickness(12)", dashboardCode);
         Assert.Contains("var tableMinHeight = height < 650", dashboardCode);
         Assert.Contains("workspaceView.Resources[\"GscTableMinHeight\"] = tableMinHeight", dashboardCode);
-        Assert.Contains("? 220d", dashboardCode);
         Assert.Contains("? 300d", dashboardCode);
-        Assert.Contains(": 360d", dashboardCode);
+        Assert.Contains("? 360d", dashboardCode);
+        Assert.Contains(": 420d", dashboardCode);
+        Assert.Contains("Math.Max(420d, Math.Min(720d", dashboardCode);
+        Assert.Contains("height < 700 ? 0.70 : 0.84", dashboardCode);
         Assert.Contains("mode == LayoutMode.Expanded ? 12", dashboardCode);
         Assert.Contains("viewModel.CurrentWorkspace == WorkspaceKind.Trainers", dashboardCode);
         Assert.Contains("DetailsTabControl.Margin =", dashboardCode);

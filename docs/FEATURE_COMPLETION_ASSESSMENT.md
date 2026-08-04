@@ -1,7 +1,14 @@
 # 功能完成度评估
 
 更新时间：2026-08-05
-评估版本：`0.6.38-development-preview`
+评估版本：`0.6.39-development-preview`
+
+## 0.6.39 当前证据（2026-08-05）
+
+- Settings 与侧栏的滚动条现在统一使用 `GscPageScrollViewer`，避免设置页或长导航退回宿主默认样式。
+- Overview、Media、Tasks、Maintenance 的摘要在低高度仍保留，由页面级滚动承载溢出；表格有限视口提高以显示更多行。
+- 自动化证据为：Core 13、Worker 23、Playnite 91，共 127 项 Release 测试通过；Release 构建 0 错误（仅 NuGet 漏洞源不可达警告），PEXT CRC 与 Worker `0.6.39.0` 文件版本 smoke 通过。
+- 真实 Playnite 900+ 游戏启动、窗口渲染、主题、DPI 和独立 LudusaviPlaynite 对照仍未在本环境完成；此前用户日志加载的是旧版 0.6.22。
 
 本项目必须区分“源码已经实现”和“Windows/Playnite/真实游戏已经验证”。百分比是工程评估，不等于发布承诺。
 

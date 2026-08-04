@@ -1,8 +1,16 @@
+## 0.6.39 页面滚动、表格密度与大型库回归
+
+### UI-056 页面级滚动与摘要保留
+
+- [ ] 在 1600、1280、1024、850、700 DIP 下打开 Settings、Overview、Media、Tasks、Maintenance，确认页面摘要不再因高度阈值消失，滚轮/滚动条可到达下方表格和操作区。
+- [ ] 确认 SettingsScroller、SidebarNavigationScrollViewer 与六个工作区页面滚动条使用同一套圆角动态主题资源；浅色、深色、跟随 Playnite、蓝色宿主、高对比度和关闭透明均无白色系统滚动条。
+- [ ] 确认表格在 700 DIP 和 125%/150% DPI 下仍显示多个完整行，行内滚动与外层页面滚动不互相吞掉输入焦点。
+
 ## 0.6.38 大型游戏库、Worker 冷启动与主题令牌最终 UI 回归
 
 ### GSC-012 900+ 游戏库启动隔离（0.6.38）
 
-- [ ] 确认 Playnite `playnite.log` 加载的是 `GameSaveCenter 0.6.38`，而不是旧版 0.6.22/0.6.37。
+- [ ] 确认 Playnite `playnite.log` 加载的是 `GameSaveCenter 0.6.39`，而不是旧版 0.6.22/0.6.38。
 - [ ] 关闭独立 `LudusaviPlaynite` 扩展，冷启动 900+ 游戏 Playnite；确认仅启用 GameSaveCenter 不会在前 60 秒提交整库 Ludusavi 匹配，也不会因 Worker 健康探针失败卡住数分钟。
 - [ ] 打开 Dashboard，确认已有 SQLite 缓存可在约 5 秒内显示或进入可用空状态；同步在后台释放，任务事件监听延迟 60 秒。
 - [ ] 修改一款游戏的安装路径/平台描述后再次同步，确认旧匹配被清理并重新排队；不变游戏不会反复更新 `updated_utc`。
@@ -11,10 +19,10 @@
 
 ### GSC-013 旧版崩溃与 Worker 超时回归（0.6.38）
 
-- [ ] 任何日志出现 `Wpf.Ui.Controls.Button`、`GscSoftShadowColor`、`ContentDialogHost` 或只读 DTO TwoWay 绑定错误时，停止功能测试，确认安装目录已被新 PEXT 完整替换并检查程序集版本 `0.6.38.0`。
+- [ ] 任何日志出现 `Wpf.Ui.Controls.Button`、`GscSoftShadowColor`、`ContentDialogHost` 或只读 DTO TwoWay 绑定错误时，停止功能测试，确认安装目录已被新 PEXT 完整替换并检查程序集版本 `0.6.39.0`。
 - [ ] 人为阻止 Worker 管道创建，确认 Dashboard 首次打开不会等待超过 5 秒缓存请求，Worker 启动失败在真实 30 秒内返回明确状态，不出现 4–5 分钟无响应。
 
-源码/自动化当前基线：Core 13、Worker 23、Playnite UI 89，共 125 项 Release 测试；真实 Playnite 主题、DPI、键盘和大库回归仍须在具备独立数据根及 PID 边界的环境执行。
+源码/自动化当前基线：Core 13、Worker 23、Playnite UI 91，共 127 项 Release 测试；真实 Playnite 主题、DPI、键盘和大库回归仍须在具备独立数据根及 PID 边界的环境执行。
 
 ## 0.6.37 大型游戏库、Worker 单实例与主题令牌最终 UI 回归
 

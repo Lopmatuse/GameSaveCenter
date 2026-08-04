@@ -252,15 +252,15 @@ namespace GameSaveCenter.Playnite.Views
             // window. DynamicResource consumers resize together, while DataGrid keeps its own
             // internal scroll channel for the rows that no longer fit.
             var tableMinHeight = height < 650
-                ? 220d
+                ? 300d
                 : height < 760
-                    ? 300d
-                    : 360d;
+                    ? 360d
+                    : 420d;
             Resources["GscTableMinHeight"] = tableMinHeight;
             // Keep a finite, generous viewport so each table shows a useful batch of rows
             // without allowing a DataGrid to consume the entire page measure. The outer page
             // ScrollViewer remains responsible for reaching action/inspector sections below it.
-            var tableViewportHeight = Math.Max(360d, Math.Min(640d, height * (height < 700 ? 0.62 : 0.76)));
+            var tableViewportHeight = Math.Max(420d, Math.Min(720d, height * (height < 700 ? 0.70 : 0.84)));
             Resources["GscTableViewportHeight"] = tableViewportHeight;
             foreach (var workspaceView in GetWorkspaceViews())
             {
@@ -368,7 +368,12 @@ namespace GameSaveCenter.Playnite.Views
                 ? new Thickness(0, workspaceTopGap, 0, 0)
                 : new Thickness(0);
 
-            PageSubtitleText.Visibility = height >= 760 ? Visibility.Visible : Visibility.Collapsed;
+            // The page-level workspace ScrollViewer is the overflow channel. Keep the
+            // contextual subtitle available at every height instead of silently removing
+            // information when a user resizes a window or uses a high-DPI display.
+            var comfortableHeight = height >= 760;
+            PageSubtitleText.Visibility = Visibility.Visible;
+            PageSubtitleText.Opacity = comfortableHeight ? 1d : 0.92d;
             if (OverviewWorkspaceView != null)
             {
                 var stackOverview = width < 1180;
@@ -380,7 +385,9 @@ namespace GameSaveCenter.Playnite.Views
 
             if (SelectedGameMetricPanel != null)
             {
-                SelectedGameMetricPanel.Visibility = width >= 1180 ? Visibility.Visible : Visibility.Collapsed;
+                // Metrics are part of the current-game context and remain reachable in every
+                // layout mode. The surrounding page scrolls rather than dropping the panel.
+                SelectedGameMetricPanel.Visibility = Visibility.Visible;
                 GameHeaderActions.Margin = width >= 1180
                     ? new Thickness(62, 12, 0, 0)
                     : new Thickness(0, 12, 0, 0);

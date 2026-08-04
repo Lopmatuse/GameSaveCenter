@@ -1,9 +1,9 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.38
+  - Version: 0.6.39
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-08-05
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.38/GameSaveCenter-0.6.38.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.39/GameSaveCenter-0.6.39.pext
     Changelog:
       - 900+ 游戏库在未打开 GameSaveCenter 前不再自动提交整库匹配；打开面板后才释放同步闸门，持久化缓存仍可立即使用。
       - 可独立关闭 Steam、Xbox Game Bar、Windows 截图、游戏相邻目录和自定义媒体来源扫描。
@@ -13,6 +13,7 @@ Packages:
       - 修复后台任务刷新跨线程访问 WPF 控件导致的 Playnite 崩溃。
       - View 属性变更先切回 Dispatcher，再读取任何 WPF 状态。
       - 自动刷新与初始化同步均改用可观察的 Task 流程。
+      - 0.6.39：统一 Settings 与侧栏的页面级滚动资源；低高度下保留页面摘要而由外层滚动承载溢出；提高表格有限视口，普通窗口一次可见更多行；保持所有主题、圆角控件、虚拟化和动态资源契约。
       - 0.6.38：大型库同步只持久化变化的游戏描述；描述输入变化会清理过期匹配并可靠重试；Worker 冷启动使用真实 30 秒墙钟截止，Dashboard 首次缓存读取采用 5 秒快速超时，任务事件连接延迟并安全取消，降低 900+ 游戏 Playnite 卡顿和崩溃风险。
       - 900+ 游戏库同步先持久化并立即可用，大批量 Ludusavi 匹配改为后台分批处理；大型库启动先让 Playnite 空闲 25 秒再开始匹配，Worker 忙碌时 Playnite 通知轮询指数退避。
       - Dashboard 和 Settings 构造异常时返回隔离诊断视图，避免单次 XAML 资源回归让 Playnite 弹出扩展崩溃窗口。

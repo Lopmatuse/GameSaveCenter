@@ -81,16 +81,17 @@
     <!-- Shared table geometry. Each workspace keeps its DataGrid in a finite Grid row, while
          these tokens provide one readable density across light, dark and host themes. -->
     <sys:Double x:Key="GscTableRowHeight">54</sys:Double>
-    <!-- A readable table should expose roughly five or six rows at normal window sizes.
-         Short hosts still get an internal DataGrid scrollbar; they should not collapse the
-         table to the two-row strip that the old 280-DIP token produced. -->
-    <sys:Double x:Key="GscTableMinHeight">360</sys:Double>
+    <!-- A readable table should expose several rows at normal window sizes. Short hosts still
+         get an internal DataGrid scrollbar; the page-level viewer reveals lower actions. The
+         page-level ScrollViewer remains the
+         overflow channel, so a taller viewport never hides the action/inspector sections. -->
+    <sys:Double x:Key="GscTableMinHeight">420</sys:Double>
     <!-- Finite viewport used by page-level scroll channels. A fixed viewport keeps
          virtualization active while the page itself can reveal the action/inspector
          sections below a table on short windows. DashboardView updates this token at
          each breakpoint so normal hosts show several readable rows without clipping. -->
-    <sys:Double x:Key="GscTableViewportHeight">520</sys:Double>
-    <sys:Double x:Key="GscListViewportHeight">520</sys:Double>
+    <sys:Double x:Key="GscTableViewportHeight">600</sys:Double>
+    <sys:Double x:Key="GscListViewportHeight">600</sys:Double>
     <sys:Double x:Key="GscTableHeaderHeight">44</sys:Double>
 
     <!-- Page-level scrolling is deliberately keyed instead of implicit.  A page owns one

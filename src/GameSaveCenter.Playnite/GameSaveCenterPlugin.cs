@@ -512,8 +512,14 @@ namespace GameSaveCenter.Playnite
             // sync will submit the snapshot once the host is idle.
             if (DateTime.UtcNow < largeLibraryStartupSyncNotBeforeUtc)
             {
-                logger.Debug($"Deferring large-library synchronization until {largeLibraryStartupSyncNotBeforeUtc:O}; {games.Count} Playnite games were captured.");
-                return;
+                var quietDelay = largeLibraryStartupSyncNotBeforeUtc - DateTime.UtcNow;
+                logger.Debug($"Deferring large-library synchronization until {largeLibraryStartupSyncNotBeforeUtc:O}; waiting {quietDelay.TotalSeconds:F1}s for Playnite to become idle ({games.Count} games captured).");
+                // Do not simply return here. An empty-cache Dashboard intentionally releases
+                // its first sync after 10 seconds, which can still fall inside the host's
+                // 25-second startup quiet window. Waiting inside the coalesced background task
+                // guarantees that first-run libraries eventually synchronize without requiring
+                // another Playnite library event, while never blocking the UI thread.
+                await Task.Delay(quietDelay, lifetimeCancellation.Token).ConfigureAwait(false);
             }
 
             // Avoid even starting Worker/IPC work for duplicate Playnite library events.  The

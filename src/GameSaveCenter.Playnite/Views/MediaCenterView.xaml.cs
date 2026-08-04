@@ -22,7 +22,9 @@ namespace GameSaveCenter.Playnite.Views
             // finite scroll channel at low heights so the media table above remains reachable.
             MediaInspectorScrollViewer.MaxHeight = Math.Max(190, Math.Min(300, height * 0.42));
             MediaSummaryPanel.Columns = width >= 1180 ? 4 : width >= 820 ? 2 : 1;
-            MediaSummaryPanel.Visibility = height >= 660 ? Visibility.Visible : Visibility.Collapsed;
+            // Do not discard summary information at short heights. MediaPageScrollViewer is
+            // the intended overflow channel and keeps the summary reachable without clipping.
+            MediaSummaryPanel.Visibility = Visibility.Visible;
             MediaSourceFields.Columns = width >= 820 ? 2 : 1;
             var stack = width < 1180;
             Grid.SetColumnSpan(MediaPreviewPanel, stack ? 2 : 1);
