@@ -9,6 +9,7 @@ namespace GameSaveCenter.Playnite.Views
         public MediaCenterView() => InitializeComponent();
 
         public UniformGrid MediaSummaryPanelElement => MediaSummaryPanel;
+        public UniformGrid MediaSourceFieldsElement => MediaSourceFields;
         public Border MediaInspectorPanelElement => MediaInspectorPanel;
         public Border MediaPreviewPanelElement => MediaPreviewPanel;
         public StackPanel MediaMetadataPanelElement => MediaMetadataPanel;
@@ -17,6 +18,7 @@ namespace GameSaveCenter.Playnite.Views
         {
             MediaSummaryPanel.Columns = width >= 1180 ? 4 : width >= 820 ? 2 : 1;
             MediaSummaryPanel.Visibility = height >= 660 ? Visibility.Visible : Visibility.Collapsed;
+            MediaSourceFields.Columns = width >= 820 ? 2 : 1;
             var stack = width < 1180;
             Grid.SetColumnSpan(MediaPreviewPanel, stack ? 2 : 1);
             MediaPreviewPanel.Margin = stack ? new Thickness(0, 0, 0, 12) : new Thickness(0, 0, 12, 0);

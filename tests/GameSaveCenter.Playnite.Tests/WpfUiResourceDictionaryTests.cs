@@ -408,6 +408,44 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void ExtractedWorkspacesRetainTheLessObviousOperationalEntrypoints()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var media = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml"));
+        var maintenance = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml"));
+        var trainer = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml"));
+        var trainerCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml.cs"));
+        var taskCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TaskCenterView.xaml.cs"));
+        var overview = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml"));
+        var saves = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "SaveCenterView.xaml"));
+        var workspaceCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("MediaVideoSourceConverter", media);
+        Assert.Contains("UpdateMediaMetadataCommand", media);
+        Assert.Contains("ReassignMediaCommand", media);
+        Assert.Contains("FavoriteSelectedMediaCommand", media);
+        Assert.Contains("AddMediaSourceCommand", media);
+        Assert.Contains("UpdateMediaSourceCommand", media);
+        Assert.Contains("DeleteMediaSourceCommand", media);
+        Assert.Contains("StageRemoteBackupCommand", maintenance);
+        Assert.Contains("RestoreStagedRemoteBackupCommand", maintenance);
+        Assert.Contains("HasPendingGameToolEntrySelection", trainer);
+        Assert.Contains("ConfirmGameToolImportCommand", trainer);
+        Assert.Contains("SelectedGameToolVersion", trainer);
+        Assert.Contains("RequiresAdmin", trainer);
+        Assert.Contains("TrainerCatalogLayout.RowDefinitions", trainerCode);
+        Assert.Contains("TaskSummaryPanel.Columns", taskCode);
+        Assert.Contains("TaskWorkspaceView.ApplyResponsiveLayout(width, height)", workspaceCode);
+        foreach (var view in new[] { overview, saves, trainer, media, maintenance })
+        {
+            Assert.DoesNotContain("Background=\"#", view);
+            Assert.DoesNotContain("Foreground=\"#", view);
+            Assert.Contains("DynamicResource Gsc", view);
+        }
+        Assert.DoesNotContain("BlurEffect", media + maintenance + trainer);
+    }
+
+    [Fact]
     public void MaintenanceWorkspaceReflowsHealthCardsAndMappingEditor()
     {
         var repositoryRoot = FindRepositoryRoot();
@@ -680,7 +718,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Name=\"TaskWorkspaceTab\"", dashboard);
         Assert.Contains("<views:TaskCenterView x:Name=\"TaskWorkspaceView\"/>", dashboard);
         Assert.Contains("SetVisibility(TaskTab, false);", dashboardCode);
-        Assert.Contains("TaskWorkspaceView.TaskSummaryPanelElement.Columns", dashboardCode);
+        Assert.Contains("TaskWorkspaceView.ApplyResponsiveLayout(width, height)", dashboardCode);
         Assert.Contains("TaskWorkspaceView.TaskDetailCardElement", dashboardCode);
         Assert.DoesNotContain("GamePicker", File.ReadAllText(taskPath));
 
@@ -918,10 +956,13 @@ public sealed class WpfUiResourceDictionaryTests
     {
         var repositoryRoot = FindRepositoryRoot();
         var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var viewModelCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "ViewModels", "DashboardViewModel.cs"));
 
         Assert.Contains("private bool viewModelSubscribed;", dashboardCode);
         Assert.Contains("SubscribeViewModel();", dashboardCode);
         Assert.Contains("UnsubscribeViewModel();", dashboardCode);
+        Assert.Contains("gamePickerPersistenceCancellation = null;", viewModelCode);
+        Assert.Contains("persistence.Dispose();", viewModelCode);
         Assert.Contains("private void SubscribeViewModel()", dashboardCode);
         Assert.Contains("private void UnsubscribeViewModel()", dashboardCode);
         Assert.Contains("viewModel.PropertyChanged -= OnViewModelPropertyChanged;", dashboardCode);

@@ -3,6 +3,13 @@
 更新时间：2026-08-04
 当前版本：`0.6.22-development-preview`
 
+### 2026-08-04 六工作区功能入口补齐
+
+- `MediaCenterView` 不再只是媒体列表：可预览截图/录像、编辑备注/收藏、批量收藏/应用备注、重新归类，并可新增、启停、移除媒体来源。
+- `TrainerCenterView` 必须保留多 EXE 导入确认、活动版本选择、管理员权限、启动延迟和退出后关闭；新导入仍默认关闭自动启动。
+- `MaintenanceView` 的设备状态必须提供摘要、人工决策和受保护远端恢复的“下载并校验 / 创建快照并恢复”两步入口，不能因物理拆分而退化为只读表格。
+- 新页面的响应式布局由代码后置统一协调：FLiNG 搜索结果/版本在 980 DIP 以下上下堆叠，任务摘要在低高度收起；不动画 Width/Height/Margin/GridLength。
+
 ### 2026-08-04 六工作区物理入口收口
 
 - `OverviewWorkspaceTab`、`SaveWorkspaceTab`、`TrainerWorkspaceTab`、`MediaWorkspaceTab`、`TaskWorkspaceTab`、`MaintenanceWorkspaceTab` 是当前唯一可见工作区入口；旧 Dashboard Tab 只能保持隐藏迁移回退，不能恢复为可见副本。

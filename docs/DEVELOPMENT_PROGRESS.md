@@ -3,12 +3,21 @@
 更新时间：2026-08-04
 当前版本：`0.6.22-development-preview`
 
+## 2026-08-04 UI-049 抽取工作区功能入口补齐
+
+- [x] 媒体中心补回视频预览、单项备注/收藏保存、重新归类、批量收藏/备注、来源目录新增/启停/移除等真实命令入口；预览使用现有 `MediaVideoSourceConverter`，未给媒体列表增加 BlurEffect。
+- [x] 修改器中心补回多 EXE 导入确认、活动版本选择、管理员权限、启动延迟和退出后关闭设置；FLiNG 目录仍使用本地缓存、后台任务和真实下载命令。
+- [x] 维护中心补回设备摘要、人工决策和受保护远端恢复的下载校验/创建快照恢复入口；任务中心、修改器目录在窄宽度下切换为单列。
+- [x] 新增入口保留 DynamicResource、长文本 Tooltip、DataGrid/ListBox 虚拟化与 Recycling；新增结构门禁并完成 STA 构造回归。
+- [x] 源码校验、Release 测试和 Release 构建通过；当前为 Core 13 + Worker 21 + Playnite UI 65 = 99 项测试。
+- [ ] Playnite 宿主渲染、真实主题、1000 游戏库、125%/150% DPI、键盘和反复卸载回归仍未在当前环境运行。
+
 ## 2026-08-04 UI-045/046/047/048 六工作区收口
 
 - [x] 新增 `MediaCenterView`、`MaintenanceView`、`SaveCenterView`、`TrainerCenterView` 四个真实 WPF UserControl；媒体待归类/媒体库/来源规则、维护诊断/设备/审计/进程映射、存档历史/候选路径/策略、修改器已安装/FLiNG 在线库均使用现有 Dashboard DataContext 和真实命令。
 - [x] Dashboard 现在为六个工作区提供唯一可见的物理入口：Overview、Save、Trainer、Media、Task、Maintenance；旧 SaveHistory、Candidate、Trainer、Media、Diagnostic、DeviceStatus、Logs 和 Task 标签均隐藏为迁移回退，避免重复渲染。
 - [x] 新工作区保留 DataGrid/ListBox 虚拟化与 Recycling、长文本省略和 Tooltip、共享 DynamicResource；普通内容保持近不透明，未向列表行和大型滚动区域添加 BlurEffect。
-- [x] 新增四工作区资源/命令/虚拟化门禁测试与 STA 构造回归；源码校验、Release 构建通过；当前为 Core 13 + Worker 21 + Playnite UI 64 = 98 项测试。
+- [x] 新增四工作区资源/命令/虚拟化门禁测试与 STA 构造回归；源码校验、Release 构建通过；当前为 Core 13 + Worker 21 + Playnite UI 65 = 99 项测试。
 - [ ] Playnite 宿主渲染、真实主题、1000 游戏库、125%/150% DPI、键盘和反复卸载回归仍未在当前环境运行；不能据此宣称宿主 UI 完成。
 
 ## 2026-08-04 UI-043 首页工作区物理拆分

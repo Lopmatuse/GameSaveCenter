@@ -343,10 +343,9 @@ namespace GameSaveCenter.Playnite.Views
                 MediaWorkspaceView.ApplyResponsiveLayout(width, height);
             }
 
-            if (TaskSummaryPanel != null)
+            if (TaskWorkspaceView != null)
             {
-                TaskWorkspaceView.TaskSummaryPanelElement.Columns = width >= 1120 ? 3 : 1;
-                TaskWorkspaceView.TaskSummaryPanelElement.Visibility = height >= 720 ? Visibility.Visible : Visibility.Collapsed;
+                TaskWorkspaceView.ApplyResponsiveLayout(width, height);
             }
 
             if (DiagnosticHealthPanel != null)

@@ -581,7 +581,11 @@ namespace GameSaveCenter.Playnite.ViewModels
         public void CancelDeferredUiWork()
         {
             gamePicker.CancelPendingRefresh();
-            gamePickerPersistenceCancellation?.Cancel();
+            var persistence = gamePickerPersistenceCancellation;
+            gamePickerPersistenceCancellation = null;
+            if (persistence == null) return;
+            try { persistence.Cancel(); }
+            finally { persistence.Dispose(); }
         }
 
         private async Task ApplyTaskEventAsync(TaskChangeEventDto change)
