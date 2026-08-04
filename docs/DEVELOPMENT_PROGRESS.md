@@ -1,7 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.40-development-preview`
+当前版本：`0.6.41-development-preview`
+
+- [x] 0.6.41：禁用的上下文操作保留在布局中并使用 0.48 透明度，避免状态变化隐藏按钮和布局跳动；新增共享样式门禁。Core 13、Worker 23、Playnite 93，共 129 项 Release 自动测试通过；Release 构建与源码校验通过，真实 Playnite 渲染仍待 Windows 回归。
 
 - [x] 0.6.40：低高度下保留设置说明、保存提示与存档安全提示；安全兜底视图改用系统主题资源，避免错误页面固定为黑底白字；新增对应门禁测试。Core 13、Worker 23、Playnite 92，共 128 项 Release 自动测试通过；Release 构建 0 错误（仅 NuGet 漏洞源不可达警告），真实 Playnite 渲染仍待 Windows 回归。
 

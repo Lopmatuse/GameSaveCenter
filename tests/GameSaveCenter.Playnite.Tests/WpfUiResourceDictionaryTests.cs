@@ -584,6 +584,18 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void ContextActionsRemainInLayoutWhenDisabled()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var production = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "WpfUiProduction.xaml"));
+        var contextStyleStart = production.IndexOf("x:Key=\"GscWpfUiContextButton\"", StringComparison.Ordinal);
+        Assert.True(contextStyleStart >= 0);
+        var contextStyle = production.Substring(contextStyleStart, Math.Min(900, production.Length - contextStyleStart));
+        Assert.Contains("<Setter Property=\"Opacity\" Value=\"0.48\"/>", contextStyle);
+        Assert.DoesNotContain("<Setter Property=\"Visibility\" Value=\"Collapsed\"/>", contextStyle);
+    }
+
+    [Fact]
     public void DiagnosticExpanderUsesSharedRoundedThemeAndKeepsLongContentScrollable()
     {
         var repositoryRoot = FindRepositoryRoot();

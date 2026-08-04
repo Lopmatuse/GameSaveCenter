@@ -980,7 +980,7 @@ def check_shared_wpf_control_guards() -> None:
                   "BasedOn=\"{StaticResource {x:Type ui:Card}}\"",
                   "<Setter Property=\"Border.CornerRadius\" Value=\"18\"/>",
                   "<Trigger Property=\"IsEnabled\" Value=\"False\">",
-                  "<Setter Property=\"Visibility\" Value=\"Collapsed\"/>"):
+                  "<Setter Property=\"Opacity\" Value=\"0.48\"/>"):
         if token not in production:
             fail(f"Shared WPF-UI production adapter guard missing: {token}")
     if 'ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiBase.xaml"' not in production:

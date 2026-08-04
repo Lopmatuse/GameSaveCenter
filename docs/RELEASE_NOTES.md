@@ -1,3 +1,9 @@
+# 0.6.41 Development Preview
+
+- 禁用的上下文操作仍保留在页面布局中，仅降低透明度并保持可访问的占位，不再把可用的下一步操作从视觉树中折叠掉，也避免状态变化导致列表和卡片跳动。
+- 新增共享 `GscWpfUiContextButton` 样式门禁，确保所有主题继续使用统一圆角、动态资源和 disabled 状态。
+- Core 13、Worker 23、Playnite 93，共 129 项 Release 自动测试通过；真实 Playnite、主题、DPI 和 900+ 游戏库回归仍需 Windows 环境验证。
+
 # 0.6.40 Development Preview
 
 - Core 13、Worker 23、Playnite 92，共 128 项 Release 自动测试通过；Release 构建 0 错误（仅 NuGet 漏洞源不可达警告）。

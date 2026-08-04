@@ -1,7 +1,12 @@
 # 功能完成度评估
 
 更新时间：2026-08-05
-评估版本：`0.6.40-development-preview`
+评估版本：`0.6.41-development-preview`
+
+## 0.6.41 当前证据（2026-08-05）
+
+- 共享上下文操作的 disabled 状态不再设置 `Visibility=Collapsed`，而是保留在布局中并使用动态主题透明度；对应门禁测试已加入。
+- 自动化证据为：Core 13、Worker 23、Playnite 93，共 129 项 Release 测试通过；源码校验通过。真实 Playnite、主题、DPI 和 900+ 游戏库回归仍待 Windows 环境验证。
 
 ## 0.6.40 当前证据（2026-08-05）
 

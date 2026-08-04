@@ -462,9 +462,12 @@
            TargetType="{x:Type ui:Button}"
            BasedOn="{StaticResource GscWpfUiCompactButton}">
         <Setter Property="Margin" Value="0,0,8,8"/>
+        <!-- Keep unavailable contextual actions in the layout. Collapsing them made a
+             row jump when selection changed and hid the existence of a safe next step;
+             the shared button template already exposes a readable disabled state. -->
         <Style.Triggers>
             <Trigger Property="IsEnabled" Value="False">
-                <Setter Property="Visibility" Value="Collapsed"/>
+                <Setter Property="Opacity" Value="0.48"/>
             </Trigger>
         </Style.Triggers>
     </Style>
