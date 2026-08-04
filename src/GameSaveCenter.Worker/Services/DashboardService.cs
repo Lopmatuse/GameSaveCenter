@@ -29,8 +29,12 @@ public sealed class DashboardService
         var counts=await _store.GetCountsAsync(token).ConfigureAwait(false);
         var audit=await _store.GetAuditAsync(100,token).ConfigureAwait(false);
         var ludusaviVersion = await GetLudusaviVersionAsync(token).ConfigureAwait(false);
+        // The dashboard exposes WarningGames as the set of games that need attention.
+        // Keep the per-game health projection on the same threshold; otherwise a warning
+        // can increment the overview counter while the corresponding game still appears
+        // "Ready" in the picker and detail header.
         var attentionGames=findings
-            .Where(x=>x.Severity>=FindingSeverity.Error)
+            .Where(x=>x.Severity>=FindingSeverity.Warning)
             .Select(x=>x.PlayniteId)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
         var gameNames=games.ToDictionary(x=>x.Descriptor.PlayniteId,x=>x.Descriptor.Name,StringComparer.OrdinalIgnoreCase);

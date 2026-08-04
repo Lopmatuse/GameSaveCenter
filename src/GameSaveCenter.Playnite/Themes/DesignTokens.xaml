@@ -106,6 +106,9 @@
         <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
         <Setter Property="CanContentScroll" Value="False"/>
         <Setter Property="PanningMode" Value="VerticalOnly"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Top"/>
+        <Setter Property="Padding" Value="0,0,8,18"/>
         <Setter Property="Focusable" Value="False"/>
         <Setter Property="KeyboardNavigation.TabNavigation" Value="Local"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>

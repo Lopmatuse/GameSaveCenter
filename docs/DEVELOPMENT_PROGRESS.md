@@ -1,7 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.49-development-preview`
+当前版本：`0.6.50-development-preview`
+
+- [x] 0.6.50：统一 Dashboard 的 Warning 关注阈值与游戏健康状态，概览新增运行中/需关注指标，公共页面滚动资源增加内容拉伸和底部留白；已完成源码门禁，仍需 Windows/Playnite 真机验证。
 
 - [x] 0.6.49：为稳定 Worker 管道增加版本握手；新插件不再复用旧版健康但不兼容的 Worker，响应版本不匹配时会安全替换，当前版本 Worker 忙碌且 Ping 超时时仍保留进程。源码校验、自动测试、Release 构建和打包已完成；仍需 Windows/Playnite 真机验证。
 

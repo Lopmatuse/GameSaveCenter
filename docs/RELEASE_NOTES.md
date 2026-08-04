@@ -1,3 +1,12 @@
+# 0.6.50 Development Preview
+
+## Overview attention consistency and shared page spacing
+
+- The per-game health projection now uses the same Warning threshold as the overview attention count, so warning findings are discoverable in the game context instead of appearing as Ready.
+- The overview now exposes running-game and attention-game counters alongside managed, matched, cloud, and media metrics.
+- Shared page ScrollViewer resources stretch content and reserve bottom breathing room without enabling horizontal page scrolling.
+- Source validation, automated tests, Release build and packaging still require Windows/Playnite host verification before claiming the UI is complete.
+
 # 0.6.49 Development Preview
 
 ## Worker version handshake and stale-process recovery

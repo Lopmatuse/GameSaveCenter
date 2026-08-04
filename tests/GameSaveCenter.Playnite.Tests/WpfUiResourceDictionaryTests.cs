@@ -977,6 +977,34 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void OverviewShowsTheSameAttentionAndRuntimeCountersReturnedByTheSnapshot()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var overview = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml"));
+        var dashboardService = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Worker", "Services", "DashboardService.cs"));
+
+        // The overview must make the two states that are otherwise easy to miss visible:
+        // active games and games requiring attention. Keep these bindings OneWay so a
+        // read-only snapshot cannot accidentally be written back from a template.
+        Assert.Contains("Text=\"{Binding Snapshot.RunningGames, Mode=OneWay}\"", overview);
+        Assert.Contains("Text=\"{Binding Snapshot.WarningGames, Mode=OneWay}\"", overview);
+        Assert.Contains(".Where(x=>x.Severity>=FindingSeverity.Warning)", dashboardService);
+        Assert.Contains("WarningGames=findings.Where(x=>x.Severity>=FindingSeverity.Warning)", dashboardService);
+    }
+
+    [Fact]
+    public void SharedPageScrollViewerStretchesContentAndLeavesBottomBreathingRoom()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var designTokens = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "DesignTokens.xaml"));
+
+        Assert.Contains("x:Key=\"GscPageScrollViewer\"", designTokens);
+        Assert.Contains("<Setter Property=\"HorizontalContentAlignment\" Value=\"Stretch\"/>", designTokens);
+        Assert.Contains("<Setter Property=\"VerticalContentAlignment\" Value=\"Top\"/>", designTokens);
+        Assert.Contains("<Setter Property=\"Padding\" Value=\"0,0,8,18\"/>", designTokens);
+    }
+
+    [Fact]
     public void OptionalWpfUiProbeKeepsItsChecklistInsideAFixedGridRow()
     {
         var repositoryRoot = FindRepositoryRoot();
