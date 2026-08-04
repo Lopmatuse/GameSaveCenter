@@ -164,7 +164,12 @@ namespace GameSaveCenter.Playnite.ViewModels
             SearchTrainerCatalogCommand = new RelayCommand(_ => Run(SearchTrainerCatalogAsync), _ => !IsBusy);
             LoadTrainerReleasesCommand = new RelayCommand(_ => Run(LoadTrainerReleasesAsync), _ => !IsBusy && SelectedTrainerCatalogItem != null);
             DownloadTrainerCommand = new RelayCommand(_ => Run(DownloadTrainerAsync), _ => !IsBusy && SelectedGame != null && SelectedTrainerRelease != null);
-            Run(InitializeAsync);
+            // Initial rendering is cache-first and must not pass through RunAsync: that helper
+            // waits for Worker startup before doing anything and marks the whole dashboard busy.
+            // On a large Playnite library this made opening the panel look hung even though the
+            // durable snapshot was already available.  Initialization now renders independently
+            // and lets the existing background synchronization establish the Worker connection.
+            Observe(InitializeAsync());
         }
 
         public ObservableCollection<GameStatusDto> Games { get; } = new ObservableCollection<GameStatusDto>();
@@ -625,7 +630,17 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             // Render durable SQLite state first. The library synchronization runs separately, so
             // opening the panel never waits for a large Playnite library to be rematched.
-            await RefreshCoreAsync(false);
+            try
+            {
+                await RefreshCoreAsync(false);
+            }
+            catch (Exception ex)
+            {
+                // The Worker may still be starting. Keep the shell usable and let the scheduled
+                // synchronization retry the cache read once the pipe is ready.
+                StatusMessage = "正在启动后台服务，稍后刷新本地状态…";
+                Logger.Debug(ex, "GameSaveCenter dashboard cache read deferred until Worker startup completes.");
+            }
             _ = RefreshAfterSynchronizationAsync();
         }
 

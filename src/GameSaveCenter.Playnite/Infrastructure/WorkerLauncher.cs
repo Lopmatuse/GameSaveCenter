@@ -37,6 +37,11 @@ namespace GameSaveCenter.Playnite.Infrastructure
 
                 var fullExecutable = Path.GetFullPath(executable);
                 var processName = Path.GetFileNameWithoutExtension(fullExecutable);
+                // A Worker can be temporarily unable to answer a two-second Ping while it is
+                // opening SQLite or yielding a large background Ludusavi batch.  Do not kill a
+                // live instance merely because that first probe timed out: doing so loses the
+                // durable request queue and creates the restart/pipe-timeout loop seen in large
+                // Playnite libraries. Give the existing process a bounded grace period first.
                 foreach (var process in Process.GetProcessesByName(processName))
                 {
                     try
@@ -45,8 +50,17 @@ namespace GameSaveCenter.Playnite.Infrastructure
                         if (!string.IsNullOrWhiteSpace(runningPath) &&
                             string.Equals(Path.GetFullPath(runningPath), fullExecutable, StringComparison.OrdinalIgnoreCase))
                         {
-                            process.Kill();
-                            process.WaitForExit(5000);
+                            var healthy = await WaitForHealthAsync(TimeSpan.FromSeconds(12)).ConfigureAwait(false);
+                            if (healthy) return;
+
+                            // Only replace a process that is still alive after the grace period.
+                            // This is intentionally the last resort for a genuinely wedged or
+                            // stale process, not the normal recovery path for a busy Worker.
+                            if (!process.HasExited)
+                            {
+                                process.Kill();
+                                process.WaitForExit(5000);
+                            }
                         }
                     }
                     catch
@@ -112,6 +126,21 @@ namespace GameSaveCenter.Playnite.Infrastructure
                 return true;
             }
             catch { return false; }
+        }
+
+        private async Task<bool> WaitForHealthAsync(TimeSpan gracePeriod)
+        {
+            var deadline = DateTime.UtcNow + gracePeriod;
+            do
+            {
+                if (await IsHealthyAsync().ConfigureAwait(false)) return true;
+                var remaining = deadline - DateTime.UtcNow;
+                if (remaining <= TimeSpan.Zero) break;
+                await Task.Delay(TimeSpan.FromMilliseconds(Math.Min(500, remaining.TotalMilliseconds))).ConfigureAwait(false);
+            }
+            while (DateTime.UtcNow < deadline);
+
+            return false;
         }
 
         private static void AppendLog(string path, string? message)

@@ -30,6 +30,7 @@ namespace GameSaveCenter.Playnite
         private readonly WorkerLauncher launcher;
         private readonly PlayniteGameAdapter adapter;
         private readonly SemaphoreSlim synchronizationGate = new SemaphoreSlim(1, 1);
+        private readonly object synchronizationRequestGate = new object();
         private readonly SemaphoreSlim taskNotificationPollGate = new SemaphoreSlim(1, 1);
         private readonly ConcurrentDictionary<string, byte> notifiedTaskIds = new ConcurrentDictionary<string, byte>(StringComparer.OrdinalIgnoreCase);
         private Timer? taskNotificationTimer;
@@ -43,6 +44,8 @@ namespace GameSaveCenter.Playnite
         private DateTime lastLibrarySynchronizationUtc = DateTime.MinValue;
         private readonly CancellationTokenSource lifetimeCancellation = new CancellationTokenSource();
         private DateTime largeLibraryStartupSyncNotBeforeUtc = DateTime.MinValue;
+        private Task? synchronizationTask;
+        private bool synchronizationRequested;
 
         public GameSaveCenterPlugin(IPlayniteAPI api) : base(api)
         {
@@ -358,7 +361,39 @@ namespace GameSaveCenter.Playnite
 
         private async Task ApplySettingsCoreAsync() => await RequestAsync<object>(MessageTypes.UpdateSettings, Settings.ToWorkerSettings());
 
-        public async Task SynchronizeAsync()
+        public Task SynchronizeAsync()
+        {
+            lock (synchronizationRequestGate)
+            {
+                synchronizationRequested = true;
+                if (synchronizationTask == null || synchronizationTask.IsCompleted)
+                    synchronizationTask = SynchronizeLoopAsync();
+                return synchronizationTask;
+            }
+        }
+
+        private async Task SynchronizeLoopAsync()
+        {
+            while (true)
+            {
+                lock (synchronizationRequestGate) synchronizationRequested = false;
+
+                // Playnite can raise several library callbacks while one importer is still
+                // publishing games. Coalesce that burst before taking the expensive snapshot
+                // and fingerprint; one request is enough for the final library state.
+                await Task.Delay(TimeSpan.FromMilliseconds(180), lifetimeCancellation.Token).ConfigureAwait(false);
+                await SynchronizeOnceAsync().ConfigureAwait(false);
+
+                lock (synchronizationRequestGate)
+                {
+                    if (synchronizationRequested) continue;
+                    synchronizationTask = null;
+                    return;
+                }
+            }
+        }
+
+        private async Task SynchronizeOnceAsync()
         {
             // Playnite's database is captured before asynchronous continuations leave the UI context.
             var games = PlayniteApi.Database.Games.Select(adapter.Convert).ToList();

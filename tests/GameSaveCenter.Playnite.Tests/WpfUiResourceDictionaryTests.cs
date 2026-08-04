@@ -1214,9 +1214,25 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("private async Task PollTaskNotificationsAsync()", pluginCode);
         Assert.Contains("private async Task StartWorkerAndScheduleSynchronizationAsync()", pluginCode);
         Assert.Contains("largeLibraryStartupSyncNotBeforeUtc", pluginCode);
+        Assert.Contains("private async Task SynchronizeLoopAsync()", pluginCode);
+        Assert.Contains("TimeSpan.FromMilliseconds(180)", pluginCode);
+        Assert.Contains("synchronizationRequested", pluginCode);
         Assert.Contains("TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(2)", pluginCode);
         Assert.Contains("TaskContinuationOptions.OnlyOnFaulted", pluginCode);
         Assert.Contains("failed to present a background operation error", pluginCode);
+    }
+
+    [Fact]
+    public void LargeLibraryStartupRendersCacheWithoutKillingBusyWorker()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var viewModelCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "ViewModels", "DashboardViewModel.cs"));
+        var launcherCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Infrastructure", "WorkerLauncher.cs"));
+
+        Assert.Contains("Observe(InitializeAsync())", viewModelCode);
+        Assert.DoesNotContain("Run(InitializeAsync)", viewModelCode);
+        Assert.Contains("WaitForHealthAsync(TimeSpan.FromSeconds(12))", launcherCode);
+        Assert.Contains("WaitForHealthAsync", launcherCode);
     }
 
     [Fact]

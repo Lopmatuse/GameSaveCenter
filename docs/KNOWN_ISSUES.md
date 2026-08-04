@@ -1,7 +1,9 @@
 # 已知缺陷与回归状态
 
-更新时间：2026-08-01
-目标版本：`0.6.26-development-preview`
+更新时间：2026-08-05
+目标版本：`0.6.27-development-preview`
+
+0.6.27 新增启动稳定性回归：Worker 在忙碌时必须先等待恢复，Dashboard 首屏必须优先使用持久化缓存；真实 Playnite 验证仍未在本环境执行。
 
 本文档是持续缺陷台账。任何修复必须同步更新 `DEVELOPMENT_PROGRESS.md` 与 `PROJECT_MEMORY.md`。
 
