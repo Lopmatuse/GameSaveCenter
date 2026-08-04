@@ -1260,6 +1260,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("resources[\"GscWarningBrush\"]", palette);
         Assert.Contains("resources[\"GscErrorBrush\"]", palette);
         Assert.Contains("resources[\"GscTableAlternateRowBrush\"]", palette);
+        Assert.Contains("resources[\"GscScrollThumbHoverBrush\"] = Brush(WithAlpha(palette.AccentHover", palette);
+        Assert.DoesNotContain("Color.FromArgb(166, 124, 92, 252)", palette);
         Assert.Contains("SystemParameters.HighContrast ? (byte)0", palette);
         Assert.Contains("ApplyRuntimeThemeResources(Resources, palette", dashboardCode);
         Assert.Contains("ApplyRuntimeThemeResources(workspaceView.Resources, palette", dashboardCode);

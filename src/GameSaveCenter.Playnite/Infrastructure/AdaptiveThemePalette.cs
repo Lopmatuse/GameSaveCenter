@@ -310,7 +310,9 @@ namespace GameSaveCenter.Playnite.Infrastructure
                 palette.IsDark ? (byte)28 : (byte)20, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
             resources["GscScrollThumbBrush"] = Brush(Color.FromArgb(
                 palette.IsDark ? (byte)88 : (byte)68, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
-            resources["GscScrollThumbHoverBrush"] = Brush(Color.FromArgb(166, 124, 92, 252));
+            // Scrollbar hover must follow the active Playnite accent (blue, purple, or a
+            // custom high-contrast highlight) instead of retaining the old purple fallback.
+            resources["GscScrollThumbHoverBrush"] = Brush(WithAlpha(palette.AccentHover, palette.IsDark ? 0.78 : 0.66));
             resources["GscOverlayBrush"] = Brush(Color.FromArgb(
                 palette.IsDark ? (byte)138 : (byte)72, 0, 0, 0));
             WpfUiThemeScope.Apply(resources, palette.IsDark);

@@ -812,3 +812,6 @@ UI-077：诊断和高级设置区域不得回退到宿主默认 `Expander`。统
 UI-078：生产 `ListBox` 必须继承共享滚动契约：`CanContentScroll=True`、纵向 `Auto`、横向禁用、
 `VirtualizingPanel.IsVirtualizing=True` 与 `Recycling`。列表项模板可以局部覆盖，但不得让大列表退回
 宿主默认方形选中态或关闭虚拟化。
+
+UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，不能在调色板应用路径中保留固定紫色
+常量；主题切换和高对比度下滚动条仍需与按钮、焦点环和选中态保持同一强调色语义。
