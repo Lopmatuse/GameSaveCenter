@@ -252,6 +252,23 @@
     <!-- Shared Apple-style DataGrid chrome for extracted workspaces. The Dashboard shell has
          its own compatible local styles; keeping this implicit scope here makes Overview,
          Saves, Media, Tasks and Maintenance look identical without duplicating templates. -->
+    <!-- Keep the scrolling contract at the shared control level as well as in each workspace's
+         keyed style. This covers future tables and prevents a host/template change from
+         silently turning touchpad scrolling into page scrolling or disabling Recycling. -->
+    <Style TargetType="DataGrid">
+        <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.PanningMode" Value="VerticalOnly"/>
+        <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
+        <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
+        <Setter Property="EnableRowVirtualization" Value="True"/>
+        <Setter Property="EnableColumnVirtualization" Value="True"/>
+        <Setter Property="KeyboardNavigation.TabNavigation" Value="Local"/>
+        <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Contained"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
     <Style TargetType="DataGridColumnHeader">
         <Setter Property="Foreground" Value="{DynamicResource GscSecondaryTextBrush}"/>
         <Setter Property="Background" Value="{DynamicResource GscTableHeaderBrush}"/>

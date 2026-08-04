@@ -1149,3 +1149,8 @@
 - 首页在 Standard/Compact/Narrow 堆叠布局下，为“今日概览/风险与提醒”次级面板增加独立纵向 ScrollViewer，避免风险卡片把整个页面下方内容推出视口。
 - DataGrid 仍留在主活动面板自己的星号行和内部滚动通道中，没有用外层无限测量破坏行虚拟化。
 - 只在堆叠模式启用外层滚动；宽屏模式保持无额外滚动轨道。
+
+### UI-083：DataGrid 共享滚动与虚拟化契约
+
+- `WpfUiProduction.xaml` 新增隐式 `DataGrid` 滚动契约，统一 `CanContentScroll`、纵向触控板滚动、Auto 滚动条、局部键盘导航和 Recycling 虚拟化。
+- 工作区现有 keyed DataGrid 样式继续保留各自的圆角表头、行高、交替行和列宽设置；共享契约只补齐行为，不改变命令、编辑权限或数据绑定。

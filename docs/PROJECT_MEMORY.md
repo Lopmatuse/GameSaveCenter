@@ -827,3 +827,8 @@ UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，
 
 - `OverviewSecondaryScrollViewer` 只包住首页右侧的统计/风险内容，不得包住最近活动 DataGrid。
 - `ApplyResponsiveHeight` 在堆叠模式设置有限 `MaxHeight` 与 `VerticalScrollBarVisibility=Auto`，宽屏恢复 Disabled，避免双重无限测量。
+
+### UI-083：DataGrid 行为契约
+
+- 共享 `DataGrid` 隐式样式必须保持 `CanContentScroll=True`、`PanningMode=VerticalOnly`、纵向/横向 Auto、`TabNavigation=Local`、`DirectionalNavigation=Contained` 和 Recycling 虚拟化。
+- 工作区 keyed 样式可以覆盖视觉或只读属性，但不得关闭共享虚拟化、局部滚动或键盘导航；大表格仍必须位于有限 Grid 行内。

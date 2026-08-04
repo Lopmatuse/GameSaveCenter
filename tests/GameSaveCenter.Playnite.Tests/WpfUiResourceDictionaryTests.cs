@@ -445,6 +445,11 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("<Style TargetType=\"DataGridColumnHeader\">", production);
         Assert.Contains("<Style TargetType=\"DataGridCell\">", production);
         Assert.Contains("<Style TargetType=\"DataGridRow\">", production);
+        Assert.Contains("<Style TargetType=\"DataGrid\">", production);
+        Assert.Contains("ScrollViewer.PanningMode\" Value=\"VerticalOnly\"", production);
+        Assert.Contains("KeyboardNavigation.TabNavigation\" Value=\"Local\"", production);
+        Assert.Contains("KeyboardNavigation.DirectionalNavigation\" Value=\"Contained\"", production);
+        Assert.Contains("VirtualizingPanel.VirtualizationMode\" Value=\"Recycling\"", production);
         Assert.Contains("GscTableHeaderBrush", production);
         Assert.Contains("GscRowHoverBrush", production);
         Assert.Contains("GscAccentTintBrush", production);
