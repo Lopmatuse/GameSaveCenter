@@ -340,7 +340,7 @@ def check_dashboard_regressions() -> None:
                 fail(f"Run.Text binding must explicitly use Mode=OneWay: {path.relative_to(ROOT)}: {binding}")
     if run_binding_count == 0:
         fail("Run.Text binding guard matched no XAML; check the validator regex")
-    if 'ItemsSource="{Binding GamesView}"' not in dashboard or 'GameSearchText' not in dashboard:
+    if ('ItemsSource="{Binding GamesView}"' not in dashboard and 'ItemsSource="{Binding GamePicker.ItemsView}"' not in dashboard) or ('GameSearchText' not in dashboard and 'GamePicker.SearchText' not in dashboard):
         fail("Dashboard large-library search/filter view is missing")
     if 'ProgressBar Width="120" Height="4" IsIndeterminate="{Binding IsBusy}"' in dashboard:
         fail("Dashboard still contains the always-visible idle progress frame")
@@ -356,7 +356,7 @@ def check_dashboard_regressions() -> None:
         if token not in dashboard:
             fail(f"Dashboard design-system guard is missing: {token}")
     responsive = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml.cs").read_text(encoding="utf-8")
-    for boundary in ("width >= 1280", "width >= 980", "width >= 880", "height >= 760"):
+    for boundary in ("width >= 1260", "width >= 980", "width >= 760", "height >= 760"):
         if boundary not in responsive:
             fail(f"Unified responsive breakpoint is missing: {boundary}")
     tokens = (ROOT / "src/GameSaveCenter.Playnite/Themes/DesignTokens.xaml").read_text(encoding="utf-8")
@@ -1017,8 +1017,8 @@ def check_final_redesign_guards() -> None:
           'x:Name="TrainerSummaryPanel"', 'x:Name="MediaSummaryPanel"',
           'x:Name="TaskSummaryPanel"', 'x:Name="DiagnosticHealthPanel"')),
         (dashboard_code, "Dashboard final responsive behavior",
-         ('width >= 1280 ? LayoutMode.Expanded', 'width >= 980 ? LayoutMode.Standard',
-          'width >= 880 ? LayoutMode.Compact', 'Grid.SetRow(TopActionsScroller, 2)',
+         ('width >= 1260 ? LayoutMode.Expanded', 'width >= 980 ? LayoutMode.Standard',
+          'width >= 760 ? LayoutMode.Compact', 'Grid.SetRow(TopActionsScroller, 2)',
           'Grid.SetColumnSpan(TopActionsScroller, 2)',
           'item.Width = visible ? double.NaN : 48', 'item.Height = visible ? double.NaN : 48',
           'card.Width = expanded ? double.NaN : 48', 'card.Height = expanded ? double.NaN : 50',
@@ -1075,7 +1075,7 @@ def check_final_redesign_guards() -> None:
     game_list = next(
         (
             node for node in dashboard_root.iter()
-            if local_name(node.tag) == "ListBox" and node.attrib.get("ItemsSource") == "{Binding GamesView}"
+            if local_name(node.tag) == "ListBox" and node.attrib.get("ItemsSource") in ("{Binding GamesView}", "{Binding GamePicker.ItemsView}")
         ),
         None,
     )

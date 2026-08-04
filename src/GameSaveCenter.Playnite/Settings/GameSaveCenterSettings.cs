@@ -56,6 +56,13 @@ namespace GameSaveCenter.Playnite.Settings
         public int CompressionLevel { get; set; } = 3;
         public int FullBackupLimit { get; set; } = 3;
         public int DifferentialBackupLimit { get; set; } = 5;
+        // Lightweight global game-picker state. These values are UI preferences only;
+        // game data remains in the Worker/SQLite cache.
+        public string GamePickerSearchText { get; set; } = string.Empty;
+        public string GamePickerStatusFilter { get; set; } = "已安装";
+        public string GamePickerPlatformFilter { get; set; } = "全部";
+        public string GamePickerSortMode { get; set; } = "名称";
+        public string GamePickerSelectedGameId { get; set; } = string.Empty;
 
         public string ExportPortableJson()
         {
@@ -225,6 +232,11 @@ namespace GameSaveCenter.Playnite.Settings
             CompressionLevel = other.CompressionLevel;
             FullBackupLimit = other.FullBackupLimit;
             DifferentialBackupLimit = other.DifferentialBackupLimit;
+            GamePickerSearchText = other.GamePickerSearchText ?? string.Empty;
+            GamePickerStatusFilter = string.IsNullOrWhiteSpace(other.GamePickerStatusFilter) ? "已安装" : other.GamePickerStatusFilter;
+            GamePickerPlatformFilter = string.IsNullOrWhiteSpace(other.GamePickerPlatformFilter) ? "全部" : other.GamePickerPlatformFilter;
+            GamePickerSortMode = string.IsNullOrWhiteSpace(other.GamePickerSortMode) ? "名称" : other.GamePickerSortMode;
+            GamePickerSelectedGameId = other.GamePickerSelectedGameId ?? string.Empty;
         }
 
         private static List<string> ValidateValueRanges(GameSaveCenterSettings value)

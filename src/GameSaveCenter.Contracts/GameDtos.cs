@@ -16,6 +16,7 @@ namespace GameSaveCenter.Contracts
         public string PluginId { get; set; } = string.Empty;
         public string InstallDirectory { get; set; } = string.Empty;
         public bool IsInstalled { get; set; }
+        public DateTime? LastPlayedUtc { get; set; }
         public List<GameActionDto> Actions { get; set; } = new List<GameActionDto>();
         public List<string> KnownProcessNames { get; set; } = new List<string>();
         public List<string> Tags { get; set; } = new List<string>();
@@ -53,6 +54,9 @@ namespace GameSaveCenter.Contracts
         public string PlayniteId { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public GamePlatformKind Platform { get; set; }
+        /// <summary>Whether the game is currently installed in Playnite.</summary>
+        public bool IsInstalled { get; set; }
+        public DateTime? LastPlayedUtc { get; set; }
         public bool IsRunning { get; set; }
         public bool LudusaviMatched { get; set; }
         public string LudusaviName { get; set; } = string.Empty;

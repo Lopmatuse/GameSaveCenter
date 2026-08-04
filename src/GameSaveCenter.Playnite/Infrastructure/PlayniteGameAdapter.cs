@@ -25,6 +25,7 @@ namespace GameSaveCenter.Playnite.Infrastructure
                 PluginId = game.PluginId.ToString("D"),
                 InstallDirectory = game.InstallDirectory ?? string.Empty,
                 IsInstalled = game.IsInstalled,
+                LastPlayedUtc = game.LastActivity,
                 Tags = game.Tags == null ? new List<string>() : game.Tags.Select(x => x.Name).Where(x => !string.IsNullOrWhiteSpace(x)).ToList()
             };
 

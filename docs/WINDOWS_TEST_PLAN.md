@@ -1,6 +1,15 @@
 ## 0.6.22 主题令牌与最终 UI 回归
 
-源码/自动化当前基线：Core 13、Worker 21、Playnite UI 49，共 83 项 Release 测试；真实 Playnite 主题、DPI、键盘和大库回归仍须在具备独立数据根及 PID 边界的环境执行。
+源码/自动化当前基线：Core 13、Worker 21、Playnite UI 60，共 94 项 Release 测试；真实 Playnite 主题、DPI、键盘和大库回归仍须在具备独立数据根及 PID 边界的环境执行。
+
+## UI-042 全局游戏上下文回归
+
+- [ ] 使用 100、500、1000 款游戏验证首次打开先显示 SQLite/Worker 缓存，GamePicker 不因键盘搜索逐字符请求 Worker。
+- [ ] 验证顶部唯一 GamePicker：Expanded、Standard、Compact、Narrow 都能打开同一搜索/筛选/排序抽屉；首页不再显示重复游戏 ComboBox，任务中心和维护中心保持全局视角。
+- [ ] 验证已安装、全部、已匹配、有备份、需处理、未匹配、平台筛选和名称/最近游玩/最近备份排序；删除当前游戏或筛选为空时能回退到第一个可见游戏。
+- [ ] 连续快速输入、快速切换游戏、Esc 关闭抽屉、Tab/方向键/Enter 选择；确认旧筛选被取消且不会出现 Dispatcher 回调或绑定错误。
+- [ ] 在 1600、1280、1024、850、700 DIP 与 125%/150% DPI 下检查顶部入口、抽屉高度、虚拟化/Recycling、长名称 Tooltip、焦点环和状态摘要。
+- [ ] 首页“需要关注”卡片必须显示具体游戏、标题/原因摘要；打开维护中心后 FindingsGrid 自动滚动到首个 Warning/Attention finding。
 
 ## UI-005 全功能视觉重构与响应式最终验收
 

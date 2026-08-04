@@ -857,7 +857,7 @@
                         AutomationProperties.Name="选择当前游戏"
                         ToolTip="打开游戏搜索、状态筛选和排序">
                     <Grid MinWidth="0" Margin="2">
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions>
                         <Border Width="32" Height="32" CornerRadius="10" Background="{DynamicResource GscAccentTintBrush}" VerticalAlignment="Center">
                             <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
@@ -867,8 +867,14 @@
                                 <Run Text="{Binding SelectedGame.PlatformDisplay, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding SelectedGame.HealthStateDisplay, Mode=OneWay}"/>
                             </TextBlock>
                         </StackPanel>
-                        <TextBlock Grid.Column="2" Text="{Binding SelectedGame.CloudStateDisplay, Mode=OneWay}" FontSize="11" Foreground="{DynamicResource GscInfoBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Grid.Column="3" FontFamily="Segoe MDL2 Assets" Text="&#xE70D;" Foreground="{DynamicResource GscSecondaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                            <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource GscInfoBrush}" Margin="0,0,4,0"/>
+                            <TextBlock Text="{Binding SelectedGame.BackupVersionCount, Mode=OneWay}" FontSize="11" Foreground="{DynamicResource GscInfoBrush}"/>
+                            <TextBlock Text="&#xE91B;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource GscWarningBrush}" Margin="10,0,4,0"/>
+                            <TextBlock Text="{Binding SelectedGame.MediaCount, Mode=OneWay}" FontSize="11" Foreground="{DynamicResource GscWarningBrush}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="3" Text="{Binding SelectedGame.CloudStateDisplay, Mode=OneWay}" FontSize="11" Foreground="{DynamicResource GscInfoBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                        <TextBlock Grid.Column="4" FontFamily="Segoe MDL2 Assets" Text="&#xE70D;" Foreground="{DynamicResource GscSecondaryTextBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Grid>
                 </Button>
             </Border>
@@ -936,7 +942,7 @@
                         <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                         <TextBlock Text="游戏与状态" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1" Foreground="{DynamicResource GscMutedTextBrush}" VerticalAlignment="Center">
-                            <Run Text="{Binding FilteredGameCount, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding Snapshot.ManagedGames, Mode=OneWay}"/>
+                            <Run Text="{Binding GamePicker.FilteredCount, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding Snapshot.ManagedGames, Mode=OneWay}"/>
                         </TextBlock>
                     </Grid>
                     <Grid Grid.Row="1" Margin="0,0,0,10">
@@ -944,7 +950,7 @@
                         <Grid x:Name="SearchBoxContainer" Margin="0,0,0,8">
                             <TextBox x:Name="GameSearchTextBox"
                                      Style="{StaticResource GscWpfUiTextBox}"
-                                     Text="{Binding GameSearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     Text="{Binding GamePicker.SearchText, UpdateSourceTrigger=PropertyChanged}"
                                      ToolTip="搜索游戏名、Ludusavi 名称、平台或状态"
                                      Padding="32,7,38,7"/>
                             <TextBlock FontFamily="Segoe MDL2 Assets"
@@ -997,13 +1003,14 @@
                                 </Button.Style>
                             </Button>
                         </Grid>
-                        <UniformGrid Grid.Row="1" Columns="2">
-                            <ComboBox Style="{StaticResource GscWpfUiComboBox}" ItemsSource="{Binding GameStatusFilterOptions}" SelectedItem="{Binding GameStatusFilter}" Margin="0,0,4,0" ToolTip="状态筛选"/>
-                            <ComboBox Style="{StaticResource GscWpfUiComboBox}" ItemsSource="{Binding GameSortOptions}" SelectedItem="{Binding GameSortMode}" Margin="4,0,0,0" ToolTip="排序"/>
+                        <UniformGrid Grid.Row="1" Columns="3">
+                            <ComboBox Style="{StaticResource GscWpfUiComboBox}" ItemsSource="{Binding GamePicker.StatusFilterOptions}" SelectedItem="{Binding GamePicker.StatusFilter}" Margin="0,0,4,0" ToolTip="状态筛选"/>
+                            <ComboBox Style="{StaticResource GscWpfUiComboBox}" ItemsSource="{Binding GamePicker.PlatformFilterOptions}" SelectedItem="{Binding GamePicker.PlatformFilter}" Margin="4,0,4,0" ToolTip="平台筛选"/>
+                            <ComboBox Style="{StaticResource GscWpfUiComboBox}" ItemsSource="{Binding GamePicker.SortOptions}" SelectedItem="{Binding GamePicker.SortMode}" Margin="4,0,0,0" ToolTip="排序"/>
                         </UniformGrid>
                     </Grid>
                     <Grid Grid.Row="2">
-                    <ListBox ItemsSource="{Binding GamesView}" SelectedItem="{Binding SelectedGame}" SelectionChanged="OnGameSelectionChanged"
+                    <ListBox ItemsSource="{Binding GamePicker.ItemsView}" SelectedItem="{Binding GamePicker.SelectedItem, Mode=TwoWay}" SelectionChanged="OnGameSelectionChanged"
                              BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True">
                         <ListBox.ItemContainerStyle>
@@ -1188,11 +1195,6 @@
                                                             <Run Text="{Binding SelectedGame.PlatformDisplay, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding SelectedGame.HealthStateDisplay, Mode=OneWay}"/>
                                                         </TextBlock>
                                                     </StackPanel>
-                                                    <ComboBox x:Name="OverviewGameSelector" Grid.Column="1" Width="210" Margin="14,0,0,0"
-                                                              Style="{StaticResource GscWpfUiComboBox}" ItemsSource="{Binding GamesView}" SelectedItem="{Binding SelectedGame}"
-                                                              ToolTip="切换首页当前游戏">
-                                                        <ComboBox.ItemTemplate><DataTemplate><TextBlock Style="{StaticResource GscComboBoxLongText}" Text="{Binding Name}"/></DataTemplate></ComboBox.ItemTemplate>
-                                                    </ComboBox>
                                                 </Grid>
                                                 <UniformGrid Grid.Row="1" Columns="4" Margin="0,14,0,0">
                                                     <Border Style="{StaticResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="最新备份" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding SelectedGame.LastBackupLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}, TargetNullValue=暂无}" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
@@ -1259,7 +1261,7 @@
                                                     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE946;" Foreground="{DynamicResource GscWarningBrush}" FontSize="17"/><StackPanel Grid.Column="1"><TextBlock Text="安全恢复提示" FontWeight="SemiBold"/><TextBlock Text="恢复始终需要人工确认，并会先创建当前快照。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/></StackPanel></Grid>
                                                 </Border>
                                                 <Border Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="14" Padding="13" Margin="0,0,0,10">
-                                                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7BA;" Foreground="{DynamicResource GscWarningBrush}" FontSize="17"/><StackPanel Grid.Column="1"><TextBlock FontWeight="SemiBold"><Run Text="{Binding Snapshot.WarningGames, Mode=OneWay}"/><Run Text=" 个游戏需要关注"/></TextBlock><TextBlock Text="可在维护中心查看路径、工具和校验建议。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/></StackPanel></Grid>
+                                                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7BA;" Foreground="{DynamicResource GscWarningBrush}" FontSize="17"/><StackPanel Grid.Column="1"><TextBlock FontWeight="SemiBold"><Run Text="{Binding Snapshot.WarningGames, Mode=OneWay}"/><Run Text=" 个游戏需要关注"/></TextBlock><TextBlock Text="以下是当前缓存中的具体原因：" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/><ItemsControl ItemsSource="{Binding AttentionFindings}" Margin="0,7,0,0"><ItemsControl.ItemTemplate><DataTemplate><TextBlock TextTrimming="CharacterEllipsis" ToolTip="{Binding Detail}" Margin="0,2,0,0"><Run Text="• "/><Run Text="{Binding GameName, Mode=OneWay}" FontWeight="SemiBold"/><Run Text="："/><Run Text="{Binding Title, Mode=OneWay}"/></TextBlock></DataTemplate></ItemsControl.ItemTemplate></ItemsControl><TextBlock Text="点击“打开维护中心”查看完整详情与建议处理方式。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/></StackPanel></Grid>
                                                 </Border>
                                                 <Border Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="14" Padding="13">
                                                     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" Foreground="{DynamicResource GscInfoBrush}" FontSize="17"/><StackPanel Grid.Column="1"><TextBlock Text="云端失败不会撤销本地备份" FontWeight="SemiBold"/><TextBlock Text="本地副本始终为主副本，失败任务可在任务中心诊断和重试。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/></StackPanel></Grid>

@@ -564,18 +564,22 @@ public sealed class WpfUiResourceDictionaryTests
 
         var gameList = xaml.Descendants().SingleOrDefault(element =>
             element.Name.LocalName == "ListBox"
-            && element.Attribute("ItemsSource")?.Value == "{Binding GamesView}");
+            && element.Attribute("ItemsSource")?.Value == "{Binding GamePicker.ItemsView}");
         Assert.NotNull(gameList);
         Assert.Equal("True", gameList!.Attribute("VirtualizingPanel.IsVirtualizing")?.Value);
         Assert.Equal("Recycling", gameList.Attribute("VirtualizingPanel.VirtualizationMode")?.Value);
         Assert.Equal("True", gameList.Attribute("ScrollViewer.CanContentScroll")?.Value);
         Assert.Equal("OnGameSelectionChanged", gameList.Attribute("SelectionChanged")?.Value);
 
-        Assert.Contains("GameSearchText", dashboard);
-        Assert.Contains("GameStatusFilterOptions", dashboard);
-        Assert.Contains("GameSortOptions", dashboard);
+        Assert.Contains("GamePicker.SearchText", dashboard);
+        Assert.Contains("GamePicker.StatusFilterOptions", dashboard);
+        Assert.Contains("GamePicker.SortOptions", dashboard);
+        Assert.Contains("GamePicker.PlatformFilterOptions", dashboard);
         Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace && !showPersistentGameBrowser", dashboardCode);
         Assert.Contains("ToggleGameBrowserButton.Visibility = Visibility.Collapsed", dashboardCode);
+        Assert.DoesNotContain("x:Name=\"OverviewGameSelector\"", dashboard);
+        Assert.Equal(1, xaml.Descendants().Count(element => element.Name.LocalName == "Button" && element.Attribute(xamlName)?.Value == "CompactGameSelector"));
+        Assert.Contains("gameScopedWorkspace = viewModel.CurrentWorkspace != WorkspaceKind.Tasks", dashboardCode);
     }
 
     [Fact]
@@ -889,9 +893,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Name=\"GameSwitcherHost\"", dashboard);
         Assert.Contains("x:Name=\"CompactGameSelector\"", dashboard);
         Assert.Contains("x:Name=\"ToggleGameBrowserButton\"", dashboard);
-        Assert.Contains("width >= 1280 ? LayoutMode.Expanded", dashboardCode);
+        Assert.Contains("width >= 1260 ? LayoutMode.Expanded", dashboardCode);
         Assert.Contains("width >= 980 ? LayoutMode.Standard", dashboardCode);
-        Assert.Contains("width >= 880 ? LayoutMode.Compact", dashboardCode);
+        Assert.Contains("width >= 760 ? LayoutMode.Compact", dashboardCode);
         Assert.Contains("Grid.SetRow(TopActionsScroller, 2)", dashboardCode);
         Assert.Contains("Grid.SetColumnSpan(TopActionsScroller, 2)", dashboardCode);
         Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace && !showPersistentGameBrowser", dashboardCode);

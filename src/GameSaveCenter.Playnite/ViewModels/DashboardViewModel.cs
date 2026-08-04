@@ -24,6 +24,7 @@ namespace GameSaveCenter.Playnite.ViewModels
     {
         private static readonly ILogger Logger = LogManager.GetLogger();
         private readonly GameSaveCenterPlugin plugin;
+        private readonly GamePickerViewModel gamePicker;
         private readonly Dictionary<string, TaskState> knownTaskStates = new Dictionary<string, TaskState>(StringComparer.OrdinalIgnoreCase);
         private readonly DateTime dashboardOpenedUtc = DateTime.UtcNow;
         private bool isBusy;
@@ -32,10 +33,10 @@ namespace GameSaveCenter.Playnite.ViewModels
         private bool taskSnapshotInitialized;
         private long lastTaskEventSequence;
         private CancellationTokenSource? taskEventSubscription;
+        private CancellationTokenSource? gamePickerPersistenceCancellation;
         private Task? taskEventListener;
         private DateTime lastFullDashboardRefreshUtc=DateTime.MinValue;
         private string statusMessage = "准备就绪";
-        private GameStatusDto selectedGame = null!;
         private BackupVersionDto selectedBackup = null!;
         private DashboardSnapshotDto snapshot = new DashboardSnapshotDto();
         private SavePathCandidateDto selectedCandidate = null!;
@@ -89,6 +90,13 @@ namespace GameSaveCenter.Playnite.ViewModels
         public DashboardViewModel(GameSaveCenterPlugin plugin)
         {
             this.plugin = plugin;
+            gamePicker = new GamePickerViewModel();
+            gamePicker.ApplyPersistedState(plugin.Settings.GamePickerSearchText, plugin.Settings.GamePickerStatusFilter, plugin.Settings.GamePickerPlatformFilter, plugin.Settings.GamePickerSortMode);
+            gamePicker.StateChanged += OnGamePickerStateChanged;
+            gamePicker.PropertyChanged += OnGamePickerPropertyChanged;
+            gameSearchText = gamePicker.SearchText;
+            gameStatusFilter = gamePicker.StatusFilter;
+            gameSortMode = gamePicker.SortMode;
             GamesView = CollectionViewSource.GetDefaultView(Games);
             GamesView.Filter = FilterGame;
             TasksView = CollectionViewSource.GetDefaultView(Tasks);
@@ -156,11 +164,15 @@ namespace GameSaveCenter.Playnite.ViewModels
         }
 
         public ObservableCollection<GameStatusDto> Games { get; } = new ObservableCollection<GameStatusDto>();
+        /// <summary>Shared global picker state. The dashboard keeps the legacy bindings below for compatibility.</summary>
+        public GamePickerViewModel GamePicker => gamePicker;
         public ObservableCollection<TaskStatusDto> Tasks { get; } = new ObservableCollection<TaskStatusDto>();
         public ObservableCollection<TaskStatusDto> OverviewTasks { get; } = new ObservableCollection<TaskStatusDto>();
         public ObservableCollection<string> TaskGameFilterOptions { get; } = new ObservableCollection<string> { "全部" };
         public ObservableCollection<string> TaskTypeFilterOptions { get; } = new ObservableCollection<string> { "全部" };
         public ObservableCollection<ValidationFindingDto> Findings { get; } = new ObservableCollection<ValidationFindingDto>();
+        /// <summary>Small overview projection so a warning count always has a visible reason.</summary>
+        public ObservableCollection<ValidationFindingDto> AttentionFindings { get; } = new ObservableCollection<ValidationFindingDto>();
         public ObservableCollection<DeviceConflictStatusDto> DeviceComparisons { get; } = new ObservableCollection<DeviceConflictStatusDto>();
         public IReadOnlyList<string> DeviceDecisionOptions { get; } = new[] { "稍后处理", "保留两者", "以本机为准", "以远端为准" };
         public ObservableCollection<ProcessMappingDto> ProcessMappings { get; } = new ObservableCollection<ProcessMappingDto>();
@@ -218,6 +230,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             set
             {
                 SetValue(ref gameSearchText, value ?? string.Empty);
+                if (!string.Equals(gamePicker.SearchText, gameSearchText, StringComparison.Ordinal)) gamePicker.SearchText = gameSearchText;
                 RefreshGameView();
             }
         }
@@ -227,6 +240,8 @@ namespace GameSaveCenter.Playnite.ViewModels
             set
             {
                 SetValue(ref gameStatusFilter, string.IsNullOrWhiteSpace(value) ? "全部" : value);
+                var pickerFilter = gameStatusFilter == "全部" ? "全部" : gameStatusFilter;
+                if (!string.Equals(gamePicker.StatusFilter, pickerFilter, StringComparison.Ordinal)) gamePicker.StatusFilter = pickerFilter;
                 RefreshGameView();
             }
         }
@@ -236,6 +251,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             set
             {
                 SetValue(ref gameSortMode, string.IsNullOrWhiteSpace(value) ? "名称" : value);
+                if (!string.Equals(gamePicker.SortMode, gameSortMode, StringComparison.Ordinal)) gamePicker.SortMode = gameSortMode;
                 ApplyGameSort();
                 RefreshGameView();
             }
@@ -305,16 +321,8 @@ namespace GameSaveCenter.Playnite.ViewModels
         }
         public GameStatusDto SelectedGame
         {
-            get => selectedGame;
-            set
-            {
-                if (ReferenceEquals(selectedGame, value)) return;
-                SetValue(ref selectedGame, value);
-                RaiseCommandStates();
-                if (suppressSelectionLoad) return;
-                ClearSelectedGameDetails();
-                if (value != null && IsGameScopedWorkspace(CurrentWorkspace)) Run(() => LoadDetailsAsync());
-            }
+            get => gamePicker.SelectedGame!;
+            set => gamePicker.SelectGame(value);
         }
         public BackupVersionDto SelectedBackup
         {
@@ -559,6 +567,12 @@ namespace GameSaveCenter.Playnite.ViewModels
             taskEventListener = null;
         }
 
+        public void CancelDeferredUiWork()
+        {
+            gamePicker.CancelPendingRefresh();
+            gamePickerPersistenceCancellation?.Cancel();
+        }
+
         private async Task ApplyTaskEventAsync(TaskChangeEventDto change)
         {
             if (change == null || change.Task == null) return;
@@ -693,8 +707,10 @@ namespace GameSaveCenter.Playnite.ViewModels
                 try
                 {
                     Replace(Games, data.Games);
+                    gamePicker.SetItems(Games, selectedGameId ?? plugin.Settings.GamePickerSelectedGameId);
                     RefreshGameView(false);
-                    SelectedGame = Games.FirstOrDefault(x => x.PlayniteId == selectedGameId && GamesView.Contains(x))
+                    SelectedGame = gamePicker.SelectedGame
+                        ?? Games.FirstOrDefault(x => x.PlayniteId == selectedGameId && GamesView.Contains(x))
                         ?? GamesView.Cast<GameStatusDto>().FirstOrDefault();
                     MediaTargetGame = Games.FirstOrDefault(x => string.Equals(x.PlayniteId, mediaTargetId, StringComparison.OrdinalIgnoreCase))
                                       ?? SelectedGame
@@ -706,6 +722,7 @@ namespace GameSaveCenter.Playnite.ViewModels
                 RebuildTaskFilters();
                 SelectedTask = Tasks.FirstOrDefault(x => x.TaskId == selectedTaskId) ?? Tasks.FirstOrDefault();
                 Replace(Findings, data.Findings);
+                Replace(AttentionFindings, data.Findings.Where(x => x.Severity >= FindingSeverity.Warning).Take(4));
                 Replace(Audit, data.RecentAudit);
                 StatusMessage = data.WorkerHealthy
                     ? data.LudusaviAvailable ? "Worker 与 Ludusavi 均正常" : "Worker 正常，Ludusavi 尚未配置"
@@ -1479,6 +1496,46 @@ namespace GameSaveCenter.Playnite.ViewModels
             finally { suppressSelectionLoad = false; }
             if (SelectedGame != null) Run(() => LoadDetailsAsync());
             else ClearSelectedGameDetails();
+        }
+
+        private void OnGamePickerStateChanged(object? sender, EventArgs e)
+        {
+            // Keep the preference in the plugin settings, but debounce disk writes so fast
+            // keyboard search never causes one settings write per keystroke.
+            plugin.Settings.GamePickerSearchText = gamePicker.SearchText;
+            plugin.Settings.GamePickerStatusFilter = gamePicker.StatusFilter;
+            plugin.Settings.GamePickerPlatformFilter = gamePicker.PlatformFilter;
+            plugin.Settings.GamePickerSortMode = gamePicker.SortMode;
+            plugin.Settings.GamePickerSelectedGameId = gamePicker.SelectedGame?.PlayniteId ?? string.Empty;
+            gamePickerPersistenceCancellation?.Cancel();
+            gamePickerPersistenceCancellation?.Dispose();
+            gamePickerPersistenceCancellation = new CancellationTokenSource();
+            var token = gamePickerPersistenceCancellation.Token;
+            _ = PersistGamePickerStateAsync(token);
+        }
+
+        private void OnGamePickerPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (!string.Equals(e.PropertyName, nameof(GamePickerViewModel.SelectedItem), StringComparison.Ordinal)
+                && !string.Equals(e.PropertyName, nameof(GamePickerViewModel.SelectedGame), StringComparison.Ordinal)) return;
+            var selected = gamePicker.SelectedGame;
+            OnPropertyChanged(nameof(SelectedGame));
+            RaiseCommandStates();
+            if (suppressSelectionLoad) return;
+            ClearSelectedGameDetails();
+            if (selected != null && IsGameScopedWorkspace(CurrentWorkspace)) Run(() => LoadDetailsAsync());
+        }
+
+        private async Task PersistGamePickerStateAsync(CancellationToken token)
+        {
+            try
+            {
+                await Task.Delay(500, token).ConfigureAwait(false);
+                if (token.IsCancellationRequested) return;
+                plugin.SavePluginSettings(plugin.Settings);
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception ex) { Logger.Error(ex, "GameSaveCenter could not persist global game picker state."); }
         }
 
         private static bool Contains(string value, string query)

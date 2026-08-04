@@ -91,6 +91,7 @@ namespace GameSaveCenter.Playnite.Views
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
             refreshTimer.Stop();
+            viewModel.CancelDeferredUiWork();
             viewModel.StopTaskEventSubscription();
             UnsubscribeViewModel();
             if (visualSettingsSubscribed)
@@ -195,19 +196,20 @@ namespace GameSaveCenter.Playnite.Views
         {
             if (SidebarColumn == null || MetricsPanel == null || GameListColumn == null) return;
 
-            var mode = width >= 1280 ? LayoutMode.Expanded
+            var mode = width >= 1260 ? LayoutMode.Expanded
                 : width >= 980 ? LayoutMode.Standard
-                : width >= 880 ? LayoutMode.Compact
+                : width >= 760 ? LayoutMode.Compact
                 : LayoutMode.Narrow;
             viewModel.LayoutMode = mode;
 
             var iconSidebar = mode == LayoutMode.Compact || mode == LayoutMode.Narrow;
-            var gameScopedWorkspace = viewModel.CurrentWorkspace == WorkspaceKind.Saves
-                || viewModel.CurrentWorkspace == WorkspaceKind.Trainers
-                || viewModel.CurrentWorkspace == WorkspaceKind.Media;
-            var showPersistentGameBrowser = gameScopedWorkspace && mode == LayoutMode.Expanded;
-            if (showPersistentGameBrowser) compactGameBrowserOpen = false;
-            var showCompactGameBrowser = gameScopedWorkspace && !showPersistentGameBrowser && compactGameBrowserOpen;
+            // The game picker is a single global context entry. It is never a permanent
+            // third column: all widths use the same top button and the same finite drawer.
+            // Tasks and maintenance remain global and intentionally have no game picker.
+            var gameScopedWorkspace = viewModel.CurrentWorkspace != WorkspaceKind.Tasks
+                && viewModel.CurrentWorkspace != WorkspaceKind.Maintenance;
+            var showPersistentGameBrowser = false;
+            var showCompactGameBrowser = gameScopedWorkspace && compactGameBrowserOpen;
 
             SidebarColumn.Width = new GridLength(mode == LayoutMode.Expanded ? 228
                 : mode == LayoutMode.Standard ? 204
@@ -261,13 +263,12 @@ namespace GameSaveCenter.Playnite.Views
                 TopActionsScroller.Margin = new Thickness(0, 10, 0, 0);
             }
 
-            // The selected-game context button is the only selector entry outside Expanded mode.
-            // It opens the same virtualized game browser used by the persistent Expanded layout.
+            // The selected-game context button is the only selector entry at every breakpoint.
+            // It opens the same virtualized game browser drawer.
             ToggleGameBrowserButton.Visibility = Visibility.Collapsed;
 
-            // The complete game search/filter/sort surface is persistent only when there is
-            // genuinely enough width.  At smaller sizes it becomes an explicit, finite-height
-            // workspace row instead of silently disappearing or squeezing the active page.
+            // The complete game search/filter/sort surface is an explicit, finite-height drawer;
+            // it is never left permanently beside the details view.
             GameBrowserPanel.Visibility = showPersistentGameBrowser || showCompactGameBrowser
                 ? Visibility.Visible
                 : Visibility.Collapsed;
@@ -694,7 +695,7 @@ namespace GameSaveCenter.Playnite.Views
 
         private void OnToggleGameBrowserClick(object sender, RoutedEventArgs e)
         {
-            if (viewModel == null || ActualWidth >= 1280) return;
+            if (viewModel == null || viewModel.CurrentWorkspace == WorkspaceKind.Tasks || viewModel.CurrentWorkspace == WorkspaceKind.Maintenance) return;
             compactGameBrowserOpen = !compactGameBrowserOpen;
             var tooltip = compactGameBrowserOpen
                 ? "关闭游戏搜索、状态筛选和排序"
@@ -702,6 +703,8 @@ namespace GameSaveCenter.Playnite.Views
             ToggleGameBrowserButton.ToolTip = tooltip;
             CompactGameSelector.ToolTip = tooltip;
             ApplyResponsiveLayout(ActualWidth, ActualHeight);
+            if (compactGameBrowserOpen && MotionEnabled)
+                AnimateElement(GameBrowserPanel, 10, 0, 0.18);
             if (compactGameBrowserOpen && GameSearchTextBox != null)
             {
                 BeginUiSafely(() => GameSearchTextBox.Focus(), DispatcherPriority.Background);
@@ -710,7 +713,9 @@ namespace GameSaveCenter.Playnite.Views
 
         private void OnGameSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (!compactGameBrowserOpen || ActualWidth >= 1280 || viewModel == null || viewModel.SelectedGame == null) return;
+            if (e.AddedItems.Count > 0 && viewModel != null && e.AddedItems[0] is GamePickerItem pickerItem)
+                viewModel.SelectedGame = pickerItem.Game;
+            if (!compactGameBrowserOpen || viewModel == null || viewModel.SelectedGame == null) return;
             compactGameBrowserOpen = false;
             CompactGameSelector.ToolTip = "打开游戏搜索、状态筛选和排序";
             ApplyResponsiveLayout(ActualWidth, ActualHeight);
@@ -1062,6 +1067,13 @@ namespace GameSaveCenter.Playnite.Views
 
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)
         {
+            if (e.Key == Key.Escape && compactGameBrowserOpen)
+            {
+                compactGameBrowserOpen = false;
+                ApplyResponsiveLayout(ActualWidth, ActualHeight);
+                e.Handled = true;
+                return;
+            }
             if (DialogOverlay.Visibility != Visibility.Visible) return;
             if (e.Key == Key.Escape)
             {

@@ -1,7 +1,17 @@
 # 项目记忆与不可丢失约束
 
-更新时间：2026-08-01
+更新时间：2026-08-04
 当前版本：`0.6.22-development-preview`
+
+### 2026-08-04 全局 GamePicker 单一上下文
+
+- `GamePickerViewModel` 是全局游戏选择器的轻量本地状态层。它只接收 `GameStatusDto` 摘要，不持有 Playnite `Game`，不在搜索输入时调用 Worker。
+- `GamePicker.ItemsView` 必须保持 WPF 虚拟化/Recycling；搜索、状态筛选、平台筛选和排序都属于本地视图操作。当前防抖为 180ms，旧筛选任务通过 `CancellationTokenSource` 取消。
+- 现在唯一的当前游戏入口是 `GameSwitcherHost`/`CompactGameSelector` 顶部按钮。`GameBrowserPanel` 只作为有限高度抽屉出现，Expanded 不再常驻三栏游戏浏览器；首页不得恢复 `OverviewGameSelector`。
+- 任务中心和维护中心是全局工作区，不显示当前游戏入口。收件箱、媒体重分配、进程映射等“选择目标游戏”ComboBox 是业务目标选择，不属于全局当前游戏选择器。
+- GamePicker 的搜索、筛选、平台、排序和最近游戏 ID 会延迟写入 `GameSaveCenterSettings`；View 卸载时必须调用 `CancelDeferredUiWork`，不能让 Dispatcher/防抖回调继续触碰卸载页面。
+- `GameStatusDto.IsInstalled` 与 `LastPlayedUtc` 来源于 Playnite `Game.IsInstalled`/`Game.LastActivity`，但不能把 LastActivity 纳入 Ludusavi 匹配输入哈希；它是 UI 排序元数据。
+- 首页关注卡片必须显示至少一组具体 `AttentionFindings` 摘要，不能只显示数字和“去维护中心查看”。完整诊断仍以维护中心 FindingsGrid 为准。
 
 ### 2026-08-01 可选 WPF-UI 探针的列表测量边界
 
