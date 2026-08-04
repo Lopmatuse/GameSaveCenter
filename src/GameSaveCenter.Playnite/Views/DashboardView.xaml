@@ -864,7 +864,7 @@
                         <StackPanel Grid.Column="1" Margin="8,0,12,0" MinWidth="0">
                             <TextBlock Style="{StaticResource GscComboBoxLongText}" Text="{Binding SelectedGame.Name, TargetNullValue=请选择游戏}" FontWeight="SemiBold"/>
                             <TextBlock Style="{StaticResource GscComboBoxLongText}" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}">
-                                <Run Text="{Binding SelectedGame.PlatformDisplay, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding SelectedGame.HealthStateDisplay, Mode=OneWay}"/>
+                                <Run Text="{Binding SelectedGame.PlatformDisplay, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding SelectedGame.InstallStateDisplay, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding SelectedGame.MatchStateDisplay, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding SelectedGame.HealthStateDisplay, Mode=OneWay}"/>
                             </TextBlock>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">

@@ -25,6 +25,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         private static readonly ILogger Logger = LogManager.GetLogger();
         private readonly GameSaveCenterPlugin plugin;
         private readonly GamePickerViewModel gamePicker;
+        private readonly SynchronizationContext? uiSynchronizationContext = SynchronizationContext.Current;
         private readonly Dictionary<string, TaskState> knownTaskStates = new Dictionary<string, TaskState>(StringComparer.OrdinalIgnoreCase);
         private readonly DateTime dashboardOpenedUtc = DateTime.UtcNow;
         private bool isBusy;
@@ -1542,10 +1543,24 @@ namespace GameSaveCenter.Playnite.ViewModels
             {
                 await Task.Delay(500, token).ConfigureAwait(false);
                 if (token.IsCancellationRequested) return;
-                plugin.SavePluginSettings(plugin.Settings);
+                if (uiSynchronizationContext == null)
+                {
+                    SaveGamePickerSettings();
+                    return;
+                }
+                uiSynchronizationContext.Post(_ =>
+                {
+                    if (!token.IsCancellationRequested) SaveGamePickerSettings();
+                }, null);
             }
             catch (OperationCanceledException) { }
             catch (Exception ex) { Logger.Error(ex, "GameSaveCenter could not persist global game picker state."); }
+        }
+
+        private void SaveGamePickerSettings()
+        {
+            try { plugin.SavePluginSettings(plugin.Settings); }
+            catch (Exception ex) { Logger.Error(ex, "GameSaveCenter could not save global game picker settings on the UI dispatcher."); }
         }
 
         private static bool Contains(string value, string query)

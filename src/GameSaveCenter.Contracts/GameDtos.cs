@@ -78,6 +78,8 @@ namespace GameSaveCenter.Contracts
             GamePlatformKind.Other => "其他",
             _ => "未知"
         };
+        public string InstallStateDisplay => IsInstalled ? "已安装" : "未安装";
+        public string MatchStateDisplay => LudusaviMatched ? "已匹配" : "未匹配";
         public string HealthStateDisplay => HealthState switch
         {
             "Ready" => "已就绪",

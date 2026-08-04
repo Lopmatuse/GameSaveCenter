@@ -18,6 +18,8 @@ namespace GameSaveCenter.Playnite.ViewModels
         public string PlayniteId => Game.PlayniteId;
         public string Name => Game.Name ?? string.Empty;
         public string PlatformDisplay => Game.PlatformDisplay;
+        public string InstallStateDisplay => Game.InstallStateDisplay;
+        public string MatchStateDisplay => Game.MatchStateDisplay;
         public bool IsInstalled => Game.IsInstalled;
         public bool IsRunning => Game.IsRunning;
         public bool IsMatched => Game.LudusaviMatched;
