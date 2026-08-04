@@ -1217,6 +1217,7 @@ def check_wpf_ui_production_scope_guards() -> None:
     settings = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml").read_text(encoding="utf-8")
     settings_code = (ROOT / "src/GameSaveCenter.Playnite/Settings/GameSaveCenterSettingsView.xaml.cs").read_text(encoding="utf-8")
     theme_scope = (ROOT / "src/GameSaveCenter.Playnite/Infrastructure/WpfUiThemeScope.cs").read_text(encoding="utf-8")
+    palette_factory = (ROOT / "src/GameSaveCenter.Playnite/Infrastructure/AdaptiveThemePalette.cs").read_text(encoding="utf-8")
     production = (ROOT / "src/GameSaveCenter.Playnite/Themes/WpfUiProduction.xaml").read_text(encoding="utf-8")
     for source, label, required in (
         (dashboard, "Dashboard WPF-UI production scope",
@@ -1243,7 +1244,8 @@ def check_wpf_ui_production_scope_guards() -> None:
             if token not in source:
                 fail(f"{label} guard missing: {token}")
     for source, label in ((dashboard_code, "Dashboard"), (settings_code, "Settings")):
-        if "WpfUiThemeScope.Apply(Resources, palette.IsDark)" not in source:
+        if ("WpfUiThemeScope.Apply(Resources, palette.IsDark)" not in source
+                and "ApplyRuntimeThemeResources(Resources, palette" not in source):
             fail(f"{label} must apply WPF-UI theme only through its local resource scope")
         if "using Wpf.Ui.Controls;" in source:
             fail(f"{label} must alias individual WPF-UI feedback controls to avoid native WPF type ambiguity")
@@ -1253,6 +1255,8 @@ def check_wpf_ui_production_scope_guards() -> None:
     for token in ("using Snackbar = Wpf.Ui.Controls.Snackbar;",):
         if token not in settings_code:
             fail(f"Settings WPF-UI alias guard missing: {token}")
+    if "WpfUiThemeScope.Apply(resources, palette.IsDark)" not in palette_factory:
+        fail("shared runtime palette must apply WPF-UI resources through the local scope")
     for source, label in ((dashboard, "Dashboard"), (settings, "Settings")):
         if "<ui:ContentDialogHost" in source:
             fail(f"{label} must use GameSaveCenter's embedded dialog fallback instead of a WPF-UI Window host")

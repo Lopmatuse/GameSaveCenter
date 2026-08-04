@@ -795,3 +795,7 @@ Dashboard 调色板计算，高对比度返回透明，选中态和悬停态仍�
 
 UI-073：`GscTableMinHeight` 的正常值是 280 DIP，但 Dashboard 在低于 760/650 DIP 时动态降为
 220/180 DIP；这是防止最小视口挤压检查器的布局保护，不得改成全页面裁剪或外层无限滚动。
+
+UI-074：抽出的工作区拥有自己的 ResourceDictionary，主题切换时必须通过
+`AdaptiveThemePaletteFactory.ApplyRuntimeThemeResources` 同步到每个工作区；只更新 Dashboard
+根资源会让工作区继续使用静态 DesignTokens 颜色。

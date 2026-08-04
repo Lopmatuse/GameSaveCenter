@@ -271,6 +271,51 @@ namespace GameSaveCenter.Playnite.Infrastructure
             resources["FocusStrokeColorInnerBrush"] = Brush(palette.OnAccentText);
         }
 
+        /// <summary>
+        /// Applies every runtime theme resource used by the Dashboard shell and its extracted
+        /// workspace views.  Workspace UserControls own local dictionaries for their styles, so
+        /// copying only the shell resources would leave their DynamicResource lookups on the
+        /// static DesignTokens fallback after a theme switch.
+        /// </summary>
+        public static void ApplyRuntimeThemeResources(ResourceDictionary resources, AdaptiveThemePalette palette, bool glassEnabled, bool motionEnabled)
+        {
+            ApplyAccentResources(resources, palette);
+            ApplyMaterialResources(resources, palette, glassEnabled, motionEnabled);
+            ApplyWpfUiResources(resources, palette);
+            resources["GscPrimaryTextBrush"] = Brush(palette.PrimaryText);
+            resources["GscSecondaryTextBrush"] = Brush(palette.SecondaryText);
+            resources["GscMutedTextBrush"] = Brush(palette.MutedText);
+            resources["GscDisabledTextBrush"] = Brush(palette.DisabledText);
+            resources["GscControlFillBrush"] = Brush(palette.ControlFill);
+            resources["GscControlStrokeBrush"] = Brush(palette.ControlStroke);
+            resources["GscDividerBrush"] = Brush(palette.Divider);
+            resources["GscTableDividerBrush"] = Brush(Color.FromArgb(
+                palette.IsDark ? (byte)24 : (byte)18, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
+            resources["GscPopupBrush"] = Brush(Color.FromArgb(
+                250, palette.StrongSurfaceTop.R, palette.StrongSurfaceTop.G, palette.StrongSurfaceTop.B));
+            resources["GscGlassFillBrush"] = Gradient(palette.SurfaceTop, palette.SurfaceBottom);
+            resources["GscGlassStrongBrush"] = Gradient(palette.StrongSurfaceTop, palette.StrongSurfaceBottom);
+            resources["GscSidebarBrush"] = Gradient(palette.SidebarTop, palette.SidebarBottom);
+            resources["GscGlassStrokeBrush"] = Brush(palette.ControlStroke);
+            resources["GscGlassHighlightBrush"] = Brush(palette.Highlight);
+            resources["GscBackdropBrush"] = Brush(palette.Backdrop);
+            resources["GscTableHeaderBrush"] = Brush(Color.FromArgb(
+                palette.IsDark ? (byte)22 : (byte)12, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
+            resources["GscTableAlternateRowBrush"] = Brush(Color.FromArgb(
+                SystemParameters.HighContrast ? (byte)0 : palette.IsDark ? (byte)14 : (byte)7,
+                palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
+            resources["GscRowHoverBrush"] = Brush(Color.FromArgb(
+                palette.IsDark ? (byte)18 : (byte)10, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
+            resources["GscScrollTrackBrush"] = Brush(Color.FromArgb(
+                palette.IsDark ? (byte)28 : (byte)20, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
+            resources["GscScrollThumbBrush"] = Brush(Color.FromArgb(
+                palette.IsDark ? (byte)88 : (byte)68, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
+            resources["GscScrollThumbHoverBrush"] = Brush(Color.FromArgb(166, 124, 92, 252));
+            resources["GscOverlayBrush"] = Brush(Color.FromArgb(
+                palette.IsDark ? (byte)138 : (byte)72, 0, 0, 0));
+            WpfUiThemeScope.Apply(resources, palette.IsDark);
+        }
+
         public static SolidColorBrush Brush(Color color)
         {
             var brush = new SolidColorBrush(color);

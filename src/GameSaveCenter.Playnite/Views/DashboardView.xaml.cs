@@ -251,11 +251,16 @@ namespace GameSaveCenter.Playnite.Views
             // not turn that token into a hard minimum that pushes the inspector below the
             // window. DynamicResource consumers resize together, while DataGrid keeps its own
             // internal scroll channel for the rows that no longer fit.
-            Resources["GscTableMinHeight"] = height < 650
+            var tableMinHeight = height < 650
                 ? 180d
                 : height < 760
                     ? 220d
                     : 280d;
+            Resources["GscTableMinHeight"] = tableMinHeight;
+            foreach (var workspaceView in GetWorkspaceViews())
+            {
+                workspaceView.Resources["GscTableMinHeight"] = tableMinHeight;
+            }
 
             var iconSidebar = mode == LayoutMode.Compact || mode == LayoutMode.Narrow;
             // The game picker is a single global context entry. It is never a permanent
@@ -1122,42 +1127,11 @@ namespace GameSaveCenter.Playnite.Views
             var glassEnabled = plugin.Settings.EnableGlassEffects && !SystemParameters.HighContrast;
             var palette = AdaptiveThemePaletteFactory.Create(this, glassEnabled, plugin.Settings.GlassEffectStrength, plugin.Settings.ThemeMode);
 
-            AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette);
-            AdaptiveThemePaletteFactory.ApplyMaterialResources(Resources, palette, glassEnabled, MotionEnabled);
-            AdaptiveThemePaletteFactory.ApplyWpfUiResources(Resources, palette);
-            Resources["GscPrimaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.PrimaryText);
-            Resources["GscSecondaryTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.SecondaryText);
-            Resources["GscMutedTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.MutedText);
-            Resources["GscDisabledTextBrush"] = AdaptiveThemePaletteFactory.Brush(palette.DisabledText);
-            Resources["GscControlFillBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlFill);
-            Resources["GscControlStrokeBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlStroke);
-            Resources["GscDividerBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Divider);
-            Resources["GscTableDividerBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
-                palette.IsDark ? (byte)24 : (byte)18, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
-            Resources["GscPopupBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
-                250, palette.StrongSurfaceTop.R, palette.StrongSurfaceTop.G, palette.StrongSurfaceTop.B));
-            Resources["GscGlassFillBrush"] = AdaptiveThemePaletteFactory.Gradient(palette.SurfaceTop, palette.SurfaceBottom);
-            Resources["GscGlassStrongBrush"] = AdaptiveThemePaletteFactory.Gradient(palette.StrongSurfaceTop, palette.StrongSurfaceBottom);
-            Resources["GscSidebarBrush"] = AdaptiveThemePaletteFactory.Gradient(palette.SidebarTop, palette.SidebarBottom);
-            Resources["GscGlassStrokeBrush"] = AdaptiveThemePaletteFactory.Brush(palette.ControlStroke);
-            Resources["GscGlassHighlightBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Highlight);
-            Resources["GscBackdropBrush"] = AdaptiveThemePaletteFactory.Brush(palette.Backdrop);
-            Resources["GscTableHeaderBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
-                palette.IsDark ? (byte)22 : (byte)12, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
-            Resources["GscTableAlternateRowBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
-                SystemParameters.HighContrast ? (byte)0 : palette.IsDark ? (byte)14 : (byte)7,
-                palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
-            Resources["GscRowHoverBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
-                palette.IsDark ? (byte)18 : (byte)10, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
-            Resources["GscScrollTrackBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
-                palette.IsDark ? (byte)28 : (byte)20, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
-            Resources["GscScrollThumbBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
-                palette.IsDark ? (byte)88 : (byte)68, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
-            Resources["GscScrollThumbHoverBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
-                166, 124, 92, 252));
-            Resources["GscOverlayBrush"] = AdaptiveThemePaletteFactory.Brush(Color.FromArgb(
-                palette.IsDark ? (byte)138 : (byte)72, 0, 0, 0));
-            WpfUiThemeScope.Apply(Resources, palette.IsDark);
+            AdaptiveThemePaletteFactory.ApplyRuntimeThemeResources(Resources, palette, glassEnabled, MotionEnabled);
+            foreach (var workspaceView in GetWorkspaceViews())
+            {
+                AdaptiveThemePaletteFactory.ApplyRuntimeThemeResources(workspaceView.Resources, palette, glassEnabled, MotionEnabled);
+            }
 
             // The ambient ellipses are the only fixed BlurEffect surfaces in the dashboard.
             // Collapse them instead of merely making them transparent so reduced-transparency
@@ -1166,6 +1140,16 @@ namespace GameSaveCenter.Playnite.Views
             AmbientGlowLayer.Opacity = glassEnabled
                 ? (palette.IsDark ? 0.46 : 0.56) * Math.Max(0.2, Math.Min(1, plugin.Settings.GlassEffectStrength / 100d))
                 : 0;
+        }
+
+        private IEnumerable<UserControl> GetWorkspaceViews()
+        {
+            yield return OverviewWorkspaceView;
+            yield return MediaWorkspaceView;
+            yield return MaintenanceWorkspaceView;
+            yield return SaveWorkspaceView;
+            yield return TrainerWorkspaceView;
+            yield return TaskWorkspaceView;
         }
     }
 }

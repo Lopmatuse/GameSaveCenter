@@ -1095,6 +1095,12 @@
 - 该资源通过 `DynamicResource` 更新，表格行仍由 DataGrid 内部滚动访问；没有给工作区增加页面级
   ScrollViewer，也没有关闭虚拟化。
 
+## 2026-08-04 0.6.22 UI-074 工作区主题资源传播
+
+- 抽出的六个工作区各自拥有本地资源字典；Dashboard 现在通过统一的
+  `ApplyRuntimeThemeResources` 将浅色、深色、跟随 Playnite、高对比度和透明降级资源同步到每个工作区。
+- 这避免子 UserControl 继续停留在 `DesignTokens.xaml` 的静态默认颜色，确保表格交替行、Popup、文字、状态色和滚动条在切换主题后保持一致。
+
 
 ## 2026-08-02 UI-005 全功能视觉重构（源码阶段）
 

@@ -102,11 +102,9 @@ public sealed class WpfUiResourceDictionaryTests
         var repositoryRoot = FindRepositoryRoot();
         var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
         var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
-        Assert.Contains("AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette)", dashboardCode);
+        Assert.Contains("AdaptiveThemePaletteFactory.ApplyRuntimeThemeResources(Resources, palette", dashboardCode);
         Assert.Contains("AdaptiveThemePaletteFactory.ApplyAccentResources(Resources, palette)", settingsCode);
-        Assert.Contains("AdaptiveThemePaletteFactory.ApplyMaterialResources(Resources, palette, glassEnabled, MotionEnabled)", dashboardCode);
         Assert.Contains("AdaptiveThemePaletteFactory.ApplyMaterialResources(Resources, palette, glassEnabled, MotionEnabled)", settingsCode);
-        Assert.Contains("AdaptiveThemePaletteFactory.ApplyWpfUiResources(Resources, palette)", dashboardCode);
         Assert.Contains("AdaptiveThemePaletteFactory.ApplyWpfUiResources(Resources, palette)", settingsCode);
 
         foreach (var xamlPath in new[]
@@ -1239,8 +1237,11 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("resources[\"GscSuccessBrush\"]", palette);
         Assert.Contains("resources[\"GscWarningBrush\"]", palette);
         Assert.Contains("resources[\"GscErrorBrush\"]", palette);
-        Assert.Contains("Resources[\"GscTableAlternateRowBrush\"]", dashboardCode);
-        Assert.Contains("SystemParameters.HighContrast ? (byte)0", dashboardCode);
+        Assert.Contains("resources[\"GscTableAlternateRowBrush\"]", palette);
+        Assert.Contains("SystemParameters.HighContrast ? (byte)0", palette);
+        Assert.Contains("ApplyRuntimeThemeResources(Resources, palette", dashboardCode);
+        Assert.Contains("ApplyRuntimeThemeResources(workspaceView.Resources, palette", dashboardCode);
+        Assert.Contains("GetWorkspaceViews()", dashboardCode);
         Assert.Contains("highContrast ? primaryText", palette);
     }
 
@@ -1285,7 +1286,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("ResponsiveShell.Margin = new Thickness(", dashboardCode);
         Assert.Contains("GameDetailCard.Padding = mode == LayoutMode.Expanded ? new Thickness(18)", dashboardCode);
         Assert.Contains("mode == LayoutMode.Compact ? new Thickness(12)", dashboardCode);
-        Assert.Contains("Resources[\"GscTableMinHeight\"] = height < 650", dashboardCode);
+        Assert.Contains("var tableMinHeight = height < 650", dashboardCode);
+        Assert.Contains("workspaceView.Resources[\"GscTableMinHeight\"] = tableMinHeight", dashboardCode);
         Assert.Contains("? 180d", dashboardCode);
         Assert.Contains("? 220d", dashboardCode);
         Assert.Contains("mode == LayoutMode.Expanded ? 12", dashboardCode);
