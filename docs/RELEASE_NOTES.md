@@ -1,3 +1,11 @@
+# 0.6.46 Development Preview
+
+## Stability and UI callback isolation
+
+- Notification, confirmation, and background Dashboard collection callbacks now have a final exception boundary. A stale resource, closing Playnite window, or handler error is logged and ignored instead of escaping through Playnite's shared Dispatcher.
+- The very-large-library cache retry loop now owns and cancels its token source when the Dashboard unloads, preventing an unobserved retry task during Playnite shutdown.
+- Large-library cache-first startup, virtualized GamePicker, responsive workspace layout, and rounded shared controls remain unchanged.
+
 # 0.6.45 Development Preview
 
 - 为 Dashboard 的 Dispatcher 延迟回调、平移动画和缩放动画增加异常隔离，降低共享 Freezable、主题切换和视图卸载引发的 Playnite 扩展崩溃风险。

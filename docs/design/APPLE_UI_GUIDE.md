@@ -1,7 +1,7 @@
 # Apple HIG 启发的 WPF 界面规范
 
 更新时间：2026-07-29
-适用版本：`0.6.45-development-preview`
+适用版本：`0.6.46-development-preview`
 
 完整实现约束以 `APPLE_WPF_IMPLEMENTATION_PROMPT.md` 为准；任何新增或修改 UI 的提交还必须通过 `UI_CHANGE_GATE.md`。
 

@@ -1,9 +1,9 @@
 # 功能完成度评估
 
 更新时间：2026-08-05
-评估版本：`0.6.45-development-preview`
+评估版本：`0.6.46-development-preview`
 
-## 0.6.45 当前证据（2026-08-05）
+## 0.6.46 当前证据（2026-08-05）
 
 - Dashboard 的延迟 Dispatcher 回调、平移动画和缩放动画均在 UI 边界捕获异常，降低主题切换、视图卸载和共享 Freezable 导致 Playnite 扩展宿主崩溃的风险。
 - 仍需在真实 Playnite 中验证 900+ 游戏库、重复打开/关闭 Dashboard、DPI 和主题切换；当前环境不能宣称宿主渲染已验证。

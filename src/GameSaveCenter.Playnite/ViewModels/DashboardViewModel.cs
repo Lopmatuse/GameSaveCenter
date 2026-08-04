@@ -757,25 +757,37 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         private async Task RefreshLargeLibraryCacheWhenWorkerReadyAsync(long generation)
         {
-            for (var attempt = 0; attempt < 4; attempt++)
+            var cancellation = new CancellationTokenSource();
+            initialSynchronizationCancellation = cancellation;
+            try
             {
-                if (generation != Interlocked.Read(ref deferredUiWorkGeneration)) return;
-                try
+                for (var attempt = 0; attempt < 4; attempt++)
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(attempt == 0 ? 1 : 2), initialSynchronizationCancellation?.Token ?? CancellationToken.None).ConfigureAwait(false);
                     if (generation != Interlocked.Read(ref deferredUiWorkGeneration)) return;
-                    await RefreshDashboardAsync(false, false, TimeSpan.FromSeconds(3));
-                    ApplyOnUi(() => StatusMessage = "已显示本地缓存；大型目录默认不自动全量匹配，可按需点击刷新。\n游戏启动时仍会按需更新当前游戏。");
-                    return;
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(attempt == 0 ? 1 : 2), cancellation.Token).ConfigureAwait(false);
+                        if (generation != Interlocked.Read(ref deferredUiWorkGeneration)) return;
+                        await RefreshDashboardAsync(false, false, TimeSpan.FromSeconds(3));
+                        ApplyOnUi(() => StatusMessage = "已显示本地缓存；大型目录默认不自动全量匹配，可按需点击刷新。\n游戏启动时仍会按需更新当前游戏。");
+                        return;
+                    }
+                    catch (OperationCanceledException) when (cancellation.IsCancellationRequested || generation != Interlocked.Read(ref deferredUiWorkGeneration))
+                    {
+                        // Dashboard unload intentionally cancels the retry loop.
+                        return;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Debug(ex, "Large-library cache snapshot is not ready yet; retrying without catalog synchronization.");
+                    }
                 }
-                catch (OperationCanceledException) when (generation != Interlocked.Read(ref deferredUiWorkGeneration))
-                {
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    Logger.Debug(ex, "Large-library cache snapshot is not ready yet; retrying without catalog synchronization.");
-                }
+            }
+            finally
+            {
+                if (ReferenceEquals(initialSynchronizationCancellation, cancellation))
+                    initialSynchronizationCancellation = null;
+                cancellation.Dispose();
             }
         }
 
@@ -1811,23 +1823,24 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         private void ApplyOnUi(Action action)
         {
+            if (action == null) return;
             var dispatcher = plugin.PlayniteApi.MainView.UIDispatcher;
             if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished) return;
-            if (dispatcher.CheckAccess())
-            {
-                action();
-                return;
-            }
-
             try
             {
+                if (dispatcher.CheckAccess())
+                {
+                    action();
+                    return;
+                }
+
                 // Task event listeners may be on a Worker continuation. Retain synchronous
                 // ordering for collection/filter updates, but never invoke a closing Playnite UI.
                 dispatcher.Invoke(action, DispatcherPriority.DataBind);
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex) when (!(ex is OutOfMemoryException) && !(ex is StackOverflowException))
             {
-                Logger.Error(ex, "GameSaveCenter skipped a Dashboard UI collection update because the dispatcher is unavailable.");
+                Logger.Error(ex, "GameSaveCenter skipped a Dashboard UI collection update because the callback failed or the dispatcher is unavailable.");
             }
         }
         private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> source)

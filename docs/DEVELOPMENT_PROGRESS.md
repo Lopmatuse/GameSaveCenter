@@ -1,7 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.45-development-preview`
+当前版本：`0.6.46-development-preview`
+
+- [x] 0.6.46：隔离通知/确认派发与 Dashboard 后台集合回写异常，并让超大目录缓存重试在视图卸载时可取消和安全收尾，避免视觉资源、关闭窗口或回调错误穿透到 Playnite Dispatcher；已完成源码门禁、130 项自动测试和 Release 构建，仍需 Windows/Playnite 真机验证。
 
 - [x] 0.6.45：为延迟 Dispatcher UI 回调和 Hover/Pressed 动画增加异常隔离；共享或冻结 Freezable、主题切换、窗口卸载时的视觉异常不会再冒泡到 Playnite 扩展宿主。当前日志中的旧版冻结 Transform 崩溃可由此类防护覆盖，但仍需 Windows/Playnite 真机复测。
 

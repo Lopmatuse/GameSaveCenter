@@ -348,27 +348,26 @@ namespace GameSaveCenter.Playnite
 
         private bool TryInvokeUi(Action action, string operation)
         {
+            if (action == null) return false;
             var dispatcher = PlayniteApi.MainView.UIDispatcher;
             if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished) return false;
-            if (dispatcher.CheckAccess())
-            {
-                action();
-                return true;
-            }
-
             try
             {
+                if (dispatcher.CheckAccess())
+                {
+                    action();
+                    return true;
+                }
+
                 dispatcher.Invoke(action, DispatcherPriority.DataBind);
                 return true;
             }
-            catch (InvalidOperationException ex) when (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
+            catch (Exception ex) when (!(ex is OutOfMemoryException) && !(ex is StackOverflowException))
             {
-                logger.Error(ex, $"GameSaveCenter skipped {operation} because the Playnite UI dispatcher is unavailable.");
-                return false;
-            }
-            catch (TaskCanceledException ex) when (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)
-            {
-                logger.Error(ex, $"GameSaveCenter skipped {operation} because the Playnite UI dispatcher is unavailable.");
+                // Notification/confirmation handlers belong to the visual layer. A stale
+                // resource, closing window, or handler bug must never escape through
+                // Playnite's shared dispatcher and become a generic extension crash.
+                logger.Error(ex, $"GameSaveCenter skipped {operation} because the UI callback failed or the dispatcher is unavailable.");
                 return false;
             }
         }

@@ -1673,8 +1673,8 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished) return;", viewModelCode);
         Assert.Contains("dispatcher.Invoke(action, DispatcherPriority.DataBind);", viewModelCode);
-        Assert.Contains("catch (InvalidOperationException ex)", viewModelCode);
-        Assert.Contains("skipped a Dashboard UI collection update because the dispatcher is unavailable", viewModelCode);
+        Assert.Contains("catch (Exception ex) when (!(ex is OutOfMemoryException) && !(ex is StackOverflowException))", viewModelCode);
+        Assert.Contains("skipped a Dashboard UI collection update because the callback failed or the dispatcher is unavailable", viewModelCode);
     }
 
     [Fact]
@@ -1687,12 +1687,11 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("if (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished) return false;", pluginCode);
         Assert.Contains("if (dispatcher.CheckAccess())", pluginCode);
         Assert.Contains("dispatcher.Invoke(action, DispatcherPriority.DataBind);", pluginCode);
-        Assert.Contains("catch (InvalidOperationException ex) when (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)", pluginCode);
-        Assert.Contains("catch (TaskCanceledException ex) when (dispatcher.HasShutdownStarted || dispatcher.HasShutdownFinished)", pluginCode);
+        Assert.Contains("catch (Exception ex) when (!(ex is OutOfMemoryException) && !(ex is StackOverflowException))", pluginCode);
         Assert.Contains("if (!TryInvokeUi(() => UiConfirmationRequested?.Invoke(this, args), \"confirmation request\"))", pluginCode);
         Assert.Contains("return false;", pluginCode);
         Assert.Contains("if (!TryInvokeUi(() => handler(this, args), \"notification request\")) return false;", pluginCode);
-        Assert.Contains("skipped {operation} because the Playnite UI dispatcher is unavailable", pluginCode);
+        Assert.Contains("skipped {operation} because the UI callback failed or the dispatcher is unavailable", pluginCode);
     }
 
     [Fact]
@@ -1751,6 +1750,10 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("if (plugin.IsVeryLargeLibraryForUi)", viewModelCode);
         Assert.Contains("explicit Refresh command remains available", viewModelCode);
         Assert.Contains("RefreshLargeLibraryCacheWhenWorkerReadyAsync", viewModelCode);
+        Assert.Contains("var cancellation = new CancellationTokenSource();", viewModelCode);
+        Assert.Contains("initialSynchronizationCancellation = cancellation;", viewModelCode);
+        Assert.Contains("cancellation.IsCancellationRequested || generation != Interlocked.Read(ref deferredUiWorkGeneration)", viewModelCode);
+        Assert.Contains("cancellation.Dispose();", viewModelCode);
         Assert.Contains("never turn this recovery path into a catalog synchronization", viewModelCode);
         Assert.Contains("VeryLargeLibraryBackgroundMatchBudget = 12", catalogCode);
         Assert.Contains("list.Count >= VeryLargeLibraryThreshold", catalogCode);

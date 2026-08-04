@@ -1,6 +1,6 @@
-## 0.6.45 Playnite 崩溃隔离回归
+## 0.6.46 Playnite 崩溃隔离回归
 
-- [ ] 安装后确认 `playnite.log` 加载 `GameSaveCenter, version 0.6.45`。
+- [ ] 安装后确认 `playnite.log` 加载 `GameSaveCenter, version 0.6.46`。
 - [ ] 在 Dashboard 加载、卸载、重复打开/关闭以及主题切换时悬停导航、卡片和按钮，确认无 `Unhandled exception`。
 - [ ] 打开 900+ 游戏库，确认 Worker/缓存加载失败只显示状态，不导致 Playnite 扩展崩溃；记录 `extensions.log` 和 `worker-launch.log`。
 - [ ] 若仍崩溃，保存完整堆栈并确认不是独立 `LudusaviPlaynite` 插件或旧版 GameSaveCenter。
