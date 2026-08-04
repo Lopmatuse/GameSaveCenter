@@ -34,6 +34,9 @@ namespace GameSaveCenter.Playnite
         private readonly ConcurrentDictionary<string, byte> notifiedTaskIds = new ConcurrentDictionary<string, byte>(StringComparer.OrdinalIgnoreCase);
         private Timer? taskNotificationTimer;
         private DateTime taskNotificationMonitorStartedUtc;
+        private DateTime taskNotificationRetryAfterUtc = DateTime.MinValue;
+        private int taskNotificationFailureCount;
+        private DateTime lastTaskNotificationFailureLogUtc = DateTime.MinValue;
         private bool taskNotificationSnapshotInitialized;
         private long lastTaskNotificationSequence;
         private string lastSynchronizedLibraryFingerprint = string.Empty;
@@ -241,6 +244,11 @@ namespace GameSaveCenter.Playnite
             var gateEntered = false;
             try
             {
+                // Do not reconnect to a starting/busy Worker every second. A full library
+                // refresh can legitimately keep the pipe unavailable for a while; exponential
+                // backoff prevents the notification timer from adding hundreds of failed pipe
+                // connects to Playnite's UI log and thread pool.
+                if (DateTime.UtcNow < taskNotificationRetryAfterUtc) return;
                 if (!await taskNotificationPollGate.WaitAsync(0).ConfigureAwait(false)) return;
                 gateEntered = true;
                 if (!taskNotificationSnapshotInitialized)
@@ -277,10 +285,21 @@ namespace GameSaveCenter.Playnite
                     lastTaskNotificationSequence=Math.Max(lastTaskNotificationSequence,change.Sequence);
                 }
                 lastTaskNotificationSequence=Math.Max(lastTaskNotificationSequence,feed.LatestSequence);
+                taskNotificationFailureCount = 0;
+                taskNotificationRetryAfterUtc = DateTime.MinValue;
             }
             catch (Exception ex)
             {
-                logger.Debug(ex, "Task notification poll is temporarily unavailable.");
+                taskNotificationFailureCount = Math.Min(taskNotificationFailureCount + 1, 6);
+                var delaySeconds = Math.Min(60, 5 * (1 << Math.Max(0, taskNotificationFailureCount - 1)));
+                taskNotificationRetryAfterUtc = DateTime.UtcNow.AddSeconds(delaySeconds);
+                // Keep the diagnostic useful without emitting one full stack trace every few
+                // seconds while the Worker is still starting or has been stopped.
+                if (DateTime.UtcNow - lastTaskNotificationFailureLogUtc >= TimeSpan.FromSeconds(30))
+                {
+                    lastTaskNotificationFailureLogUtc = DateTime.UtcNow;
+                    logger.Debug(ex, $"Task notification poll is temporarily unavailable; retrying in {delaySeconds}s.");
+                }
             }
             finally
             {

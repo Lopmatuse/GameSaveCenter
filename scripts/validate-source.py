@@ -582,6 +582,12 @@ def check_large_library_performance_guards() -> None:
     for token in ("GetGameMatchCacheAsync", "GameMatchInput.CreateHash", "retryBefore"):
         if token not in catalog:
             fail(f"Incremental Ludusavi matching guard missing: {token}")
+    for token in ("BackgroundMatchThreshold", "QueueBackgroundMatches", "ProcessBackgroundMatchesAsync", "Library descriptors persisted"):
+        if token not in catalog:
+            fail(f"Large-library non-blocking matching guard missing: {token}")
+    for token in ("taskNotificationRetryAfterUtc", "taskNotificationFailureCount", "retrying in"):
+        if token not in plugin:
+            fail(f"Task notification backoff guard missing: {token}")
     if "_store.GetBackupVersionsAsync" in dashboard or "_store.GetMediaAsync" in dashboard or "_store.GetPolicyAsync" in dashboard:
         fail("DashboardService must use aggregate records instead of per-game N+1 queries")
     if "GetDashboardGameRecordsAsync" not in dashboard or "GROUP BY playnite_id" not in store:

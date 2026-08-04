@@ -852,3 +852,12 @@
 - 在 1600/1280/1024/850/700 DIP、125%/150% DPI、浅色/深色/跟随 Playnite/高对比度/关闭透明/关闭动画下重复检查文案对比度和圆角表面。
 
 - 为待归类媒体分别准备 0 条和至少 1 条记录；确认空状态只在 0 条时出现，有媒体时不会覆盖表格行。
+
+### 0.6.23 P0-001 大型 Playnite 库启动回归
+
+- [ ] 使用 900–1000 款游戏的真实 Playnite 库启动并启用 GameSaveCenter；确认 Worker 先进入可用状态，Dashboard 能先显示 SQLite 缓存，不等待全部 Ludusavi 匹配结束。
+- [ ] 检查 `worker-launch.log`：大批量同步应出现“descriptors persisted”和“matches queued in the background”，而不是在 IPC 请求内连续等待数分钟。
+- [ ] 区分 GameSaveCenter 与独立 `LudusaviPlaynite` 扩展的负载；如果两者同时启用，确认 Playnite 仍可操作，并记录两者各自的请求数量。
+- [ ] 在 Worker 启动、忙碌、重启和断开期间观察 `extensions.log`；通知轮询应按 5–60 秒退避，不应每秒重复输出命名管道连接超时。
+- [ ] 重复打开/关闭 GameSaveCenter、切换六个工作区、启动/停止游戏；确认缓存可读、后台匹配完成后摘要自动更新，且没有 XAML、ContentDialogHost、Dispatcher 或未处理异常。
+- [ ] 与 100 款、500 款库分别比较首次打开时间、Playnite UI 响应和 Worker 日志；记录从插件侧栏点击到首页首屏可用的耗时。

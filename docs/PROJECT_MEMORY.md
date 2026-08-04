@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-08-04
-当前版本：`0.6.22-development-preview`
+当前版本：`0.6.23-development-preview`
 
 ### 2026-08-04 共享页签与滚动通道
 
@@ -842,3 +842,10 @@ UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，
 ### UI-085：媒体收件箱空状态按 Count 切换
 
 - 待归类媒体文案必须绑定 `UnassignedMedia.Count`；不能让静态 TextBlock 覆盖有数据的 DataGrid。
+
+### P0-001：大型库匹配必须与 IPC 解耦
+
+- `GameCatalogService.UpsertAndMatchAsync` 先持久化轻量 `GameDescriptorDto`；当全库或大批量待匹配项进入时，不能在命名管道请求内顺序启动大量 Ludusavi 进程。
+- 大批量匹配使用后台队列，队列失败不应让 Worker 退出；SQLite 中已有匹配和 Dashboard 摘要必须先可读。
+- Playnite 的任务通知轮询不是 Worker 健康检查，Worker 启动/繁忙/重启时必须指数退避，不能每秒反复连接命名管道。
+- 900/1000 游戏回归要同时区分 GameSaveCenter 自己的匹配和独立 `LudusaviPlaynite` 扩展；不能把第三方扩展的 967 个请求误归因给 GameSaveCenter，但应在诊断中提示两者并行会放大负载。
