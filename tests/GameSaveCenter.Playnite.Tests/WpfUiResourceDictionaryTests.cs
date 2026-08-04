@@ -1080,6 +1080,7 @@ public sealed class WpfUiResourceDictionaryTests
             ("SaveCenterView.xaml", "Backups.Count"),
             ("SaveCenterView.xaml", "SaveCandidates.Count"),
             ("MediaCenterView.xaml", "MediaView.IsEmpty"),
+            ("MediaCenterView.xaml", "UnassignedMedia.Count"),
             ("MediaCenterView.xaml", "MediaSources.Count"),
             ("TrainerCenterView.xaml", "GameTools.Count"),
             ("TrainerCenterView.xaml", "TrainerCatalogResults.Count"),

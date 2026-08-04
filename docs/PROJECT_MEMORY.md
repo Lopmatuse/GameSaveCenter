@@ -838,3 +838,7 @@ UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，
 - 空状态属于 DataGrid/ListBox 容器的叠加提示，不得用外层页面 `ScrollViewer` 或 `StackPanel` 改变表格测量。
 - 统一使用 `GscEmptyStateText`，文案应说明当前为空的原因和下一步动作；`IsHitTestVisible=False`，保证表格仍可获得键盘焦点。
 - 新增空状态时优先绑定 `ICollectionView.IsEmpty` 或可观察集合 `Count`，不得为显示提示额外发起 Worker 查询。
+
+### UI-085：媒体收件箱空状态按 Count 切换
+
+- 待归类媒体文案必须绑定 `UnassignedMedia.Count`；不能让静态 TextBlock 覆盖有数据的 DataGrid。

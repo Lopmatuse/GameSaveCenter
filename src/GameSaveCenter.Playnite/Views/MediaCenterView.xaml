@@ -98,7 +98,16 @@
                                     <DataGridTextColumn HeaderStyle="{StaticResource MediaLastColumnHeader}" Header="原因" Binding="{Binding ClassificationReason, Mode=OneWay}" Width="1.1*" MinWidth="220"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource MediaLongText}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn>
                                 </DataGrid.Columns>
                             </DataGrid>
-                            <TextBlock Text="当前没有等待归类的媒体。" IsHitTestVisible="False" Style="{StaticResource MediaEmptyText}"/>
+                            <TextBlock Text="当前没有等待归类的媒体。" IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource GscEmptyStateText}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding UnassignedMedia.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </Grid>
                     </Border>
                     <WrapPanel Grid.Row="2" Margin="0,10,0,0">
