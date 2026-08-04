@@ -346,8 +346,8 @@ namespace GameSaveCenter.Playnite.Views
 
             if (TaskSummaryPanel != null)
             {
-                TaskSummaryPanel.Columns = width >= 1120 ? 3 : 1;
-                TaskSummaryPanel.Visibility = height >= 720 ? Visibility.Visible : Visibility.Collapsed;
+                TaskWorkspaceView.TaskSummaryPanelElement.Columns = width >= 1120 ? 3 : 1;
+                TaskWorkspaceView.TaskSummaryPanelElement.Visibility = height >= 720 ? Visibility.Visible : Visibility.Collapsed;
             }
 
             if (DiagnosticHealthPanel != null)
@@ -575,7 +575,8 @@ namespace GameSaveCenter.Playnite.Views
             SetVisibility(CandidateTab, workspace == WorkspaceKind.Saves);
             SetVisibility(TrainerTab, workspace == WorkspaceKind.Trainers);
             SetVisibility(MediaTab, workspace == WorkspaceKind.Media);
-            SetVisibility(TaskTab, workspace == WorkspaceKind.Tasks);
+            SetVisibility(TaskWorkspaceTab, workspace == WorkspaceKind.Tasks);
+            SetVisibility(TaskTab, false);
             SetVisibility(DiagnosticTab, workspace == WorkspaceKind.Maintenance);
             SetVisibility(DeviceStatusTab, workspace == WorkspaceKind.Maintenance);
             SetVisibility(LogsTab, workspace == WorkspaceKind.Maintenance);
@@ -760,7 +761,7 @@ namespace GameSaveCenter.Playnite.Views
             }
             else if (e.PropertyName == nameof(DashboardViewModel.SelectedTask) && !viewModel.IsBackgroundRefreshing)
             {
-                BeginUiSafely(() => AnimateElement(TaskDetailCard, 8, 0, 0.2), DispatcherPriority.Background);
+                BeginUiSafely(() => AnimateElement(TaskWorkspaceView.TaskDetailCardElement, 8, 0, 0.2), DispatcherPriority.Background);
             }
             else if (e.PropertyName == nameof(DashboardViewModel.StatusMessage))
             {

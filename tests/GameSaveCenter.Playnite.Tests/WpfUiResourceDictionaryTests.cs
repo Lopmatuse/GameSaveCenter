@@ -607,6 +607,30 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void TaskWorkspaceIsPhysicallyExtractedAsAGlobalVirtualizedSurface()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var taskPath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TaskCenterView.xaml");
+        var task = XDocument.Parse(File.ReadAllText(taskPath));
+
+        Assert.Contains("x:Name=\"TaskWorkspaceTab\"", dashboard);
+        Assert.Contains("<views:TaskCenterView x:Name=\"TaskWorkspaceView\"/>", dashboard);
+        Assert.Contains("SetVisibility(TaskTab, false);", dashboardCode);
+        Assert.Contains("TaskWorkspaceView.TaskSummaryPanelElement.Columns", dashboardCode);
+        Assert.Contains("TaskWorkspaceView.TaskDetailCardElement", dashboardCode);
+        Assert.DoesNotContain("GamePicker", File.ReadAllText(taskPath));
+
+        var dataGrid = task.Descendants().Single(element => element.Name.LocalName == "DataGrid");
+        Assert.DoesNotContain(dataGrid.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
+        Assert.Contains("<Setter Property=\"EnableRowVirtualization\" Value=\"True\"/>", File.ReadAllText(taskPath));
+        Assert.Contains("CopyTaskErrorCommand", File.ReadAllText(taskPath));
+        Assert.Contains("RetryTaskCommand", File.ReadAllText(taskPath));
+        Assert.Contains("CancelTaskCommand", File.ReadAllText(taskPath));
+    }
+
+    [Fact]
     public void EveryDashboardViewModelCommandRemainsReachableFromTheRedesignedDashboard()
     {
         var repositoryRoot = FindRepositoryRoot();
