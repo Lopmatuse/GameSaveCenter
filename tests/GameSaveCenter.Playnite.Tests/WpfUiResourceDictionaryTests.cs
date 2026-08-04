@@ -446,7 +446,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("<Style TargetType=\"DataGridCell\">", production);
         Assert.Contains("<Style TargetType=\"DataGridRow\">", production);
         Assert.Contains("<Style TargetType=\"DataGrid\">", production);
-        Assert.Contains("ScrollViewer.PanningMode\" Value=\"VerticalOnly\"", production);
+        Assert.Contains("ScrollViewer.PanningMode\" Value=\"Both\"", production);
         Assert.Contains("KeyboardNavigation.TabNavigation\" Value=\"Local\"", production);
         Assert.Contains("KeyboardNavigation.DirectionalNavigation\" Value=\"Contained\"", production);
         Assert.Contains("VirtualizingPanel.VirtualizationMode\" Value=\"Recycling\"", production);
@@ -467,6 +467,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Property=\"Height\" Value=\"{DynamicResource GscTableViewportHeight}\"", production);
         Assert.Contains("x:Key=\"GscTableHeaderHeight\"", designTokens);
         Assert.Contains("x:Key=\"GscTableAlternateRowBrush\"", designTokens);
+        Assert.Contains("x:Key=\"GscPageScrollViewer\"", designTokens);
+        Assert.Contains("x:Key=\"GscInspectorScrollViewer\"", designTokens);
 
         foreach (var workspace in new[] { "OverviewView.xaml", "SaveCenterView.xaml", "MediaCenterView.xaml", "TaskCenterView.xaml", "MaintenanceView.xaml" })
         {
@@ -481,6 +483,7 @@ public sealed class WpfUiResourceDictionaryTests
             Assert.Contains("Property=\"RowHeight\" Value=\"{DynamicResource GscTableRowHeight}\"", text);
             Assert.Contains("Property=\"ColumnHeaderHeight\" Value=\"{DynamicResource GscTableHeaderHeight}\"", text);
             Assert.Contains("Property=\"AlternatingRowBackground\" Value=\"{DynamicResource GscTableAlternateRowBrush}\"", text);
+            Assert.Contains("Style=\"{DynamicResource GscPageScrollViewer}\"", text);
             Assert.DoesNotContain("BlurEffect", text);
         }
     }
@@ -1292,7 +1295,7 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("Observe(InitializeAsync())", viewModelCode);
         Assert.DoesNotContain("Run(InitializeAsync)", viewModelCode);
-        Assert.Contains("WaitForHealthAsync(TimeSpan.FromSeconds(12))", launcherCode);
+        Assert.Contains("WaitForHealthAsync(TimeSpan.FromSeconds(45))", launcherCode);
         Assert.Contains("WaitForHealthAsync", launcherCode);
     }
 

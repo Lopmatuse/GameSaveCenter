@@ -16,7 +16,7 @@
             <Style x:Key="SaveTabItem" TargetType="TabItem" BasedOn="{StaticResource GscRedesignWorkspaceTabItem}"/>
         </ResourceDictionary>
     </UserControl.Resources>
-    <ScrollViewer x:Name="SavePageScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
+    <ScrollViewer x:Name="SavePageScrollViewer" Style="{DynamicResource GscPageScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
     <Grid Margin="0,12,0,12">
         <TabControl Style="{StaticResource SaveTabControl}"><TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource SaveTabItem}"/></TabControl.Resources>
             <TabItem Header="历史版本"><Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>

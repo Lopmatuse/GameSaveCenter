@@ -15,6 +15,13 @@ public sealed class GameCatalogService
     // update synchronous, but let large refreshes drain in the background.
     private const int BackgroundMatchThreshold = 20;
     private const int BackgroundMatchBatchSize = 4;
+    // A large Playnite library often contains hundreds of uninstalled entries.  They cannot
+    // produce a save backup until they are installed, so matching all of them on the first
+    // dashboard open only creates a long stream of short-lived Ludusavi processes.  Keep each
+    // catalog refresh bounded to a useful foreground set; the next library refresh or the
+    // game's own start event can enqueue the remaining entries later.
+    private const int LargeLibraryBackgroundMatchBudget = 64;
+    private static readonly TimeSpan RecentlyPlayedPriorityWindow = TimeSpan.FromDays(90);
     private static readonly TimeSpan BackgroundMatchYieldDelay = TimeSpan.FromMilliseconds(180);
     private static readonly TimeSpan BackgroundMatchInitialDelay = TimeSpan.FromSeconds(30);
     private readonly SqliteStateStore _store;
@@ -71,8 +78,20 @@ public sealed class GameCatalogService
         // its session has a match available, while large library refreshes return immediately.
         if (pending.Count >= BackgroundMatchThreshold || list.Count >= 100)
         {
-            QueueBackgroundMatches(pending);
-            _logger.LogInformation("Library descriptors persisted; {PendingCount} Ludusavi matches queued in the background.", pending.Count);
+            var backgroundPending = list.Count >= 100
+                ? pending
+                    .Where(x => x.Game.IsInstalled || IsRecentlyPlayed(x.Game, now))
+                    .OrderByDescending(x => x.Game.IsInstalled)
+                    .ThenByDescending(x => x.Game.LastPlayedUtc ?? DateTime.MinValue)
+                    .ThenBy(x => x.Game.Name, StringComparer.OrdinalIgnoreCase)
+                    .Take(LargeLibraryBackgroundMatchBudget)
+                    .ToList()
+                : pending;
+            QueueBackgroundMatches(backgroundPending);
+            _logger.LogInformation(
+                "Library descriptors persisted; {QueuedCount} Ludusavi matches queued in the background ({DeferredCount} low-priority entries deferred).",
+                backgroundPending.Count,
+                Math.Max(0, pending.Count - backgroundPending.Count));
             return;
         }
 
@@ -175,6 +194,9 @@ public sealed class GameCatalogService
     }
 
     private sealed record PendingMatch(GameDescriptorDto Game,string InputHash);
+
+    private static bool IsRecentlyPlayed(GameDescriptorDto game, DateTime now)
+        => game.LastPlayedUtc.HasValue && now - game.LastPlayedUtc.Value.ToUniversalTime() <= RecentlyPlayedPriorityWindow;
 
     public Task<List<GameDescriptorDto>> GetGamesAsync(CancellationToken token)=>_store.GetGamesAsync(token);
     public Task<GameDescriptorDto?> GetGameAsync(string id,CancellationToken token)=>_store.GetGameAsync(id,token);

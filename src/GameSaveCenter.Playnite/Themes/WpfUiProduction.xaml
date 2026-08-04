@@ -260,11 +260,15 @@
         <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
-        <Setter Property="ScrollViewer.PanningMode" Value="VerticalOnly"/>
+        <!-- Tables may contain long paths and diagnostic messages.  Allow touchpad/pen
+             panning in both axes, while the page-level viewer remains vertical-only. -->
+        <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
         <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
         <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
         <Setter Property="EnableRowVirtualization" Value="True"/>
         <Setter Property="EnableColumnVirtualization" Value="True"/>
+        <Setter Property="CanUserResizeRows" Value="False"/>
+        <Setter Property="SelectionMode" Value="Single"/>
         <Setter Property="KeyboardNavigation.TabNavigation" Value="Local"/>
         <Setter Property="KeyboardNavigation.DirectionalNavigation" Value="Contained"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>

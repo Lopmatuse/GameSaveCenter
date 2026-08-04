@@ -1,9 +1,9 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.35
+  - Version: 0.6.36
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-08-05
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.35/GameSaveCenter-0.6.35.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.36/GameSaveCenter-0.6.36.pext
     Changelog:
       - 900+ 游戏库在未打开 GameSaveCenter 前不再自动提交整库匹配；打开面板后才释放同步闸门，持久化缓存仍可立即使用。
       - 可独立关闭 Steam、Xbox Game Bar、Windows 截图、游戏相邻目录和自定义媒体来源扫描。
@@ -15,9 +15,12 @@ Packages:
       - 自动刷新与初始化同步均改用可观察的 Task 流程。
       - 900+ 游戏库同步先持久化并立即可用，大批量 Ludusavi 匹配改为后台分批处理；大型库启动先让 Playnite 空闲 25 秒再开始匹配，Worker 忙碌时 Playnite 通知轮询指数退避。
       - Dashboard 和 Settings 构造异常时返回隔离诊断视图，避免单次 XAML 资源回归让 Playnite 弹出扩展崩溃窗口。
-      - 修复 Worker 忙碌时健康探测超时就被误杀的问题；现有进程会先获得 12 秒恢复窗口。
+      - 修复 Worker 忙碌时健康探测超时就被误杀的问题；现有进程会先获得 45 秒恢复窗口。
       - Dashboard 首次打开不再进入完整命令的 Worker 等待边界，先显示持久化缓存，Worker 就绪后后台刷新。
       - Dashboard 外壳统一向存档、修改器和维护工作区转发响应式尺寸；设备状态页新增页面级滚动与有限 DataGrid 视口，矮窗口仍可访问多行和下方决策操作。
+      - 900+ 游戏库后台匹配改为优先已安装/近期游玩游戏，并限制每轮最多 64 个 Ludusavi 匹配；未安装条目延后到游戏安装、启动或后续同步，避免首次打开后的长时间进程风暴。
+      - Worker 使用当前用户级单实例互斥，重复启动只退出重复进程；同路径 Worker 健康恢复窗口延长到 45 秒，避免大型 SQLite/进程扫描期间被误杀并反复重启。
+      - 页面级 ScrollViewer 统一为单一纵向滚动通道，表格保留双轴内部滚动和虚拟化，降低窄窗口裁切与长路径不可见问题。
       - 六个工作区统一增加页面级纵向滚动；共享 DataGrid/ListBox 视口提升为 320–560 DIP，保留虚拟化并避免表格只显示一两行。
       - 云端备份复制失败后会持久化并按退避计划自动重试，成功后自动清理队列。
       - 全局数值输入改为完整编辑后提交，修复游戏策略分钟输入无法可靠输入多位数的问题。

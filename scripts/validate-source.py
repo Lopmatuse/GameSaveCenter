@@ -582,7 +582,9 @@ def check_large_library_performance_guards() -> None:
     for token in ("GetGameMatchCacheAsync", "GameMatchInput.CreateHash", "retryBefore"):
         if token not in catalog:
             fail(f"Incremental Ludusavi matching guard missing: {token}")
-    for token in ("BackgroundMatchThreshold", "QueueBackgroundMatches", "ProcessBackgroundMatchesAsync", "BackgroundMatchInitialDelay", "Library descriptors persisted"):
+    for token in ("BackgroundMatchThreshold", "QueueBackgroundMatches", "ProcessBackgroundMatchesAsync", "BackgroundMatchInitialDelay",
+                  "LargeLibraryBackgroundMatchBudget", "RecentlyPlayedPriorityWindow", "IsRecentlyPlayed", "low-priority entries deferred",
+                  "Library descriptors persisted"):
         if token not in catalog:
             fail(f"Large-library non-blocking matching guard missing: {token}")
     for token in ("StartWorkerAndScheduleSynchronizationAsync", "largeLibraryStartupSyncNotBeforeUtc", "TimeSpan.FromSeconds(25)", "ConfigureLargeLibraryStartupGate", "TimeSpan.FromSeconds(60)"):

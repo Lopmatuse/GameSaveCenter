@@ -93,6 +93,28 @@
     <sys:Double x:Key="GscListViewportHeight">520</sys:Double>
     <sys:Double x:Key="GscTableHeaderHeight">44</sys:Double>
 
+    <!-- Page-level scrolling is deliberately keyed instead of implicit.  A page owns one
+         vertical scroll channel; tables and lists own their own internal channels.  Keeping
+         the contract here prevents a Playnite host theme from turning the outer viewer into a
+         focusable square surface or re-enabling horizontal page scrolling. -->
+    <Style x:Key="GscPageScrollViewer" TargetType="ScrollViewer">
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="CanContentScroll" Value="False"/>
+        <Setter Property="PanningMode" Value="VerticalOnly"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="KeyboardNavigation.TabNavigation" Value="Local"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+
+    <!-- Inspectors are finite secondary surfaces.  They may scroll vertically, but never
+         create a second page-wide horizontal viewport when a long path or diagnostic wraps. -->
+    <Style x:Key="GscInspectorScrollViewer" TargetType="ScrollViewer" BasedOn="{StaticResource GscPageScrollViewer}">
+        <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="MaxHeight" Value="280"/>
+    </Style>
+
     <!-- Stable, mostly opaque reading surface. Views may add their own layout-only padding
          but must not recreate a different card material for every settings section. It stays
          effect-free so dense pages do not attach a compositor effect to every small group. -->

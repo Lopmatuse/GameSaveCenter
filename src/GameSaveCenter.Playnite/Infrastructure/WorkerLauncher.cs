@@ -50,7 +50,12 @@ namespace GameSaveCenter.Playnite.Infrastructure
                         if (!string.IsNullOrWhiteSpace(runningPath) &&
                             string.Equals(Path.GetFullPath(runningPath), fullExecutable, StringComparison.OrdinalIgnoreCase))
                         {
-                            var healthy = await WaitForHealthAsync(TimeSpan.FromSeconds(12)).ConfigureAwait(false);
+                            // Large SQLite stores and a first-run process scan can legitimately
+                            // take longer than the old 12-second grace period.  Killing that
+                            // instance created the exact restart/pipe-timeout loop reported by
+                            // 900+ game libraries.  Give a live, same-path Worker enough time
+                            // to finish initialization before treating it as wedged.
+                            var healthy = await WaitForHealthAsync(TimeSpan.FromSeconds(45)).ConfigureAwait(false);
                             if (healthy) return;
 
                             // Only replace a process that is still alive after the grace period.

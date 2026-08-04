@@ -1,16 +1,16 @@
-## 0.6.35 大型游戏库与主题令牌最终 UI 回归
+## 0.6.36 大型游戏库、Worker 单实例与主题令牌最终 UI 回归
 
 ### GSC-012 900+ 游戏库启动隔离
 
-- [ ] 确认 Playnite `playnite.log` 加载的是 `GameSaveCenter 0.6.35`，而不是旧版 0.6.22。
+- [ ] 确认 Playnite `playnite.log` 加载的是 `GameSaveCenter 0.6.36`，而不是旧版 0.6.22。
 - [ ] 关闭独立 `LudusaviPlaynite` 扩展，冷启动 Playnite，确认仅启用 GameSaveCenter 不会在前 60 秒提交整库 Ludusavi 匹配；大型库在 Dashboard 或游戏启动前也不应自动启动 Worker。
-- [ ] 打开 GameSaveCenter Dashboard，确认先显示已有缓存；60 秒空闲后才开始后台同步，手动点击“刷新”才立即接管并执行同步。
+- [ ] 打开 GameSaveCenter Dashboard，确认先显示已有缓存；60 秒空闲后才开始后台同步，手动点击“刷新”才立即接管并执行同步；后台每轮最多处理 64 个已安装/近期游玩条目。
 - [ ] 重新启用独立 `LudusaviPlaynite` 做对照，记录 60 秒内 `find` 请求数、CPU/磁盘占用和命名管道超时；两套集成不应同时在 Playnite 启动阶段发起全库请求。
-- [ ] 连续打开/关闭侧栏至少 5 次，确认没有重复 Worker、XAML 资源异常、崩溃对话框或旧版本 DLL 被加载。
+- [ ] 连续打开/关闭侧栏至少 5 次，确认没有重复 Worker、XAML 资源异常、崩溃对话框或旧版本 DLL 被加载；同时确认 Worker 进程数始终为 1。
 
 ### GSC-013 旧版崩溃回归
 
-- [ ] 任何日志出现 `Wpf.Ui.Controls.Button`、`GscSoftShadowColor`、`ContentDialogHost` 或只读 DTO TwoWay 绑定错误时，停止功能测试，确认安装目录已被新 PEXT 完整替换并重新检查程序集版本 `0.6.35.0`。
+- [ ] 任何日志出现 `Wpf.Ui.Controls.Button`、`GscSoftShadowColor`、`ContentDialogHost` 或只读 DTO TwoWay 绑定错误时，停止功能测试，确认安装目录已被新 PEXT 完整替换并重新检查程序集版本 `0.6.36.0`。
 
 ## UI-055 WPF-UI 输入、Popup 与内部滚动回归
 

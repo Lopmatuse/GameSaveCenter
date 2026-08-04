@@ -3,6 +3,7 @@ using GameSaveCenter.Worker.Infrastructure;
 using GameSaveCenter.Worker.Ipc;
 using GameSaveCenter.Worker.Persistence;
 using GameSaveCenter.Worker.Services;
+using GameSaveCenter.Contracts;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -14,6 +15,18 @@ internal static class Program
 {
     public static async Task Main(string[] args)
     {
+        // The Playnite extension can receive overlapping startup callbacks while the host is
+        // importing a large library.  A second Worker sharing the same named pipe is not a
+        // harmless duplicate: clients can land on different SQLite/process-detection state
+        // and the original instance may be killed by a later health probe.  Keep one current-
+        // user Worker per protocol pipe and let the existing instance serve all clients.
+        using var singleInstance = new Mutex(true, "Local\\" + ProtocolConstants.PipeName, out var createdNew);
+        if (!createdNew)
+        {
+            Console.Error.WriteLine("GameSaveCenter Worker is already running; exiting duplicate instance.");
+            return;
+        }
+
         var builder = Host.CreateApplicationBuilder(args);
         builder.Logging.ClearProviders();
         builder.Logging.AddSimpleConsole(options =>
@@ -50,6 +63,13 @@ internal static class Program
         builder.Services.AddHostedService(provider => provider.GetRequiredService<GameSessionCoordinator>());
         builder.Services.AddHostedService<ExternalGameProcessDetector>();
 
-        await builder.Build().RunAsync().ConfigureAwait(false);
+        try
+        {
+            await builder.Build().RunAsync().ConfigureAwait(false);
+        }
+        finally
+        {
+            try { singleInstance.ReleaseMutex(); } catch (ApplicationException) { }
+        }
     }
 }
