@@ -766,3 +766,8 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 
 - FLiNG 在线库的搜索结果属于独立工作区；选择结果必须在 `TrainerCenterView` 内触发 `LoadTrainerReleasesCommand`，不能依赖已隐藏的旧 Dashboard 标签页事件。
 - 提取工作区后，任何原先挂在 `DashboardView` 旧内容上的选择变化行为，都必须迁移到对应工作区的 XAML/code-behind，并用门禁测试确认仍可达。
+
+## 2026-08-04 0.6.22 UI-068 首页摘要归属规则
+
+- `OverviewView` 是首页摘要、需关注和最近活动的唯一视觉归属；Dashboard 外壳不得重新渲染旧的六张统计卡片。
+- 删除重复摘要时必须保留 `OpenAttentionCenterCommand`、`AttentionFindings` 和维护中心定位行为；目标是释放垂直空间，不是删除关注信息。

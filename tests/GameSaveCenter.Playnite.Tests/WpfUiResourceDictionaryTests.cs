@@ -966,6 +966,21 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void DashboardDoesNotRenderASecondLegacyOverviewMetricStrip()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        // OverviewView owns the summary surface. Keeping the old six-card strip in the
+        // Dashboard shell duplicates information and consumes the vertical budget needed by
+        // the real activity/risk workspace at ordinary window sizes.
+        Assert.DoesNotContain("x:Name=\"MetricsPanel\"", dashboard);
+        Assert.DoesNotContain("MetricsPanel", dashboardCode);
+        Assert.Contains("<views:OverviewView x:Name=\"OverviewWorkspaceView\"/>", dashboard);
+    }
+
+    [Fact]
     public void TaskWorkspaceIsPhysicallyExtractedAsAGlobalVirtualizedSurface()
     {
         var repositoryRoot = FindRepositoryRoot();

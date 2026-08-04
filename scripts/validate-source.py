@@ -1174,7 +1174,10 @@ def check_wpf_ui_production_scope_guards() -> None:
     for source, label, required in (
         (dashboard, "Dashboard WPF-UI production scope",
          ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiProduction.xaml",
-          "<ui:Card", "<ui:Button", "<ui:ToggleSwitch",
+          # The summary cards now live in the extracted OverviewView. The shell still owns
+          # WPF-UI action controls and toggle controls, so scope validation must not require
+          # a legacy ui:Card instance in DashboardView itself.
+          "<ui:Button", "<ui:ToggleSwitch",
           "x:Name=\"SnackbarHost\"")),
         (settings, "Settings WPF-UI production scope",
          ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiProduction.xaml",

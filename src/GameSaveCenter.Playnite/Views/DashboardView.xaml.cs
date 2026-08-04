@@ -217,7 +217,7 @@ namespace GameSaveCenter.Playnite.Views
 
         private void ApplyResponsiveLayout(double width, double height)
         {
-            if (SidebarColumn == null || MetricsPanel == null || GameListColumn == null) return;
+            if (SidebarColumn == null || GameListColumn == null) return;
 
             var mode = width >= 1260 ? LayoutMode.Expanded
                 : width >= 980 ? LayoutMode.Standard
@@ -335,11 +335,6 @@ namespace GameSaveCenter.Playnite.Views
             }
 
             PageSubtitleText.Visibility = height >= 760 ? Visibility.Visible : Visibility.Collapsed;
-            var showMetrics = viewModel.CurrentWorkspace == WorkspaceKind.Overview && height >= 760 && width >= 980;
-            MetricsPanel.Visibility = showMetrics ? Visibility.Visible : Visibility.Collapsed;
-            MetricsPanel.Columns = width >= 1480 ? 6 : width >= 1120 ? 3 : 2;
-            MetricsPanel.Margin = showMetrics ? new Thickness(0, 0, 0, 16) : new Thickness(0);
-
             if (OverviewWorkspaceView != null)
             {
                 var stackOverview = width < 1180;

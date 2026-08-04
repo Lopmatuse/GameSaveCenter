@@ -1052,6 +1052,12 @@
 - 新增 XAML/代码门禁；Release 测试 109 项通过，Release 构建 0 警告、0 错误。
 - 仍需 Windows/Playnite 验证 FLiNG 目录同步、版本列表加载、下载绑定和主题/DPI 下的可达性。
 
+## 2026-08-04 0.6.22 UI-068 首页重复统计收口
+
+- 移除 Dashboard 外壳中仍残留的旧六张统计卡片；摘要、需关注和最近活动统一由已提取的 `OverviewView` 负责，避免普通窗口高度下重复占用垂直空间。
+- 保留 `OpenAttentionCenterCommand` 和 `AttentionFindings` 的具体原因入口，不改变业务数据或命令行为。
+- 新增结构门禁；Release 测试 110 项通过，Release 构建 0 警告、0 错误。
+
 
 ## 2026-08-02 UI-005 全功能视觉重构（源码阶段）
 

@@ -881,50 +881,6 @@
                 </Button>
             </Border>
         </Grid>
-        <UniformGrid x:Name="MetricsPanel" Grid.Row="1" Columns="6" Margin="0,0,0,18">
-            <ui:Card Style="{StaticResource GscRedesignMetricCard}">
-                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscAccentIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="管理游戏" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.ManagedGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
-                </Grid>
-            </ui:Card>
-            <ui:Card Style="{StaticResource GscRedesignMetricCard}">
-                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscInfoIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{DynamicResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="已匹配存档" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.MatchedGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
-                </Grid>
-            </ui:Card>
-            <ui:Card Style="{StaticResource GscRedesignMetricCard}">
-                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscSuccessIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE768;" Foreground="{DynamicResource GscSuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="正在运行" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.RunningGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
-                </Grid>
-            </ui:Card>
-            <ui:Card Style="{StaticResource GscRedesignMetricCard}">
-                <Button Style="{StaticResource GscButtonBase}"
-                        Command="{Binding OpenAttentionCenterCommand}"
-                        ToolTip="查看需要关注的游戏、原因和建议处理方式"
-                        HorizontalContentAlignment="Stretch"
-                        Padding="0" Margin="0" Background="Transparent" BorderBrush="Transparent">
-                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                        <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscErrorIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xEB52;" Foreground="{DynamicResource GscErrorBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
-                        <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="需要关注" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.WarningGames}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
-                    </Grid>
-                </Button>
-            </ui:Card>
-            <ui:Card Style="{StaticResource GscRedesignMetricCard}">
-                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscInfoIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE753;" Foreground="{DynamicResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="云端任务" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.PendingCloudTasks}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
-                </Grid>
-            </ui:Card>
-            <ui:Card Style="{StaticResource GscRedesignMetricCard}" Margin="0">
-                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border Width="36" Height="36" CornerRadius="18" Background="{DynamicResource GscWarningIconFillBrush}"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE91B;" Foreground="{DynamicResource GscWarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="17"/></Border>
-                    <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="待归类媒体" TextAlignment="Center" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount}" TextAlignment="Center" FontSize="22" FontWeight="SemiBold"/></StackPanel>
-                </Grid>
-            </ui:Card>
-        </UniformGrid>
 
         <Grid x:Name="WorkspaceGrid" Grid.Row="2" MinHeight="0">
             <Grid.RowDefinitions>
