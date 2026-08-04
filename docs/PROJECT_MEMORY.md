@@ -802,3 +802,6 @@ UI-074：抽出的工作区拥有自己的 ResourceDictionary，主题切换时�
 
 UI-075：所有可键盘选择的 `ListBoxItem` 必须保留 `GscSharedFocusVisual`；不得用 `FocusVisualStyle={x:Null}`
 掩盖自定义卡片模板。隐式列表项使用共享圆角、悬停和选中资源，工作区特化模板也必须复用焦点环。
+
+UI-076：自定义游戏上下文按钮和设置分类 `TabItem` 也必须显式绑定 `GscSharedFocusVisual`，不能只依赖
+鼠标 Hover 状态。

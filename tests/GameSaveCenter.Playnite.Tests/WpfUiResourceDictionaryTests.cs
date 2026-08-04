@@ -1250,6 +1250,7 @@ public sealed class WpfUiResourceDictionaryTests
     {
         var repositoryRoot = FindRepositoryRoot();
         var production = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "WpfUiProduction.xaml"));
+        var redesign = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "Redesign.xaml"));
         var trainer = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml"));
 
         Assert.Contains("<Style TargetType=\"ListBoxItem\">", production);
@@ -1258,6 +1259,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Value=\"{DynamicResource GscRowHoverBrush}\"", production);
         Assert.DoesNotContain("FocusVisualStyle\" Value=\"{x:Null}\"", trainer);
         Assert.Contains("FocusVisualStyle\" Value=\"{DynamicResource GscSharedFocusVisual}\"", trainer);
+        Assert.Contains("x:Key=\"GscRedesignGameContextButton\"", redesign);
+        Assert.Contains("x:Key=\"GscRedesignSettingsTabItem\"", redesign);
+        Assert.Contains("FocusVisualStyle\" Value=\"{DynamicResource GscSharedFocusVisual}\"", redesign);
     }
 
     [Fact]
