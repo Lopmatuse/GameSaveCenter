@@ -45,6 +45,8 @@ namespace GameSaveCenter.Contracts
         public bool IsPreRestore { get; set; }
         public DateTime CreatedLocal => CreatedUtc.ToLocalTime();
         public string SizeDisplay => FormatBytes(TotalBytes);
+        public string BackupTypeDisplay => IsPreRestore ? "恢复前快照" : "普通备份";
+        public string LockStateDisplay => IsLocked ? "已锁定" : "未锁定";
 
         private static string FormatBytes(long bytes)
         {

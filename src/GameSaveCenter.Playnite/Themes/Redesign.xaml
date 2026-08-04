@@ -169,6 +169,15 @@
         <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
+    <!-- Small semantic pills used inside dense tables. Keeping these shared prevents each
+         DataGrid cell template from inventing a different radius, padding or theme fallback. -->
+    <Style x:Key="GscRedesignTableStatusPill" TargetType="Border" BasedOn="{StaticResource GscRedesignContextPill}">
+        <Setter Property="Padding" Value="8,3"/>
+        <Setter Property="CornerRadius" Value="9"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+    </Style>
+
+
     <Style x:Key="GscRedesignSectionTitle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="17"/>
         <Setter Property="FontWeight" Value="SemiBold"/>

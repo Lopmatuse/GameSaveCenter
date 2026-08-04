@@ -1,7 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.50-development-preview`
+当前版本：`0.6.51-development-preview`
+
+- [x] 0.6.51：存档历史将布尔字段改为可读的“普通备份/恢复前快照”和“已锁定/未锁定”状态胶囊；Worker 启动日志增加程序集版本，便于确认 Playnite 没有继续复用旧 Worker。源码门禁与 Release 验证已完成，仍需 Windows/Playnite 真机验证。
 
 - [x] 0.6.50：统一 Dashboard 的 Warning 关注阈值与游戏健康状态，概览新增运行中/需关注指标，公共页面滚动资源增加内容拉伸和底部留白；已完成源码门禁，仍需 Windows/Playnite 真机验证。
 

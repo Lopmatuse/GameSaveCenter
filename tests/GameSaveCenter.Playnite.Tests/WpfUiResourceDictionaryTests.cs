@@ -1005,6 +1005,22 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void SaveHistoryUsesReadableStatusLabelsAndRoundedStatusTemplates()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var savePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "SaveCenterView.xaml");
+        var save = XDocument.Parse(File.ReadAllText(savePath));
+        var history = save.Descendants().Single(element => element.Name.LocalName == "TabItem" && element.Attribute("Header")?.Value == "历史版本");
+
+        Assert.Contains(history.Descendants(), element => element.Name.LocalName == "DataGridTemplateColumn" && element.Attribute("Header")?.Value == "类型");
+        Assert.Contains(history.Descendants(), element => element.Name.LocalName == "DataGridTemplateColumn" && element.Attribute("Header")?.Value == "状态");
+        var dashboardDtos = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Contracts", "DashboardDtos.cs"));
+        Assert.Contains("BackupTypeDisplay", dashboardDtos);
+        Assert.Contains("LockStateDisplay", dashboardDtos);
+        Assert.Contains(history.Descendants(), element => element.Name.LocalName == "Border" && (element.Attribute("Style")?.Value.IndexOf("GscRedesignTableStatusPill", StringComparison.Ordinal) ?? -1) >= 0);
+    }
+
+    [Fact]
     public void OptionalWpfUiProbeKeepsItsChecklistInsideAFixedGridRow()
     {
         var repositoryRoot = FindRepositoryRoot();

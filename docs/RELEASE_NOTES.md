@@ -1,3 +1,12 @@
+# 0.6.51 Development Preview
+
+## Readable save-history status and runtime version diagnostics
+
+- Save history now renders backup type and lock state as readable, theme-aware rounded status pills instead of raw Boolean values.
+- The Worker initialization log includes the loaded assembly version, making stale Playnite installations easy to identify in `worker-launch.log`.
+- The supplied crash logs loaded 0.6.22; install this package and confirm both Playnite and Worker logs report 0.6.51 before comparing large-library startup behavior.
+- Source validation, automated tests, Release build and packaging still require Windows/Playnite host verification before claiming the UI is complete.
+
 # 0.6.50 Development Preview
 
 ## Overview attention consistency and shared page spacing

@@ -19,7 +19,8 @@ public sealed class WorkerInitializationService : IHostedService
         await _store.InitializeAsync(cancellationToken).ConfigureAwait(false);
         await _store.MarkInterruptedTasksAsync(cancellationToken).ConfigureAwait(false);
         await _detection.CleanupExpiredSnapshotsAsync(cancellationToken).ConfigureAwait(false);
-        _logger.LogInformation("GameSaveCenter Worker storage initialized and stale tasks reconciled");
+        var version = typeof(WorkerInitializationService).Assembly.GetName().Version?.ToString() ?? "unknown";
+        _logger.LogInformation("GameSaveCenter Worker {Version} storage initialized and stale tasks reconciled", version);
     }
 
     public Task StopAsync(CancellationToken cancellationToken)=>Task.CompletedTask;
