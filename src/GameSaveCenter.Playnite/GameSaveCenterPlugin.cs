@@ -173,7 +173,7 @@ namespace GameSaveCenter.Playnite
         {
             // Enabling the extension should not submit a full 900+ game catalog job by itself.
             // Opening the dashboard is explicit user intent and releases this startup gate.
-            observedGameCount = PlayniteApi.Database.Games.Count;
+            ObserveGameCount(PlayniteApi.Database.Games.Count);
             interactiveSurfaceOpened = true;
             StartTaskNotificationMonitor();
             // Opening the dashboard is explicit user intent. Start the Worker in the
@@ -196,7 +196,7 @@ namespace GameSaveCenter.Playnite
 
         private UserControl CreateSettingsViewSafely()
         {
-            observedGameCount = PlayniteApi.Database.Games.Count;
+            ObserveGameCount(PlayniteApi.Database.Games.Count);
             interactiveSurfaceOpened = true;
             StartTaskNotificationMonitor();
             try
@@ -267,7 +267,21 @@ namespace GameSaveCenter.Playnite
             FireAndForget(SynchronizeAsync);
         }
 
-        private bool IsLargeLibrary() => PlayniteApi.Database.Games.Count >= 100;
+        private bool IsLargeLibrary()
+        {
+            ObserveGameCount(PlayniteApi.Database.Games.Count);
+            return observedGameCount >= 100;
+        }
+
+        private void ObserveGameCount(int currentCount)
+        {
+            // Playnite can briefly expose an empty or partial Database.Games collection while
+            // a library provider is importing or shutting down. Never let that transient
+            // snapshot downgrade a previously observed 500+ profile to the small-library
+            // recovery path, which is allowed to terminate and restart a busy Worker.
+            if (currentCount > observedGameCount)
+                observedGameCount = currentCount;
+        }
 
         private bool IsVeryLargeLibrary()
         {
@@ -275,8 +289,7 @@ namespace GameSaveCenter.Playnite
             // count of zero (library import, shutdown, or provider refresh) cannot make a
             // 900+ game Worker look like a small-library process that is safe to terminate.
             var currentCount = PlayniteApi.Database.Games.Count;
-            if (currentCount > observedGameCount)
-                observedGameCount = currentCount;
+            ObserveGameCount(currentCount);
             return observedGameCount >= VeryLargeLibraryThreshold;
         }
 
@@ -568,7 +581,7 @@ namespace GameSaveCenter.Playnite
             // starting the Worker/IPC request.  This last gate is what protects against the
             // 0-game-at-startup race that caused 0.6.22 to launch hundreds of Ludusavi
             // processes despite the outer large-library check.
-            observedGameCount = games.Count;
+            ObserveGameCount(games.Count);
             if (games.Count >= VeryLargeLibraryThreshold && !interactiveSurfaceOpened)
             {
                 logger.Info($"Skipping automatic catalog synchronization for captured very large library ({games.Count} games) before dashboard open; durable cache remains authoritative.");
@@ -633,7 +646,7 @@ namespace GameSaveCenter.Playnite
                     logger.Info("Skipping eager Worker startup because the Playnite library is still empty; waiting for a settled library snapshot.");
                     await Task.Delay(TimeSpan.FromSeconds(25), lifetimeCancellation.Token).ConfigureAwait(false);
                     gameCount = PlayniteApi.Database.Games.Count;
-                    observedGameCount = gameCount;
+                    ObserveGameCount(gameCount);
                     if (gameCount == 0)
                     {
                         logger.Info("Playnite library is still empty after the startup grace period; leaving the Worker stopped until a game or the dashboard explicitly requires it.");
@@ -687,7 +700,7 @@ namespace GameSaveCenter.Playnite
                 // expires the library providers have normally published their final snapshot.
                 await Task.Delay(TimeSpan.FromSeconds(25), lifetimeCancellation.Token).ConfigureAwait(false);
                 var gameCount = PlayniteApi.Database.Games.Count;
-                observedGameCount = gameCount;
+                ObserveGameCount(gameCount);
                 if (gameCount >= VeryLargeLibraryThreshold)
                 {
                     logger.Info($"Playnite library settled at {gameCount} games; keeping Worker and catalog synchronization deferred until GameSaveCenter is opened explicitly.");
@@ -706,8 +719,8 @@ namespace GameSaveCenter.Playnite
         private void ConfigureLargeLibraryStartupGate()
         {
             var gameCount = PlayniteApi.Database.Games.Count;
-            observedGameCount = gameCount;
-            if (gameCount == 0 || gameCount >= 100)
+            ObserveGameCount(gameCount);
+            if (gameCount == 0 || observedGameCount >= 100)
             {
                 if (largeLibraryStartupSyncNotBeforeUtc == DateTime.MinValue
                     || largeLibraryStartupSyncNotBeforeUtc <= DateTime.UtcNow)

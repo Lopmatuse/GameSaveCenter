@@ -461,6 +461,11 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("CornerRadius=\"10\"", production);
         Assert.Contains("Property=\"MinHeight\" Value=\"{DynamicResource GscTableRowHeight}\"", production);
         Assert.Contains("Text columns read naturally from the leading edge", production);
+        Assert.Contains("<SelectiveScrollingGrid>", production);
+        Assert.Contains("x:Name=\"PART_CellsPresenter\"", production);
+        Assert.Contains("<DataGridDetailsPresenter", production);
+        Assert.Contains("SelectiveScrollingGrid.SelectiveScrollingOrientation=\"Horizontal\"", production);
+        Assert.Contains("SelectiveScrollingGrid.SelectiveScrollingOrientation=\"Vertical\"", production);
         Assert.Contains("<Style TargetType=\"DataGridCell\">", production);
         Assert.Contains("<Setter Property=\"HorizontalContentAlignment\" Value=\"Left\"/>", production);
         Assert.Contains("x:Name=\"SortGlyph\"", production);
@@ -482,6 +487,12 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("x:Key=\"GscRedesignTableFrame\"", redesign);
         Assert.Contains("CornerRadius\" Value=\"16\"", redesign);
+
+        // Dashboard keeps a compatibility-scope row style while the extracted workspaces use
+        // the shared dictionary. Both templates must retain the same WPF selective-scrolling
+        // contract so a host theme cannot silently break horizontal scrolling in one scope.
+        Assert.Contains("<SelectiveScrollingGrid>", File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml")));
+        Assert.Contains("<DataGridDetailsPresenter", File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml")));
 
         foreach (var workspace in new[] { "OverviewView.xaml", "SaveCenterView.xaml", "MediaCenterView.xaml", "TaskCenterView.xaml", "MaintenanceView.xaml" })
         {
@@ -1418,6 +1429,10 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("已保留现有进程，稍后可重试", launcherCode);
         Assert.Contains("if (existingBusyProcess)", launcherCode);
         Assert.Contains("if (currentCount > observedGameCount)", pluginCode);
+        Assert.Contains("private void ObserveGameCount(int currentCount)", pluginCode);
+        Assert.Contains("ObserveGameCount(games.Count)", pluginCode);
+        Assert.DoesNotContain("observedGameCount = games.Count", pluginCode);
+        Assert.DoesNotContain("observedGameCount = PlayniteApi.Database.Games.Count", pluginCode);
         Assert.Contains("return observedGameCount >= VeryLargeLibraryThreshold;", pluginCode);
     }
 

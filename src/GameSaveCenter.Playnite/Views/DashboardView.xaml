@@ -523,7 +523,32 @@
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="0"
                                 SnapsToDevicePixels="True">
-                            <DataGridCellsPresenter x:Name="PART_CellsPresenter"/>
+                            <!-- Preserve WPF's selective scrolling row contract even in this
+                                 shell-local compatibility scope. The dashboard no longer owns
+                                 a separate table, but old host templates can still resolve this
+                                 implicit style while the view is being unloaded. -->
+                            <SelectiveScrollingGrid>
+                                <SelectiveScrollingGrid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </SelectiveScrollingGrid.ColumnDefinitions>
+                                <SelectiveScrollingGrid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="Auto"/>
+                                </SelectiveScrollingGrid.RowDefinitions>
+                                <DataGridRowHeader Grid.RowSpan="2"
+                                                   Visibility="Collapsed"
+                                                   SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical"/>
+                                <DataGridCellsPresenter x:Name="PART_CellsPresenter"
+                                                        Grid.Column="1"
+                                                        ItemsPanel="{TemplateBinding ItemsPanel}"
+                                                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                        SelectiveScrollingGrid.SelectiveScrollingOrientation="Horizontal"/>
+                                <DataGridDetailsPresenter Grid.Row="1"
+                                                          Grid.Column="1"
+                                                          SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical"
+                                                          Visibility="{TemplateBinding DetailsVisibility}"/>
+                            </SelectiveScrollingGrid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -677,7 +702,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-<TextBlock x:Name="SidebarVersionText" Text="v0.6.47" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+<TextBlock x:Name="SidebarVersionText" Text="v0.6.48" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>

@@ -393,7 +393,33 @@
                             BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="10"
                             SnapsToDevicePixels="True">
-                        <DataGridCellsPresenter x:Name="PART_CellsPresenter"/>
+                        <!-- Keep the WPF row visual tree's selective scrolling contract. A
+                             cells presenter directly under the chrome looks fine until a table
+                             gains horizontal scrolling, frozen columns, or row details; the
+                             standard grid lets the cells and details move in their own axis
+                             without disabling virtualization. -->
+                        <SelectiveScrollingGrid>
+                            <SelectiveScrollingGrid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </SelectiveScrollingGrid.ColumnDefinitions>
+                            <SelectiveScrollingGrid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </SelectiveScrollingGrid.RowDefinitions>
+                            <DataGridRowHeader Grid.RowSpan="2"
+                                               Visibility="Collapsed"
+                                               SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical"/>
+                            <DataGridCellsPresenter x:Name="PART_CellsPresenter"
+                                                    Grid.Column="1"
+                                                    ItemsPanel="{TemplateBinding ItemsPanel}"
+                                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                    SelectiveScrollingGrid.SelectiveScrollingOrientation="Horizontal"/>
+                            <DataGridDetailsPresenter Grid.Row="1"
+                                                      Grid.Column="1"
+                                                      SelectiveScrollingGrid.SelectiveScrollingOrientation="Vertical"
+                                                      Visibility="{TemplateBinding DetailsVisibility}"/>
+                        </SelectiveScrollingGrid>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">

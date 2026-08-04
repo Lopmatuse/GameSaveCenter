@@ -1,3 +1,11 @@
+# 0.6.48 Development Preview
+
+## Large-library observation and DataGrid scrolling
+
+- Shared and Dashboard compatibility `DataGridRow` templates now retain WPF's standard `SelectiveScrollingGrid`, so horizontal scrolling, row details and virtualization continue to use the expected visual tree.
+- The largest observed Playnite library size is now monotonic. A transient empty/partial library snapshot during import or shutdown cannot downgrade a 900+ profile into the small-library Worker kill/restart path.
+- Package and sidebar version are `0.6.48`; the supplied 0.6.22 logs must not be compared with this package until Playnite logs confirm the loaded version.
+
 # 0.6.47 Development Preview
 
 ## Large-library Worker recovery

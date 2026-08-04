@@ -1,7 +1,9 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-08-05
-当前版本：`0.6.47-development-preview`
+当前版本：`0.6.48-development-preview`
+
+> 0.6.48 在共享和 Dashboard 兼容作用域统一使用 WPF `SelectiveScrollingGrid` 行模板，让 DataGrid 的横向滚动、行详情和虚拟化保持标准承载；同时 `observedGameCount` 只增不减，避免 Playnite 库导入/关闭时的瞬时空快照让 900+ 游戏目录误走小库 Worker Kill/Restart 路径。真实 Playnite、主题、DPI 和 900+ 库回归仍待用户环境验证。
 
 > 0.6.47 针对用户提供的 900+ 游戏日志增加了非破坏性 Worker 健康恢复：超大目录中已有 Worker 只是暂时忙碌时不再自动 Kill/重启；用户日志实际加载的是 0.6.22，必须先用 0.6.47 包复测，并把独立 LudusaviPlaynite 的 967 次 findTitle 请求分开统计。
 

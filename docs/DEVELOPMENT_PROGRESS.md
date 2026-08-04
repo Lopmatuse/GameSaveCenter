@@ -1,7 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.47-development-preview`
+当前版本：`0.6.48-development-preview`
+
+- [x] 0.6.48：修复共享与 Dashboard 兼容作用域的 `DataGridRow` 模板，恢复 WPF 标准 `SelectiveScrollingGrid`、横向单元格滚动和行详情承载；同时让已观察到的 500+ 游戏库规模单调保持，Playnite 导入/关闭阶段的瞬时空快照不会降级为可终止 Worker 的小库恢复路径。已完成源码校验、131 项自动测试、Release 构建与打包，仍需 Windows/Playnite 真机验证。
 
 - [x] 0.6.47：针对 900+ 游戏日志增加非破坏性 Worker 健康探测恢复：超大目录中若现有 Worker 只是暂时忙碌，不再因短 Ping 超时被杀掉并重启；新增静态回归门禁，仍需 Windows/Playnite 真机验证。
 
