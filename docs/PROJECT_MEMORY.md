@@ -756,3 +756,8 @@ Playnite 11 的 SDK 与迁移边界仍可能变化。本项目先稳定支持 Pl
 
 - 设备对比表上方和下方的人工决策/远端恢复操作属于次级内容，必须各自有限滚动；不能让 WrapPanel 或长状态文本占用无限 Auto 行。
 - `MaintenanceView.ApplyResponsiveLayout` 统一管理设备操作区限高；表格继续位于 `*` 行并保留虚拟化，不使用页面级 ScrollViewer。
+
+## 2026-08-04 0.6.22 UI-066 顶部操作栏规则
+
+- Dashboard 顶部操作区属于局部滚动通道，必须允许水平 Auto；禁止用 Hidden 掩盖高 DPI、第三方主题或新增模块操作造成的裁剪。
+- Narrow/Compact 继续隐藏非必要文字，但不得隐藏按钮本身；页面主体和工作区列表仍禁止全局水平滚动。

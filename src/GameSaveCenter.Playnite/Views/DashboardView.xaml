@@ -822,7 +822,7 @@
             </StackPanel>
 
             <ScrollViewer x:Name="TopActionsScroller" Grid.Row="0" Grid.Column="1"
-                          HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled"
+                          HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
                           HorizontalAlignment="Right" VerticalAlignment="Center" Margin="14,0,0,0"
                           CanContentScroll="False" Focusable="False">
                 <StackPanel x:Name="TopActionsPanel" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">

@@ -540,6 +540,22 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void HeaderActionsKeepAnInternalHorizontalScrollChannelAtNarrowWidths()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboardPath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml");
+        var dashboard = File.ReadAllText(dashboardPath);
+        var document = XDocument.Parse(dashboard);
+        var scroller = document.Descendants().Single(element =>
+            element.Name.LocalName == "ScrollViewer" &&
+            element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "TopActionsScroller");
+
+        Assert.Equal("Auto", scroller.Attribute("HorizontalScrollBarVisibility")?.Value);
+        Assert.Equal("Disabled", scroller.Attribute("VerticalScrollBarVisibility")?.Value);
+        Assert.Contains("SetToolbarLabelsVisible(mode == LayoutMode.Expanded)", File.ReadAllText(dashboardPath + ".cs"));
+    }
+
+    [Fact]
     public void ExtractedWorkspaceViewsConstructInsideSta()
     {
         Exception? exception = null;
