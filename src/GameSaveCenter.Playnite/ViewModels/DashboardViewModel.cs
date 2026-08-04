@@ -692,7 +692,15 @@ namespace GameSaveCenter.Playnite.ViewModels
             // catalog rematch; an explicit Refresh command remains available to opt in.
             if (plugin.IsVeryLargeLibraryForUi)
             {
-                ApplyOnUi(() => StatusMessage = "已显示本地缓存；大型目录默认不自动全量匹配，可按需点击刷新。\n游戏启动时仍会按需更新当前游戏。 ");
+                ApplyOnUi(() => StatusMessage = "已显示本地缓存；大型目录默认不自动全量匹配，可按需点击刷新。\n游戏启动时仍会按需更新当前游戏。");
+                // The dashboard is allowed to open while the Worker is still coming up. A
+                // first cache read can therefore time out even though the Worker becomes
+                // healthy moments later. Retry only the aggregate SQLite snapshot a few times;
+                // never turn this recovery path into a catalog synchronization or Ludusavi
+                // scan. This keeps the first paint responsive without leaving a newly created
+                // 900+ library permanently blank until the user clicks Refresh.
+                var cacheGeneration = Interlocked.Read(ref deferredUiWorkGeneration);
+                _ = RefreshLargeLibraryCacheWhenWorkerReadyAsync(cacheGeneration);
                 return;
             }
             // A large library already has durable game summaries in SQLite in the normal
@@ -744,6 +752,30 @@ namespace GameSaveCenter.Playnite.ViewModels
                 if (ReferenceEquals(initialSynchronizationCancellation, cancellation))
                     initialSynchronizationCancellation = null;
                 cancellation.Dispose();
+            }
+        }
+
+        private async Task RefreshLargeLibraryCacheWhenWorkerReadyAsync(long generation)
+        {
+            for (var attempt = 0; attempt < 4; attempt++)
+            {
+                if (generation != Interlocked.Read(ref deferredUiWorkGeneration)) return;
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(attempt == 0 ? 1 : 2), initialSynchronizationCancellation?.Token ?? CancellationToken.None).ConfigureAwait(false);
+                    if (generation != Interlocked.Read(ref deferredUiWorkGeneration)) return;
+                    await RefreshDashboardAsync(false, false, TimeSpan.FromSeconds(3));
+                    ApplyOnUi(() => StatusMessage = "已显示本地缓存；大型目录默认不自动全量匹配，可按需点击刷新。\n游戏启动时仍会按需更新当前游戏。");
+                    return;
+                }
+                catch (OperationCanceledException) when (generation != Interlocked.Read(ref deferredUiWorkGeneration))
+                {
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Logger.Debug(ex, "Large-library cache snapshot is not ready yet; retrying without catalog synchronization.");
+                }
             }
         }
 

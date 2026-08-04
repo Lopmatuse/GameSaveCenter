@@ -1,7 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.42-development-preview`
+当前版本：`0.6.43-development-preview`
+
+- [x] 0.6.43：修复 Playnite 在库导入阶段 `Database.Games.Count == 0` 的启动竞态；延迟 Worker/任务通知监视器，并在实际捕获到 500+ 游戏且用户尚未打开 Dashboard 时于 IPC 前熔断自动整库同步。该修复针对用户提供的 0.6.22 日志中 967 次 Ludusavi 请求与 Worker 管道超时，待 Windows/Playnite 真机验证。
 
 - [x] 0.6.42：共享 `GscRedesignTableFrame` 收口所有工作区表格表面，DataGrid 统一使用动态行高、表头高度、交替行和无网格线契约；普通窗口表格视口提高到 480–760 DIP，页面级滚动仍负责下方操作区。500+ 游戏库新增启动熔断：Dashboard 只读取持久化缓存，自动库事件与首次打开不再提交整库匹配，显式刷新和游戏启动仍可按需更新；新增对应源码门禁。Core 13、Worker 23、Playnite 94，共 130 项 Release 自动测试通过；真实 Playnite 渲染、DPI、主题和 900+ 游戏库回归仍待 Windows 验证。
 

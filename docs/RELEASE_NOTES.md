@@ -1,3 +1,11 @@
+# 0.6.43 Development Preview
+
+- 修复 Playnite 库导入期间 `Database.Games.Count == 0` 导致的启动竞态。
+- 900+ 游戏配置在 Dashboard 未打开前不会启动 Worker、任务通知长轮询或自动整库 Ludusavi 匹配。
+- 实际捕获到 500+ 游戏的自动同步在创建 Worker/IPC 请求前熔断；显式打开 Dashboard 后仍可读取持久化缓存，并由用户主动刷新。
+- 针对旧 0.6.22 日志中的 967 次 Ludusavi 请求、Worker 管道超时和 Playnite 卡顿增加静态回归门禁。
+- 本版本仍需 Windows/Playnite 真实安装、900+ 游戏、125%/150% DPI 和独立 LudusaviPlaynite 共存验证。
+
 # 0.6.42 Development Preview
 
 - 统一 Overview、存档、媒体、任务和维护表格的圆角表面与 DataGrid 共享几何：58 DIP 行高、48 DIP 表头、交替行、无网格线、动态主题资源；普通窗口有限视口提高到 480–760 DIP，外层页面滚动仍可访问底部操作。

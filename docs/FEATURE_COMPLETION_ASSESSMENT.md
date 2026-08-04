@@ -1,7 +1,12 @@
 # 功能完成度评估
 
 更新时间：2026-08-05
-评估版本：`0.6.42-development-preview`
+评估版本：`0.6.43-development-preview`
+
+## 0.6.43 当前证据（2026-08-05）
+
+- 已补齐 Playnite 库尚未准备完成时的零游戏启动竞态防护；500+ 游戏自动同步在捕获真实快照后于 Worker/IPC 之前熔断。
+- 自动化校验、Release 测试、构建和 PEXT 打包待本轮完成；真实 900+ 游戏 Playnite 启动、窗口渲染和独立 LudusaviPlaynite 共存仍需用户 Windows 回归。
 
 ## 0.6.42 当前证据（2026-08-05）
 

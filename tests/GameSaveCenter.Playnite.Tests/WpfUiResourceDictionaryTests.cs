@@ -1367,10 +1367,12 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("private async Task SynchronizeLoopAsync()", pluginCode);
         Assert.Contains("TimeSpan.FromMilliseconds(180)", pluginCode);
         Assert.Contains("synchronizationRequested", pluginCode);
-        Assert.Contains("var initialDelay = PlayniteApi.Database.Games.Count >= 100", pluginCode);
+        Assert.Contains("var initialDelay = PlayniteApi.Database.Games.Count >= 100 || PlayniteApi.Database.Games.Count == 0", pluginCode);
         Assert.Contains("TimeSpan.FromSeconds(60)", pluginCode);
         Assert.Contains("TimeSpan.FromSeconds(15)", pluginCode);
         Assert.Contains("ConfigureLargeLibraryStartupGate();", pluginCode);
+        Assert.Contains("private async Task WaitForLibraryReadyAndStartWorkerAsync()", pluginCode);
+        Assert.Contains("Playnite game database is not ready at application start", pluginCode);
         Assert.Contains("private void ConfigureLargeLibraryStartupGate()", pluginCode);
         Assert.Contains("TaskContinuationOptions.OnlyOnFaulted", pluginCode);
         Assert.Contains("failed to present a background operation error", pluginCode);
@@ -1692,6 +1694,7 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("private volatile bool interactiveSurfaceOpened;", pluginCode);
         Assert.Contains("private void RequestLibrarySynchronization(string reason)", pluginCode);
+        Assert.Contains("if (observedGameCount == 0 || PlayniteApi.Database.Games.Count == 0)", pluginCode);
         Assert.Contains("if (!interactiveSurfaceOpened && IsLargeLibrary())", pluginCode);
         Assert.Contains("catalog synchronization is deferred until GameSaveCenter is opened", pluginCode);
         Assert.Contains("interactiveSurfaceOpened = true;", pluginCode);
@@ -1706,7 +1709,7 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("private bool taskNotificationMonitorDeferred;", pluginCode);
         Assert.Contains("if (taskNotificationTimer != null || taskNotificationMonitorDeferred && !interactiveSurfaceOpened)", pluginCode);
-        Assert.Contains("if (observedGameCount >= 100 && !interactiveSurfaceOpened)", pluginCode);
+        Assert.Contains("if ((observedGameCount == 0 || observedGameCount >= 100) && !interactiveSurfaceOpened)", pluginCode);
         Assert.Contains("Deferring task notification monitor until GameSaveCenter is opened", pluginCode);
         Assert.Contains("taskNotificationMonitorDeferred = false;", pluginCode);
         Assert.Contains("StartTaskNotificationMonitor();", pluginCode);
@@ -1738,8 +1741,12 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Very large Playnite library", pluginCode);
         Assert.Contains("if (plugin.IsVeryLargeLibraryForUi)", viewModelCode);
         Assert.Contains("explicit Refresh command remains available", viewModelCode);
+        Assert.Contains("RefreshLargeLibraryCacheWhenWorkerReadyAsync", viewModelCode);
+        Assert.Contains("never turn this recovery path into a catalog synchronization", viewModelCode);
         Assert.Contains("VeryLargeLibraryBackgroundMatchBudget = 12", catalogCode);
         Assert.Contains("list.Count >= VeryLargeLibraryThreshold", catalogCode);
+        Assert.Contains("if (games.Count >= VeryLargeLibraryThreshold && !interactiveSurfaceOpened)", pluginCode);
+        Assert.Contains("Playnite library is still empty", pluginCode);
     }
 
 

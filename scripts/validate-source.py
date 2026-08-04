@@ -591,9 +591,11 @@ def check_large_library_performance_guards() -> None:
                   "list.Count >= VeryLargeLibraryThreshold"):
         if token not in catalog:
             fail(f"Very-large-library matching budget guard missing: {token}")
-    for token in ("StartWorkerAndScheduleSynchronizationAsync", "largeLibraryStartupSyncNotBeforeUtc", "TimeSpan.FromSeconds(25)", "ConfigureLargeLibraryStartupGate", "TimeSpan.FromSeconds(60)",
+    for token in ("StartWorkerAndScheduleSynchronizationAsync", "WaitForLibraryReadyAndStartWorkerAsync", "largeLibraryStartupSyncNotBeforeUtc", "TimeSpan.FromSeconds(25)", "ConfigureLargeLibraryStartupGate", "TimeSpan.FromSeconds(60)",
                   "VeryLargeLibraryThreshold = 500", "Skipping automatic dashboard catalog synchronization for very large library",
-                  "Very large Playnite library", "public bool IsVeryLargeLibraryForUi"):
+                  "Very large Playnite library", "public bool IsVeryLargeLibraryForUi",
+                  "games.Count >= VeryLargeLibraryThreshold && !interactiveSurfaceOpened",
+                  "Playnite game database is not ready at application start"):
         if token not in plugin:
             fail(f"Playnite large-library startup grace guard missing: {token}")
     if "explicit Refresh command remains available" not in view_model:

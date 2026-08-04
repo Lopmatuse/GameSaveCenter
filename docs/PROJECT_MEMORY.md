@@ -1,7 +1,9 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-08-05
-当前版本：`0.6.42-development-preview`
+当前版本：`0.6.43-development-preview`
+
+> 0.6.43 针对 900+ 游戏 Playnite 启动竞态增加了第二道熔断：如果 `OnApplicationStarted` 时 Playnite 游戏库暂时为空，插件会等待宿主库稳定后再决定是否启动 Worker；自动同步在实际捕获到 500+ 游戏且 Dashboard 尚未打开时会直接返回，不创建 Worker/IPC 整库匹配任务。这样可以避免 0.6.22 日志中出现的 967 次 Ludusavi 启动和启动期管道超时循环。真实 Playnite 回归仍需在用户环境验证。
 
 > 0.6.42 对 500+ 游戏库增加了启动熔断：只读取 SQLite 持久化游戏摘要，首次打开 Dashboard、Playnite 自动库事件和后台延迟任务不会自动提交整库 Ludusavi 匹配；显式刷新仍可执行整库同步，游戏启动时仍会单独 Upsert 当前游戏。共享 DataGrid 和表格外壳统一使用动态主题、圆角和有限视口。真实 Playnite、DPI、主题与 900+ 库回归仍待用户环境验证。
 

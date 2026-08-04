@@ -1,3 +1,13 @@
+## 0.6.43 900+ 游戏启动竞态回归
+
+- [ ] 安装 `0.6.43`，确认 `playnite.log` 加载的是 `GameSaveCenter, version 0.6.43`，不是 0.6.22。
+- [ ] 在 Playnite 库仍处于导入阶段时启用插件；确认 `worker-launch.log` 不在启动阶段连续出现每游戏一次的 `ludusavi.exe find`。
+- [ ] 900+ 游戏且 Dashboard 未打开时，确认扩展不会自动启动 Worker；打开 Dashboard 后先显示 SQLite 缓存或明确空状态，不等待整库匹配。
+- [ ] 检查 `extensions.log`：GameSaveCenter 不应在启动阶段创建 967 次 Ludusavi 请求；独立 `LudusaviPlaynite` 的请求需单独记录，不能误归因给本插件。
+- [ ] 打开 Dashboard 后手动执行一次刷新，确认这是显式操作，任务/状态可见，期间 Playnite 主界面仍可操作。
+- [ ] 重复打开/关闭 Dashboard，确认没有跨线程异常、XAML 资源异常或 Worker 重启循环。
+- [ ] 记录启动耗时、首次打开耗时、Worker ready 时间和 Ludusavi find 总数，与 0.6.22 基线对比。
+
 ## 0.6.42 超大游戏库启动与表格可读性回归
 
 ### PERF-060 500+ 游戏库缓存优先
