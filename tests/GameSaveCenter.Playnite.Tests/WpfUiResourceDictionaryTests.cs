@@ -478,6 +478,28 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void DiagnosticExpanderUsesSharedRoundedThemeAndKeepsLongContentScrollable()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var designTokens = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "DesignTokens.xaml"));
+        var maintenancePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml");
+        var maintenanceText = File.ReadAllText(maintenancePath);
+        var maintenance = XDocument.Parse(maintenanceText);
+        var expander = maintenance.Descendants().Single(element => element.Name.LocalName == "Expander");
+
+        Assert.Contains("x:Key=\"GscExpander\"", designTokens);
+        Assert.Contains("TargetType=\"Expander\"", designTokens);
+        Assert.Contains("CornerRadius=\"{StaticResource GscCornerControl}\"", designTokens);
+        Assert.Contains("GscSharedFocusVisual", designTokens);
+        Assert.Equal("GscExpander", expander.Attribute("Style")?.Value?.Replace("{DynamicResource ", string.Empty).TrimEnd('}'));
+
+        var textBox = expander.Descendants().Single(element => element.Name.LocalName == "TextBox");
+        Assert.Equal("Auto", textBox.Attribute("VerticalScrollBarVisibility")?.Value);
+        Assert.Equal("Auto", textBox.Attribute("HorizontalScrollBarVisibility")?.Value);
+        Assert.DoesNotContain("<Expander Grid.Row=\"1\" Header=\"查看完整诊断信息\" Margin=\"0,10,0,0\">", maintenanceText);
+    }
+
+    [Fact]
     public void TrainerInspectorUsesAFiniteScrollChannelAtShortHeights()
     {
         var repositoryRoot = FindRepositoryRoot();

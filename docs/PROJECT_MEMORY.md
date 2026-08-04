@@ -805,3 +805,6 @@ UI-075：所有可键盘选择的 `ListBoxItem` 必须保留 `GscSharedFocusVisu
 
 UI-076：自定义游戏上下文按钮和设置分类 `TabItem` 也必须显式绑定 `GscSharedFocusVisual`，不能只依赖
 鼠标 Hover 状态。
+
+UI-077：诊断和高级设置区域不得回退到宿主默认 `Expander`。统一使用共享 `GscExpander` 圆角模板，
+内容区仍由消费方的 `TextBox`/`ScrollViewer` 负责长文本滚动；共享模板不得引入列表级 BlurEffect。
