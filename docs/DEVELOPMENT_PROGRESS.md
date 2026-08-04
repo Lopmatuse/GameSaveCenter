@@ -1,7 +1,14 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.29-development-preview`
+当前版本：`0.6.30-development-preview`
+
+## 2026-08-05 P0 大型库通知轮询时序收口
+
+- [x] 在 `OnApplicationStarted` 最早阶段建立大型库 25 秒同步静默窗口，避免 Playnite 库回调抢先触发全量同步。
+- [x] 100+ 游戏库的任务事件轮询首次连接延后至 60 秒；普通库仍在 15 秒后启动，减少 Worker SQLite/Ludusavi 初始化期间的命名管道超时和线程池争用。
+- [x] 保留 SQLite 缓存首屏、同步请求合并、Worker 忙碌恢复和后台分批匹配；通知通道仍是最佳努力，不能阻塞 Dashboard。
+- [ ] 仍需在真实 900+ 游戏 Playnite 中与独立 `LudusaviPlaynite` 扩展分开验证启动时间、CPU/磁盘占用和首次打开面板。
 
 ## 2026-08-05 P1 全工作区滚动与表格视口
 
@@ -23,7 +30,7 @@
 
 - [x] Worker 启动器在同路径进程响应超时后先等待 12 秒，不再直接杀掉可能正在初始化 SQLite 或让出 Ludusavi 批次的现有 Worker。
 - [x] Dashboard 构造不再通过完整命令边界等待 Worker 启动；先尝试读取持久化快照，失败时保留可用壳体并交给后台同步重试。
-- [ ] 仍需在 900+ 游戏的真实 Playnite 环境确认扩展版本为 0.6.29，并验证旧 Worker 不会被误杀。
+- [ ] 仍需在 900+ 游戏的真实 Playnite 环境确认扩展版本为 0.6.30，并验证旧 Worker 不会被误杀。
 
 ## 2026-08-05 P0 大型 Playnite 启动保护
 
@@ -31,7 +38,7 @@
 - [x] 任务通知轮询从启动后 15 秒开始、每 2 秒一次，并继续使用指数退避，减少 Worker 冷启动期间的命名管道超时。
 - [x] 同步指纹在启动 Worker/发送设置前快速去重，避免 Playnite 连续库事件反复唤醒 Worker。
 - [x] 0.6.27 源码校验、Release 测试、Release 构建和 Worker smoke 已在上一轮完成。
-- [ ] 仍需在真实 Playnite 中确认加载的是 `GameSaveCenter 0.6.29`，并与独立 `LudusaviPlaynite` 扩展分开测量。
+- [ ] 仍需在真实 Playnite 中确认加载的是 `GameSaveCenter 0.6.30`，并与独立 `LudusaviPlaynite` 扩展分开测量。
 
 ## 2026-08-04 P0 大型游戏库后台匹配让出策略
 

@@ -585,7 +585,7 @@ def check_large_library_performance_guards() -> None:
     for token in ("BackgroundMatchThreshold", "QueueBackgroundMatches", "ProcessBackgroundMatchesAsync", "BackgroundMatchInitialDelay", "Library descriptors persisted"):
         if token not in catalog:
             fail(f"Large-library non-blocking matching guard missing: {token}")
-    for token in ("StartWorkerAndScheduleSynchronizationAsync", "largeLibraryStartupSyncNotBeforeUtc", "TimeSpan.FromSeconds(25)", "TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(2)"):
+    for token in ("StartWorkerAndScheduleSynchronizationAsync", "largeLibraryStartupSyncNotBeforeUtc", "TimeSpan.FromSeconds(25)", "ConfigureLargeLibraryStartupGate", "TimeSpan.FromSeconds(60)"):
         if token not in plugin:
             fail(f"Playnite large-library startup grace guard missing: {token}")
     for token in ("taskNotificationRetryAfterUtc", "taskNotificationFailureCount", "retrying in"):

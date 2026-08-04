@@ -65,6 +65,12 @@ namespace GameSaveCenter.Playnite
 
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
+            // Establish the large-library quiet window before any Playnite library callback
+            // can arrive.  Library providers may publish an update immediately after this
+            // hook; configuring the gate here prevents that early callback from bypassing the
+            // startup delay and submitting hundreds of Ludusavi requests while Playnite is
+            // still importing games.
+            ConfigureLargeLibraryStartupGate();
             StartTaskNotificationMonitor();
             if (Settings.AutoStartWorker) FireAndForget(StartWorkerAndScheduleSynchronizationAsync);
         }
@@ -277,9 +283,14 @@ namespace GameSaveCenter.Playnite
             taskNotificationMonitorStartedUtc = DateTime.UtcNow;
             // Do not compete with Playnite's library import or the Worker's first SQLite
             // initialization.  In a large library the first sync can legitimately take a
-            // while; starting a long-poll request every second only creates pipe timeouts and
-            // extra thread-pool work while the Worker is not ready yet.
-            taskNotificationTimer = new Timer(_ => PollTaskNotifications(), null, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(2));
+            // while; starting a long-poll request before the Worker has finished its first
+            // health check only creates pipe timeouts and extra thread-pool work.  The
+            // notification feed is a convenience channel; SQLite snapshots remain the source
+            // of truth, so it is safe to wait longer on a 100+ game library.
+            var initialDelay = PlayniteApi.Database.Games.Count >= 100
+                ? TimeSpan.FromSeconds(60)
+                : TimeSpan.FromSeconds(15);
+            taskNotificationTimer = new Timer(_ => PollTaskNotifications(), null, initialDelay, TimeSpan.FromSeconds(2));
         }
 
         private void PollTaskNotifications() => FireAndForget(PollTaskNotificationsAsync);
@@ -443,9 +454,11 @@ namespace GameSaveCenter.Playnite
             {
                 var gameCount = PlayniteApi.Database.Games.Count;
                 var isLargeLibrary = gameCount >= 100;
-                largeLibraryStartupSyncNotBeforeUtc = isLargeLibrary
-                    ? DateTime.UtcNow.AddSeconds(25)
-                    : DateTime.MinValue;
+                // OnApplicationStarted normally establishes this before library callbacks can
+                // run.  Keep the fallback for hosts that invoke this method directly (settings
+                // repair/tests) without extending an already active quiet window.
+                if (largeLibraryStartupSyncNotBeforeUtc == DateTime.MinValue)
+                    ConfigureLargeLibraryStartupGate();
 
                 // Start the Worker and apply settings promptly so process detection and task
                 // handling are available, but do not submit hundreds of Ludusavi lookups while
@@ -464,6 +477,21 @@ namespace GameSaveCenter.Playnite
             {
                 // Playnite is shutting down; do not surface the intentional delay cancellation
                 // as an extension failure.
+            }
+        }
+
+        private void ConfigureLargeLibraryStartupGate()
+        {
+            var gameCount = PlayniteApi.Database.Games.Count;
+            if (gameCount >= 100)
+            {
+                if (largeLibraryStartupSyncNotBeforeUtc == DateTime.MinValue
+                    || largeLibraryStartupSyncNotBeforeUtc <= DateTime.UtcNow)
+                    largeLibraryStartupSyncNotBeforeUtc = DateTime.UtcNow.AddSeconds(25);
+            }
+            else
+            {
+                largeLibraryStartupSyncNotBeforeUtc = DateTime.MinValue;
             }
         }
 

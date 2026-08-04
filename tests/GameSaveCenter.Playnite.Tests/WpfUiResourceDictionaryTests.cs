@@ -1268,7 +1268,11 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("private async Task SynchronizeLoopAsync()", pluginCode);
         Assert.Contains("TimeSpan.FromMilliseconds(180)", pluginCode);
         Assert.Contains("synchronizationRequested", pluginCode);
-        Assert.Contains("TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(2)", pluginCode);
+        Assert.Contains("var initialDelay = PlayniteApi.Database.Games.Count >= 100", pluginCode);
+        Assert.Contains("TimeSpan.FromSeconds(60)", pluginCode);
+        Assert.Contains("TimeSpan.FromSeconds(15)", pluginCode);
+        Assert.Contains("ConfigureLargeLibraryStartupGate();", pluginCode);
+        Assert.Contains("private void ConfigureLargeLibraryStartupGate()", pluginCode);
         Assert.Contains("TaskContinuationOptions.OnlyOnFaulted", pluginCode);
         Assert.Contains("failed to present a background operation error", pluginCode);
     }
