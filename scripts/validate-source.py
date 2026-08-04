@@ -582,9 +582,12 @@ def check_large_library_performance_guards() -> None:
     for token in ("GetGameMatchCacheAsync", "GameMatchInput.CreateHash", "retryBefore"):
         if token not in catalog:
             fail(f"Incremental Ludusavi matching guard missing: {token}")
-    for token in ("BackgroundMatchThreshold", "QueueBackgroundMatches", "ProcessBackgroundMatchesAsync", "Library descriptors persisted"):
+    for token in ("BackgroundMatchThreshold", "QueueBackgroundMatches", "ProcessBackgroundMatchesAsync", "BackgroundMatchInitialDelay", "Library descriptors persisted"):
         if token not in catalog:
             fail(f"Large-library non-blocking matching guard missing: {token}")
+    for token in ("StartWorkerAndScheduleSynchronizationAsync", "largeLibraryStartupSyncNotBeforeUtc", "TimeSpan.FromSeconds(25)", "TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(2)"):
+        if token not in plugin:
+            fail(f"Playnite large-library startup grace guard missing: {token}")
     for token in ("taskNotificationRetryAfterUtc", "taskNotificationFailureCount", "retrying in"):
         if token not in plugin:
             fail(f"Task notification backoff guard missing: {token}")
@@ -1174,7 +1177,14 @@ def check_final_redesign_guards() -> None:
         while parent is not None:
             ancestors.append(local_name(parent.tag))
             parent = parent_map.get(parent)
-        if "StackPanel" in ancestors or "ScrollViewer" in ancestors or "Grid" not in ancestors:
+        # Maintenance audit deliberately uses a page-level ScrollViewer around two finite
+        # tables. Each DataGrid keeps a fixed 360-DIP viewport and its own virtualization;
+        # the outer scroll channel is only there to reach the second table on short hosts.
+        allowed_page_scroll = (
+            control.attrib.get("Height") == "360"
+            and control.attrib.get("ItemsSource", "") in {"{Binding Findings}", "{Binding Audit}"}
+        )
+        if (("StackPanel" in ancestors or "ScrollViewer" in ancestors) and not allowed_page_scroll) or "Grid" not in ancestors:
             fail(
                 "Large-library control lost finite Grid measurement: "
                 f"{local_name(control.tag)} {control.attrib.get('ItemsSource', control.attrib.get('Name', ''))}"

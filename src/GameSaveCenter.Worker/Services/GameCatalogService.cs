@@ -16,12 +16,14 @@ public sealed class GameCatalogService
     private const int BackgroundMatchThreshold = 20;
     private const int BackgroundMatchBatchSize = 4;
     private static readonly TimeSpan BackgroundMatchYieldDelay = TimeSpan.FromMilliseconds(180);
+    private static readonly TimeSpan BackgroundMatchInitialDelay = TimeSpan.FromSeconds(30);
     private readonly SqliteStateStore _store;
     private readonly LudusaviClient _ludusavi;
     private readonly ILogger<GameCatalogService> _logger;
     private readonly object _backgroundMatchGate = new();
     private readonly Dictionary<string, PendingMatch> _backgroundMatches = new(StringComparer.OrdinalIgnoreCase);
     private Task? _backgroundMatchTask;
+    private DateTime _backgroundMatchNotBeforeUtc = DateTime.MinValue;
 
     public GameCatalogService(SqliteStateStore store,LudusaviClient ludusavi,ILogger<GameCatalogService> logger)
     { _store=store;_ludusavi=ludusavi;_logger=logger; }
@@ -78,6 +80,13 @@ public sealed class GameCatalogService
             foreach (var item in pending)
                 _backgroundMatches[item.Game.PlayniteId] = new PendingMatch(item.Game, item.InputHash);
 
+            // The descriptor rows are already durable and immediately usable by the UI.  Give
+            // Playnite and the Worker a short quiet period before starting a large wave of
+            // one-shot Ludusavi processes; otherwise a 900+ game import can make the host look
+            // frozen even though the IPC request itself has already completed.
+            if (_backgroundMatches.Count > 0 && _backgroundMatchNotBeforeUtc < DateTime.UtcNow)
+                _backgroundMatchNotBeforeUtc = DateTime.UtcNow.Add(BackgroundMatchInitialDelay);
+
             if (_backgroundMatchTask == null || _backgroundMatchTask.IsCompleted)
                 _backgroundMatchTask = Task.Run(ProcessBackgroundMatchesAsync);
         }
@@ -89,6 +98,12 @@ public sealed class GameCatalogService
         {
             while (true)
             {
+                TimeSpan wait;
+                lock (_backgroundMatchGate)
+                    wait = _backgroundMatchNotBeforeUtc - DateTime.UtcNow;
+                if (wait > TimeSpan.Zero)
+                    await Task.Delay(wait).ConfigureAwait(false);
+
                 List<PendingMatch> batch;
                 lock (_backgroundMatchGate)
                 {
@@ -109,6 +124,7 @@ public sealed class GameCatalogService
                         .Take(BackgroundMatchBatchSize)
                         .ToList();
                     foreach (var item in batch) _backgroundMatches.Remove(item.Game.PlayniteId);
+                    if (_backgroundMatches.Count == 0) _backgroundMatchNotBeforeUtc = DateTime.MinValue;
                 }
 
                 foreach (var item in batch)

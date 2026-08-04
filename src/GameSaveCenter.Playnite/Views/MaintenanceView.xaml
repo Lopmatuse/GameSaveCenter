@@ -63,10 +63,26 @@
                 </Grid>
             </TabItem>
             <TabItem Header="异常与审计">
-                <Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                    <Border Style="{DynamicResource GscTableFrame}"><DataGrid Style="{StaticResource MaintenanceDataGrid}" ItemsSource="{Binding Findings}" SelectedItem="{Binding SelectedFinding}"><DataGrid.Columns><DataGridTextColumn Header="等级" Binding="{Binding Severity}" Width="75"/><DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="180"/><DataGridTextColumn Header="标题" Binding="{Binding Title}" Width="190"/><DataGridTextColumn HeaderStyle="{DynamicResource GscLastColumnHeader}" Header="详情" Binding="{Binding Detail}" Width="*" MinWidth="320"/></DataGrid.Columns></DataGrid></Border>
-                    <Border Grid.Row="1" Style="{DynamicResource GscTableFrame}" Margin="0,10,0,0"><DataGrid Style="{StaticResource MaintenanceDataGrid}" ItemsSource="{Binding Audit}"><DataGrid.Columns><DataGridTextColumn Header="本地时间" Binding="{Binding CreatedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm:ss}}" Width="128"/><DataGridTextColumn Header="分类" Binding="{Binding Category}" Width="110"/><DataGridTextColumn HeaderStyle="{DynamicResource GscLastColumnHeader}" Header="消息" Binding="{Binding Message}" Width="*" MinWidth="340"/></DataGrid.Columns></DataGrid></Border>
-                </Grid>
+                <!-- Both tables keep a finite viewport so row virtualization remains enabled.
+                     The page-level scroll channel lets short windows reach the second table
+                     instead of clipping it below the tab content. -->
+                <ScrollViewer x:Name="MaintenanceAuditScrollViewer" Margin="0,12,0,0"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="False">
+                    <StackPanel>
+                        <Border Style="{DynamicResource GscTableFrame}" MinHeight="360">
+                            <DataGrid x:Name="MaintenanceAuditFindingsGrid" Height="360" Style="{StaticResource MaintenanceDataGrid}" ItemsSource="{Binding Findings}" SelectedItem="{Binding SelectedFinding}">
+                                <DataGrid.Columns><DataGridTextColumn Header="等级" Binding="{Binding Severity}" Width="75"/><DataGridTextColumn Header="游戏" Binding="{Binding GameName}" Width="180"/><DataGridTextColumn Header="标题" Binding="{Binding Title}" Width="190"/><DataGridTextColumn HeaderStyle="{DynamicResource GscLastColumnHeader}" Header="详情" Binding="{Binding Detail}" Width="*" MinWidth="320"/></DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+                        <Border Style="{DynamicResource GscTableFrame}" Margin="0,10,0,0" MinHeight="360">
+                            <DataGrid x:Name="MaintenanceAuditLogGrid" Height="360" Style="{StaticResource MaintenanceDataGrid}" ItemsSource="{Binding Audit}">
+                                <DataGrid.Columns><DataGridTextColumn Header="本地时间" Binding="{Binding CreatedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm:ss}}" Width="128"/><DataGridTextColumn Header="分类" Binding="{Binding Category}" Width="110"/><DataGridTextColumn HeaderStyle="{DynamicResource GscLastColumnHeader}" Header="消息" Binding="{Binding Message}" Width="*" MinWidth="340"/></DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
             </TabItem>
             <TabItem Header="进程映射">
                 <Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>

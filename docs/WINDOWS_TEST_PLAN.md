@@ -853,9 +853,9 @@
 
 - 为待归类媒体分别准备 0 条和至少 1 条记录；确认空状态只在 0 条时出现，有媒体时不会覆盖表格行。
 
-### 0.6.25 P0-001/P0-002 大型 Playnite 库与页面安全降级回归
+### 0.6.26 P0-001/P0-002 大型 Playnite 库与页面安全降级回归
 
-- [ ] 确认 Playnite 附加组件页和 `playnite.log` 加载的是 `GameSaveCenter 0.6.25`，不是此前日志中的 `0.6.22`。
+- [ ] 确认 Playnite 附加组件页和 `playnite.log` 加载的是 `GameSaveCenter 0.6.26`，不是此前日志中的 `0.6.22`。
 - [ ] 在 900+ 游戏库启动后，优先看到已持久化 Dashboard；`worker-launch.log` 记录 `Library descriptors persisted` 后，窗口不应等待全部 Ludusavi `find` 完成。
 - [ ] 观察通知轮询：Worker 启动或后台匹配期间最多偶发一次调试日志，后续应按退避重试，不应每秒连续超时。
 - [ ] 重复打开/关闭 GameSaveCenter；即使人为制造资源构造异常，也应显示插件诊断降级页，而不是 Playnite 扩展崩溃窗口。
@@ -864,5 +864,6 @@
 - [ ] 检查 `worker-launch.log`：大批量同步应出现“descriptors persisted”和“matches queued in the background”，而不是在 IPC 请求内连续等待数分钟。
 - [ ] 区分 GameSaveCenter 与独立 `LudusaviPlaynite` 扩展的负载；如果两者同时启用，确认 Playnite 仍可操作，并记录两者各自的请求数量。
 - [ ] 在 Worker 启动、忙碌、重启和断开期间观察 `extensions.log`；通知轮询应按 5–60 秒退避，不应每秒重复输出命名管道连接超时。
+- [ ] 确认大型库启动后前 25 秒只完成 Worker/设置初始化，随后才出现后台 Ludusavi 匹配；首次打开 Dashboard 应先显示 SQLite 缓存。
 - [ ] 重复打开/关闭 GameSaveCenter、切换六个工作区、启动/停止游戏；确认缓存可读、后台匹配完成后摘要自动更新，且没有 XAML、ContentDialogHost、Dispatcher 或未处理异常。
 - [ ] 与 100 款、500 款库分别比较首次打开时间、Playnite UI 响应和 Worker 日志；记录从插件侧栏点击到首页首屏可用的耗时。

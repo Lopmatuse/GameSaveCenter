@@ -252,10 +252,10 @@ namespace GameSaveCenter.Playnite.Views
             // window. DynamicResource consumers resize together, while DataGrid keeps its own
             // internal scroll channel for the rows that no longer fit.
             var tableMinHeight = height < 650
-                ? 180d
+                ? 220d
                 : height < 760
-                    ? 220d
-                    : 280d;
+                    ? 300d
+                    : 360d;
             Resources["GscTableMinHeight"] = tableMinHeight;
             foreach (var workspaceView in GetWorkspaceViews())
             {

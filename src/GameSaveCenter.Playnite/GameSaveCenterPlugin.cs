@@ -41,6 +41,8 @@ namespace GameSaveCenter.Playnite
         private long lastTaskNotificationSequence;
         private string lastSynchronizedLibraryFingerprint = string.Empty;
         private DateTime lastLibrarySynchronizationUtc = DateTime.MinValue;
+        private readonly CancellationTokenSource lifetimeCancellation = new CancellationTokenSource();
+        private DateTime largeLibraryStartupSyncNotBeforeUtc = DateTime.MinValue;
 
         public GameSaveCenterPlugin(IPlayniteAPI api) : base(api)
         {
@@ -61,11 +63,12 @@ namespace GameSaveCenter.Playnite
         public override void OnApplicationStarted(OnApplicationStartedEventArgs args)
         {
             StartTaskNotificationMonitor();
-            if (Settings.AutoStartWorker) FireAndForget(SynchronizeAsync);
+            if (Settings.AutoStartWorker) FireAndForget(StartWorkerAndScheduleSynchronizationAsync);
         }
 
         public override void OnApplicationStopped(OnApplicationStoppedEventArgs args)
         {
+            lifetimeCancellation.Cancel();
             taskNotificationTimer?.Dispose();
             taskNotificationTimer = null;
         }
@@ -269,7 +272,11 @@ namespace GameSaveCenter.Playnite
         private void StartTaskNotificationMonitor()
         {
             taskNotificationMonitorStartedUtc = DateTime.UtcNow;
-            taskNotificationTimer = new Timer(_ => PollTaskNotifications(), null, TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(1));
+            // Do not compete with Playnite's library import or the Worker's first SQLite
+            // initialization.  In a large library the first sync can legitimately take a
+            // while; starting a long-poll request every second only creates pipe timeouts and
+            // extra thread-pool work while the Worker is not ready yet.
+            taskNotificationTimer = new Timer(_ => PollTaskNotifications(), null, TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(2));
         }
 
         private void PollTaskNotifications() => FireAndForget(PollTaskNotificationsAsync);
@@ -356,16 +363,35 @@ namespace GameSaveCenter.Playnite
             // Playnite's database is captured before asynchronous continuations leave the UI context.
             var games = PlayniteApi.Database.Games.Select(adapter.Convert).ToList();
             var fingerprint = CreateLibraryFingerprint(games);
+            // A large Playnite library should be allowed to finish its own startup before we
+            // submit a full descriptor refresh.  Dashboard and library-update callbacks during
+            // this grace period can still render durable cached data; the scheduled startup
+            // sync will submit the snapshot once the host is idle.
+            if (DateTime.UtcNow < largeLibraryStartupSyncNotBeforeUtc)
+            {
+                logger.Debug($"Deferring large-library synchronization until {largeLibraryStartupSyncNotBeforeUtc:O}; {games.Count} Playnite games were captured.");
+                return;
+            }
+
+            // Avoid even starting Worker/IPC work for duplicate Playnite library events.  The
+            // old order performed EnsureWorker and UpdateSettings before checking the fingerprint,
+            // so a burst of import notifications still woke the Worker repeatedly.
+            if (string.Equals(fingerprint, lastSynchronizedLibraryFingerprint, StringComparison.Ordinal)
+                && DateTime.UtcNow - lastLibrarySynchronizationUtc < TimeSpan.FromMinutes(5))
+            {
+                return;
+            }
+
             await synchronizationGate.WaitAsync().ConfigureAwait(false);
             try
             {
-                await EnsureWorkerAsync().ConfigureAwait(false);
-                await ApplySettingsCoreAsync().ConfigureAwait(false);
                 if (string.Equals(fingerprint, lastSynchronizedLibraryFingerprint, StringComparison.Ordinal)
                     && DateTime.UtcNow - lastLibrarySynchronizationUtc < TimeSpan.FromMinutes(5))
                 {
                     return;
                 }
+                await EnsureWorkerAsync().ConfigureAwait(false);
+                await ApplySettingsCoreAsync().ConfigureAwait(false);
                 await RequestAsync<object>(MessageTypes.UpsertGames, games, TimeSpan.FromMinutes(5)).ConfigureAwait(false);
                 lastSynchronizedLibraryFingerprint = fingerprint;
                 lastLibrarySynchronizationUtc = DateTime.UtcNow;
@@ -373,6 +399,36 @@ namespace GameSaveCenter.Playnite
             finally
             {
                 synchronizationGate.Release();
+            }
+        }
+
+        private async Task StartWorkerAndScheduleSynchronizationAsync()
+        {
+            try
+            {
+                var gameCount = PlayniteApi.Database.Games.Count;
+                var isLargeLibrary = gameCount >= 100;
+                largeLibraryStartupSyncNotBeforeUtc = isLargeLibrary
+                    ? DateTime.UtcNow.AddSeconds(25)
+                    : DateTime.MinValue;
+
+                // Start the Worker and apply settings promptly so process detection and task
+                // handling are available, but do not submit hundreds of Ludusavi lookups while
+                // Playnite is still importing a 900+ game library.
+                await EnsureWorkerAsync().ConfigureAwait(false);
+                await ApplySettingsCoreAsync().ConfigureAwait(false);
+                if (isLargeLibrary)
+                {
+                    logger.Info($"Detected a large Playnite library ({gameCount} games); deferring initial catalog synchronization for 25 seconds.");
+                    await Task.Delay(TimeSpan.FromSeconds(25), lifetimeCancellation.Token).ConfigureAwait(false);
+                }
+
+                await SynchronizeAsync().ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (lifetimeCancellation.IsCancellationRequested)
+            {
+                // Playnite is shutting down; do not surface the intentional delay cancellation
+                // as an extension failure.
             }
         }
 

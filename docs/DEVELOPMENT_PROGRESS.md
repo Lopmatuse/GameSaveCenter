@@ -1,7 +1,15 @@
 # 开发实现进度
 
 更新时间：2026-08-04
-当前版本：`0.6.25-development-preview`
+当前版本：`0.6.26-development-preview`
+
+## 2026-08-05 P0 大型 Playnite 启动保护
+
+- [x] 900+ 游戏库启动时先启动 Worker/应用设置，但将完整目录同步延后 25 秒，避免 Playnite 正在加载库时立即触发大量 Ludusavi 进程。
+- [x] 任务通知轮询从启动后 15 秒开始、每 2 秒一次，并继续使用指数退避，减少 Worker 冷启动期间的命名管道超时。
+- [x] 同步指纹在启动 Worker/发送设置前快速去重，避免 Playnite 连续库事件反复唤醒 Worker。
+- [x] 0.6.26 源码校验、Release 测试、Release 构建和 Worker smoke 仍需本轮重新执行。
+- [ ] 仍需在真实 Playnite 中确认加载的是 `GameSaveCenter 0.6.26`，并与独立 `LudusaviPlaynite` 扩展分开测量。
 
 ## 2026-08-04 P0 大型游戏库后台匹配让出策略
 

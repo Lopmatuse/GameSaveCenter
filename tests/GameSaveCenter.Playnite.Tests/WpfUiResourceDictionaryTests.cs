@@ -505,6 +505,25 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void MaintenanceAuditKeepsTwoReadableFiniteTablesBehindAWorkspaceScrollViewer()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var maintenancePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml");
+        var maintenanceText = File.ReadAllText(maintenancePath);
+        var maintenance = XDocument.Parse(maintenanceText);
+        var auditScroll = maintenance.Descendants().Single(element =>
+            element.Name.LocalName == "ScrollViewer" &&
+            element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "MaintenanceAuditScrollViewer");
+
+        Assert.Equal("Auto", auditScroll.Attribute("VerticalScrollBarVisibility")?.Value);
+        Assert.Equal("Disabled", auditScroll.Attribute("HorizontalScrollBarVisibility")?.Value);
+        Assert.Contains("x:Name=\"MaintenanceAuditFindingsGrid\" Height=\"360\"", maintenanceText);
+        Assert.Contains("x:Name=\"MaintenanceAuditLogGrid\" Height=\"360\"", maintenanceText);
+        Assert.Contains("MinHeight=\"360\"", maintenanceText);
+        Assert.Contains("CanContentScroll=\"False\"", maintenanceText);
+    }
+
+    [Fact]
     public void TrainerInspectorUsesAFiniteScrollChannelAtShortHeights()
     {
         var repositoryRoot = FindRepositoryRoot();
@@ -1193,6 +1212,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.DoesNotContain("private async void PollTaskNotifications()", pluginCode);
         Assert.DoesNotContain("private async void FireAndForget", pluginCode);
         Assert.Contains("private async Task PollTaskNotificationsAsync()", pluginCode);
+        Assert.Contains("private async Task StartWorkerAndScheduleSynchronizationAsync()", pluginCode);
+        Assert.Contains("largeLibraryStartupSyncNotBeforeUtc", pluginCode);
+        Assert.Contains("TimeSpan.FromSeconds(15), TimeSpan.FromSeconds(2)", pluginCode);
         Assert.Contains("TaskContinuationOptions.OnlyOnFaulted", pluginCode);
         Assert.Contains("failed to present a background operation error", pluginCode);
     }
@@ -1395,8 +1417,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("mode == LayoutMode.Compact ? new Thickness(12)", dashboardCode);
         Assert.Contains("var tableMinHeight = height < 650", dashboardCode);
         Assert.Contains("workspaceView.Resources[\"GscTableMinHeight\"] = tableMinHeight", dashboardCode);
-        Assert.Contains("? 180d", dashboardCode);
         Assert.Contains("? 220d", dashboardCode);
+        Assert.Contains("? 300d", dashboardCode);
+        Assert.Contains(": 360d", dashboardCode);
         Assert.Contains("mode == LayoutMode.Expanded ? 12", dashboardCode);
         Assert.Contains("viewModel.CurrentWorkspace == WorkspaceKind.Trainers", dashboardCode);
         Assert.Contains("DetailsTabControl.Margin =", dashboardCode);

@@ -81,7 +81,10 @@
     <!-- Shared table geometry. Each workspace keeps its DataGrid in a finite Grid row, while
          these tokens provide one readable density across light, dark and host themes. -->
     <sys:Double x:Key="GscTableRowHeight">54</sys:Double>
-    <sys:Double x:Key="GscTableMinHeight">280</sys:Double>
+    <!-- A readable table should expose roughly five or six rows at normal window sizes.
+         Short hosts still get an internal DataGrid scrollbar; they should not collapse the
+         table to the two-row strip that the old 280-DIP token produced. -->
+    <sys:Double x:Key="GscTableMinHeight">360</sys:Double>
     <sys:Double x:Key="GscTableHeaderHeight">44</sys:Double>
 
     <!-- Stable, mostly opaque reading surface. Views may add their own layout-only padding
