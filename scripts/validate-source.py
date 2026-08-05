@@ -926,27 +926,22 @@ def check_0621_cloud_retry_and_numeric_ui_guards() -> None:
 
 
 def check_wpf_ui_probe_guards() -> None:
-    """Keep the experimental WPF-UI integration local to GameSaveCenter's visual tree."""
+    """Ensure the Playnite host has no third-party WPF-UI dependency or theme scope."""
     packages = (ROOT / "Directory.Packages.props").read_text(encoding="utf-8")
     project = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenter.Playnite.csproj").read_text(encoding="utf-8")
     base = (ROOT / "src/GameSaveCenter.Playnite/Themes/WpfUiBase.xaml").read_text(encoding="utf-8")
+    controls = (ROOT / "src/GameSaveCenter.Playnite/Controls/NativeWpfControls.cs").read_text(encoding="utf-8")
     probe = (ROOT / "src/GameSaveCenter.Playnite/Views/Development/UiFrameworkProbeView.xaml").read_text(encoding="utf-8")
     dashboard = (ROOT / "src/GameSaveCenter.Playnite/Views/DashboardView.xaml").read_text(encoding="utf-8")
     package = (ROOT / "scripts/package.ps1").read_text(encoding="utf-8")
 
-    for description, token, text in (("WPF-UI central version", "WPF-UI", packages),
-                                     ("WPF-UI plugin reference", "WPF-UI", project),
-                                     # WPF-UI's deferred dictionaries are intentionally not merged
-                                     # in the Playnite host. The production adapter owns explicit
-                                     # templates instead, so this guard checks the documented
-                                     # isolation decision rather than an unsafe dictionary tag.
-                                     ("WPF-UI host isolation", "WpfUiProduction.xaml supplies explicit", base),
-                                     ("WPF-UI probe", "UiFrameworkProbeView", probe)):
+    for description, token, text in (("native control namespace", "GameSaveCenter.Playnite.Controls", dashboard),
+                                     ("native control namespace in probe", "GameSaveCenter.Playnite.Controls", probe),
+                                     ("native control shim", "class Button", controls)):
         if token not in text:
             fail(f"{description} guard missing")
-    for token in ("Version=\"4.3.0\"", "<PackageReference Include=\"WPF-UI\" />"):
-        if token not in packages and token not in project:
-            fail(f"WPF-UI 4.3.0 package guard missing: {token}")
+    if "WPF-UI" in packages or "WPF-UI" in project:
+        fail("WPF-UI must not remain a Playnite package dependency")
     for token in ("Do not merge WPF-UI's ui:ControlsDictionary", "ui:ThemesDictionary", "ui:ControlsDictionary"):
         if token not in base:
             fail(f"WPF-UI local resource guard missing: {token}")
@@ -972,9 +967,9 @@ def check_wpf_ui_probe_guards() -> None:
     executable_source = (ROOT / "src/GameSaveCenter.Playnite/GameSaveCenterPlugin.cs").read_text(encoding="utf-8")
     if "Application.Current.Resources" in executable_source:
         fail("WPF-UI resources must not be injected into Playnite Application.Current.Resources")
-    for token in ("Wpf.Ui.dll", "Wpf.Ui.Abstractions.dll", "System.Memory.dll", "System.ValueTuple.dll"):
-        if token not in package:
-            fail(f"WPF-UI package dependency guard missing: {token}")
+    for token in ("Wpf.Ui.dll", "Wpf.Ui.Abstractions.dll"):
+        if token in package:
+            fail(f"obsolete WPF-UI dependency must not be packaged: {token}")
 
 def check_shared_wpf_control_guards() -> None:
     """Keep native high-density primitives and WPF-UI production adapters centralized."""
@@ -1311,15 +1306,15 @@ def check_wpf_ui_production_scope_guards() -> None:
     palette_factory = (ROOT / "src/GameSaveCenter.Playnite/Infrastructure/AdaptiveThemePalette.cs").read_text(encoding="utf-8")
     production = (ROOT / "src/GameSaveCenter.Playnite/Themes/WpfUiProduction.xaml").read_text(encoding="utf-8")
     for source, label, required in (
-        (dashboard, "Dashboard WPF-UI production scope",
-         ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiProduction.xaml",
+        (dashboard, "Dashboard native production scope",
+         ("xmlns:ui=\"clr-namespace:GameSaveCenter.Playnite.Controls\"", "Themes/WpfUiProduction.xaml",
           # The summary cards now live in the extracted OverviewView. The shell still owns
           # WPF-UI action controls and toggle controls, so scope validation must not require
           # a legacy ui:Card instance in DashboardView itself.
           "<ui:Button", "<ui:ToggleSwitch",
           "ToastHost")),
-        (settings, "Settings WPF-UI production scope",
-         ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiProduction.xaml",
+        (settings, "Settings native production scope",
+         ("xmlns:ui=\"clr-namespace:GameSaveCenter.Playnite.Controls\"", "Themes/WpfUiProduction.xaml",
           "<ui:Card", "<ui:ToggleSwitch", "<ui:Button")),
         (dashboard_code, "Dashboard production feedback",
          ("ShowToast", "ShowFallbackConfirmation",
@@ -1327,7 +1322,7 @@ def check_wpf_ui_production_scope_guards() -> None:
           "return Task.CompletedTask")),
         (settings_code, "Settings production feedback",
          ("ShowSettingsMessage", "Task.Run", "MessageBox.Show")),
-        (theme_scope, "WPF-UI theme scope", ("ThemesDictionary", "ApplicationTheme.HighContrast", "ApplyMergedDictionaries")),
+        (theme_scope, "native theme scope", ("Intentionally empty", "WpfUiThemeScope")),
     ):
         for token in required:
             if token not in source:
@@ -1335,15 +1330,15 @@ def check_wpf_ui_production_scope_guards() -> None:
     for source, label in ((dashboard_code, "Dashboard"), (settings_code, "Settings")):
         if ("WpfUiThemeScope.Apply(Resources, palette.IsDark)" not in source
                 and "ApplyRuntimeThemeResources(Resources, palette" not in source):
-            fail(f"{label} must apply WPF-UI theme only through its local resource scope")
-        if "using Wpf.Ui.Controls;" in source:
-            fail(f"{label} must alias individual WPF-UI feedback controls to avoid native WPF type ambiguity")
+            fail(f"{label} must apply theme through its local resource scope")
+        if "using Wpf.Ui.Controls;" in source or "Wpf.Ui" in source:
+            fail(f"{label} must not reference WPF-UI")
     if "SnackbarPresenter" in dashboard or "new Snackbar(" in dashboard_code:
         fail("Dashboard must use the native page-local toast instead of WPF-UI Snackbar")
     if "SnackbarPresenter" in settings or "new Snackbar(" in settings_code:
         fail("Settings must use the native feedback path instead of WPF-UI Snackbar")
     if "WpfUiThemeScope.Apply(resources, palette.IsDark)" not in palette_factory:
-        fail("shared runtime palette must apply WPF-UI resources through the local scope")
+        fail("shared runtime palette must retain the compatibility theme hook")
     for source, label in ((dashboard, "Dashboard"), (settings, "Settings")):
         if "<ui:ContentDialogHost" in source:
             fail(f"{label} must use GameSaveCenter's embedded dialog fallback instead of a WPF-UI Window host")

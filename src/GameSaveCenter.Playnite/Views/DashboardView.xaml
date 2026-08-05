@@ -5,7 +5,7 @@
              xmlns:converters="clr-namespace:GameSaveCenter.Playnite.Converters"
              xmlns:infra="clr-namespace:GameSaveCenter.Playnite.Infrastructure"
              xmlns:views="clr-namespace:GameSaveCenter.Playnite.Views"
-             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:ui="clr-namespace:GameSaveCenter.Playnite.Controls"
              Foreground="{DynamicResource GscPrimaryTextBrush}" TextElement.Foreground="{DynamicResource GscPrimaryTextBrush}" Background="Transparent"
              TextElement.FontFamily="Segoe UI Variable Text, Segoe UI"
              UseLayoutRounding="True" SnapsToDevicePixels="True"
@@ -710,7 +710,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-<TextBlock x:Name="SidebarVersionText" Text="v0.6.61" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+<TextBlock x:Name="SidebarVersionText" Text="v0.6.62" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>

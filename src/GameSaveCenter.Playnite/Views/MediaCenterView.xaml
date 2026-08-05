@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:contracts="clr-namespace:GameSaveCenter.Contracts;assembly=GameSaveCenter.Contracts"
              xmlns:converters="clr-namespace:GameSaveCenter.Playnite.Converters"
-             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:ui="clr-namespace:GameSaveCenter.Playnite.Controls"
              Foreground="{DynamicResource GscPrimaryTextBrush}"
              TextElement.Foreground="{DynamicResource GscPrimaryTextBrush}"
              Background="Transparent" UseLayoutRounding="True" SnapsToDevicePixels="True">

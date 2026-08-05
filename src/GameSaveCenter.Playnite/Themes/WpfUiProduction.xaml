@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+                    xmlns:ui="clr-namespace:GameSaveCenter.Playnite.Controls">
     <ResourceDictionary.MergedDictionaries>
         <!-- StaticResource resolution happens while this dictionary is parsed. Keep WPF-UI's
              type-keyed defaults in the same resource scope as the production adapters; a

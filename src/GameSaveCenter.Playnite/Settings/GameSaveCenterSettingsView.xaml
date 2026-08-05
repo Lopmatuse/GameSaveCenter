@@ -4,7 +4,7 @@
              xmlns:contracts="clr-namespace:GameSaveCenter.Contracts;assembly=GameSaveCenter.Contracts"
              xmlns:settings="clr-namespace:GameSaveCenter.Playnite.Settings"
              xmlns:infra="clr-namespace:GameSaveCenter.Playnite.Infrastructure"
-             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:ui="clr-namespace:GameSaveCenter.Playnite.Controls"
              Foreground="{DynamicResource GscPrimaryTextBrush}"
              UseLayoutRounding="True" SnapsToDevicePixels="True"
              TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"

@@ -13,7 +13,7 @@ using System.Windows.Controls.Primitives;
 using System.Xml.Linq;
 using GameSaveCenter.Playnite.Settings;
 using GameSaveCenter.Playnite.Views;
-using Wpf.Ui.Controls;
+using GameSaveCenter.Playnite.Controls;
 using Xunit;
 
 namespace GameSaveCenter.Playnite.Tests;
@@ -200,7 +200,7 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Null(exception);
         var buttonStyle = Assert.IsType<Style>(resources!["GscWpfUiButton"]);
-        Assert.Equal(typeof(Wpf.Ui.Controls.Button), buttonStyle.TargetType);
+        Assert.Equal(typeof(GameSaveCenter.Playnite.Controls.Button), buttonStyle.TargetType);
         Assert.IsAssignableFrom<Brush>(resources["AccentFillColorDefaultBrush"]);
         Assert.IsAssignableFrom<Brush>(resources["TextOnAccentFillColorPrimaryBrush"]);
     }
@@ -255,7 +255,7 @@ public sealed class WpfUiResourceDictionaryTests
                 var host = (System.Windows.Controls.UserControl)XamlReader.Parse(@"
 <UserControl xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
              xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
-             xmlns:ui=""http://schemas.lepo.co/wpfui/2022/xaml"">
+             xmlns:ui=""clr-namespace:GameSaveCenter.Playnite.Controls;assembly=GameSaveCenter.Playnite"">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

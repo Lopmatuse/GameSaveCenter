@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml">
+                    xmlns:ui="clr-namespace:GameSaveCenter.Playnite.Controls">
     <ResourceDictionary.MergedDictionaries>
         <!-- Keep the WPF-UI adapters in this dictionary's parse scope.  The color/material
              tokens remain page-local and are consumed through DynamicResource. -->

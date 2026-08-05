@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using GameSaveCenter.Playnite.Infrastructure;
 using Playnite.SDK;
-using Snackbar = Wpf.Ui.Controls.Snackbar;
+using Snackbar = GameSaveCenter.Playnite.Controls.Snackbar;
 
 namespace GameSaveCenter.Playnite.Views.Development;
 

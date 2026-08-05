@@ -1,9 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.61-development-preview`
+当前版本：`0.6.62-development-preview`
 
-- [x] UI-112：彻底隔离 Playnite 宿主中的 WPF-UI 默认控件/主题模板。生产资源不再合并 `ui:ControlsDictionary` 或 `ui:ThemesDictionary`，卡片、按钮和开关使用明确的本地 ControlTemplate，避免 WPF-UI 延迟 CornerRadius 在 Playnite 主窗口 Arrange 阶段解析为 `DependencyProperty.UnsetValue`。未改变命令、绑定、键盘交互或 Worker 业务；源码校验、Release 测试和构建通过，仍需在 Playnite 中安装 0.6.61 做真实回归。
+- [x] UI-112：彻底移除 Playnite 插件对 WPF-UI 程序集、命名空间和默认主题的运行时依赖，使用项目内原生 WPF 兼容控件保持现有 XAML 样式键、命令、绑定和键盘交互；避免第三方延迟 CornerRadius 在 Playnite 主窗口 Arrange 阶段解析为 `DependencyProperty.UnsetValue`。源码校验、Release 测试和构建通过，仍需在 Playnite 中安装 0.6.62 做真实回归。
 
 - [x] UI-111：移除 Dashboard 与设置页中的 WPF-UI SnackbarPresenter，通知统一使用页面内原生 Toast；WPF-UI 基础字典改为只加载 ControlsDictionary，并提供确定性的本地 Fluent token fallback，避免 deferred CornerRadius 在 Playnite 宿主 Arrange 阶段解析为 `DependencyProperty.UnsetValue`。源码校验、149 项 Release 自动测试和 Release 构建通过；仍需真实 Playnite 宿主验证。
 
