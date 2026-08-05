@@ -341,6 +341,14 @@ def check_delivery_guards() -> None:
         fail("Missing development progress document")
     if not (ROOT / "docs/PROJECT_MEMORY.md").exists():
         fail("Missing project memory document")
+    package = (ROOT / "scripts/package.ps1").read_text(encoding="utf-8")
+    dev_install = (ROOT / "scripts/dev-install-run.ps1").read_text(encoding="utf-8")
+    if "if ($file -eq 'extension.yaml')" not in package or "$source = $sourceManifest" not in package:
+        fail("Packaging must copy extension.yaml from the source manifest, not stale bin output")
+    if "Remove-Item $stage -Recurse -Force" not in package:
+        fail("Packaging must recreate the staging directory before copying files")
+    if "打包目录不存在：$stage" not in dev_install:
+        fail("Development installation must reject a missing staging directory")
 
 
 

@@ -1,10 +1,12 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.66
+  - Version: 0.6.68
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-08-05
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.66/GameSaveCenter-0.6.66.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.68/GameSaveCenter-0.6.68.pext
     Changelog:
+      - 0.6.68：修复一键打包在旧 bin 产物存在时误用旧 extension.yaml，始终以源码清单为打包版本来源，并增加暂存目录存在校验。
+      - 0.6.67：统一普通工作区卡片为 Demo 阅读表面（16 圆角、18 内边距、无阴影），表格、浮层和状态卡继续使用专用几何。
       - 0.6.66：补回 Demo 同款工作区底部说明表面；短窗口自动收紧内边距并隐藏次要提示，不改变 Worker、备份、媒体、任务或修改器逻辑。
       - 0.6.65：将工作区宿主改为 Demo 同款透明 PageHost，并保留顶部表面、内部列表滚动和现有业务命令，避免页面被二次卡片包裹。
       - 0.6.64：继续贴合 WPF Demo 外壳，收紧工作区伸展布局并隐藏页面级滚动条，保留表格与列表内部滚动。

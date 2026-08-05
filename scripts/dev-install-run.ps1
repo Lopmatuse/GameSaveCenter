@@ -242,6 +242,11 @@ try {
     & (Join-Path $PSScriptRoot 'package.ps1') -Configuration $Configuration -SkipBuild
 
     $stage = Join-Path $root 'artifacts\GameSaveCenter_66e9f2d7-67bb-43ef-b62a-b8e60734fcec'
+    # package.ps1 recreates this directory. Keep a second, explicit check here
+    # so an interrupted/legacy package cannot be installed accidentally.
+    if (-not (Test-Path $stage)) {
+        throw "打包目录不存在：$stage。请检查 package.ps1 的输出。"
+    }
     $stageVersion = Read-ManifestVersion (Join-Path $stage 'extension.yaml')
     if ($stageVersion -ne $expectedVersion) {
         throw "打包目录版本不一致：源码 $expectedVersion，打包目录 $stageVersion。"

@@ -1,7 +1,11 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-08-05
-当前版本：`0.6.66-development-preview`
+当前版本：`0.6.68-development-preview`
+
+> BUILD-020：`scripts/package.ps1` 打包时 `extension.yaml` 必须直接来自 `src/GameSaveCenter.Playnite/extension.yaml`，不能优先使用 `bin/Release/net462` 中可能残留的副本；`dev-install-run.ps1` 在安装前必须确认暂存目录存在并再次比对版本。
+
+> UI-115：`GscRedesignSectionCard` 现在等价于 Demo 的普通阅读表面（CornerRadius 16、Padding 18、Effect null）。`GscRedesignTableFrame`、`GscRedesignHeroCard`、`GscRedesignMetricBorder`、`GscRedesignFloatingPickerCard` 和状态卡必须继续显式覆盖其几何/效果，避免共享改动改变专用布局。
 
 > UI-114：Dashboard 的 `DemoFooter` 与 Demo 工作区底部表面保持一致；`StatusPill` 仅作为隐藏兼容节点保留，用户可见说明使用 `DemoFooterNote`/`DemoFooterHint`，短窗口由 `ApplyResponsiveLayout` 收紧并隐藏次要提示。
 

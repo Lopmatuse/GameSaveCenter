@@ -2206,6 +2206,22 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void SharedSectionCardMatchesDemoReadingSurfaceGeometry()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var redesign = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "Redesign.xaml"));
+        var sectionStart = redesign.IndexOf("x:Key=\"GscRedesignSectionCard\"", StringComparison.Ordinal);
+        Assert.True(sectionStart >= 0);
+        var sectionEnd = redesign.IndexOf("<Style x:Key=", sectionStart + 1, StringComparison.Ordinal);
+        Assert.True(sectionEnd > sectionStart);
+        var section = redesign.Substring(sectionStart, sectionEnd - sectionStart);
+
+        Assert.Contains("CornerRadius\" Value=\"16\"", section);
+        Assert.Contains("Padding\" Value=\"18\"", section);
+        Assert.Contains("Effect\" Value=\"{x:Null}\"", section);
+    }
+
+    [Fact]
     public void ExtractedWorkspacesUseTheSharedDemoLayoutWithoutReplacingTheirRealContent()
     {
         var repositoryRoot = FindRepositoryRoot();

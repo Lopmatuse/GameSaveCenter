@@ -1,7 +1,11 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.66-development-preview`
+当前版本：`0.6.68-development-preview`
+
+- [x] BUILD-020：修复一键安装可能从旧 `bin/` 或旧打包暂存目录读取 `extension.yaml`，打包始终使用源码清单并在安装前验证暂存目录存在；Release 构建、测试、源码门禁和包内容版本检查通过。仍需 Windows/Playnite 安装验证。
+
+- [x] UI-115：共享 `GscRedesignSectionCard` 对齐 Demo `GscReadingCardStyle` 的几何和无阴影阅读表面；表格、浮层、Hero、指标和状态卡保留自己的专用覆盖。源码校验、自动测试、构建和打包后仍需 Playnite 宿主验证。
 
 - [x] UI-114：补回 Demo 同款工作区底部说明表面，并在短窗口收紧内边距、隐藏次要提示，保留状态栏逻辑为隐藏兼容节点，避免重复占用布局；源码校验、Release 测试和构建通过后再生成 0.6.66 包。仍需 Playnite 宿主验证。
 

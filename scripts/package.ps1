@@ -131,9 +131,17 @@ $optionalCompatibilityDependencies = @(
 )
 
 foreach ($file in $required) {
-    $source = Join-Path $pluginOutput $file
-    if (-not (Test-Path $source)) {
-        $source = Join-Path $root "src\GameSaveCenter.Playnite\$file"
+    # extension.yaml is source-of-truth.  The copy emitted in bin/ can be
+    # stale when a previous build was interrupted or when packaging is run
+    # with SkipBuild; never let that stale file overwrite the current version.
+    if ($file -eq 'extension.yaml') {
+        $source = $sourceManifest
+    }
+    else {
+        $source = Join-Path $pluginOutput $file
+        if (-not (Test-Path $source)) {
+            $source = Join-Path $root "src\GameSaveCenter.Playnite\$file"
+        }
     }
     if (-not (Test-Path $source)) {
         throw "打包缺少文件：$file。请检查前面的编译输出，不能跳过构建错误继续打包。"

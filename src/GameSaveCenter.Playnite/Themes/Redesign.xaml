@@ -39,11 +39,14 @@
         <Setter Property="Background" Value="{DynamicResource GscGlassStrongBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="{StaticResource GscRedesignCardCorner}"/>
-        <Setter Property="Padding" Value="{StaticResource GscRedesignCardPadding}"/>
+        <!-- Keep ordinary production cards identical to Demo's GscReadingCardStyle.
+             Special surfaces (table, hero, metric and floating cards) override these
+             values below, so this shared change does not alter their layout contracts. -->
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding" Value="18"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
-        <Setter Property="Effect" Value="{DynamicResource GscSurfaceEffect}"/>
+        <Setter Property="Effect" Value="{x:Null}"/>
     </Style>
 
     <!-- All workspace tables share one opaque reading surface. Keeping this in the shared
