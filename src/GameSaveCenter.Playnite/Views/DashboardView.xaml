@@ -842,6 +842,17 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
+        <!-- Demo top bar: a quiet, lightly separated surface keeps the page title,
+             global GamePicker and contextual actions from visually merging into the
+             workspace cards below. -->
+        <Border x:Name="HeaderSurface" Grid.Row="0" Margin="0,0,0,12"
+                Background="{DynamicResource GscGlassFillBrush}"
+                BorderBrush="{DynamicResource GscGlassStrokeBrush}"
+                BorderThickness="1"
+                CornerRadius="20"
+                Padding="18,0"
+                SnapsToDevicePixels="True">
+        </Border>
         <Grid x:Name="HeaderGrid" Grid.Row="0" Margin="4,0,0,16" MinWidth="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
