@@ -27,6 +27,20 @@
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="Margin" Value="22"/>
             </Style>
+            <Style x:Key="OverviewMetricActionButton"
+                   TargetType="ui:Button"
+                   BasedOn="{StaticResource GscWpfUiButton}">
+                <Setter Property="Appearance" Value="Transparent"/>
+                <Setter Property="Background" Value="{DynamicResource GscAccentTintBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource GscDividerBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="ui:Button.CornerRadius" Value="12"/>
+                <Setter Property="Padding" Value="10,5"/>
+                <Setter Property="Margin" Value="0,0,0,8"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                <Setter Property="ToolTipService.ShowDuration" Value="12000"/>
+            </Style>
             <Style x:Key="OverviewDataGrid" TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
                 <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
                 <Setter Property="Background" Value="Transparent"/>
@@ -154,7 +168,15 @@
                         <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,8"><StackPanel><TextBlock Text="管理游戏" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.ManagedGames, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
                         <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,0,8"><StackPanel><TextBlock Text="已匹配存档" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.MatchedGames, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
                         <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,8"><StackPanel><TextBlock Text="正在运行" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.RunningGames, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
-                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,0,8"><StackPanel><TextBlock Text="需关注" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.WarningGames, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+                        <ui:Button Style="{StaticResource OverviewMetricActionButton}"
+                                   Command="{Binding OpenAttentionCenterCommand}"
+                                   ToolTip="点击查看需要关注的游戏、原因和建议处理方式"
+                                   AutomationProperties.Name="查看需要关注的游戏、原因和建议处理方式">
+                            <StackPanel>
+                                <TextBlock Text="需关注" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                <TextBlock Text="{Binding Snapshot.WarningGames, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </ui:Button>
                         <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="云端队列" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.PendingCloudTasks, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
                         <Border Style="{DynamicResource GscRedesignContextPill}"><StackPanel><TextBlock Text="待归类媒体" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
                     </UniformGrid>

@@ -1,3 +1,7 @@
+# 0.6.55 Development Preview
+
+- 总览“需关注”指标现在是可键盘访问的圆角操作卡，点击后进入维护中心并定位具体诊断原因；数据、命令和状态来源保持不变。
+
 # 0.6.54 Development Preview
 
 - Worker 启动日志现在会记录本次插件期望的 Worker 程序集版本，和初始化日志中的实际版本配对，便于定位 Playnite 扩展目录复用旧 Worker 的问题。
