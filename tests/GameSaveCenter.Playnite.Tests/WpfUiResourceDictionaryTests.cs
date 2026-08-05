@@ -507,8 +507,8 @@ public sealed class WpfUiResourceDictionaryTests
             Assert.Contains("ScrollViewer.VerticalScrollBarVisibility\" Value=\"Auto\"", text);
             Assert.Contains("EnableRowVirtualization\" Value=\"True\"", text);
             Assert.Contains("EnableColumnVirtualization\" Value=\"True\"", text);
-            Assert.Contains("Property=\"MinHeight\" Value=\"{DynamicResource GscTableMinHeight}\"", text);
-            Assert.Contains("Property=\"Height\" Value=\"{DynamicResource GscTableViewportHeight}\"", text);
+            Assert.Contains("Property=\"MinHeight\" Value=\"{DynamicResource GscWorkspaceTableMinHeight}\"", text);
+            Assert.DoesNotContain("Property=\"Height\" Value=\"Auto\"", text);
             Assert.Contains("Property=\"RowHeight\" Value=\"{DynamicResource GscTableRowHeight}\"", text);
             Assert.Contains("Property=\"ColumnHeaderHeight\" Value=\"{DynamicResource GscTableHeaderHeight}\"", text);
             Assert.Contains("Property=\"AlternatingRowBackground\" Value=\"{DynamicResource GscTableAlternateRowBrush}\"", text);
@@ -1320,7 +1320,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains(dataGrid.Ancestors(), ancestor => ancestor.Name.LocalName == "Border");
         Assert.Contains(tabItem.Descendants(), element => element.Name.LocalName == "ScrollViewer" && element.Attribute("MaxHeight")?.Value == "190");
         Assert.Contains(tabItem.Descendants(), element => element.Name.LocalName == "RowDefinition" && element.Attribute("Height")?.Value == "*");
-        Assert.Contains("Property=\"MinHeight\" Value=\"{DynamicResource GscTableMinHeight}\"", File.ReadAllText(mediaPath));
+        Assert.Contains("Property=\"MinHeight\" Value=\"{DynamicResource GscWorkspaceTableMinHeight}\"", File.ReadAllText(mediaPath));
     }
 
     [Fact]

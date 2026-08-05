@@ -85,11 +85,12 @@
          The surrounding page owns the overflow channel, while the DataGrid keeps its own
          virtualized scrollbar for the remaining rows. -->
     <sys:Double x:Key="GscTableRowHeight">60</sys:Double>
-    <!-- A readable table should expose several rows at normal window sizes. Short hosts still
-         get an internal DataGrid scrollbar; the page-level viewer reveals lower actions. The
-         page-level ScrollViewer remains the
-         overflow channel, so a taller viewport never hides the action/inspector sections. -->
+    <!-- A readable table should expose several rows at normal window sizes. Legacy and
+         dashboard-hosted tables can still use the large viewport token below; extracted
+         workspaces use the adaptive minimum so the page itself does not need a vertical
+         scrollbar and the DataGrid keeps the overflow inside its own virtualized viewer. -->
     <sys:Double x:Key="GscTableMinHeight">520</sys:Double>
+    <sys:Double x:Key="GscWorkspaceTableMinHeight">260</sys:Double>
     <!-- Finite viewport used by page-level scroll channels. A fixed viewport keeps
          virtualization active while the page itself can reveal the action/inspector
          sections below a table on short windows. DashboardView updates this token at
