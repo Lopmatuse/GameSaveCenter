@@ -227,7 +227,7 @@
                                               PanningMode="HorizontalOnly"
                                               Focusable="False"
                                               ClipToBounds="False">
-                                    <TabPanel x:Name="HeaderPanel"
+                                            <TabPanel x:Name="HeaderPanel"
                                               IsItemsHost="True"
                                               Background="Transparent"
                                               ClipToBounds="False"
@@ -241,6 +241,11 @@
                                               VerticalAlignment="Stretch"
                                               SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                         </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="HideHeaders">
+                                <Setter TargetName="HeaderScrollViewer" Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -1196,7 +1201,7 @@
 
                     <TabControl x:Name="DetailsTabControl" Grid.Row="3" MinHeight="0"
                                 Style="{StaticResource GscTabControl}"
-                                TabStripPlacement="None"
+                                Tag="HideHeaders"
                                 KeyboardNavigation.TabNavigation="Local"
                                 AutomationProperties.Name="当前工作区内容"
                                 SelectionChanged="OnDetailsTabSelectionChanged">

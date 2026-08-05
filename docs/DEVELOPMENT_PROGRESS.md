@@ -1283,3 +1283,8 @@
 - 单个游戏启动/变更仍保持同步匹配，避免游戏会话在明显需要匹配时立即创建错误的未匹配备份；后台任务失败只记录诊断，不阻断 Worker 或 Playnite。
 - Playnite 任务通知轮询增加 5–60 秒指数退避和日志节流，Worker 启动、重启或忙碌期间不再每秒重复连接命名管道。
 - 版本提升至 0.6.23；真实 Playnite 大库、第三方 Ludusavi 扩展并行运行和宿主 UI 仍需用户侧回归，当前不能宣称已完成真机验证。
+### UI-087：修复 Dashboard 无效 TabStripPlacement 崩溃
+
+- 修复 `DashboardView` 使用 `TabStripPlacement="None"` 导致 WPF 在 `TypeConverterMarkupExtension` 阶段抛出 `FormatException`、页面回退为“界面暂时无法加载”的问题。
+- 使用合法的 `Tag="HideHeaders"` 配合 `GscTabControl` 模板触发器隐藏内部标签头，不改变工作区选择、命令绑定或业务逻辑。
+- 增加源码门禁，禁止再次引入非法的 `TabStripPlacement="None"`；仍需用户在 Playnite 中安装后验证实际渲染。

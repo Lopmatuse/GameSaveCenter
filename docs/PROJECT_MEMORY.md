@@ -887,3 +887,8 @@ UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，
 - `GscRedesignWorkspaceTabItem` 的 Header 由模板单独居中，不能把 `HorizontalContentAlignment`/`VerticalContentAlignment` 设为 Center；选中的工作区内容必须 Stretch。
 - 去掉页面级 ScrollViewer 后，列表视口必须放在有限 Grid 的 `*` 行中；不要在修改器 ListBox 上写死 `GscListViewportHeight`，否则常用窗口会出现窄列表或大块空白。
 - 修改器中心宽屏采用列表 + 320 DIP 检查器，低于 980 DIP 将检查器移回底部并恢复局部滚动；所有业务绑定和命令保持不变。
+### UI-087：Dashboard XAML 枚举值必须合法
+
+- `TabStripPlacement` 的类型是 WPF `Dock` 枚举，不接受 `None`。该值会在 BAML 加载时抛出 `XamlParseException`，导致 Dashboard 无法构造。
+- 隐藏工作区内部标签头应通过模板触发器实现，而不是写入不存在的枚举值；当前实现使用 `Tag="HideHeaders"`。
+- `scripts/validate-source.py` 已加入回归门禁，Windows/Playnite 安装后仍需检查 Dashboard 首次打开、重复打开和主题切换。

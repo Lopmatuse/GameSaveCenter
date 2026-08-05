@@ -1067,6 +1067,12 @@ def check_final_redesign_guards() -> None:
     workspace_roots = [ET.parse(ROOT / "src/GameSaveCenter.Playnite/Views" / name).getroot()
                        for name in workspace_views]
 
+    # TabStripPlacement is a Dock enum. WPF accepts only Top/Bottom/Left/Right;
+    # using None parses successfully in some static checks but crashes at runtime
+    # while DashboardView is being constructed.
+    if 'TabStripPlacement="None"' in dashboard:
+        fail("Dashboard cannot use invalid WPF TabStripPlacement=\"None\"; hide tab headers in the template instead")
+
     for source, label, required in (
         (dashboard, "Dashboard final redesign",
          ('Themes/Redesign.xaml', 'x:Name="HeaderCompactActionsRow"',

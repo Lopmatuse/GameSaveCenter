@@ -601,7 +601,9 @@ public sealed class WpfUiResourceDictionaryTests
         var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
 
         Assert.Contains("x:Name=\"DetailsTabControl\"", dashboard);
-        Assert.Contains("TabStripPlacement=\"None\"", dashboard);
+        Assert.Contains("Tag=\"HideHeaders\"", dashboard);
+        Assert.Contains("Property=\"Tag\" Value=\"HideHeaders\"", dashboard);
+        Assert.DoesNotContain("TabStripPlacement=\"None\"", dashboard);
         Assert.Contains("KeyboardNavigation.TabNavigation=\"Local\"", dashboard);
         Assert.DoesNotContain("DetailsTabControl\" Grid.Row=\"3\" MinHeight=\"0\"\n                                Style=\"{StaticResource GscTabControl}\"\n                                SelectionChanged", dashboard);
     }
