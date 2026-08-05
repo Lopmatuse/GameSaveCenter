@@ -73,7 +73,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="0,0,0,0">
+    <Grid Margin="0" MinWidth="0" MinHeight="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -84,7 +84,7 @@
             <Border Style="{DynamicResource GscRedesignSectionCard}" Padding="13" Margin="0,0,10,0"><StackPanel><TextBlock Text="收藏" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding MediaSummary.FavoriteCount, Mode=OneWay}" FontSize="21" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
             <Border Style="{DynamicResource GscRedesignSectionCard}" Padding="13"><StackPanel><TextBlock Text="待归类" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}" FontSize="21" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
         </UniformGrid>
-        <TabControl Grid.Row="1" Style="{StaticResource MediaTabControl}">
+        <TabControl Grid.Row="1" MinWidth="0" MinHeight="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Style="{StaticResource MediaTabControl}">
             <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource MediaTabItem}"/></TabControl.Resources>
             <TabItem Header="待归类">
                 <Grid Margin="0,12,0,0">

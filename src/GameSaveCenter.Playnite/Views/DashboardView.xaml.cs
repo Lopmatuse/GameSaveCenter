@@ -239,25 +239,12 @@ namespace GameSaveCenter.Playnite.Views
                 : LayoutMode.Narrow;
             viewModel.LayoutMode = mode;
 
-            // Keep the shell breathable at the normal window sizes people actually use.
-            // These are layout-only changes: the workspaces still own their finite Grid rows
-            // and local scroll viewers, while the outer card gives them a little more room at
-            // 700–1024 DIP instead of forcing every control into the desktop-sized padding.
-            var shellHorizontalPadding = mode == LayoutMode.Expanded ? 18
-                : mode == LayoutMode.Standard ? 16
-                : mode == LayoutMode.Compact ? 12
-                : 10;
-            var shellTopPadding = height < 760
-                ? (mode == LayoutMode.Narrow ? 8 : 10)
-                : (mode == LayoutMode.Expanded ? 16 : 14);
-            var shellBottomPadding = height < 760
-                ? (mode == LayoutMode.Narrow ? 8 : 10)
-                : (mode == LayoutMode.Expanded ? 14 : 12);
-            ResponsiveShell.Margin = new Thickness(
-                shellHorizontalPadding,
-                shellTopPadding,
-                shellHorizontalPadding,
-                shellBottomPadding);
+            // The demo shell already provides its complete outer spacing through the
+            // 14-DIP Border margin/padding.  A second responsive margin here consumed a
+            // surprising amount of the normal 1024/1280-DIP workspace and made the
+            // extracted pages look like narrow centred islands. Keep the shell flush with
+            // that inner padding at every breakpoint; workspace views own their local gaps.
+            ResponsiveShell.Margin = new Thickness(0);
             GameDetailCard.Padding = mode == LayoutMode.Expanded ? new Thickness(18)
                 : mode == LayoutMode.Standard ? new Thickness(16)
                 : mode == LayoutMode.Compact ? new Thickness(12)
@@ -326,6 +313,9 @@ namespace GameSaveCenter.Playnite.Views
             GameSwitcherHost.HorizontalAlignment = pickerOnTopBar
                 ? HorizontalAlignment.Center
                 : HorizontalAlignment.Stretch;
+            GameSwitcherHost.Margin = pickerOnTopBar
+                ? new Thickness(0)
+                : new Thickness(0, 8, 0, 0);
 
             if (mode == LayoutMode.Expanded)
             {
@@ -533,17 +523,17 @@ namespace GameSaveCenter.Playnite.Views
             switch (workspace)
             {
                 case WorkspaceKind.Saves:
-                    PageTitleText.Text = "存档中心"; PageSubtitleText.Text = "历史版本、备份策略与安全恢复"; break;
+                    PageTitleText.Text = "存档中心"; PageSubtitleText.Text = "历史版本、路径校验、游戏策略、比较与安全恢复"; break;
                 case WorkspaceKind.Trainers:
-                    PageTitleText.Text = "修改器中心"; PageSubtitleText.Text = "管理本地修改器、Cheat Table 与 FLiNG 在线目录"; break;
+                    PageTitleText.Text = "修改器中心"; PageSubtitleText.Text = "本地工具、导入确认、FLiNG 在线目录和下载版本"; break;
                 case WorkspaceKind.Media:
-                    PageTitleText.Text = "媒体中心"; PageSubtitleText.Text = "截图、录像与待归类媒体"; break;
+                    PageTitleText.Text = "媒体中心"; PageSubtitleText.Text = "待归类、媒体库、批量操作与来源规则"; break;
                 case WorkspaceKind.Tasks:
-                    PageTitleText.Text = "任务中心"; PageSubtitleText.Text = "查看后台任务、进度与失败详情"; break;
+                    PageTitleText.Text = "任务中心"; PageSubtitleText.Text = "全局任务、真实阶段、失败详情、取消与安全重试"; break;
                 case WorkspaceKind.Maintenance:
-                    PageTitleText.Text = "维护中心"; PageSubtitleText.Text = "Worker、Ludusavi、目录与诊断"; break;
+                    PageTitleText.Text = "维护中心"; PageSubtitleText.Text = "关注项、诊断日志、进程映射、设备恢复与保留预览"; break;
                 default:
-                    PageTitleText.Text = "首页"; PageSubtitleText.Text = "存档、修改器、媒体与任务的一体化工作台"; break;
+                    PageTitleText.Text = "首页"; PageSubtitleText.Text = "今天是否安全、有什么需要处理，以及全局批量操作"; break;
             }
             if (compactGameBrowserOpen)
             {

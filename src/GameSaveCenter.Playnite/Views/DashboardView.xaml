@@ -683,7 +683,10 @@
         </Grid>
 
         <Border x:Name="DashboardDemoShell" Margin="14" Style="{StaticResource GscShellStyle}" Padding="14">
-        <Grid x:Name="ResponsiveShell" Margin="18,16,18,14">
+        <!-- DashboardDemoShell supplies the complete outer spacing. Keep this inner grid
+             flush with the shell padding so ordinary 1024/1280-DIP windows do not waste
+             another 18 DIP on each side. -->
+        <Grid x:Name="ResponsiveShell" Margin="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="SidebarColumn" Width="194"/>
                 <ColumnDefinition x:Name="SidebarGutterColumn" Width="18"/>
@@ -710,7 +713,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-<TextBlock x:Name="SidebarVersionText" Text="v0.6.63" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+<TextBlock x:Name="SidebarVersionText" Text="v0.6.64" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -853,7 +856,7 @@
             </Grid.ColumnDefinitions>
             <StackPanel x:Name="HeaderTitlePanel" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" MinWidth="0">
                 <TextBlock x:Name="PageTitleText" Text="首页" FontSize="26" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                <TextBlock x:Name="PageSubtitleText" Text="存档、修改器、媒体与任务的一体化工作台"
+                <TextBlock x:Name="PageSubtitleText" Text="今天是否安全、有什么需要处理，以及全局批量操作"
                            Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0"
                            TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
             </StackPanel>
@@ -889,7 +892,7 @@
             </ScrollViewer>
 
             <Border x:Name="GameSwitcherHost" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1"
-                    Margin="0,12,0,0" MaxWidth="640" HorizontalAlignment="Left"
+                    Margin="0" MaxWidth="640" HorizontalAlignment="Left"
                     Style="{StaticResource GscRedesignSectionCard}" Padding="7" Visibility="Collapsed">
                 <Button x:Name="CompactGameSelector" Style="{StaticResource GscRedesignGameContextButton}"
                         HorizontalAlignment="Stretch" Click="OnToggleGameBrowserClick"
