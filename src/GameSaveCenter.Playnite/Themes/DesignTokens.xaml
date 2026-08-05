@@ -71,6 +71,7 @@
     <SolidColorBrush x:Key="GscScrollThumbBrush" Color="#5A8E8E93"/>
     <SolidColorBrush x:Key="GscScrollThumbHoverBrush" Color="#887C5CFC"/>
     <SolidColorBrush x:Key="GscOverlayBrush" Color="#66000000"/>
+    <SolidColorBrush x:Key="GscPickerScrimBrush" Color="#26000000"/>
 
     <CornerRadius x:Key="GscCornerSmall">8</CornerRadius>
     <CornerRadius x:Key="GscCornerControl">11</CornerRadius>

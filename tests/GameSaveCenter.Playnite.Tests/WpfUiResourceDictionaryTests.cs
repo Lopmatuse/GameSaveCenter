@@ -138,6 +138,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("resources[\"GscSelectionTextBrush\"]", paletteSource);
         Assert.Contains("resources[\"GscSurfaceEffect\"]", paletteSource);
         Assert.Contains("resources[\"GscPrimaryButtonEffect\"]", paletteSource);
+        Assert.Contains("resources[\"GscPickerScrimBrush\"]", paletteSource);
         Assert.Contains("resources[\"GscPopupAllowsTransparency\"] = glassEnabled", paletteSource);
         Assert.Contains("resources[\"GscPopupAnimation\"] = motionEnabled ? PopupAnimation.Fade : PopupAnimation.None", paletteSource);
         Assert.Contains("if (!enabled) return null;", paletteSource);
@@ -147,6 +148,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("{DynamicResource GscAmbientAccentBrush}", dashboard);
         Assert.Contains("{DynamicResource GscSelectionTextBrush}", dashboard);
         Assert.Contains("{DynamicResource GscSelectionTextBrush}", tokens);
+        Assert.Contains("x:Key=\"GscPickerScrimBrush\"", tokens);
         Assert.Contains("{DynamicResource GscSurfaceEffect}", dashboard);
         Assert.Contains("{DynamicResource GscPrimaryButtonEffect}", dashboard);
         Assert.Contains("{DynamicResource GscSidebarEffect}", redesign);
@@ -160,7 +162,10 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("HorizontalScrollBarVisibility=\"{TemplateBinding HorizontalScrollBarVisibility}\"", production);
         Assert.Contains("x:Key=\"GscElevatedSurface\"", tokens);
         Assert.Contains("x:Key=\"GscElevatedSurface\"", dashboard);
-        Assert.Contains("x:Name=\"GameBrowserPanel\" Grid.Row=\"0\" Grid.RowSpan=\"2\" Style=\"{StaticResource GscRedesignSectionCard}\"", dashboard);
+        Assert.Contains("x:Name=\"GameBrowserScrim\"", dashboard);
+        Assert.Contains("Background=\"{DynamicResource GscPickerScrimBrush}\"", dashboard);
+        Assert.Contains("x:Name=\"GameBrowserPanel\"", dashboard);
+        Assert.Contains("Style=\"{StaticResource GscRedesignFloatingPickerCard}\"", dashboard);
         Assert.Contains("x:Name=\"GameDetailCard\" Grid.Row=\"0\" Grid.RowSpan=\"2\" Grid.Column=\"2\" Style=\"{StaticResource GscRedesignHeroCard}\"", dashboard);
     }
 
@@ -1983,7 +1988,12 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Grid.SetRow(TopActionsScroller, 2)", dashboardCode);
         Assert.Contains("Grid.SetColumnSpan(TopActionsScroller, 2)", dashboardCode);
         Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace", dashboardCode);
-        Assert.Contains("GameBrowserPanel.MaxHeight = showCompactGameBrowser ? Math.Max(240, Math.Min(360, height * 0.42)) : 0", dashboardCode);
+        Assert.Contains("x:Name=\"GameBrowserScrim\"", dashboard);
+        Assert.Contains("Style=\"{StaticResource GscRedesignFloatingPickerCard}\"", dashboard);
+        Assert.Contains("MouseLeftButtonDown=\"OnGameBrowserScrimMouseDown\"", dashboard);
+        Assert.Contains("an in-host floating layer clipped by the Playnite page", dashboardCode);
+        Assert.Contains("GameBrowserScrim.Visibility = gameBrowserVisibility", dashboardCode);
+        Assert.Contains("GameBrowserPanel.Width = mode == LayoutMode.Narrow ? double.NaN : floatingPickerWidth", dashboardCode);
     }
 
     [Fact]

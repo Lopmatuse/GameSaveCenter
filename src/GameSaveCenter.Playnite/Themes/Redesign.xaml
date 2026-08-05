@@ -64,6 +64,17 @@
         <Setter Property="Effect" Value="{DynamicResource GscSurfaceEffect}"/>
     </Style>
 
+    <!-- Floating picker follows the demo handoff: it is an in-host material surface,
+         not a WPF Popup or a default Button overlay, so Playnite cannot paint a
+         system-blue hover layer over the page behind it. -->
+    <Style x:Key="GscRedesignFloatingPickerCard" TargetType="Border" BasedOn="{StaticResource GscRedesignSectionCard}">
+        <Setter Property="Background" Value="{DynamicResource GscGlassStrongBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>
+        <Setter Property="CornerRadius" Value="20"/>
+        <Setter Property="Effect" Value="{DynamicResource GscDialogEffect}"/>
+        <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
+
     <Style x:Key="GscRedesignMetricCard" TargetType="{x:Type ui:Card}" BasedOn="{StaticResource GscWpfUiCard}">
         <Setter Property="Padding" Value="16"/>
         <Setter Property="Border.CornerRadius" Value="18"/>

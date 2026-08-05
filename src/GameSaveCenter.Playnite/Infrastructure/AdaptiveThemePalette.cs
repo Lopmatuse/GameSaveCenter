@@ -318,6 +318,8 @@ namespace GameSaveCenter.Playnite.Infrastructure
             resources["GscScrollThumbHoverBrush"] = Brush(WithAlpha(palette.AccentHover, palette.IsDark ? 0.78 : 0.66));
             resources["GscOverlayBrush"] = Brush(Color.FromArgb(
                 palette.IsDark ? (byte)138 : (byte)72, 0, 0, 0));
+            resources["GscPickerScrimBrush"] = Brush(Color.FromArgb(
+                palette.IsDark ? (byte)54 : (byte)34, 0, 0, 0));
             WpfUiThemeScope.Apply(resources, palette.IsDark);
         }
 
