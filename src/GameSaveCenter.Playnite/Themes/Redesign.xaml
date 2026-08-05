@@ -298,8 +298,11 @@
         <Setter Property="Padding" Value="14,7"/>
         <Setter Property="Margin" Value="0,0,8,0"/>
         <Setter Property="MinHeight" Value="36"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <!-- The header presenter below controls its own centering.  The selected
+             workspace content must inherit Stretch so a page never collapses to
+             its desired-size island inside the available shell. -->
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
         <Setter Property="FocusVisualStyle" Value="{DynamicResource GscSharedFocusVisual}"/>
         <Setter Property="Template">
             <Setter.Value>

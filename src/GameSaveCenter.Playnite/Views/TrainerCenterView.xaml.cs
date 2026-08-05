@@ -24,6 +24,22 @@ namespace GameSaveCenter.Playnite.Views
             // the primary star row; only the secondary settings card receives a finite scroll
             // channel so it cannot push the list or the tab content outside the viewport.
             TrainerToolsSettingsScrollViewer.MaxHeight = Math.Max(190, Math.Min(280, height * 0.36));
+            var stackInstalled = width < 980;
+            InstalledToolsLayout.ColumnDefinitions[1].Width = stackInstalled
+                ? new GridLength(0)
+                : new GridLength(14);
+            InstalledToolsLayout.ColumnDefinitions[2].Width = stackInstalled
+                ? new GridLength(0)
+                : new GridLength(320);
+            Grid.SetColumn(TrainerToolsSettingsScrollViewer, stackInstalled ? 0 : 2);
+            Grid.SetRow(TrainerToolsSettingsScrollViewer, stackInstalled ? 3 : 0);
+            Grid.SetRowSpan(TrainerToolsSettingsScrollViewer, stackInstalled ? 1 : 4);
+            TrainerToolsSettingsScrollViewer.MaxHeight = stackInstalled
+                ? Math.Max(190, Math.Min(280, height * 0.36))
+                : double.PositiveInfinity;
+            TrainerToolsSettingsScrollViewer.Margin = stackInstalled
+                ? new Thickness(0, 10, 0, 0)
+                : new Thickness(0);
             var stackCatalog = width < 980;
             TrainerCatalogLayout.RowDefinitions[0].Height = new GridLength(1, GridUnitType.Star);
             TrainerCatalogLayout.RowDefinitions[1].Height = stackCatalog

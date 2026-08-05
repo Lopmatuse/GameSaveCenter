@@ -549,8 +549,16 @@ public sealed class WpfUiResourceDictionaryTests
         }
 
         var trainer = File.ReadAllText(Path.Combine(viewDirectory, "TrainerCenterView.xaml"));
-        Assert.Contains("GscListViewportHeight", trainer);
+        var trainerCode = File.ReadAllText(Path.Combine(viewDirectory, "TrainerCenterView.xaml.cs"));
+        Assert.Contains("MinHeight\" Value=\"{DynamicResource GscWorkspaceTableMinHeight}\"", trainer);
+        Assert.DoesNotContain("Height\" Value=\"{DynamicResource GscListViewportHeight}\"", trainer);
         Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", trainer);
+        Assert.Contains("<Setter Property=\"HorizontalContentAlignment\" Value=\"Stretch\"/>", trainer);
+        Assert.Contains("<Setter Property=\"VerticalContentAlignment\" Value=\"Stretch\"/>", trainer);
+        Assert.Contains("x:Name=\"InstalledToolsLayout\"", trainer);
+        Assert.Contains("Grid.Column=\"2\" Grid.RowSpan=\"4\"", trainer);
+        Assert.Contains("InstalledToolsLayout.ColumnDefinitions[2].Width", trainerCode);
+        Assert.Contains("Grid.SetRowSpan(TrainerToolsSettingsScrollViewer", trainerCode);
     }
 
     [Fact]
@@ -867,6 +875,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Key=\"GscRedesignWorkspaceTabControl\"", redesign);
         Assert.Contains("HorizontalScrollBarVisibility=\"Auto\"", redesign);
         Assert.Contains("x:Key=\"GscRedesignWorkspaceTabItem\"", redesign);
+        Assert.Contains("HorizontalContentAlignment\" Value=\"Stretch\"", redesign);
+        Assert.Contains("VerticalContentAlignment\" Value=\"Stretch\"", redesign);
         Assert.Contains("CornerRadius=\"12\"", redesign);
         Assert.Contains("Stroke=\"{DynamicResource GscOnAccentTextBrush}\"", tokens);
         Assert.Contains("ScrollViewer.VerticalScrollBarVisibility=\"Auto\"", dashboard);

@@ -881,3 +881,9 @@ UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，
 - 大批量匹配使用后台队列，队列失败不应让 Worker 退出；SQLite 中已有匹配和 Dashboard 摘要必须先可读。
 - Playnite 的任务通知轮询不是 Worker 健康检查，Worker 启动/繁忙/重启时必须指数退避，不能每秒反复连接命名管道。
 - 900/1000 游戏回归要同时区分 GameSaveCenter 自己的匹配和独立 `LudusaviPlaynite` 扩展；不能把第三方扩展的 967 个请求误归因给 GameSaveCenter，但应在诊断中提示两者并行会放大负载。
+
+### UI-086：工作区内容必须填充可用区域
+
+- `GscRedesignWorkspaceTabItem` 的 Header 由模板单独居中，不能把 `HorizontalContentAlignment`/`VerticalContentAlignment` 设为 Center；选中的工作区内容必须 Stretch。
+- 去掉页面级 ScrollViewer 后，列表视口必须放在有限 Grid 的 `*` 行中；不要在修改器 ListBox 上写死 `GscListViewportHeight`，否则常用窗口会出现窄列表或大块空白。
+- 修改器中心宽屏采用列表 + 320 DIP 检查器，低于 980 DIP 将检查器移回底部并恢复局部滚动；所有业务绑定和命令保持不变。
