@@ -112,7 +112,11 @@ namespace GameSaveCenter.Playnite.Infrastructure
             var strongControl = isDark
                 ? Blend(stableBase, Colors.White, 0.105)
                 : Blend(stableBase, Colors.Black, 0.02);
-            var fallbackAccent = isDark ? Color.FromRgb(139, 114, 255) : Color.FromRgb(115, 87, 255);
+            // Keep the standalone demo and the embedded Playnite view on the same blue
+            // interaction language. FollowPlaynite still honors a host accent when one is
+            // exposed; these values are the deterministic Light/Dark fallbacks used by the
+            // demo and by themes that do not publish an accent resource.
+            var fallbackAccent = isDark ? Color.FromRgb(108, 146, 255) : Color.FromRgb(71, 111, 231);
             var hostAccent = !forcedLight && !forcedDark && !highContrast
                 ? ResolveFirstResourceColor(host, AccentResourceKeys)
                 : null;
@@ -124,12 +128,12 @@ namespace GameSaveCenter.Playnite.Infrastructure
                 : ChooseBestText(accent, Colors.White, Colors.Black, RelativeLuminance(accent) < 0.5);
             var info = highContrast
                 ? EnsureContrast(SystemColors.HighlightColor, stableBase, isDark)
-                : Color.FromRgb(10, 132, 255);
+                : Color.FromRgb(35, 116, 184);
             var success = highContrast
                 ? EnsureContrast(SystemColors.HotTrackColor, stableBase, isDark)
-                : Color.FromRgb(48, 209, 88);
-            var warning = highContrast ? primaryText : Color.FromRgb(255, 159, 10);
-            var error = highContrast ? primaryText : Color.FromRgb(255, 69, 58);
+                : Color.FromRgb(24, 135, 90);
+            var warning = highContrast ? primaryText : Color.FromRgb(181, 106, 11);
+            var error = highContrast ? primaryText : Color.FromRgb(200, 61, 82);
 
             var surfaceTop = glassEnabled
                 ? WithAlpha(strongControl, 0.86 * strength)

@@ -3,36 +3,38 @@
                     xmlns:sys="clr-namespace:System;assembly=mscorlib"
                     xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework">
     <!-- Shared defaults. Runtime palette adaptation replaces the theme-sensitive brushes locally. -->
-    <SolidColorBrush x:Key="GscAccentBrush" Color="#7C5CFC"/>
-    <SolidColorBrush x:Key="GscAccentHoverBrush" Color="#6A49EE"/>
-    <SolidColorBrush x:Key="GscAccentPressedBrush" Color="#5B3EDB"/>
-    <SolidColorBrush x:Key="GscAccentTintBrush" Color="#247C5CFC"/>
-    <SolidColorBrush x:Key="GscAccentTintStrongBrush" Color="#387C5CFC"/>
-    <SolidColorBrush x:Key="GscSuccessBrush" Color="#30D158"/>
-    <SolidColorBrush x:Key="GscWarningBrush" Color="#FF9F0A"/>
-    <SolidColorBrush x:Key="GscErrorBrush" Color="#FF453A"/>
-    <SolidColorBrush x:Key="GscErrorTintBrush" Color="#24FF453A"/>
-    <SolidColorBrush x:Key="GscInfoBrush" Color="#0A84FF"/>
+    <!-- Deterministic fallback values mirror the standalone demo. Runtime Playnite theme
+         adaptation may replace these locally, but parsing must never depend on host resources. -->
+    <SolidColorBrush x:Key="GscAccentBrush" Color="#476FE7"/>
+    <SolidColorBrush x:Key="GscAccentHoverBrush" Color="#5A80EF"/>
+    <SolidColorBrush x:Key="GscAccentPressedBrush" Color="#365DCB"/>
+    <SolidColorBrush x:Key="GscAccentTintBrush" Color="#24476FE7"/>
+    <SolidColorBrush x:Key="GscAccentTintStrongBrush" Color="#38476FE7"/>
+    <SolidColorBrush x:Key="GscSuccessBrush" Color="#18875A"/>
+    <SolidColorBrush x:Key="GscWarningBrush" Color="#B56A0B"/>
+    <SolidColorBrush x:Key="GscErrorBrush" Color="#C83D52"/>
+    <SolidColorBrush x:Key="GscErrorTintBrush" Color="#20C83D52"/>
+    <SolidColorBrush x:Key="GscInfoBrush" Color="#2374B8"/>
     <SolidColorBrush x:Key="GscOnAccentTextBrush" Color="#FFFFFFFF"/>
     <SolidColorBrush x:Key="GscSelectionTextBrush" Color="#F2FFFFFF"/>
-    <SolidColorBrush x:Key="GscAccentIconFillBrush" Color="#247C5CFC"/>
-    <SolidColorBrush x:Key="GscInfoIconFillBrush" Color="#220A84FF"/>
-    <SolidColorBrush x:Key="GscSuccessIconFillBrush" Color="#2030D158"/>
-    <SolidColorBrush x:Key="GscErrorIconFillBrush" Color="#20FF453A"/>
-    <SolidColorBrush x:Key="GscWarningIconFillBrush" Color="#20FF9F0A"/>
-    <SolidColorBrush x:Key="GscRestoreInfoFillBrush" Color="#140A84FF"/>
-    <SolidColorBrush x:Key="GscRestoreInfoStrokeBrush" Color="#330A84FF"/>
-    <SolidColorBrush x:Key="GscSafetyFillBrush" Color="#14FF9F0A"/>
-    <SolidColorBrush x:Key="GscSafetyStrokeBrush" Color="#38FF9F0A"/>
+    <SolidColorBrush x:Key="GscAccentIconFillBrush" Color="#24476FE7"/>
+    <SolidColorBrush x:Key="GscInfoIconFillBrush" Color="#202374B8"/>
+    <SolidColorBrush x:Key="GscSuccessIconFillBrush" Color="#2018875A"/>
+    <SolidColorBrush x:Key="GscErrorIconFillBrush" Color="#20C83D52"/>
+    <SolidColorBrush x:Key="GscWarningIconFillBrush" Color="#20B56A0B"/>
+    <SolidColorBrush x:Key="GscRestoreInfoFillBrush" Color="#142374B8"/>
+    <SolidColorBrush x:Key="GscRestoreInfoStrokeBrush" Color="#332374B8"/>
+    <SolidColorBrush x:Key="GscSafetyFillBrush" Color="#14B56A0B"/>
+    <SolidColorBrush x:Key="GscSafetyStrokeBrush" Color="#38B56A0B"/>
     <SolidColorBrush x:Key="GscRowHoverStrongBrush" Color="#0CFFFFFF"/>
-    <SolidColorBrush x:Key="GscAmbientAccentBrush" Color="#267C5CFC"/>
-    <SolidColorBrush x:Key="GscAmbientInfoBrush" Color="#1E0A84FF"/>
+    <SolidColorBrush x:Key="GscAmbientAccentBrush" Color="#24476FE7"/>
+    <SolidColorBrush x:Key="GscAmbientInfoBrush" Color="#202374B8"/>
     <SolidColorBrush x:Key="GscAmbientSuccessBrush" Color="#1830D158"/>
-    <SolidColorBrush x:Key="GscPrimaryButtonBorderBrush" Color="#8A72FF"/>
+    <SolidColorBrush x:Key="GscPrimaryButtonBorderBrush" Color="#5A80EF"/>
     <SolidColorBrush x:Key="GscMutedStatusBrush" Color="#8E8E93"/>
     <LinearGradientBrush x:Key="GscPrimaryButtonBrush" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#8B6BFF" Offset="0"/>
-        <GradientStop Color="#6848EE" Offset="1"/>
+        <GradientStop Color="#5A80EF" Offset="0"/>
+        <GradientStop Color="#365DCB" Offset="1"/>
     </LinearGradientBrush>
     <Color x:Key="GscSoftShadowColor">#22000000</Color>
     <Color x:Key="GscPopupShadowColor">#52000000</Color>
