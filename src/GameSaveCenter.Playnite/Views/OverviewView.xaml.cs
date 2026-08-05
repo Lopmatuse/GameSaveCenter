@@ -63,12 +63,11 @@ namespace GameSaveCenter.Playnite.Views
             OverviewSecondaryScrollViewer.MaxHeight = stack || compactHeight
                 ? Math.Max(260, Math.Min(480, height * 0.58))
                 : double.PositiveInfinity;
-            OverviewSecondaryScrollViewer.VerticalScrollBarVisibility = stack || compactHeight
-                ? ScrollBarVisibility.Auto
-                : ScrollBarVisibility.Disabled;
+            OverviewSecondaryScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
             OverviewRiskScrollViewer.MaxHeight = stack || compactHeight
                 ? Math.Max(180, Math.Min(360, height * 0.42))
                 : double.PositiveInfinity;
+            OverviewRiskScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
         }
     }
 }

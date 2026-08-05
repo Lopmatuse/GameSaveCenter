@@ -106,7 +106,9 @@
          the contract here prevents a Playnite host theme from turning the outer viewer into a
          focusable square surface or re-enabling horizontal page scrolling. -->
     <Style x:Key="GscPageScrollViewer" TargetType="ScrollViewer">
-        <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        <!-- Keep page surfaces visually clean like the demo. Scrolling remains available
+             through wheel/keyboard; tables and lists retain their own visible scrollbars. -->
+        <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
         <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"/>
         <Setter Property="CanContentScroll" Value="False"/>
         <Setter Property="PanningMode" Value="VerticalOnly"/>

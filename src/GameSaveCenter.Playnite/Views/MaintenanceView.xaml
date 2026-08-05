@@ -71,7 +71,7 @@
                 </Grid>
             </TabItem>
             <TabItem Header="保留策略">
-                <ScrollViewer Style="{DynamicResource GscPageScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,12,0,0">
+                <ScrollViewer Style="{DynamicResource GscPageScrollViewer}" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled" Margin="0,12,0,0">
                     <StackPanel MaxWidth="1050" HorizontalAlignment="Left">
                         <Border Style="{DynamicResource GscRedesignSectionCard}" Padding="16">
                             <StackPanel>
