@@ -89,7 +89,7 @@
             <TabItem Header="待归类">
                 <Grid Margin="0,12,0,0">
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <Border Background="{DynamicResource GscAccentTintBrush}" BorderBrush="{DynamicResource GscDividerBrush}" BorderThickness="1" CornerRadius="12" Padding="14,11" Margin="0,0,0,10">
+                    <Border Style="{DynamicResource GscRedesignInfoBand}" Margin="0,0,0,10">
                         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                             <StackPanel><TextBlock Text="待归类媒体" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="只保留无法唯一判断所属游戏的公共截图和录像，不会静默猜测。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,12,0"/></StackPanel>
                             <Border Grid.Column="1" Style="{StaticResource MediaStatusPill}" VerticalAlignment="Center"><TextBlock Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}" FontSize="18" FontWeight="SemiBold"/></Border>
@@ -130,10 +130,10 @@
                 <Grid Margin="0,12,0,0">
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                     <WrapPanel Margin="0,0,0,10">
-                        <Border Style="{DynamicResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,8"><TextBlock><Run Text="媒体 "/><Run Text="{Binding MediaSummary.TotalCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
-                        <Border Style="{DynamicResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,8"><TextBlock><Run Text="截图 "/><Run Text="{Binding MediaSummary.ScreenshotCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
-                        <Border Style="{DynamicResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,8,8"><TextBlock><Run Text="录像 "/><Run Text="{Binding MediaSummary.VideoCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
-                        <Border Style="{DynamicResource GscSurface}" CornerRadius="11" Padding="11,7" Margin="0,0,0,8"><TextBlock><Run Text="占用 "/><Run Text="{Binding MediaSummary.TotalSizeDisplay, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
+                        <Border Style="{DynamicResource GscRedesignCounterPill}" Margin="0,0,8,8"><TextBlock><Run Text="媒体 "/><Run Text="{Binding MediaSummary.TotalCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
+                        <Border Style="{DynamicResource GscRedesignCounterPill}" Margin="0,0,8,8"><TextBlock><Run Text="截图 "/><Run Text="{Binding MediaSummary.ScreenshotCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
+                        <Border Style="{DynamicResource GscRedesignCounterPill}" Margin="0,0,8,8"><TextBlock><Run Text="录像 "/><Run Text="{Binding MediaSummary.VideoCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
+                        <Border Style="{DynamicResource GscRedesignCounterPill}" Margin="0,0,0,8"><TextBlock><Run Text="占用 "/><Run Text="{Binding MediaSummary.TotalSizeDisplay, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
                     </WrapPanel>
                     <Border Grid.Row="1" Style="{DynamicResource GscSurface}" Padding="10" Margin="0,0,0,10">
                         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>

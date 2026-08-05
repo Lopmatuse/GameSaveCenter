@@ -2064,6 +2064,18 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("ItemsSource=\"{Binding MediaView}\"", File.ReadAllText(Path.Combine(viewsRoot, "MediaCenterView.xaml")));
         Assert.Contains("ItemsSource=\"{Binding TasksView}\"", File.ReadAllText(Path.Combine(viewsRoot, "TaskCenterView.xaml")));
         Assert.Contains("ItemsSource=\"{Binding Findings}\"", File.ReadAllText(Path.Combine(viewsRoot, "MaintenanceView.xaml")));
+
+        var saveCenter = File.ReadAllText(Path.Combine(viewsRoot, "SaveCenterView.xaml"));
+        var mediaCenter = File.ReadAllText(Path.Combine(viewsRoot, "MediaCenterView.xaml"));
+        var maintenance = File.ReadAllText(Path.Combine(viewsRoot, "MaintenanceView.xaml"));
+
+        Assert.Contains("Style=\"{DynamicResource GscRedesignSubCard}\"", saveCenter);
+        Assert.Contains("Style=\"{DynamicResource GscRedesignInfoBand}\"", mediaCenter);
+        Assert.Contains("Style=\"{DynamicResource GscRedesignCounterPill}\"", mediaCenter);
+        Assert.Contains("Style=\"{DynamicResource GscRedesignSubCard}\"", maintenance);
+        Assert.Contains("Command=\"{Binding RestoreCommand}\"", saveCenter);
+        Assert.Contains("Command=\"{Binding SaveDeviceDecisionCommand}\"", maintenance);
+        Assert.Contains("Command=\"{Binding RestoreStagedRemoteBackupCommand}\"", maintenance);
     }
 
     [Fact]
@@ -2089,6 +2101,9 @@ public sealed class WpfUiResourceDictionaryTests
                 Assert.IsType<Style>(resources["GscRedesignWorkspaceHeroCard"]);
                 Assert.IsType<Style>(resources["GscRedesignHeroEyebrow"]);
                 Assert.IsType<Style>(resources["GscRedesignHeroTitle"]);
+                Assert.IsType<Style>(resources["GscRedesignInfoBand"]);
+                Assert.IsType<Style>(resources["GscRedesignSubCard"]);
+                Assert.IsType<Style>(resources["GscRedesignCounterPill"]);
                 Assert.IsType<Style>(resources["GscRedesignSettingsTabControl"]);
                 Assert.IsType<Style>(resources["GscRedesignSettingsTabItem"]);
             }

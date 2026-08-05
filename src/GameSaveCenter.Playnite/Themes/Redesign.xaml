@@ -204,6 +204,34 @@
         <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
+    <!-- Inner reading surfaces that mirror the demo's sub-card hierarchy while
+         keeping real page controls, bindings and commands in place. -->
+    <Style x:Key="GscRedesignInfoBand" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource GscAccentTintBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscDividerBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Padding" Value="14,11"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+
+    <Style x:Key="GscRedesignSubCard" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Padding" Value="12"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+
+    <Style x:Key="GscRedesignCounterPill" TargetType="Border" BasedOn="{StaticResource GscRedesignContextPill}">
+        <Setter Property="Padding" Value="11,7"/>
+        <Setter Property="CornerRadius" Value="11"/>
+        <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
+    </Style>
+
     <!-- Small semantic pills used inside dense tables. Keeping these shared prevents each
          DataGrid cell template from inventing a different radius, padding or theme fallback. -->
     <Style x:Key="GscRedesignTableStatusPill" TargetType="Border" BasedOn="{StaticResource GscRedesignContextPill}">
