@@ -1,7 +1,7 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-08-05
-当前版本：`0.6.57-development-preview`
+当前版本：`0.6.58-development-preview`
 
 > UI-090：demo 迁移继续以共享资源为边界。生产 `Redesign.xaml` 现在提供 `GscShellStyle`、`GscPageTitleStyle`、`GscSectionTitleStyle`、`GscCaptionStyle`、`GscBodyStyle` 等 demo 兼容别名；设置 UserControl 使用统一 Shell 外壳。六个工作区页签使用单一圆角标题带，标题在内部横向滚动，选中内容保持 Stretch，不能恢复为各自独立的后台式页签或固定宽度页签。该轮只改 UI 资源与布局，不改变 Worker、IPC、命令、绑定和数据持久化。
 
