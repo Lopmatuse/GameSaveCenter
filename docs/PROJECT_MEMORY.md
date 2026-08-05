@@ -916,3 +916,10 @@ UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，
 - Expanded/Standard 下游戏作用域工作区将 GamePicker 放在标题同一行，并限制最大宽度；Compact/Narrow 下改为标题下方独占的三列行。
 - 全局工作区不显示 GamePicker；不要在 Save/Trainer/Media 内重新添加第二套游戏选择器。
 - 由于本环境不能运行 Playnite，仍需在 1600/1280/1024/850/700 DIP 和 125%/150% DPI 下确认标题过长、游戏名过长和操作按钮收缩时没有裁剪。
+
+### UI-094：FLiNG 在线库与版本页签必须分离
+
+- TrainerCenter 的在线库不能把目录结果和版本列表放在同一个固定双栏页面；结果页需要完整宽度，版本确认和下载使用独立页签。
+- `TrainerCatalogResultsPanel` 属于搜索页；`TrainerCatalogReleasesPanel` 与 `TrainerReleaseInfoPanel` 属于可下载版本页。
+- `TrainerReleasesLayout` 在 980 DIP 以下将下载检查器移到列表下方，保留有限 Grid 行和 ListBox Recycling；不能用页面级无限测量恢复旧的窄小居中布局。
+- 任何后续 UI 调整都必须保留四个真实命令和多 EXE 导入确认状态。

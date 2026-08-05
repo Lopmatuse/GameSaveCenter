@@ -1311,3 +1311,10 @@
 - Compact/Narrow 模式仍将 GamePicker 放到标题下方的独立可用行，避免 700 DIP 左右窗口中标题、选择器和操作按钮互相挤压。
 - 顶部操作区在统一四列 HeaderGrid 中保持独立安全列；任务中心和维护中心继续保持全局视角，不显示游戏选择器。
 - 更新源代码门禁以匹配新的三列窄模式操作区；未改变游戏选择、命令绑定或 Worker 业务逻辑。
+
+### UI-094：修改器中心按 demo 拆分 FLiNG 工作流
+
+- `FLiNG 在线库` 现在使用完整宽度呈现搜索框和目录结果，不再与版本列表争抢半屏宽度。
+- 新增独立的 `可下载版本` 工作区页签，左侧保留虚拟化版本列表，右侧提供当前目录/版本信息和下载绑定入口。
+- Expanded/Standard 使用列表 + 下载检查器双栏；Compact/Narrow 自动把检查器堆叠到列表下方，避免出现居中小区域和大块空白。
+- 保留 `SearchTrainerCatalogCommand`、`SyncTrainerCatalogCommand`、`LoadTrainerReleasesCommand`、`DownloadTrainerCommand` 以及导入确认链路，不改变 Worker、IPC 或下载安全逻辑。

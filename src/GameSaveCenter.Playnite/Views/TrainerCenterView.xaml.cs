@@ -22,8 +22,8 @@ namespace GameSaveCenter.Playnite.Views
         {
             InstalledToolsLayout.HorizontalAlignment = HorizontalAlignment.Stretch;
             InstalledToolsLayout.VerticalAlignment = VerticalAlignment.Stretch;
-            TrainerCatalogLayout.HorizontalAlignment = HorizontalAlignment.Stretch;
-            TrainerCatalogLayout.VerticalAlignment = VerticalAlignment.Stretch;
+            TrainerReleasesLayout.HorizontalAlignment = HorizontalAlignment.Stretch;
+            TrainerReleasesLayout.VerticalAlignment = VerticalAlignment.Stretch;
             // Keep the selected-tool inspector reachable at short heights. The list remains
             // the primary star row; only the secondary settings card receives a finite scroll
             // channel so it cannot push the list or the tab content outside the viewport.
@@ -44,22 +44,27 @@ namespace GameSaveCenter.Playnite.Views
             TrainerToolsSettingsScrollViewer.Margin = stackInstalled
                 ? new Thickness(0, 10, 0, 0)
                 : new Thickness(0);
-            var stackCatalog = width < 980;
-            TrainerCatalogLayout.RowDefinitions[0].Height = new GridLength(1, GridUnitType.Star);
-            TrainerCatalogLayout.RowDefinitions[1].Height = stackCatalog
-                ? new GridLength(1, GridUnitType.Star)
+            var stackReleases = width < 980;
+            TrainerReleasesLayout.RowDefinitions[0].Height = new GridLength(1, GridUnitType.Star);
+            TrainerReleasesLayout.RowDefinitions[1].Height = stackReleases
+                ? GridLength.Auto
                 : new GridLength(0);
-            TrainerCatalogLayout.ColumnDefinitions[1].Width = stackCatalog
+            TrainerReleasesLayout.ColumnDefinitions[1].Width = stackReleases
                 ? new GridLength(0)
                 : new GridLength(14);
-            Grid.SetRow(TrainerCatalogResultsPanel, 0);
-            Grid.SetColumn(TrainerCatalogResultsPanel, 0);
-            Grid.SetColumnSpan(TrainerCatalogResultsPanel, stackCatalog ? 3 : 1);
-            Grid.SetRow(TrainerCatalogReleasesPanel, stackCatalog ? 1 : 0);
-            Grid.SetColumn(TrainerCatalogReleasesPanel, stackCatalog ? 0 : 2);
-            Grid.SetColumnSpan(TrainerCatalogReleasesPanel, stackCatalog ? 3 : 1);
-            TrainerCatalogResultsPanel.Margin = stackCatalog ? new Thickness(0, 0, 0, 10) : new Thickness(0);
-            TrainerCatalogReleasesPanel.Margin = stackCatalog ? new Thickness(0) : new Thickness(0);
+            TrainerReleasesLayout.ColumnDefinitions[2].Width = stackReleases
+                ? new GridLength(0)
+                : new GridLength(320);
+            Grid.SetRow(TrainerCatalogReleasesPanel, 0);
+            Grid.SetColumn(TrainerCatalogReleasesPanel, 0);
+            Grid.SetColumnSpan(TrainerCatalogReleasesPanel, stackReleases ? 3 : 1);
+            Grid.SetRow(TrainerReleaseInfoPanel, stackReleases ? 1 : 0);
+            Grid.SetColumn(TrainerReleaseInfoPanel, stackReleases ? 0 : 2);
+            Grid.SetColumnSpan(TrainerReleaseInfoPanel, stackReleases ? 3 : 1);
+            TrainerCatalogReleasesPanel.Margin = new Thickness(0);
+            TrainerReleaseInfoPanel.Margin = stackReleases
+                ? new Thickness(0, 10, 0, 0)
+                : new Thickness(0);
         }
     }
 }

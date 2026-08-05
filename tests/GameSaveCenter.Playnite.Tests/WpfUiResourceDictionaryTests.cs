@@ -860,7 +860,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("ConfirmGameToolImportCommand", trainer);
         Assert.Contains("SelectedGameToolVersion", trainer);
         Assert.Contains("RequiresAdmin", trainer);
-        Assert.Contains("TrainerCatalogLayout.RowDefinitions", trainerCode);
+        Assert.Contains("TrainerReleasesLayout.RowDefinitions", trainerCode);
         Assert.Contains("x:Name=\"MediaInspectorScrollViewer\"", media);
         Assert.Contains("VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\" MaxHeight=\"240\"", media);
         Assert.Contains("MediaInspectorScrollViewer.MaxHeight = Math.Max(190, Math.Min(300, height * 0.42))", mediaCode);
@@ -967,11 +967,13 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("x:Name=\"TrainerToolsSettingsScrollViewer\"", trainer);
         Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", trainer);
-        Assert.Contains("x:Name=\"TrainerCatalogLayout\"", trainer);
         Assert.Contains("x:Name=\"TrainerCatalogResultsPanel\"", trainer);
         Assert.Contains("x:Name=\"TrainerCatalogReleasesPanel\"", trainer);
-        Assert.Contains("var stackCatalog = width < 980", codeBehind);
-        Assert.Contains("Grid.SetRow(TrainerCatalogReleasesPanel, stackCatalog ? 1 : 0)", codeBehind);
+        Assert.Contains("x:Name=\"TrainerReleasesLayout\"", trainer);
+        Assert.Contains("x:Name=\"TrainerReleaseInfoPanel\"", trainer);
+        Assert.Contains("var stackReleases = width < 980", codeBehind);
+        Assert.Contains("Grid.SetColumnSpan(TrainerCatalogReleasesPanel, stackReleases ? 3 : 1)", codeBehind);
+        Assert.Contains("Grid.SetRow(TrainerReleaseInfoPanel, stackReleases ? 1 : 0)", codeBehind);
     }
 
     [Fact]
