@@ -2140,6 +2140,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Style=\"{DynamicResource GscRedesignSubCard}\"", saveCenter);
         Assert.Contains("Style=\"{DynamicResource GscRedesignInfoBand}\"", mediaCenter);
         Assert.Contains("Style=\"{DynamicResource GscRedesignCounterPill}\"", mediaCenter);
+        Assert.Contains("SelectionMode=\"Extended\"", mediaCenter);
+        Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", mediaCenter);
         Assert.Contains("Style=\"{DynamicResource GscRedesignSubCard}\"", maintenance);
         Assert.Contains("Command=\"{Binding RestoreCommand}\"", saveCenter);
         Assert.Contains("Command=\"{Binding SaveDeviceDecisionCommand}\"", maintenance);
