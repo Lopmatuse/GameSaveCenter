@@ -1,7 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.58-development-preview`
+当前版本：`0.6.59-development-preview`
+
+- [x] UI-109：修复 Playnite 实机暴露的第二类 WPF 崩溃：共享 ListBox/DataGridHeader 模板不再把未解析 DynamicResource 或可选 Tag 绑定写入 `Border.CornerRadius`，避免 `DependencyProperty.UnsetValue` 在 Arrange 阶段终止 Playnite。源码校验、148 项 Release 自动测试和 Release 构建通过；仍需安装 0.6.59 后在 Playnite 真实宿主验证。
 
 - [x] UI-090：将 demo 的共享视觉词汇扩展到生产资源字典，新增 Shell、标题、章节标题、正文和说明文字别名；设置页使用统一 demo 外壳；六个工作区页签改为 demo 同款“单一圆角页签带 + 横向可滚动标题 + 拉伸内容区”，不改变现有命令、绑定或业务逻辑。源码校验、145 项 Release 自动测试和 Release 构建通过；真实 Playnite 宿主、DPI 和主题渲染仍需用户环境验证。
 - [x] UI-091：移除任务中心和维护中心与 demo 不一致的常驻 Hero 行，改为摘要卡片/工具栏直接进入主体内容；修正设置页响应式测量，外层 demo Shell 负责留白、内层表单保持 Stretch。源码校验、145 项 Release 自动测试和 Release 构建通过；真实 Playnite 宿主、DPI 和主题渲染仍需用户环境验证。

@@ -412,11 +412,13 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="DataGridColumnHeader">
+                        <!-- Optional Tag bindings can resolve to UnsetValue and crash Playnite's
+                             layout thread. Keep the shared header deterministic. -->
                         <Border x:Name="HeaderChrome"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}">
+                                CornerRadius="0">
                             <Grid>
                                 <ContentPresenter Margin="{TemplateBinding Padding}"
                                                   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
@@ -708,7 +710,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-<TextBlock x:Name="SidebarVersionText" Text="v0.6.58" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+<TextBlock x:Name="SidebarVersionText" Text="v0.6.59" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>

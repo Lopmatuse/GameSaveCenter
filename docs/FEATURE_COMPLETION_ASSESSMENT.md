@@ -1,7 +1,12 @@
 # 功能完成度评估
 
 更新时间：2026-08-05
-评估版本：`0.6.58-development-preview`
+评估版本：`0.6.59-development-preview`
+
+## 0.6.59 当前证据（2026-08-05）
+
+- 修复 `CornerRadius=UnsetValue` 导致 Playnite 布局线程崩溃的共享模板风险；源码校验、Core 13、Worker 23、Playnite 112，共 148 项自动测试和 Release 构建通过。
+- 当前仍未在此环境真实运行 Playnite，因此安装后的宿主渲染、DPI、主题和大库生命周期需要用户环境验证。
 
 ## 0.6.57 UI-064 当前证据（2026-08-05）
 

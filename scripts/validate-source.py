@@ -1073,6 +1073,16 @@ def check_final_redesign_guards() -> None:
     if 'TabStripPlacement="None"' in dashboard:
         fail("Dashboard cannot use invalid WPF TabStripPlacement=\"None\"; hide tab headers in the template instead")
 
+    # A binding or unresolved DynamicResource that feeds Border.CornerRadius can
+    # produce DependencyProperty.UnsetValue. WPF then throws during Arrange and
+    # takes down the Playnite host, so shared templates must use deterministic
+    # literal/static corner values.
+    for source, label in ((dashboard, "Dashboard"), (wpf_ui_production_text, "WpfUiProduction")):
+        if 'CornerRadius="{Binding Tag' in source:
+            fail(f"{label} must not bind CornerRadius to optional Tag (UnsetValue crash)")
+        if 'CornerRadius="{DynamicResource GscCorner' in source:
+            fail(f"{label} must not use an out-of-scope DynamicResource for CornerRadius")
+
     for source, label, required in (
         (dashboard, "Dashboard final redesign",
          ('Themes/Redesign.xaml', 'x:Name="HeaderCompactActionsRow"',

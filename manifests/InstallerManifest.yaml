@@ -1,9 +1,9 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.58
+  - Version: 0.6.59
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-08-05
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.58/GameSaveCenter-0.6.58.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.59/GameSaveCenter-0.6.59.pext
     Changelog:
       - 0.6.57：阻止 100+ 游戏库分段导入期间提前创建自动目录同步任务，并将 Playnite 数据库切换/关闭期间的计数读取安全化。
       - 0.6.56：修复 100+ 游戏库分段导入期间的启动误判，并在大库 Dashboard 卸载后停止隐藏任务通知轮询。

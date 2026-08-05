@@ -224,9 +224,12 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListBoxItem">
+                    <!-- This implicit style can be applied outside the UserControl resource
+                         scope. An unresolved dynamic CornerRadius resource becomes UnsetValue
+                         and crashes WPF during Border.Arrange. -->
                     <Border x:Name="ItemChrome"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="{DynamicResource GscCornerSmall}"
+                            CornerRadius="8"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -295,10 +298,12 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="DataGridColumnHeader">
+                    <!-- Host-generated headers may not have a Tag. Never pass an unset binding
+                         result into Border.CornerRadius. -->
                     <Border Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}"
+                            CornerRadius="9"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <Grid>

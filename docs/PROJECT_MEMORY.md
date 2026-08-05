@@ -1,7 +1,9 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-08-05
-当前版本：`0.6.58-development-preview`
+当前版本：`0.6.59-development-preview`
+
+> UI-109：`CornerRadius` 不能绑定可选 `Tag`，也不能依赖可能不在宿主资源树中的动态圆角资源。Playnite 0.6.57/0.6.58 日志出现 `DependencyProperty.UnsetValue` 传给 `Border.CornerRadius` 并在 Arrange 阶段崩溃；共享 `WpfUiProduction.xaml` 和 Dashboard 表头模板已改为确定性数值，并由源码门禁防止回归。
 
 > UI-090：demo 迁移继续以共享资源为边界。生产 `Redesign.xaml` 现在提供 `GscShellStyle`、`GscPageTitleStyle`、`GscSectionTitleStyle`、`GscCaptionStyle`、`GscBodyStyle` 等 demo 兼容别名；设置 UserControl 使用统一 Shell 外壳。六个工作区页签使用单一圆角标题带，标题在内部横向滚动，选中内容保持 Stretch，不能恢复为各自独立的后台式页签或固定宽度页签。该轮只改 UI 资源与布局，不改变 Worker、IPC、命令、绑定和数据持久化。
 
