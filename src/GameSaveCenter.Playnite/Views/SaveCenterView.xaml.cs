@@ -36,6 +36,17 @@ namespace GameSaveCenter.Playnite.Views
             SaveCandidateActionsScrollViewer.Margin = new Thickness(0, 10, 0, 0);
             SaveCandidateReasonScrollViewer.MaxHeight = Math.Max(90, Math.Min(180, height * (compact ? 0.18 : 0.22)));
             SaveCandidateActionsScrollViewer.MaxHeight = Math.Max(70, Math.Min(140, height * (compact ? 0.14 : 0.18)));
+            var stackPolicy = width < 980;
+            SavePolicyCardsLayout.ColumnDefinitions[1].Width = stackPolicy ? new GridLength(0) : new GridLength(14);
+            SavePolicyCardsLayout.ColumnDefinitions[2].Width = stackPolicy ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
+            SavePolicyCardsLayout.RowDefinitions[2].Height = stackPolicy ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
+            Grid.SetColumn(SavePolicyMediaCard, stackPolicy ? 0 : 2);
+            Grid.SetColumnSpan(SavePolicyMediaCard, stackPolicy ? 3 : 1);
+            Grid.SetRow(SavePolicyMediaCard, stackPolicy ? 1 : 0);
+            Grid.SetColumn(SavePolicySafetyCard, 0);
+            Grid.SetColumnSpan(SavePolicySafetyCard, 3);
+            Grid.SetRow(SavePolicySafetyCard, stackPolicy ? 2 : 1);
+            SavePolicyMediaCard.Margin = stackPolicy ? new Thickness(0, 14, 0, 0) : new Thickness(0);
         }
     }
 }
