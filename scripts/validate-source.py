@@ -1084,7 +1084,7 @@ def check_final_redesign_guards() -> None:
         (workspace_ui, "Extracted workspace final redesign",
          ('x:Name="OverviewLayoutGrid"', 'x:Name="SaveHistoryActionsScrollViewer"',
           'x:Name="MediaSummaryPanel"', 'x:Name="TaskSummaryPanel"',
-          'x:Name="DiagnosticHealthPanel"', '选择候选路径后查看判断依据')),
+         'x:Name="DiagnosticHealthPanel"', 'x:Name="SaveCandidateLayout"', '暂无判断依据')),
         (dashboard_code, "Dashboard final responsive behavior",
          ('width >= 1260 ? LayoutMode.Expanded', 'width >= 980 ? LayoutMode.Standard',
           'width >= 760 ? LayoutMode.Compact', 'Grid.SetRow(TopActionsScroller, 2)',
