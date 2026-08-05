@@ -1,10 +1,11 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.55
+  - Version: 0.6.56
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-08-05
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.55/GameSaveCenter-0.6.55.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.56/GameSaveCenter-0.6.56.pext
     Changelog:
+      - 0.6.56：修复 100+ 游戏库分段导入期间的启动误判，并在大库 Dashboard 卸载后停止隐藏任务通知轮询。
       - 0.6.55：总览“需关注”指标改为可点击圆角操作卡，直接定位维护中心的具体原因。
       - 0.6.54：Worker 启动日志写入期望程序集版本，便于确认 Playnite 是否仍复用了旧 Worker。
       - 0.6.53：任务、概览和维护表格使用可读的主题状态胶囊和诊断等级文本。

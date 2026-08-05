@@ -1838,11 +1838,39 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("private volatile bool interactiveSurfaceOpened;", pluginCode);
         Assert.Contains("private void RequestLibrarySynchronization(string reason)", pluginCode);
-        Assert.Contains("if (observedGameCount == 0 || PlayniteApi.Database.Games.Count == 0)", pluginCode);
+        Assert.Contains("var currentGameCount = PlayniteApi.Database.Games.Count;", pluginCode);
+        Assert.Contains("ObserveGameCount(currentGameCount);", pluginCode);
+        Assert.Contains("if (currentGameCount == 0)", pluginCode);
         Assert.Contains("if (!interactiveSurfaceOpened && IsLargeLibrary())", pluginCode);
         Assert.Contains("catalog synchronization is deferred until GameSaveCenter is opened", pluginCode);
         Assert.Contains("interactiveSurfaceOpened = true;", pluginCode);
         Assert.Contains("Opened = CreateDashboardViewSafely", pluginCode);
+    }
+
+    [Fact]
+    public void LargeLibraryReadinessProbeNeverEagerlyStartsWorkerAfterASettledPartialSnapshot()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var pluginCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "GameSaveCenterPlugin.cs"));
+
+        // A 900+ Playnite library may be published in several partial callbacks. Once the
+        // settled probe sees 100 or more entries, the Worker must wait for explicit user intent
+        // instead of starting against a partial catalog and spawning Ludusavi lookups.
+        Assert.Contains("if (gameCount >= 100)", pluginCode);
+        Assert.Contains("keeping Worker startup and catalog synchronization deferred until GameSaveCenter is opened explicitly", pluginCode);
+    }
+
+    [Fact]
+    public void LargeLibraryDashboardStopsHiddenNotificationPollingWhenDetached()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var pluginCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "GameSaveCenterPlugin.cs"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+
+        Assert.Contains("public void StopTaskNotificationMonitor()", pluginCode);
+        Assert.Contains("taskNotificationTimer = null;", pluginCode);
+        Assert.Contains("if (plugin.IsLargeLibraryForUi)", dashboardCode);
+        Assert.Contains("plugin.StopTaskNotificationMonitor();", dashboardCode);
     }
 
     [Fact]

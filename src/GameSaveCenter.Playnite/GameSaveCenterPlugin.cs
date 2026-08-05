@@ -249,7 +249,15 @@ namespace GameSaveCenter.Playnite
             // probe will re-evaluate the real game count. This avoids a race where opening the
             // dashboard a few milliseconds later accidentally promotes the queued task to an
             // interactive 900+ game full refresh.
-            if (observedGameCount == 0 || PlayniteApi.Database.Games.Count == 0)
+            // Capture the current count before the readiness check.  The old 0.6.22 race
+            // returned early while observedGameCount was still zero, so a 900-game profile
+            // could remain classified as an empty/small library until the dashboard was
+            // opened.  That allowed the first partial library callback to take the eager
+            // Worker path.  Keeping the largest settled snapshot is what makes the startup
+            // gate monotonic and safe across Playnite's import callbacks.
+            var currentGameCount = PlayniteApi.Database.Games.Count;
+            ObserveGameCount(currentGameCount);
+            if (currentGameCount == 0)
             {
                 logger.Debug($"Deferring automatic catalog synchronization because the Playnite library is not ready ({reason}).");
                 return;
@@ -431,6 +439,21 @@ namespace GameSaveCenter.Playnite
                 ? TimeSpan.FromSeconds(60)
                 : TimeSpan.FromSeconds(15);
             taskNotificationTimer = new Timer(_ => PollTaskNotifications(), null, initialDelay, TimeSpan.FromSeconds(2));
+        }
+
+        /// <summary>
+        /// Stops the optional notification poll when the embedded dashboard is detached.
+        /// SQLite snapshots and the dashboard's own event/poll path remain authoritative;
+        /// keeping a hidden 900+ game page on a long-poll pipe only creates needless retries
+        /// while Playnite is switching views or shutting down.
+        /// </summary>
+        public void StopTaskNotificationMonitor()
+        {
+            var timer = taskNotificationTimer;
+            taskNotificationTimer = null;
+            if (timer == null) return;
+            try { timer.Dispose(); }
+            catch (ObjectDisposedException) { }
         }
 
         private void PollTaskNotifications() => FireAndForget(PollTaskNotificationsAsync);
@@ -702,9 +725,9 @@ namespace GameSaveCenter.Playnite
                 await Task.Delay(TimeSpan.FromSeconds(25), lifetimeCancellation.Token).ConfigureAwait(false);
                 var gameCount = PlayniteApi.Database.Games.Count;
                 ObserveGameCount(gameCount);
-                if (gameCount >= VeryLargeLibraryThreshold)
+                if (gameCount >= 100)
                 {
-                    logger.Info($"Playnite library settled at {gameCount} games; keeping Worker and catalog synchronization deferred until GameSaveCenter is opened explicitly.");
+                    logger.Info($"Playnite library settled at {gameCount} games; keeping Worker startup and catalog synchronization deferred until GameSaveCenter is opened explicitly.");
                     ConfigureLargeLibraryStartupGate();
                     return;
                 }

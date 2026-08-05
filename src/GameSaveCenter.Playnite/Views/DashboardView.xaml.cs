@@ -97,6 +97,11 @@ namespace GameSaveCenter.Playnite.Views
             refreshTimer.Stop();
             viewModel.CancelDeferredUiWork();
             viewModel.StopTaskEventSubscription();
+            // For very large libraries the notification feed is a convenience channel, not
+            // the source of truth. Stop its hidden long-poll when Playnite detaches this
+            // embedded page; reopening the sidebar starts it again after the Worker settles.
+            if (plugin.IsLargeLibraryForUi)
+                plugin.StopTaskNotificationMonitor();
             UnsubscribeViewModel();
             if (visualSettingsSubscribed)
             {
