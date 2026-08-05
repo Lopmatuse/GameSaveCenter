@@ -756,6 +756,25 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void SaveCenterProvidesDemoComparisonAndRetentionInspector()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var savePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "SaveCenterView.xaml");
+        var saveText = File.ReadAllText(savePath);
+        var saveCode = File.ReadAllText(savePath + ".cs");
+
+        Assert.Contains("<TabItem Header=\"比较与保留\">", saveText);
+        Assert.Contains("x:Name=\"SaveCompareLayout\"", saveText);
+        Assert.Contains("x:Name=\"SaveCompareRetentionScrollViewer\"", saveText);
+        Assert.Contains("{Binding LastBackupDiff.Added.Count", saveText);
+        Assert.Contains("{Binding LastRetentionPreview.KeepBackupIds.Count", saveText);
+        Assert.Contains("Command=\"{Binding CompareBackupCommand}\"", saveText);
+        Assert.Contains("Command=\"{Binding PreviewRetentionCommand}\"", saveText);
+        Assert.Contains("var stackCompare = width < 980 || height < 760;", saveCode);
+        Assert.Contains("SaveCompareRetentionScrollViewer.MaxHeight", saveCode);
+    }
+
+    [Fact]
     public void MaintenanceDeviceActionsUseFiniteScrollChannels()
     {
         var repositoryRoot = FindRepositoryRoot();

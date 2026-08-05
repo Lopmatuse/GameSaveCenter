@@ -47,6 +47,15 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetColumnSpan(SavePolicySafetyCard, 3);
             Grid.SetRow(SavePolicySafetyCard, stackPolicy ? 2 : 1);
             SavePolicyMediaCard.Margin = stackPolicy ? new Thickness(0, 14, 0, 0) : new Thickness(0);
+
+            var stackCompare = width < 980 || height < 760;
+            SaveCompareLayout.ColumnDefinitions[1].Width = stackCompare ? new GridLength(0) : new GridLength(14);
+            SaveCompareLayout.ColumnDefinitions[2].Width = stackCompare ? new GridLength(0) : new GridLength(330);
+            Grid.SetColumn(SaveCompareRetentionScrollViewer, stackCompare ? 0 : 2);
+            Grid.SetColumnSpan(SaveCompareRetentionScrollViewer, stackCompare ? 3 : 1);
+            Grid.SetRow(SaveCompareRetentionScrollViewer, 0);
+            SaveCompareRetentionScrollViewer.Margin = stackCompare ? new Thickness(0, 14, 0, 0) : new Thickness(0);
+            SaveCompareRetentionScrollViewer.MaxHeight = Math.Max(180, Math.Min(420, height * (stackCompare ? 0.42 : 0.90)));
         }
     }
 }

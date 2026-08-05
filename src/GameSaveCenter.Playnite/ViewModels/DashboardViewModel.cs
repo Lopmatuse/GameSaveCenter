@@ -62,6 +62,8 @@ namespace GameSaveCenter.Playnite.ViewModels
         private string diagnosticSummary = "诊断信息尚未加载。";
         private string diffSummary = string.Empty;
         private string retentionSummary = string.Empty;
+        private BackupDiffDto? lastBackupDiff;
+        private RetentionPreviewDto? lastRetentionPreview;
         private bool suppressSelectionLoad;
         private string gameSearchText = string.Empty;
         private string gameStatusFilter = "全部";
@@ -427,6 +429,8 @@ namespace GameSaveCenter.Playnite.ViewModels
         }
         public string DiffSummary { get => diffSummary; private set => SetValue(ref diffSummary, value); }
         public string RetentionSummary { get => retentionSummary; private set => SetValue(ref retentionSummary, value); }
+        public BackupDiffDto? LastBackupDiff { get => lastBackupDiff; private set => SetValue(ref lastBackupDiff, value); }
+        public RetentionPreviewDto? LastRetentionPreview { get => lastRetentionPreview; private set => SetValue(ref lastRetentionPreview, value); }
 
         public ICommand RefreshCommand { get; }
         public ICommand BackupSelectedCommand { get; }
@@ -1269,12 +1273,14 @@ namespace GameSaveCenter.Playnite.ViewModels
             var index = Backups.IndexOf(SelectedBackup);
             if (index < 0 || index + 1 >= Backups.Count) { DiffSummary = "没有可比较的上一个版本。"; return; }
             var diff = await plugin.RequestAsync<BackupDiffDto>(MessageTypes.CompareBackups, new BackupCompareRequestDto { PlayniteId = SelectedGame.PlayniteId, LeftBackupId = Backups[index + 1].BackupId, RightBackupId = SelectedBackup.BackupId });
+            LastBackupDiff = diff;
             DiffSummary = diff.Summary;
         }
 
         private async Task PreviewRetentionAsync()
         {
             var preview = await plugin.RequestAsync<RetentionPreviewDto>(MessageTypes.PreviewRetention, new GameQueryDto { PlayniteId = SelectedGame.PlayniteId });
+            LastRetentionPreview = preview;
             RetentionSummary = preview.Summary;
         }
 
