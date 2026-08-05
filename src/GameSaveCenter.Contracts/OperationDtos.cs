@@ -148,6 +148,14 @@ namespace GameSaveCenter.Contracts
         /// <summary>Resolved game title when this finding is sent in a dashboard snapshot.</summary>
         public string GameName { get; set; } = string.Empty;
         public FindingSeverity Severity { get; set; }
+        public string SeverityDisplay => Severity switch
+        {
+            FindingSeverity.Info => "提示",
+            FindingSeverity.Warning => "警告",
+            FindingSeverity.Error => "错误",
+            FindingSeverity.Critical => "严重",
+            _ => Severity.ToString()
+        };
         public string Code { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string Detail { get; set; } = string.Empty;

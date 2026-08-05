@@ -1,3 +1,9 @@
+# 0.6.53 Development Preview
+
+- Task and overview tables now render themed rounded status pills instead of a bare status dot/text pair.
+- Maintenance findings show localized severity labels (`提示`, `警告`, `错误`, `严重`) rather than raw enum names.
+- All status colors continue to come from the runtime Playnite-adaptive palette.
+
 # 0.6.52 Development Preview
 
 - Trainer cards now show a readable launch policy (`随游戏启动 · N 秒后` or `手动启动`) instead of a raw Boolean.

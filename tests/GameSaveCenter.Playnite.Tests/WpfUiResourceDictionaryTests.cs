@@ -1033,6 +1033,23 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void TaskAndMaintenanceTablesUseReadableSemanticStatusTemplates()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var task = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TaskCenterView.xaml"));
+        var overview = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml"));
+        var maintenance = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml"));
+        var contracts = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Contracts", "OperationDtos.cs"));
+
+        Assert.Contains("x:Name=\"TaskStatusPill\"", task);
+        Assert.Contains("x:Name=\"OverviewTaskStatusPill\"", overview);
+        Assert.Contains("x:Name=\"SeverityPill\"", maintenance);
+        Assert.DoesNotContain("Header=\"等级\" Binding=\"{Binding Severity}\"", maintenance);
+        Assert.Contains("Text=\"{Binding SeverityDisplay, Mode=OneWay}\"", maintenance);
+        Assert.Contains("public string SeverityDisplay => Severity switch", contracts);
+    }
+
+    [Fact]
     public void OptionalWpfUiProbeKeepsItsChecklistInsideAFixedGridRow()
     {
         var repositoryRoot = FindRepositoryRoot();

@@ -1,7 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.52-development-preview`
+当前版本：`0.6.53-development-preview`
+
+- [x] 0.6.53：任务、概览和维护表格改用主题适配圆角状态胶囊与可读诊断等级文本；已完成源码门禁、全量自动测试和 Release 构建，仍需 Windows/Playnite 真机验证。
 
 - [x] 0.6.52：修改器列表将自动启动 Boolean 改为可读策略文本，避免卡片显示 `True/False`；未改变工具启动命令和业务逻辑。已完成源码门禁与 Release 验证，仍需 Windows/Playnite 真机验证。
 
