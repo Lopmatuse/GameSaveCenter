@@ -27,6 +27,8 @@
 
 > UI-102：媒体来源规则使用虚拟化 `ListBox` 来源卡片替代 DataGrid；每项仍通过父级 `UpdateMediaSourceCommand`/`DeleteMediaSourceCommand` 传入真实来源对象，目录使用省略和 Tooltip，表单继续保留独立有限滚动通道。
 
+> UI-103：维护中心设备状态页使用 `MaintenanceDeviceLayout` 左比较表/右人工决策与受保护恢复检查器；1060 DIP 以下检查器堆叠到比较表下方。设备摘要同步、保存人工决策、下载并校验、创建快照并恢复等命令和安全顺序保持不变。
+
 > UI-064：六个提取工作区不再使用根级 `GscPageScrollViewer` 承载整页；根布局必须由 Grid 的 Auto/* 行测量，DataGrid/ListBox 在自身模板内保留虚拟化和内部滚动。检查器、策略、诊断长文本等局部内容可以使用 `GscInspectorScrollViewer` 或有限的局部资源，但不得把工作区重新放回无限测量的页面 ScrollViewer。维护中心设备状态与异常审计使用星号行分配表格空间，不能恢复固定 `Height` 视口或 StackPanel 包裹表格。
 
 > 0.6.57 进一步阻止 100+ 游戏库在分段导入期间提前创建 Worker/目录同步任务，并将 Playnite 数据库切换/关闭期间的游戏数量读取变成安全回退。0.6.56 修复大库在 Playnite 分段导入期间仍被误判为空/小库的启动竞态，并在大库 Dashboard 卸载后停止隐藏通知轮询。0.6.55 将总览“需关注”指标改为可访问的圆角导航卡。0.6.54 让 Worker 启动日志同时写出期望程序集版本，便于和初始化日志核对。用户提供的崩溃日志实际加载的是 0.6.22；排查 900+ 游戏库时必须先确认 Playnite 与 `worker-launch.log` 都报告 0.6.57。
