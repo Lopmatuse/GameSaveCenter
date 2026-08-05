@@ -909,3 +909,10 @@ UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，
 
 - Dashboard 已提供唯一当前游戏上下文和操作头；Save/Trainer/Media 工作区应直接进入自己的内容页签，避免额外 Hero 在普通窗口中挤压表格和检查器。
 - Tasks/Maintenance 是全局工作区，可以保留独立 Hero。移除重复 Hero 不得移除任何真实绑定或命令。
+
+### UI-093：顶部栏中的唯一 GamePicker
+
+- Dashboard 顶部 HeaderGrid 采用四列契约：标题区、可选 GamePicker、安全占位列、页面操作区。
+- Expanded/Standard 下游戏作用域工作区将 GamePicker 放在标题同一行，并限制最大宽度；Compact/Narrow 下改为标题下方独占的三列行。
+- 全局工作区不显示 GamePicker；不要在 Save/Trainer/Media 内重新添加第二套游戏选择器。
+- 由于本环境不能运行 Playnite，仍需在 1600/1280/1024/850/700 DIP 和 125%/150% DPI 下确认标题过长、游戏名过长和操作按钮收缩时没有裁剪。

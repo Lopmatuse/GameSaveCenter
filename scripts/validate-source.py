@@ -1088,7 +1088,7 @@ def check_final_redesign_guards() -> None:
         (dashboard_code, "Dashboard final responsive behavior",
          ('width >= 1260 ? LayoutMode.Expanded', 'width >= 980 ? LayoutMode.Standard',
           'width >= 760 ? LayoutMode.Compact', 'Grid.SetRow(TopActionsScroller, 2)',
-          'Grid.SetColumnSpan(TopActionsScroller, 2)',
+          'Grid.SetColumnSpan(TopActionsScroller, 3)',
           'item.Width = visible ? double.NaN : 48', 'item.Height = visible ? double.NaN : 48',
           'card.Width = expanded ? double.NaN : 48', 'card.Height = expanded ? double.NaN : 50',
           'GameBrowserScrim.Visibility = gameBrowserVisibility',

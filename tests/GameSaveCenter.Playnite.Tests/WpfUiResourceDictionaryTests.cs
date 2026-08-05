@@ -2035,13 +2035,15 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Name=\"HeaderCompactActionsRow\"", dashboard);
         Assert.Contains("x:Name=\"TopActionsScroller\"", dashboard);
         Assert.Contains("x:Name=\"GameSwitcherHost\"", dashboard);
+        Assert.Contains("x:Name=\"HeaderGamePickerColumn\"", dashboard);
         Assert.Contains("x:Name=\"CompactGameSelector\"", dashboard);
         Assert.Contains("x:Name=\"ToggleGameBrowserButton\"", dashboard);
         Assert.Contains("width >= 1260 ? LayoutMode.Expanded", dashboardCode);
         Assert.Contains("width >= 980 ? LayoutMode.Standard", dashboardCode);
         Assert.Contains("width >= 760 ? LayoutMode.Compact", dashboardCode);
         Assert.Contains("Grid.SetRow(TopActionsScroller, 2)", dashboardCode);
-        Assert.Contains("Grid.SetColumnSpan(TopActionsScroller, 2)", dashboardCode);
+        Assert.Contains("Grid.SetColumnSpan(TopActionsScroller, 3)", dashboardCode);
+        Assert.Contains("var pickerOnTopBar = gameScopedWorkspace", dashboardCode);
         Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace", dashboardCode);
         Assert.Contains("x:Name=\"GameBrowserScrim\"", dashboard);
         Assert.Contains("Style=\"{StaticResource GscRedesignFloatingPickerCard}\"", dashboard);

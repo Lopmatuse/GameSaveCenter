@@ -309,21 +309,30 @@ namespace GameSaveCenter.Playnite.Views
             // title and action bar into the same measure slot, which prevents overlap at 125–200% DPI.
             Grid.SetRow(HeaderTitlePanel, 0);
             Grid.SetColumn(HeaderTitlePanel, 0);
-            Grid.SetColumnSpan(HeaderTitlePanel, mode == LayoutMode.Expanded ? 1 : 2);
             GameSwitcherHost.Visibility = gameScopedWorkspace
                 ? Visibility.Visible
                 : Visibility.Collapsed;
-            Grid.SetRow(GameSwitcherHost, 1);
-            Grid.SetColumn(GameSwitcherHost, 0);
-            Grid.SetColumnSpan(GameSwitcherHost, mode == LayoutMode.Standard ? 1 : 2);
-            GameSwitcherHost.MaxWidth = mode == LayoutMode.Narrow ? double.PositiveInfinity : 640;
-            GameSwitcherHost.HorizontalAlignment = mode == LayoutMode.Narrow ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
+            var pickerOnTopBar = gameScopedWorkspace
+                && (mode == LayoutMode.Expanded || mode == LayoutMode.Standard);
+            HeaderGamePickerColumn.Width = pickerOnTopBar
+                ? GridLength.Auto
+                : new GridLength(0);
+            Grid.SetColumnSpan(HeaderTitlePanel, pickerOnTopBar ? 1 : mode >= LayoutMode.Compact ? 3 : 2);
+            Grid.SetRow(GameSwitcherHost, pickerOnTopBar ? 0 : 1);
+            Grid.SetColumn(GameSwitcherHost, pickerOnTopBar ? 1 : 0);
+            Grid.SetColumnSpan(GameSwitcherHost, pickerOnTopBar ? 1 : 3);
+            GameSwitcherHost.MaxWidth = pickerOnTopBar
+                ? (mode == LayoutMode.Expanded ? 460 : 420)
+                : double.PositiveInfinity;
+            GameSwitcherHost.HorizontalAlignment = pickerOnTopBar
+                ? HorizontalAlignment.Center
+                : HorizontalAlignment.Stretch;
 
             if (mode == LayoutMode.Expanded)
             {
                 HeaderCompactActionsRow.Height = new GridLength(0);
                 Grid.SetRow(TopActionsScroller, 0);
-                Grid.SetColumn(TopActionsScroller, 1);
+                Grid.SetColumn(TopActionsScroller, 3);
                 Grid.SetColumnSpan(TopActionsScroller, 1);
                 TopActionsScroller.HorizontalAlignment = HorizontalAlignment.Right;
                 TopActionsScroller.Margin = new Thickness(14, 0, 0, 0);
@@ -331,18 +340,18 @@ namespace GameSaveCenter.Playnite.Views
             else if (mode == LayoutMode.Standard)
             {
                 HeaderCompactActionsRow.Height = new GridLength(0);
-                Grid.SetRow(TopActionsScroller, 1);
-                Grid.SetColumn(TopActionsScroller, 1);
+                Grid.SetRow(TopActionsScroller, 0);
+                Grid.SetColumn(TopActionsScroller, 3);
                 Grid.SetColumnSpan(TopActionsScroller, 1);
                 TopActionsScroller.HorizontalAlignment = HorizontalAlignment.Right;
-                TopActionsScroller.Margin = new Thickness(14, 12, 0, 0);
+                TopActionsScroller.Margin = new Thickness(14, 0, 0, 0);
             }
             else
             {
                 HeaderCompactActionsRow.Height = GridLength.Auto;
                 Grid.SetRow(TopActionsScroller, 2);
                 Grid.SetColumn(TopActionsScroller, 0);
-                Grid.SetColumnSpan(TopActionsScroller, 2);
+                Grid.SetColumnSpan(TopActionsScroller, 3);
                 TopActionsScroller.HorizontalAlignment = HorizontalAlignment.Stretch;
                 TopActionsScroller.Margin = new Thickness(0, 10, 0, 0);
             }
