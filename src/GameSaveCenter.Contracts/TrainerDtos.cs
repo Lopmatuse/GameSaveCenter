@@ -29,6 +29,10 @@ namespace GameSaveCenter.Contracts
         public string SourceDisplay => SourceType == GameToolSourceType.Fling ? "FLiNG"
             : SourceType == GameToolSourceType.Manual ? "手动导入" : "其他来源";
         public string FileStateDisplay => ActiveVersion.IsAvailable ? "已就绪" : "文件缺失";
+        /// <summary>Readable compact-card status; do not expose the raw AutoStart Boolean.</summary>
+        public string AutoStartDisplay => AutoStart
+            ? $"随游戏启动 · {Math.Max(0, LaunchDelaySeconds)} 秒后"
+            : "手动启动";
     }
 
     public sealed class GameToolVersionDto

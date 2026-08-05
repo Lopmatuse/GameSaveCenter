@@ -1,3 +1,9 @@
+# 0.6.52 Development Preview
+
+- Trainer cards now show a readable launch policy (`随游戏启动 · N 秒后` or `手动启动`) instead of a raw Boolean.
+- This is a UI-only compatibility improvement; tool commands and automatic-launch behavior are unchanged.
+- The supplied crash logs still load 0.6.22. Install this package and verify both Playnite and `worker-launch.log` report 0.6.52 before comparing 900+ game startup behavior.
+
 # 0.6.51 Development Preview
 
 ## Readable save-history status and runtime version diagnostics

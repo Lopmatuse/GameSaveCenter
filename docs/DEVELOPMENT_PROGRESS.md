@@ -1,7 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.51-development-preview`
+当前版本：`0.6.52-development-preview`
+
+- [x] 0.6.52：修改器列表将自动启动 Boolean 改为可读策略文本，避免卡片显示 `True/False`；未改变工具启动命令和业务逻辑。已完成源码门禁与 Release 验证，仍需 Windows/Playnite 真机验证。
 
 - [x] 0.6.51：存档历史将布尔字段改为可读的“普通备份/恢复前快照”和“已锁定/未锁定”状态胶囊；Worker 启动日志增加程序集版本，便于确认 Playnite 没有继续复用旧 Worker。源码门禁与 Release 验证已完成，仍需 Windows/Playnite 真机验证。
 

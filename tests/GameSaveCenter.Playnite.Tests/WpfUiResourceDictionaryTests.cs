@@ -1021,6 +1021,18 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void TrainerCardsUseReadableAutoStartStatusInsteadOfRawBoolean()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var trainer = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml"));
+        var contract = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Contracts", "TrainerDtos.cs"));
+
+        Assert.Contains("Text=\"{Binding AutoStartDisplay, Mode=OneWay}\"", trainer);
+        Assert.DoesNotContain("Text=\"{Binding AutoStart, Mode=OneWay}\"", trainer);
+        Assert.Contains("public string AutoStartDisplay => AutoStart", contract);
+    }
+
+    [Fact]
     public void OptionalWpfUiProbeKeepsItsChecklistInsideAFixedGridRow()
     {
         var repositoryRoot = FindRepositoryRoot();
