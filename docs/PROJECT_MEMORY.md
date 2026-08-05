@@ -1,7 +1,9 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-08-05
-当前版本：`0.6.64-development-preview`
+当前版本：`0.6.65-development-preview`
+
+> UI-113：工作区宿主使用透明的 Demo 兼容 PageHost（`GscWorkspaceHostSurface`），不再在六个工作区外层叠加厚重 Hero 卡片；顶部标题区仍由 `HeaderSurface` 提供统一表面。该改动只调整 WPF 外壳，不改变 Worker、IPC、命令、绑定或持久化。
 
 > UI-112：Playnite 宿主内生产 UI 不再合并 WPF-UI 的 `ui:ControlsDictionary`/`ui:ThemesDictionary`。这些字典包含延迟 CornerRadius/material 资源，可能在 Playnite 主窗口 Arrange 阶段产生 `DependencyProperty.UnsetValue`。`WpfUiProduction.xaml` 为 GameSaveCenter 使用的 Card、Button、ToggleSwitch 提供显式本地模板，保留功能和动态主题令牌；开发探针仍可单独使用框架资源，但不能进入生产 Dashboard。
 

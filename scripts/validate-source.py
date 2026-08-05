@@ -1074,6 +1074,25 @@ def check_final_redesign_guards() -> None:
     if 'TabStripPlacement="None"' in dashboard:
         fail("Dashboard cannot use invalid WPF TabStripPlacement=\"None\"; hide tab headers in the template instead")
 
+    # DockPanel.Dock is also a real Dock enum. A single invalid literal in a
+    # shared template is enough to make Playnite fail while loading BAML, so
+    # validate every production XAML file rather than only the dashboard.
+    allowed_dock_values = {"Top", "Bottom", "Left", "Right"}
+    for xaml_path in sorted((ROOT / "src/GameSaveCenter.Playnite").rglob("*.xaml")):
+        xaml_text = xaml_path.read_text(encoding="utf-8")
+        for match in re.finditer(r'DockPanel\.Dock="([^"]+)"', xaml_text):
+            value = match.group(1).strip()
+            if value.startswith("{"):
+                continue
+            if value not in allowed_dock_values:
+                fail(f"{xaml_path.relative_to(ROOT)} uses invalid DockPanel.Dock value {value!r}")
+        for match in re.finditer(r'Property="DockPanel\.Dock"\s+Value="([^"]+)"', xaml_text):
+            value = match.group(1).strip()
+            if value.startswith("{"):
+                continue
+            if value not in allowed_dock_values:
+                fail(f"{xaml_path.relative_to(ROOT)} uses invalid DockPanel.Dock setter value {value!r}")
+
     # A binding or unresolved DynamicResource that feeds Border.CornerRadius can
     # produce DependencyProperty.UnsetValue. WPF then throws during Arrange and
     # takes down the Playnite host, so shared templates must use deterministic

@@ -2177,6 +2177,22 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void ProductionXamlUsesOnlyRealDockEnumValues()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var productionRoot = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite");
+        var invalid = Directory.EnumerateFiles(productionRoot, "*.xaml", SearchOption.AllDirectories)
+            .SelectMany(path => Regex.Matches(File.ReadAllText(path), "DockPanel\\.Dock=\\\"([^\\\"]+)\\\"")
+                .Cast<Match>()
+                .Select(match => (Path.GetFileName(path), match.Groups[1].Value)))
+            .Where(item => !item.Item2.StartsWith("{")
+                && item.Item2 is not ("Top" or "Bottom" or "Left" or "Right"))
+            .ToList();
+
+        Assert.Empty(invalid);
+    }
+
+    [Fact]
     public void ExtractedWorkspacesUseTheSharedDemoLayoutWithoutReplacingTheirRealContent()
     {
         var repositoryRoot = FindRepositoryRoot();

@@ -1,10 +1,11 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.64
+  - Version: 0.6.65
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-08-05
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.64/GameSaveCenter-0.6.64.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.65/GameSaveCenter-0.6.65.pext
     Changelog:
+      - 0.6.65：将工作区宿主改为 Demo 同款透明 PageHost，并保留顶部表面、内部列表滚动和现有业务命令，避免页面被二次卡片包裹。
       - 0.6.64：继续贴合 WPF Demo 外壳，收紧工作区伸展布局并隐藏页面级滚动条，保留表格与列表内部滚动。
       - 0.6.62：移除 Playnite 插件对 WPF-UI 程序集和主题的运行时依赖，改用原生 WPF 控件，修复主窗口 Arrange 阶段 CornerRadius UnsetValue 崩溃。
       - 0.6.57：阻止 100+ 游戏库分段导入期间提前创建自动目录同步任务，并将 Playnite 数据库切换/关闭期间的计数读取安全化。

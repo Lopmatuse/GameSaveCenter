@@ -1,7 +1,9 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.64-development-preview`
+当前版本：`0.6.65-development-preview`
+
+- [x] UI-113：将 Dashboard 工作区宿主改为 Demo 同款透明 PageHost，保留顶部工作区表面和各工作区真实内容，避免生产页面被重复的大卡片包裹；同步提升版本并完成源码门禁、Release 测试、构建和打包。仍需在 Playnite 中安装 0.6.65 做真实宿主、DPI、主题和大库回归。
 
 - [x] UI-112：彻底移除 Playnite 插件对 WPF-UI 程序集、命名空间和默认主题的运行时依赖，使用项目内原生 WPF 兼容控件保持现有 XAML 样式键、命令、绑定和键盘交互；避免第三方延迟 CornerRadius 在 Playnite 主窗口 Arrange 阶段解析为 `DependencyProperty.UnsetValue`。源码校验、Release 测试和构建通过，仍需在 Playnite 中安装 0.6.62 做真实回归。
 
