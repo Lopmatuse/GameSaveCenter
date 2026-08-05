@@ -1,4 +1,6 @@
 using System;
+using System.Globalization;
+using System.Linq;
 using GameSaveCenter.Contracts;
 
 namespace GameSaveCenter.Playnite.ViewModels
@@ -20,6 +22,9 @@ namespace GameSaveCenter.Playnite.ViewModels
         public string PlatformDisplay => Game.PlatformDisplay;
         public string InstallStateDisplay => Game.InstallStateDisplay;
         public string MatchStateDisplay => Game.MatchStateDisplay;
+        public string HealthState => Game.HealthState ?? string.Empty;
+        public string Initials => CreateInitials(Name);
+        public string MetaDisplay => JoinNonEmpty(" · ", PlatformDisplay, InstallStateDisplay, MatchStateDisplay);
         public bool IsInstalled => Game.IsInstalled;
         public bool IsRunning => Game.IsRunning;
         public bool IsMatched => Game.LudusaviMatched;
@@ -36,6 +41,33 @@ namespace GameSaveCenter.Playnite.ViewModels
         public string SearchText => string.Join(" ", Name, Game.LudusaviName, PlatformDisplay, HealthStateDisplay, CloudStateDisplay);
 
         public override string ToString() => Name;
+
+        private static string CreateInitials(string value)
+        {
+            value = (value ?? string.Empty).Trim();
+            if (value.Length == 0) return "?";
+
+            var parts = value.Split(new[] { ' ', '-', '_', '.', ':', '/', '\\', '·' }, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length >= 2)
+                return (FirstTextElement(parts[0]) + FirstTextElement(parts[1])).ToUpperInvariant();
+
+            var enumerator = StringInfo.GetTextElementEnumerator(value);
+            var result = string.Empty;
+            while (enumerator.MoveNext() && result.Length < 2)
+                result += enumerator.GetTextElement();
+            return result.ToUpperInvariant();
+        }
+
+        private static string FirstTextElement(string value)
+        {
+            var enumerator = StringInfo.GetTextElementEnumerator(value ?? string.Empty);
+            return enumerator.MoveNext() ? enumerator.GetTextElement() ?? string.Empty : string.Empty;
+        }
+
+        private static string JoinNonEmpty(string separator, params string[] values)
+            => values == null
+                ? string.Empty
+                : string.Join(separator, values.Where(value => !string.IsNullOrWhiteSpace(value)));
 
         public static bool IsAttention(GameStatusDto game)
             => string.Equals(game.HealthState, "Attention", StringComparison.OrdinalIgnoreCase)

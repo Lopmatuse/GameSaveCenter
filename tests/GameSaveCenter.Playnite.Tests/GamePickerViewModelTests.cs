@@ -95,6 +95,20 @@ namespace GameSaveCenter.Playnite.Tests
         }
 
         [Fact]
+        public void PickerItemsExposeDemoStylePresentationFieldsLocally()
+        {
+            var latin = new GamePickerItem(Game("Bongo Cat", installed: false, matched: false, health: "Attention", platform: GamePlatformKind.Steam));
+            Assert.Equal("BC", latin.Initials);
+            Assert.Equal("Attention", latin.HealthState);
+            Assert.Contains(latin.PlatformDisplay, latin.MetaDisplay);
+            Assert.Contains(latin.InstallStateDisplay, latin.MetaDisplay);
+            Assert.Contains(latin.MatchStateDisplay, latin.MetaDisplay);
+
+            var cjk = new GamePickerItem(Game("黑神话悟空"));
+            Assert.Equal("黑神", cjk.Initials);
+        }
+
+        [Fact]
         public void LargeSetReplacementEmitsOneResetNotification()
         {
             using var picker = new GamePickerViewModel();

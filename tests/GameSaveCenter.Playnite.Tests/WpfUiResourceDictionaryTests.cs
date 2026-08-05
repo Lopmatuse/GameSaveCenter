@@ -1991,6 +1991,11 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Name=\"GameBrowserScrim\"", dashboard);
         Assert.Contains("Style=\"{StaticResource GscRedesignFloatingPickerCard}\"", dashboard);
         Assert.Contains("MouseLeftButtonDown=\"OnGameBrowserScrimMouseDown\"", dashboard);
+        Assert.Contains("Text=\"{Binding Initials}\"", dashboard);
+        Assert.Contains("Text=\"{Binding MetaDisplay}\"", dashboard);
+        Assert.Contains("x:Name=\"HealthPill\"", dashboard);
+        Assert.Contains("Binding=\"{Binding GamePicker.FilteredCount}\"", dashboard);
+        Assert.Contains("Value=\"LudusaviUnavailable\"", dashboard);
         Assert.Contains("an in-host floating layer clipped by the Playnite page", dashboardCode);
         Assert.Contains("GameBrowserScrim.Visibility = gameBrowserVisibility", dashboardCode);
         Assert.Contains("GameBrowserPanel.Width = mode == LayoutMode.Narrow ? double.NaN : floatingPickerWidth", dashboardCode);

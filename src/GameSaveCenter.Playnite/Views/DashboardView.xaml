@@ -1066,22 +1066,42 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="42"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                    <Border Width="34" Height="34" CornerRadius="10" Background="{DynamicResource GscAccentIconFillBrush}" VerticalAlignment="Center">
-                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16"/>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="50"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <Border Width="42" Height="42" CornerRadius="12" Background="{DynamicResource GscAccentIconFillBrush}" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Initials}" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="SemiBold"/>
                                     </Border>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <StackPanel Grid.Column="1" Margin="10,0,14,0" VerticalAlignment="Center" MinWidth="0">
                                         <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"/>
-                                        <TextBlock Text="{Binding PlatformDisplay}" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11" Margin="0,2,0,0"/>
+                                        <TextBlock Text="{Binding MetaDisplay}" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding MetaDisplay}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <Border x:Name="StateDot" Width="8" Height="8" CornerRadius="4" Background="{DynamicResource GscWarningBrush}" Margin="0,0,7,0"/>
-                                        <TextBlock Text="{Binding HealthStateDisplay}" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                        <Border x:Name="HealthPill" Background="{DynamicResource GscControlFillBrush}" BorderBrush="{DynamicResource GscControlStrokeBrush}" BorderThickness="1" CornerRadius="9" Padding="8,5">
+                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                <Border x:Name="StateDot" Width="8" Height="8" CornerRadius="4" Background="{DynamicResource GscWarningBrush}" Margin="0,0,7,0"/>
+                                                <TextBlock x:Name="HealthLabel" Text="{Binding HealthStateDisplay}" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/>
+                                            </StackPanel>
+                                        </Border>
                                     </StackPanel>
                                 </Grid>
                                 <DataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding HealthState}" Value="Ready"><Setter TargetName="StateDot" Property="Background" Value="{DynamicResource GscSuccessBrush}"/></DataTrigger>
-                                    <DataTrigger Binding="{Binding HealthState}" Value="Attention"><Setter TargetName="StateDot" Property="Background" Value="{DynamicResource GscErrorBrush}"/></DataTrigger>
+                                    <DataTrigger Binding="{Binding HealthState}" Value="Ready">
+                                        <Setter TargetName="StateDot" Property="Background" Value="{DynamicResource GscSuccessBrush}"/>
+                                        <Setter TargetName="HealthPill" Property="Background" Value="{DynamicResource GscSuccessIconFillBrush}"/>
+                                        <Setter TargetName="HealthPill" Property="BorderBrush" Value="{DynamicResource GscSuccessBrush}"/>
+                                        <Setter TargetName="HealthLabel" Property="Foreground" Value="{DynamicResource GscSuccessBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding HealthState}" Value="Attention">
+                                        <Setter TargetName="StateDot" Property="Background" Value="{DynamicResource GscErrorBrush}"/>
+                                        <Setter TargetName="HealthPill" Property="Background" Value="{DynamicResource GscErrorIconFillBrush}"/>
+                                        <Setter TargetName="HealthPill" Property="BorderBrush" Value="{DynamicResource GscErrorBrush}"/>
+                                        <Setter TargetName="HealthLabel" Property="Foreground" Value="{DynamicResource GscErrorBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding HealthState}" Value="LudusaviUnavailable">
+                                        <Setter TargetName="StateDot" Property="Background" Value="{DynamicResource GscErrorBrush}"/>
+                                        <Setter TargetName="HealthPill" Property="Background" Value="{DynamicResource GscErrorIconFillBrush}"/>
+                                        <Setter TargetName="HealthPill" Property="BorderBrush" Value="{DynamicResource GscErrorBrush}"/>
+                                        <Setter TargetName="HealthLabel" Property="Foreground" Value="{DynamicResource GscErrorBrush}"/>
+                                    </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
@@ -1090,7 +1110,7 @@
                         <TextBlock.Style>
                             <Style TargetType="TextBlock" BasedOn="{StaticResource GscEmptyText}">
                                 <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers><DataTrigger Binding="{Binding FilteredGameCount}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                                <Style.Triggers><DataTrigger Binding="{Binding GamePicker.FilteredCount}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
                             </Style>
                         </TextBlock.Style>
                     </TextBlock>
