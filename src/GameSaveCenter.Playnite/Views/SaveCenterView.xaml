@@ -26,10 +26,13 @@
     </UserControl.Resources>
     <Grid Margin="0,0,0,0">
         <TabControl Grid.Row="0" Style="{StaticResource SaveTabControl}"><TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource SaveTabItem}"/></TabControl.Resources>
-            <TabItem Header="历史版本"><Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                <Border Style="{StaticResource SaveTableFrame}">
-                    <Grid>
-                        <DataGrid Style="{StaticResource SaveDataGrid}" ItemsSource="{Binding Backups}" SelectedItem="{Binding SelectedBackup}">
+            <TabItem Header="历史版本">
+                <Grid x:Name="SaveHistoryLayout" Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="330"/></Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="0"/></Grid.RowDefinitions>
+                    <Border Grid.Column="0" Grid.Row="0" Style="{StaticResource SaveTableFrame}">
+                        <Grid>
+                            <DataGrid Style="{StaticResource SaveDataGrid}" ItemsSource="{Binding Backups}" SelectedItem="{Binding SelectedBackup}">
                             <DataGrid.Columns>
                                 <DataGridTextColumn HeaderStyle="{StaticResource SaveFirstHeader}" Header="时间" Binding="{Binding CreatedLocal, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd HH:mm}}" Width="150"/>
                                 <DataGridTemplateColumn Header="类型" Width="110">
@@ -71,23 +74,47 @@
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
                             </DataGrid.Columns>
-                        </DataGrid>
-                        <TextBlock Text="暂无存档历史&#xA;完成一次备份后，历史版本会显示在这里。" IsHitTestVisible="False">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource GscEmptyStateText}">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Backups.Count}" Value="0">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                    </Grid>
-                </Border>
-                <ScrollViewer x:Name="SaveHistoryActionsScrollViewer" Style="{DynamicResource GscInspectorScrollViewer}" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="220" Margin="0,10,0,0"><Border Style="{DynamicResource GscRedesignSubCard}"><WrapPanel><TextBlock Text="备注：" VerticalAlignment="Center"/><TextBox Style="{DynamicResource GscWpfUiTextBox}" Text="{Binding BackupComment, UpdateSourceTrigger=PropertyChanged}" MinWidth="220" Margin="4,0,8,0"/><CheckBox Style="{DynamicResource GscCheckBox}" Content="锁定" IsChecked="{Binding LockSelectedBackup}" VerticalAlignment="Center" Margin="0,0,10,0"/><ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding UpdateBackupMetadataCommand}" Content="保存元数据"/><ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding RestoreCommand}" Content="恢复"/><ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding CompareBackupCommand}" Content="比较"/><ui:Button Style="{DynamicResource GscWpfUiContextButton}" Command="{Binding UndoRestoreCommand}" Content="撤销恢复"/></WrapPanel></Border></ScrollViewer>
-            </Grid></TabItem>
+                            </DataGrid>
+                            <TextBlock Text="暂无存档历史&#xA;完成一次备份后，历史版本会显示在这里。" IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource GscEmptyStateText}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers><DataTrigger Binding="{Binding Backups.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+                    <ScrollViewer x:Name="SaveHistoryActionsScrollViewer" Grid.Column="2" Grid.Row="0" Style="{DynamicResource GscInspectorScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="220">
+                        <Border Style="{DynamicResource GscRedesignSubCard}" Padding="16">
+                            <StackPanel>
+                                <TextBlock Text="版本详情" Style="{DynamicResource GscSectionTitleStyle}"/>
+                                <TextBlock Text="{Binding SelectedBackup.BackupId, TargetNullValue=选择一个存档版本查看详情}" Style="{DynamicResource GscCaptionStyle}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedBackup.BackupId}"/>
+                                <Separator Margin="0,14,0,12"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="82"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/><RowDefinition/></Grid.RowDefinitions>
+                                    <TextBlock Text="创建时间" Style="{DynamicResource GscCaptionStyle}"/><TextBlock Grid.Column="1" Text="{Binding SelectedBackup.CreatedLocal, Mode=OneWay, StringFormat={}{0:yyyy-MM-dd HH:mm}}" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Row="1" Text="触发方式" Style="{DynamicResource GscCaptionStyle}" Margin="0,9,0,0"/><TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedBackup.BackupTypeDisplay, Mode=OneWay}" Margin="0,9,0,0"/>
+                                    <TextBlock Grid.Row="2" Text="文件数量" Style="{DynamicResource GscCaptionStyle}" Margin="0,9,0,0"/><TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedBackup.FileCount, Mode=OneWay}" Margin="0,9,0,0"/>
+                                    <TextBlock Grid.Row="3" Text="大小" Style="{DynamicResource GscCaptionStyle}" Margin="0,9,0,0"/><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedBackup.SizeDisplay, Mode=OneWay}" Margin="0,9,0,0"/>
+                                    <TextBlock Grid.Row="4" Text="设备" Style="{DynamicResource GscCaptionStyle}" Margin="0,9,0,0"/><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedBackup.SourceDevice, Mode=OneWay}" TextTrimming="CharacterEllipsis" Margin="0,9,0,0" ToolTip="{Binding SelectedBackup.SourceDevice}"/>
+                                </Grid>
+                                <TextBlock Text="版本备注" Style="{DynamicResource GscCaptionStyle}" Margin="0,16,0,6"/>
+                                <TextBox Style="{DynamicResource GscWpfUiTextBox}" Text="{Binding BackupComment, UpdateSourceTrigger=PropertyChanged}" MinHeight="64" AcceptsReturn="True" TextWrapping="Wrap"/>
+                                <Grid Margin="0,14,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="锁定版本" FontWeight="SemiBold"/><TextBlock Text="保留策略不会清理锁定版本" Style="{DynamicResource GscCaptionStyle}" Margin="0,3,0,0"/></StackPanel><CheckBox Grid.Column="1" Style="{DynamicResource GscCheckBox}" Content="锁定" IsChecked="{Binding LockSelectedBackup}" VerticalAlignment="Center"/></Grid>
+                                <ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding UpdateBackupMetadataCommand}" Content="保存备注与锁定" Margin="0,16,0,0"/>
+                                <ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding CompareBackupCommand}" Content="与上一版本比较" Margin="0,8,0,0"/>
+                                <Separator Margin="0,16,0,12"/>
+                                <TextBlock Text="恢复操作" FontWeight="SemiBold"/>
+                                <TextBlock Text="恢复前会创建并锁定当前快照，完成后可校验并撤销。" Style="{DynamicResource GscCaptionStyle}" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                                <ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding RestoreCommand}" Content="安全恢复" Margin="0,12,0,0"/>
+                                <ui:Button Style="{DynamicResource GscWpfUiContextButton}" Command="{Binding UndoRestoreCommand}" Content="撤销最近恢复" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </ScrollViewer>
+                </Grid>
+            </TabItem>
             <TabItem Header="候选路径"><Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                 <Border Style="{StaticResource SaveTableFrame}"><Grid><DataGrid Style="{StaticResource SaveDataGrid}" ItemsSource="{Binding SaveCandidates}" SelectedItem="{Binding SelectedCandidate}"><DataGrid.Columns><DataGridTextColumn HeaderStyle="{StaticResource SaveFirstHeader}" Header="可信度" Binding="{Binding Score, Mode=OneWay, StringFormat=P0}" Width="78"/><DataGridTextColumn Header="状态" Binding="{Binding StatusDisplay, Mode=OneWay}" Width="90"/><DataGridTextColumn Header="路径" Binding="{Binding Path, Mode=OneWay}" Width="*" MinWidth="300"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource SaveLongText}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn><DataGridTextColumn HeaderStyle="{StaticResource SaveLastHeader}" Header="依据" Binding="{Binding ReasonsDisplay, Mode=OneWay}" Width="1.2*" MinWidth="250"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource SaveLongText}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn></DataGrid.Columns></DataGrid><TextBlock Text="暂无待处理的存档路径候选&#xA;可以点击“立即扫描”重新检测候选目录。" IsHitTestVisible="False"><TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource GscEmptyStateText}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding SaveCandidates.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></Grid></Border>
                 <ScrollViewer x:Name="SaveCandidateReasonScrollViewer" Style="{DynamicResource GscInspectorScrollViewer}" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="180" Margin="0,10,0,0"><Border Style="{DynamicResource GscRedesignSubCard}"><TextBlock Text="{Binding SelectedCandidate.ReasonsDisplay, TargetNullValue=选择候选路径后查看判断依据}" TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}"/></Border></ScrollViewer>

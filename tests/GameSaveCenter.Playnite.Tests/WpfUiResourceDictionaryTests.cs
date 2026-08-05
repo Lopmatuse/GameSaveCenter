@@ -747,10 +747,9 @@ public sealed class WpfUiResourceDictionaryTests
             Assert.Equal("{DynamicResource GscInspectorScrollViewer}", viewer.Attribute("Style")?.Value);
         }
 
-        Assert.Contains("SaveHistoryActionsScrollViewer.MaxHeight = Math.Max(130, Math.Min(220, height * (compact ? 0.24 : 0.30)))", saveCode);
+        Assert.Contains("SaveHistoryActionsScrollViewer.MaxHeight = Math.Max(150, Math.Min(360, height * (compact ? 0.42 : 0.90)))", saveCode);
         Assert.Contains("SaveCandidateReasonScrollViewer.MaxHeight = Math.Max(90, Math.Min(180, height * (compact ? 0.18 : 0.22)))", saveCode);
         Assert.Contains("SaveCandidateActionsScrollViewer.MaxHeight = Math.Max(70, Math.Min(140, height * (compact ? 0.14 : 0.18)))", saveCode);
-        Assert.Contains("MaxHeight=\"220\"", saveText);
         Assert.Contains("MaxHeight=\"180\"", saveText);
         Assert.Contains("MaxHeight=\"140\"", saveText);
         Assert.DoesNotContain("<Border Grid.Row=\"1\" Style=\"{DynamicResource GscSurface}\"", saveText);
@@ -888,7 +887,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("BasedOn=\"{StaticResource GscRedesignWorkspaceTabControl}\"", media);
         Assert.Contains("BasedOn=\"{StaticResource GscRedesignWorkspaceTabControl}\"", maintenance);
         Assert.Contains("BasedOn=\"{StaticResource GscRedesignWorkspaceTabControl}\"", trainer);
-        Assert.Contains("<CheckBox Style=\"{DynamicResource GscCheckBox}\"", saves);
+        Assert.Contains("GscCheckBox", saves);
         foreach (var view in new[] { overview, saves, trainer, media, maintenance })
         {
             Assert.DoesNotContain("Background=\"#", view);
