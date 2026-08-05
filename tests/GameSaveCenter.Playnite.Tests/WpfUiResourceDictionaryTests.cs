@@ -2095,7 +2095,7 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
-    public void ExtractedWorkspacesUseTheSharedDemoStyleHeroWithoutReplacingTheirRealContent()
+    public void ExtractedWorkspacesUseTheSharedDemoLayoutWithoutReplacingTheirRealContent()
     {
         var repositoryRoot = FindRepositoryRoot();
         var viewsRoot = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views");
@@ -2111,19 +2111,15 @@ public sealed class WpfUiResourceDictionaryTests
         foreach (var view in workspaceViews)
         {
             var xaml = File.ReadAllText(Path.Combine(viewsRoot, view));
-            // Save/Trainer/Media use the Dashboard's single global game header to avoid
-            // duplicating a second hero card. Global workspaces keep their own demo-style
-            // hero because they have no selected-game header.
-            if (view is "TaskCenterView.xaml" or "MaintenanceView.xaml")
-            {
-                Assert.Contains("Style=\"{DynamicResource GscRedesignWorkspaceHeroCard}\"", xaml);
-                Assert.Contains("Style=\"{DynamicResource GscRedesignHeroEyebrow}\"", xaml);
-                Assert.Contains("Style=\"{DynamicResource GscRedesignHeroTitle}\"", xaml);
-            }
-            else
+            // All workspaces now use the demo's compact page rhythm. Game-scoped pages
+            // receive their only game context from Dashboard; global pages start directly
+            // with summary cards instead of spending a permanent row on a redundant hero.
+            if (view != "TaskCenterView.xaml")
             {
                 Assert.Contains("BasedOn=\"{StaticResource GscRedesignWorkspaceTabControl}\"", xaml);
             }
+            Assert.DoesNotContain("GscRedesignWorkspaceHeroCard", xaml);
+            Assert.DoesNotContain("WorkspaceHero", xaml);
         }
 
         Assert.Contains("ItemsSource=\"{Binding Backups}\"", File.ReadAllText(Path.Combine(viewsRoot, "SaveCenterView.xaml")));

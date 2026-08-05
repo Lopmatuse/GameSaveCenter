@@ -35,15 +35,9 @@
             <Style x:Key="GscTabItem" TargetType="TabItem" BasedOn="{StaticResource MaintenanceTabItem}"/>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid Margin="0,12,0,12">
+    <Grid Margin="0">
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-        <Border x:Name="MaintenanceWorkspaceHero" Grid.Row="0" Style="{DynamicResource GscRedesignWorkspaceHeroCard}">
-            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel><TextBlock Text="MAINTENANCE" Style="{DynamicResource GscRedesignHeroEyebrow}"/><TextBlock Text="维护中心" Style="{DynamicResource GscRedesignHeroTitle}"/><TextBlock Text="诊断、设备冲突、审计和进程映射继续走真实 Worker/设置状态；顶部仅提供更接近 demo 的工作区概览。" Style="{DynamicResource GscRedesignSectionSubtitle}" Margin="0,6,18,0"/></StackPanel>
-                <WrapPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right"><Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,8"><TextBlock><Run Text="关注 "/><Run Text="{Binding Snapshot.WarningGames, Mode=OneWay}"/></TextBlock></Border><Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,0,8"><TextBlock><Run Text="诊断 "/><Run Text="{Binding Findings.Count, Mode=OneWay}"/></TextBlock></Border></WrapPanel>
-            </Grid>
-        </Border>
-        <TabControl Grid.Row="1" Style="{StaticResource MaintenanceTabControl}">
+        <TabControl Grid.Row="0" Style="{StaticResource MaintenanceTabControl}">
             <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource MaintenanceTabItem}"/></TabControl.Resources>
             <TabItem Header="诊断">
                 <Grid Margin="0,12,0,0">
