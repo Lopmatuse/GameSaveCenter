@@ -16,7 +16,6 @@
             <Style x:Key="SaveTabItem" TargetType="TabItem" BasedOn="{StaticResource GscRedesignWorkspaceTabItem}"/>
         </ResourceDictionary>
     </UserControl.Resources>
-    <ScrollViewer x:Name="SavePageScrollViewer" Style="{DynamicResource GscPageScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
     <Grid Margin="0,12,0,12">
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
         <Border x:Name="SaveWorkspaceHero" Grid.Row="0" Style="{DynamicResource GscRedesignWorkspaceHeroCard}">
@@ -96,5 +95,4 @@
             <TabItem Header="备份策略"><ScrollViewer Style="{DynamicResource GscPageScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,12,0,0"><Border Style="{DynamicResource GscSurface}" Padding="14"><StackPanel><TextBlock Text="当前游戏自动任务" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="存档与媒体自动化可以按当前游戏独立关闭；手动备份和手动同步仍可使用。" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,4,0,12"/><WrapPanel><ui:ToggleSwitch Style="{DynamicResource GscWpfUiToggleSwitch}" Content="启用自动任务" IsChecked="{Binding SelectedGame.Policy.Enabled}" Margin="0,0,18,8"/><ui:ToggleSwitch Style="{DynamicResource GscWpfUiToggleSwitch}" Content="退出后备份" IsChecked="{Binding SelectedGame.Policy.BackupOnGameStop}" Margin="0,0,18,8"/><ui:ToggleSwitch Style="{DynamicResource GscWpfUiToggleSwitch}" Content="游玩中备份" IsChecked="{Binding SelectedGame.Policy.BackupDuringPlay}" Margin="0,0,18,8"/><ui:ToggleSwitch Style="{DynamicResource GscWpfUiToggleSwitch}" Content="上传云端" IsChecked="{Binding SelectedGame.Policy.UploadAfterBackup}" Margin="0,0,18,8"/></WrapPanel><WrapPanel Margin="0,8,0,0"><TextBlock Text="游玩间隔（分钟）" VerticalAlignment="Center"/><TextBox Style="{DynamicResource GscNumericTextBox}" Width="90" Text="{Binding SelectedGame.Policy.DuringPlayIntervalMinutes, UpdateSourceTrigger=LostFocus}" Margin="8,0,12,0"/><ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding SavePolicyCommand}" Content="保存策略"/><ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding PreviewRetentionCommand}" Content="预览保留策略"/></WrapPanel><TextBlock Text="{Binding RetentionSummary}" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" Margin="0,12,0,0"/></StackPanel></Border></ScrollViewer></TabItem>
         </TabControl>
     </Grid>
-    </ScrollViewer>
 </UserControl>

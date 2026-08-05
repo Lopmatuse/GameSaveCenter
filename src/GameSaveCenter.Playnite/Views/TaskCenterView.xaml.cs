@@ -16,8 +16,8 @@ namespace GameSaveCenter.Playnite.Views
         public void ApplyResponsiveLayout(double width, double height)
         {
             TaskSummaryPanel.Columns = width >= 1120 ? 3 : width >= 760 ? 2 : 1;
-            // Keep task summary metrics available at every height; the page scrolls below the
-            // fold instead of silently removing the only explanation of the task counters.
+            // Keep task summary metrics available at every height; the table and inspector
+            // own their finite scroll surfaces instead of scrolling the whole workspace.
             TaskSummaryPanel.Visibility = Visibility.Visible;
             TaskDetailActions.Orientation = width < 760 ? Orientation.Vertical : Orientation.Horizontal;
             // Long task diagnostics and wrapped actions are secondary content. Keep them in

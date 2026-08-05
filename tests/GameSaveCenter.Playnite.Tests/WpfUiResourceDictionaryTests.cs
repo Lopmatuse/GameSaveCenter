@@ -512,39 +512,45 @@ public sealed class WpfUiResourceDictionaryTests
             Assert.Contains("Property=\"RowHeight\" Value=\"{DynamicResource GscTableRowHeight}\"", text);
             Assert.Contains("Property=\"ColumnHeaderHeight\" Value=\"{DynamicResource GscTableHeaderHeight}\"", text);
             Assert.Contains("Property=\"AlternatingRowBackground\" Value=\"{DynamicResource GscTableAlternateRowBrush}\"", text);
-            Assert.Contains("Style=\"{DynamicResource GscPageScrollViewer}\"", text);
+            Assert.DoesNotContain("PageScrollViewer\" Style=\"{DynamicResource GscPageScrollViewer}", text);
+            Assert.DoesNotContain("x:Name=\"OverviewPageScrollViewer\"", text);
+            Assert.DoesNotContain("x:Name=\"SavePageScrollViewer\"", text);
+            Assert.DoesNotContain("x:Name=\"TrainerPageScrollViewer\"", text);
+            Assert.DoesNotContain("x:Name=\"MediaPageScrollViewer\"", text);
+            Assert.DoesNotContain("x:Name=\"TaskPageScrollViewer\"", text);
+            Assert.DoesNotContain("x:Name=\"MaintenancePageScrollViewer\"", text);
             Assert.DoesNotContain("BlurEffect", text);
         }
     }
 
     [Fact]
-    public void ExtractedWorkspacesExposePageScrollAndFiniteViewportContracts()
+    public void ExtractedWorkspacesUseGridRootsAndInternalTableScrolling()
     {
         var repositoryRoot = FindRepositoryRoot();
         var viewDirectory = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views");
-        foreach (var (file, pageScrollName) in new[]
+        foreach (var file in new[]
         {
-            ("OverviewView.xaml", "OverviewPageScrollViewer"),
-            ("SaveCenterView.xaml", "SavePageScrollViewer"),
-            ("MediaCenterView.xaml", "MediaPageScrollViewer"),
-            ("TaskCenterView.xaml", "TaskPageScrollViewer"),
-            ("TrainerCenterView.xaml", "TrainerPageScrollViewer"),
-            ("MaintenanceView.xaml", "MaintenancePageScrollViewer")
+            "OverviewView.xaml",
+            "SaveCenterView.xaml",
+            "MediaCenterView.xaml",
+            "TaskCenterView.xaml",
+            "TrainerCenterView.xaml",
+            "MaintenanceView.xaml"
         })
         {
             var text = File.ReadAllText(Path.Combine(viewDirectory, file));
             var root = XDocument.Parse(text);
-            var pageScroll = root.Descendants().Single(element =>
-                element.Name.LocalName == "ScrollViewer" &&
-                element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == pageScrollName);
-
-            Assert.Equal("Auto", pageScroll.Attribute("VerticalScrollBarVisibility")?.Value);
-            Assert.Equal("Disabled", pageScroll.Attribute("HorizontalScrollBarVisibility")?.Value);
-            Assert.Equal("{DynamicResource GscPageScrollViewer}", pageScroll.Attribute("Style")?.Value);
+            var directScrollViewers = root.Root?.Elements()
+                .Where(element => element.Name.LocalName == "ScrollViewer")
+                .ToList() ?? new List<XElement>();
+            Assert.Empty(directScrollViewers);
+            Assert.True(root.Root?.Elements().Any(element => element.Name.LocalName == "Grid") == true, $"{file} must expose a Grid root instead of a page ScrollViewer.");
+            Assert.DoesNotContain("PageScrollViewer\" Style=\"{DynamicResource GscPageScrollViewer}", text);
         }
 
         var trainer = File.ReadAllText(Path.Combine(viewDirectory, "TrainerCenterView.xaml"));
         Assert.Contains("GscListViewportHeight", trainer);
+        Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", trainer);
     }
 
     [Fact]
@@ -562,8 +568,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Name=\"OverviewRiskScrollViewer\" Style=\"{DynamicResource GscPageScrollViewer}\"", overview);
         Assert.Contains("<ScrollViewer Style=\"{DynamicResource GscPageScrollViewer}\" VerticalScrollBarVisibility=\"Auto\"", save);
         Assert.Contains("<ScrollViewer Style=\"{DynamicResource GscPageScrollViewer}\" Grid.Row=\"0\" MaxHeight=\"190\"", media);
-        Assert.Contains("x:Name=\"MaintenanceDeviceScrollViewer\" Style=\"{DynamicResource GscPageScrollViewer}\"", maintenance);
-        Assert.Contains("x:Name=\"MaintenanceAuditScrollViewer\" Style=\"{DynamicResource GscPageScrollViewer}\"", maintenance);
+        Assert.Contains("x:Name=\"MaintenanceDeviceDecisionScrollViewer\" Style=\"{DynamicResource GscInspectorScrollViewer}\"", maintenance);
+        Assert.Contains("x:Name=\"MaintenanceRemoteRestoreScrollViewer\" Style=\"{DynamicResource GscInspectorScrollViewer}\"", maintenance);
+        Assert.DoesNotContain("x:Name=\"MaintenanceAuditScrollViewer\"", maintenance);
     }
 
     [Fact]
@@ -647,38 +654,34 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
-    public void MaintenanceAuditKeepsTwoReadableFiniteTablesBehindAWorkspaceScrollViewer()
+    public void MaintenanceAuditUsesTwoInternalVirtualizedTableViewports()
     {
         var repositoryRoot = FindRepositoryRoot();
         var maintenancePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml");
         var maintenanceText = File.ReadAllText(maintenancePath);
         var maintenance = XDocument.Parse(maintenanceText);
-        var auditScroll = maintenance.Descendants().Single(element =>
+        Assert.DoesNotContain(maintenance.Descendants(), element =>
             element.Name.LocalName == "ScrollViewer" &&
             element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "MaintenanceAuditScrollViewer");
-
-        Assert.Equal("Auto", auditScroll.Attribute("VerticalScrollBarVisibility")?.Value);
-        Assert.Equal("Disabled", auditScroll.Attribute("HorizontalScrollBarVisibility")?.Value);
-        Assert.Contains("x:Name=\"MaintenanceAuditFindingsGrid\" Height=\"{DynamicResource GscTableViewportHeight}\"", maintenanceText);
-        Assert.Contains("x:Name=\"MaintenanceAuditLogGrid\" Height=\"{DynamicResource GscTableViewportHeight}\"", maintenanceText);
-        Assert.Contains("MinHeight=\"360\"", maintenanceText);
-        Assert.Contains("CanContentScroll=\"False\"", maintenanceText);
+        Assert.Contains("<RowDefinition Height=\"*\"/><RowDefinition Height=\"*\"/>", maintenanceText);
+        Assert.Contains("x:Name=\"MaintenanceAuditFindingsGrid\" Style=\"{StaticResource MaintenanceDataGrid}\"", maintenanceText);
+        Assert.Contains("x:Name=\"MaintenanceAuditLogGrid\" Style=\"{StaticResource MaintenanceDataGrid}\"", maintenanceText);
+        Assert.DoesNotContain("Height=\"{DynamicResource GscTableViewportHeight}\"", maintenanceText);
     }
 
     [Fact]
-    public void MaintenanceDeviceStateKeepsSeveralRowsReachableBehindAWorkspaceScrollViewer()
+    public void MaintenanceDeviceStateUsesAStarTableRowAndInternalScrolling()
     {
         var repositoryRoot = FindRepositoryRoot();
         var maintenancePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml");
         var maintenanceText = File.ReadAllText(maintenancePath);
         var maintenance = XDocument.Parse(maintenanceText);
-        var deviceScroll = maintenance.Descendants().Single(element =>
+        Assert.DoesNotContain(maintenance.Descendants(), element =>
             element.Name.LocalName == "ScrollViewer" &&
             element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "MaintenanceDeviceScrollViewer");
-
-        Assert.Equal("Auto", deviceScroll.Attribute("VerticalScrollBarVisibility")?.Value);
-        Assert.Equal("Disabled", deviceScroll.Attribute("HorizontalScrollBarVisibility")?.Value);
-        Assert.Contains("x:Name=\"MaintenanceDeviceGrid\" Height=\"{DynamicResource GscTableViewportHeight}\"", maintenanceText);
+        Assert.Contains("<RowDefinition Height=\"Auto\"/><RowDefinition Height=\"Auto\"/><RowDefinition Height=\"*\"/>", maintenanceText);
+        Assert.Contains("x:Name=\"MaintenanceDeviceGrid\" Style=\"{StaticResource MaintenanceDataGrid}\"", maintenanceText);
+        Assert.DoesNotContain("x:Name=\"MaintenanceDeviceGrid\" Height=\"{DynamicResource GscTableViewportHeight}\"", maintenanceText);
         Assert.Contains("ItemsSource=\"{Binding DeviceComparisons}\"", maintenanceText);
     }
 

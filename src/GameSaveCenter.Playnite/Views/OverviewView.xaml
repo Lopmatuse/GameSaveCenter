@@ -71,7 +71,6 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <ScrollViewer x:Name="OverviewPageScrollViewer" Style="{DynamicResource GscPageScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
     <Grid x:Name="OverviewLayoutGrid" Margin="0,12,0,12" MinHeight="0">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -206,5 +205,4 @@
         </Grid>
         </ScrollViewer>
     </Grid>
-    </ScrollViewer>
 </UserControl>

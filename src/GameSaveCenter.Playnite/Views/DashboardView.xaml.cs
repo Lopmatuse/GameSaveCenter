@@ -415,7 +415,7 @@ namespace GameSaveCenter.Playnite.Views
             if (SelectedGameMetricPanel != null)
             {
                 // Metrics are part of the current-game context and remain reachable in every
-                // layout mode. The surrounding page scrolls rather than dropping the panel.
+                // layout mode. Extracted workspaces own their table/inspector scroll surfaces.
                 SelectedGameMetricPanel.Visibility = Visibility.Visible;
                 GameHeaderActions.Margin = width >= 1180
                     ? new Thickness(62, 12, 0, 0)
@@ -452,8 +452,8 @@ namespace GameSaveCenter.Playnite.Views
 
             // Responsive behavior now belongs to each extracted workspace view.
             // The safety banner is actionable context, not decorative chrome. Keep it visible
-            // for the Saves workspace at every height and let the page-level scroll channel
-            // reveal the controls below it instead of dropping the warning under 680 DIP.
+            // for the Saves workspace at every height; its extracted Grid layout keeps the
+            // warning and table actions reachable without a page-level scroll channel.
             RestoreSafetyBanner.Visibility = viewModel.CurrentWorkspace == WorkspaceKind.Saves
                 ? Visibility.Visible : Visibility.Collapsed;
             if (viewModel.CurrentWorkspace != WorkspaceKind.Saves)

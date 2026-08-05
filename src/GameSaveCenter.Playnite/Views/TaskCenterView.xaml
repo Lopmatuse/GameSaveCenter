@@ -56,7 +56,6 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <ScrollViewer x:Name="TaskPageScrollViewer" Style="{DynamicResource GscPageScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
     <Grid Margin="0,12,0,12">
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
         <Border x:Name="TaskWorkspaceHero" Grid.Row="0" Style="{DynamicResource GscRedesignWorkspaceHeroCard}">
@@ -102,5 +101,4 @@
             <Border x:Name="TaskDetailCard" CornerRadius="12" Padding="14"><Border.Style><Style TargetType="Border" BasedOn="{StaticResource TaskSurface}"><Setter Property="Visibility" Value="Visible"/><Style.Triggers><DataTrigger Binding="{Binding SelectedTask}" Value="{x:Null}"><Setter Property="Visibility" Value="Collapsed"/></DataTrigger></Style.Triggers></Style></Border.Style><Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><StackPanel Grid.Row="0"><TextBlock FontWeight="SemiBold"><Run Text="{Binding SelectedTask.GameName, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding SelectedTask.TaskTypeDisplay, Mode=OneWay}"/></TextBlock><TextBlock Text="{Binding SelectedTask.DetailMessage, Mode=OneWay}" TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,5,12,0"/><TextBlock Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,5,0,0"><Run Text="耗时 "/><Run Text="{Binding SelectedTask.DurationDisplay, Mode=OneWay}"/><Run Text=" · 任务 ID "/><Run Text="{Binding SelectedTask.TaskId, Mode=OneWay}"/></TextBlock></StackPanel><WrapPanel x:Name="TaskDetailActions" Grid.Row="1" VerticalAlignment="Center" Margin="0,12,0,0"><ui:Button Style="{DynamicResource GscWpfUiContextButton}" Command="{Binding CopyTaskErrorCommand}" Content="复制详情" Margin="0,0,8,0"/><ui:Button Style="{DynamicResource GscWpfUiContextButton}" Command="{Binding RetryTaskCommand}" Content="安全重试" Margin="0,0,8,0"/><ui:Button Style="{DynamicResource GscWpfUiContextButton}" Command="{Binding CancelTaskCommand}" Content="取消任务" Margin="0"/></WrapPanel></Grid></Border>
         </ScrollViewer>
     </Grid>
-    </ScrollViewer>
 </UserControl>

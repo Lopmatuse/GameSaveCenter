@@ -1220,10 +1220,13 @@ def check_final_redesign_guards() -> None:
                 "{Binding DeviceComparisons}",
             }
         )
-        # Extracted workspaces now expose one named page-level scroll channel. Their
-        # DataGrid/ListBox receives a finite shared viewport through the production
-        # type style, so the page can scroll to actions without sacrificing recycling.
+        # The legacy Dashboard compatibility tree may still contain a bounded page
+        # scroll channel. Extracted production workspaces instead use Grid star rows;
+        # only their DataGrid/ListBox owns the scrolling surface.
+        is_legacy_dashboard_control = any(control is candidate for candidate in dashboard_root.iter())
         page_scroll_contract = (
+            is_legacy_dashboard_control
+            and
             shared_viewport_contract
             and any(
                 local_name(node.tag) == "ScrollViewer"
