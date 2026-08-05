@@ -166,7 +166,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Background=\"{DynamicResource GscPickerScrimBrush}\"", dashboard);
         Assert.Contains("x:Name=\"GameBrowserPanel\"", dashboard);
         Assert.Contains("Style=\"{StaticResource GscRedesignFloatingPickerCard}\"", dashboard);
-        Assert.Contains("x:Name=\"GameDetailCard\" Grid.Row=\"0\" Grid.RowSpan=\"2\" Grid.Column=\"2\" Style=\"{StaticResource GscRedesignHeroCard}\"", dashboard);
+        Assert.Contains("x:Name=\"GameDetailCard\" Grid.Row=\"0\" Grid.RowSpan=\"2\" Grid.Column=\"2\" Style=\"{StaticResource GscWorkspaceHostSurface}\"", dashboard);
+        Assert.Contains("x:Key=\"GscWorkspaceHostSurface\"", dashboard);
     }
 
     [Fact]
