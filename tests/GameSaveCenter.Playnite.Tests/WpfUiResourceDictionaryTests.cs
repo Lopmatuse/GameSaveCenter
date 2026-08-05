@@ -676,7 +676,7 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
-    public void MaintenanceAuditUsesTwoInternalVirtualizedTableViewports()
+    public void MaintenanceAuditUsesDemoInspectorAndInternalAuditViewport()
     {
         var repositoryRoot = FindRepositoryRoot();
         var maintenancePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml");
@@ -685,9 +685,11 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.DoesNotContain(maintenance.Descendants(), element =>
             element.Name.LocalName == "ScrollViewer" &&
             element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "MaintenanceAuditScrollViewer");
-        Assert.Contains("<RowDefinition Height=\"*\"/><RowDefinition Height=\"*\"/>", maintenanceText);
+        Assert.Contains("x:Name=\"MaintenanceAuditLayout\"", maintenanceText);
+        Assert.Contains("x:Name=\"MaintenanceAuditInspector\"", maintenanceText);
         Assert.Contains("x:Name=\"MaintenanceAuditFindingsGrid\" Style=\"{StaticResource MaintenanceDataGrid}\"", maintenanceText);
         Assert.Contains("x:Name=\"MaintenanceAuditLogGrid\" Style=\"{StaticResource MaintenanceDataGrid}\"", maintenanceText);
+        Assert.Contains("MaintenanceAuditInspector.MaxHeight", File.ReadAllText(maintenancePath + ".cs"));
         Assert.DoesNotContain("Height=\"{DynamicResource GscTableViewportHeight}\"", maintenanceText);
     }
 

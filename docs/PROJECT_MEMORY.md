@@ -27,6 +27,8 @@
 
 > UI-105：维护中心新增 `保留策略` 页签，使用 `PreviewRetentionCommand`、`RetentionSummary` 和 `LastRetentionPreview` 提供当前游戏的只读预览；不把预览误作删除操作，不新增页面级业务状态。
 
+> UI-106：维护中心异常与审计页使用 `MaintenanceAuditLayout` 左侧 Findings 列表、右侧 `MaintenanceAuditInspector`（选中诊断详情与最近 Audit）；1080 DIP 或 760 DIP 高度以下右侧检查器堆叠到列表下方，审计表保留自身有限滚动。
+
 > UI-101：媒体中心当前游戏媒体列表使用虚拟化 `ListBox` 卡片替代密集 DataGrid；`MediaGrid` 仍提供 `SelectedItem`/`SelectedItems` 给预览、元数据和批量命令，`MediaView`、缩略图/视频转换器、内部滚动和 Recycling 必须保持。卡片只使用不透明/轻表面，不对列表项应用 BlurEffect。
 
 > UI-102：媒体来源规则使用虚拟化 `ListBox` 来源卡片替代 DataGrid；每项仍通过父级 `UpdateMediaSourceCommand`/`DeleteMediaSourceCommand` 传入真实来源对象，目录使用省略和 Tooltip，表单继续保留独立有限滚动通道。

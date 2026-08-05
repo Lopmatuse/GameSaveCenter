@@ -44,6 +44,15 @@ namespace GameSaveCenter.Playnite.Views
             MaintenanceDeviceInspector.Margin = stackDevice ? new Thickness(0, 10, 0, 0) : new Thickness(0, 10, 0, 0);
             MaintenanceDeviceDecisionScrollViewer.MaxHeight = Math.Max(90, Math.Min(150, height * (compact ? 0.16 : 0.20)));
             MaintenanceRemoteRestoreScrollViewer.MaxHeight = Math.Max(120, Math.Min(210, height * (compact ? 0.22 : 0.28)));
+
+            var stackAudit = width < 1080 || height < 760;
+            MaintenanceAuditLayout.ColumnDefinitions[1].Width = stackAudit ? new GridLength(0) : new GridLength(14);
+            MaintenanceAuditLayout.ColumnDefinitions[2].Width = stackAudit ? new GridLength(0) : new GridLength(350);
+            Grid.SetColumn(MaintenanceAuditInspector, stackAudit ? 0 : 2);
+            Grid.SetColumnSpan(MaintenanceAuditInspector, stackAudit ? 3 : 1);
+            Grid.SetRow(MaintenanceAuditInspector, stackAudit ? 1 : 0);
+            MaintenanceAuditInspector.Margin = stackAudit ? new Thickness(0, 10, 0, 0) : new Thickness(0);
+            MaintenanceAuditInspector.MaxHeight = Math.Max(180, Math.Min(560, height * (stackAudit ? 0.55 : 0.90)));
         }
     }
 }
