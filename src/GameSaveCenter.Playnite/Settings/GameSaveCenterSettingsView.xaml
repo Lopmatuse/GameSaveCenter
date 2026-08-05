@@ -38,8 +38,9 @@
             <Ellipse Width="330" Height="330" HorizontalAlignment="Left" VerticalAlignment="Top" Fill="{DynamicResource GscAccentIconFillBrush}"><Ellipse.RenderTransform><TranslateTransform X="-95" Y="-120"/></Ellipse.RenderTransform><Ellipse.Effect><BlurEffect Radius="84"/></Ellipse.Effect></Ellipse>
             <Ellipse Width="280" Height="280" HorizontalAlignment="Right" VerticalAlignment="Bottom" Fill="{DynamicResource GscAmbientInfoBrush}"><Ellipse.RenderTransform><TranslateTransform X="80" Y="120"/></Ellipse.RenderTransform><Ellipse.Effect><BlurEffect Radius="92"/></Ellipse.Effect></Ellipse>
         </Grid>
+        <Border x:Name="SettingsDemoShell" Style="{StaticResource GscShellStyle}" Margin="18" Padding="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <ScrollViewer x:Name="SettingsScroller" Style="{DynamicResource GscPageScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" KeyboardNavigation.TabNavigation="Continue">
-            <Grid x:Name="SettingsShell" Opacity="0" Margin="28,22,32,30" MaxWidth="1240" HorizontalAlignment="Left">
+            <Grid x:Name="SettingsShell" Opacity="0" Margin="0" MaxWidth="1360" HorizontalAlignment="Stretch">
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                 <Border x:Name="SettingsHeader" Style="{DynamicResource GscRedesignWorkspaceHeroCard}">
                 <Grid>
@@ -224,6 +225,7 @@
                 </TabControl>
             </Grid>
         </ScrollViewer>
+        </Border>
         <ui:SnackbarPresenter x:Name="SettingsSnackbarHost" Panel.ZIndex="20" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20"/>
     </Grid>
 </UserControl>

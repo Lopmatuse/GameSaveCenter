@@ -905,6 +905,11 @@ public sealed class WpfUiResourceDictionaryTests
         var redesign = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "Redesign.xaml"));
         Assert.Contains("x:Key=\"GscReadingCardStyle\"", redesign);
         Assert.Contains("x:Key=\"GscSubCardStyle\"", redesign);
+        Assert.Contains("x:Key=\"GscShellStyle\"", redesign);
+        Assert.Contains("x:Key=\"GscPageTitleStyle\"", redesign);
+        Assert.Contains("x:Key=\"GscSectionTitleStyle\"", redesign);
+        Assert.Contains("x:Key=\"GscCaptionStyle\"", redesign);
+        Assert.Contains("x:Key=\"GscBodyStyle\"", redesign);
         Assert.Contains("x:Key=\"GscButtonStyle\"", redesign);
         Assert.Contains("x:Key=\"GscPrimaryButtonStyle\"", redesign);
         Assert.Contains("x:Key=\"GscTabControlStyle\"", redesign);
@@ -2083,6 +2088,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Click=\"OnImportSettingsClick\"", settings);
         Assert.Contains("SettingsSectionTabs.TabStripPlacement = compact ? Dock.Top : Dock.Left", settingsCode);
         Assert.Contains("tab.MinWidth = compact ? (narrow ? 132 : 158) : 218", settingsCode);
+        Assert.Contains("x:Name=\"SettingsDemoShell\" Style=\"{StaticResource GscShellStyle}\"", settings);
+        Assert.Contains("MaxWidth=\"1360\" HorizontalAlignment=\"Stretch\"", settings);
     }
 
     [Fact]

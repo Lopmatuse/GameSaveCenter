@@ -275,17 +275,24 @@
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
-                        <ScrollViewer Grid.Row="0"
-                                      HorizontalScrollBarVisibility="Auto"
-                                      VerticalScrollBarVisibility="Disabled"
-                                      CanContentScroll="False"
-                                      Focusable="False"
-                                      Margin="0,0,0,10">
-                            <TabPanel x:Name="HeaderPanel"
-                                      IsItemsHost="True"
-                                      KeyboardNavigation.TabIndex="1"
-                                      HorizontalAlignment="Left"/>
-                        </ScrollViewer>
+                        <Border Grid.Row="0"
+                                HorizontalAlignment="Left"
+                                Background="{DynamicResource GscControlFillBrush}"
+                                BorderBrush="{DynamicResource GscGlassStrokeBrush}"
+                                BorderThickness="1"
+                                CornerRadius="12"
+                                Padding="5"
+                                Margin="0,0,0,12">
+                            <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Disabled"
+                                          CanContentScroll="False"
+                                          Focusable="False">
+                                <TabPanel x:Name="HeaderPanel"
+                                          IsItemsHost="True"
+                                          KeyboardNavigation.TabIndex="1"
+                                          HorizontalAlignment="Left"/>
+                            </ScrollViewer>
+                        </Border>
                         <ContentPresenter Grid.Row="1"
                                           x:Name="PART_SelectedContentHost"
                                           ContentSource="SelectedContent"
@@ -301,8 +308,8 @@
 
     <Style x:Key="GscRedesignWorkspaceTabItem" TargetType="TabItem">
         <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
-        <Setter Property="Padding" Value="14,7"/>
-        <Setter Property="Margin" Value="0,0,8,0"/>
+        <Setter Property="Padding" Value="14,9"/>
+        <Setter Property="Margin" Value="0"/>
         <Setter Property="MinHeight" Value="36"/>
         <!-- The header presenter below controls its own centering.  The selected
              workspace content must inherit Stretch so a page never collapses to
@@ -314,10 +321,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TabItem">
                     <Border x:Name="Chrome"
-                            Background="{DynamicResource GscControlFillBrush}"
-                            BorderBrush="{DynamicResource GscGlassStrokeBrush}"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
                             BorderThickness="1"
-                            CornerRadius="12"
+                            CornerRadius="8"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter ContentSource="Header"
@@ -328,11 +335,11 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GscAccentTintBrush}"/>
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="Transparent"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GscAccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GscRowHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Chrome" Property="Opacity" Value="0.42"/>
@@ -402,6 +409,32 @@
     <!-- Demo-compatible aliases. Keeping these names in the production dictionary lets
          migrated views use the same visual vocabulary as the standalone WPF demo without
          duplicating a second theme or changing any command/binding contract. -->
+    <Style x:Key="GscShellStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource GscGlassStrongBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{StaticResource GscCornerPanel}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+    <Style x:Key="GscPageTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="26"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+    <Style x:Key="GscSectionTitleStyle" TargetType="TextBlock" BasedOn="{StaticResource GscRedesignSectionTitle}"/>
+    <Style x:Key="GscCaptionStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource GscMutedTextBrush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+    <Style x:Key="GscBodyStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Foreground" Value="{DynamicResource GscSecondaryTextBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="LineHeight" Value="20"/>
+    </Style>
     <Style x:Key="GscReadingCardStyle" TargetType="Border" BasedOn="{StaticResource GscRedesignSectionCard}"/>
     <Style x:Key="GscSubCardStyle" TargetType="Border" BasedOn="{StaticResource GscRedesignSubCard}"/>
     <Style x:Key="GscFloatingCardStyle" TargetType="Border" BasedOn="{StaticResource GscRedesignFloatingPickerCard}"/>
