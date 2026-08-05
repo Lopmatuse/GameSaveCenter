@@ -436,9 +436,40 @@
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="LineHeight" Value="20"/>
     </Style>
-    <Style x:Key="GscReadingCardStyle" TargetType="Border" BasedOn="{StaticResource GscRedesignSectionCard}"/>
-    <Style x:Key="GscSubCardStyle" TargetType="Border" BasedOn="{StaticResource GscRedesignSubCard}"/>
-    <Style x:Key="GscFloatingCardStyle" TargetType="Border" BasedOn="{StaticResource GscRedesignFloatingPickerCard}"/>
+    <!-- Demo-compatible aliases are intentionally explicit instead of inheriting the
+         production section-card shadow/elevation. The demo's reading surfaces are opaque,
+         quiet and evenly padded; keeping that contract here makes every extracted page match
+         the same visual rhythm without changing any binding or command. -->
+    <Style x:Key="GscReadingCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource GscGlassStrongBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding" Value="18"/>
+        <Setter Property="Effect" Value="{x:Null}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+    <Style x:Key="GscSubCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="13"/>
+        <Setter Property="Padding" Value="14"/>
+        <Setter Property="Effect" Value="{x:Null}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
+    <Style x:Key="GscFloatingCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource GscPopupBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="18"/>
+        <Setter Property="Padding" Value="16"/>
+        <Setter Property="Effect" Value="{DynamicResource GscPopupEffect}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+    </Style>
     <Style x:Key="GscButtonStyle" TargetType="Button">
         <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
         <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
@@ -453,7 +484,7 @@
                     <Border x:Name="Root" Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="11" Padding="{TemplateBinding Padding}">
+                            CornerRadius="10" Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                           RecognizesAccessKey="True"/>

@@ -936,7 +936,11 @@ def check_wpf_ui_probe_guards() -> None:
 
     for description, token, text in (("WPF-UI central version", "WPF-UI", packages),
                                      ("WPF-UI plugin reference", "WPF-UI", project),
-                                     ("WPF-UI resource dictionary", "ui:ThemesDictionary", base),
+                                     # WPF-UI's ThemesDictionary is intentionally not merged in the
+                                     # Playnite host because deferred CornerRadius resources can
+                                     # resolve to UnsetValue during host layout. Keep the guard on
+                                     # the documented decision rather than requiring the unsafe tag.
+                                     ("WPF-UI resource dictionary", "ui:ControlsDictionary", base),
                                      ("WPF-UI probe", "UiFrameworkProbeView", probe)):
         if token not in text:
             fail(f"{description} guard missing")
@@ -1311,18 +1315,16 @@ def check_wpf_ui_production_scope_guards() -> None:
           # WPF-UI action controls and toggle controls, so scope validation must not require
           # a legacy ui:Card instance in DashboardView itself.
           "<ui:Button", "<ui:ToggleSwitch",
-          "x:Name=\"SnackbarHost\"")),
+          "ToastHost")),
         (settings, "Settings WPF-UI production scope",
          ("xmlns:ui=\"http://schemas.lepo.co/wpfui/2022/xaml\"", "Themes/WpfUiProduction.xaml",
-          "<ui:Card", "<ui:ToggleSwitch", "<ui:Button",
-          "x:Name=\"SettingsSnackbarHost\"")),
+          "<ui:Card", "<ui:ToggleSwitch", "<ui:Button")),
         (dashboard_code, "Dashboard production feedback",
-         ("new Snackbar(SnackbarHost)", "ShowFallbackConfirmation", "ShowToast",
+         ("ShowToast", "ShowFallbackConfirmation",
           "if (confirmationOpen)", "confirmationOpen = false",
           "return Task.CompletedTask")),
         (settings_code, "Settings production feedback",
-         ("new Snackbar(SettingsSnackbarHost)",
-          "Task.Run", "MessageBox.Show")),
+         ("ShowSettingsMessage", "Task.Run", "MessageBox.Show")),
         (theme_scope, "WPF-UI theme scope", ("ThemesDictionary", "ApplicationTheme.HighContrast", "ApplyMergedDictionaries")),
     ):
         for token in required:
@@ -1334,12 +1336,10 @@ def check_wpf_ui_production_scope_guards() -> None:
             fail(f"{label} must apply WPF-UI theme only through its local resource scope")
         if "using Wpf.Ui.Controls;" in source:
             fail(f"{label} must alias individual WPF-UI feedback controls to avoid native WPF type ambiguity")
-    for token in ("using Snackbar = Wpf.Ui.Controls.Snackbar;",):
-        if token not in dashboard_code:
-            fail(f"Dashboard WPF-UI alias guard missing: {token}")
-    for token in ("using Snackbar = Wpf.Ui.Controls.Snackbar;",):
-        if token not in settings_code:
-            fail(f"Settings WPF-UI alias guard missing: {token}")
+    if "SnackbarPresenter" in dashboard or "new Snackbar(" in dashboard_code:
+        fail("Dashboard must use the native page-local toast instead of WPF-UI Snackbar")
+    if "SnackbarPresenter" in settings or "new Snackbar(" in settings_code:
+        fail("Settings must use the native feedback path instead of WPF-UI Snackbar")
     if "WpfUiThemeScope.Apply(resources, palette.IsDark)" not in palette_factory:
         fail("shared runtime palette must apply WPF-UI resources through the local scope")
     for source, label in ((dashboard, "Dashboard"), (settings, "Settings")):

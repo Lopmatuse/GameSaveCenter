@@ -1,7 +1,11 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-08-05
-当前版本：`0.6.59-development-preview`
+当前版本：`0.6.60-development-preview`
+
+> UI-111：Playnite 宿主内不要使用生产 WPF-UI `SnackbarPresenter`，其延迟 material/corner 资源可能在主窗口 Arrange 阶段解析为 `UnsetValue`。生产通知统一使用 Dashboard/设置页的原生页面 Toast 或 MessageBox；`WpfUiBase.xaml` 只加载 `ControlsDictionary`，并保留确定性的 token fallback，运行时由 `AdaptiveThemePalette` 覆盖。
+
+> UI-110：demo 的 `GscReadingCardStyle` 是接近不透明、无阴影、圆角 16、内边距 18 的阅读表面；`GscSubCardStyle` 为圆角 13、内边距 14；`GscFloatingCardStyle` 为圆角 18、内边距 16 并保留浮层阴影。生产别名必须显式定义这些几何，不能继续继承带生产阴影的 SectionCard。
 
 > UI-109：`CornerRadius` 不能绑定可选 `Tag`，也不能依赖可能不在宿主资源树中的动态圆角资源。Playnite 0.6.57/0.6.58 日志出现 `DependencyProperty.UnsetValue` 传给 `Border.CornerRadius` 并在 Arrange 阶段崩溃；共享 `WpfUiProduction.xaml` 和 Dashboard 表头模板已改为确定性数值，并由源码门禁防止回归。
 

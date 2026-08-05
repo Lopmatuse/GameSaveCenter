@@ -1,7 +1,15 @@
 # 功能完成度评估
 
 更新时间：2026-08-05
-评估版本：`0.6.59-development-preview`
+评估版本：`0.6.60-development-preview`
+
+## 0.6.60 当前证据（2026-08-05）
+
+- 已移除生产 Dashboard/设置页的 WPF-UI SnackbarPresenter，并为 WPF-UI token 提供确定性本地 fallback，降低 Playnite 宿主 Arrange 阶段的 UnsetValue 崩溃风险。
+- 源码校验、149 项自动测试和 Release 构建通过；仍未在真实 Playnite 宿主中完成崩溃修复、DPI 和主题渲染验证。
+
+- 共享 demo 卡片别名已统一几何与阴影层级，避免不同工作区因为继承链不同而出现卡片厚重、间距不一致。
+- 源码校验、149 项自动测试和 Release 构建通过；仍未在真实 Playnite 宿主中完成视觉、DPI 和主题渲染验证。
 
 ## 0.6.59 当前证据（2026-08-05）
 

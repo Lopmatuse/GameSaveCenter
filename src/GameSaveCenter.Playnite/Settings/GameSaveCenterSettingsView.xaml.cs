@@ -9,7 +9,6 @@ using System.Windows.Threading;
 using GameSaveCenter.Playnite.Infrastructure;
 using Microsoft.Win32;
 using Playnite.SDK;
-using Snackbar = Wpf.Ui.Controls.Snackbar;
 
 namespace GameSaveCenter.Playnite.Settings
 {
@@ -240,22 +239,9 @@ namespace GameSaveCenter.Playnite.Settings
 
         private void ShowSettingsSnackbar(string title, string message)
         {
-            try
-            {
-                var snackbar = new Snackbar(SettingsSnackbarHost)
-                {
-                    Title = title,
-                    Content = message,
-                    Timeout = TimeSpan.FromSeconds(4),
-                    IsCloseButtonEnabled = true
-                };
-                snackbar.Show();
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "GameSaveCenter WPF-UI settings snackbar failed; using MessageBox fallback.");
-                ShowSettingsMessage(message, title, MessageBoxImage.Information);
-            }
+            // Keep settings feedback on the native modal path. WPF-UI SnackbarPresenter can
+            // resolve deferred CornerRadius resources outside a stable Playnite window scope.
+            ShowSettingsMessage(message, title, MessageBoxImage.Information);
         }
 
         private async Task ObserveUiOperationAsync(Func<Task> operation, string errorMessage)

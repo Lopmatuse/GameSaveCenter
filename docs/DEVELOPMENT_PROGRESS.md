@@ -1,7 +1,11 @@
 # 开发实现进度
 
 更新时间：2026-08-05
-当前版本：`0.6.59-development-preview`
+当前版本：`0.6.60-development-preview`
+
+- [x] UI-111：移除 Dashboard 与设置页中的 WPF-UI SnackbarPresenter，通知统一使用页面内原生 Toast；WPF-UI 基础字典改为只加载 ControlsDictionary，并提供确定性的本地 Fluent token fallback，避免 deferred CornerRadius 在 Playnite 宿主 Arrange 阶段解析为 `DependencyProperty.UnsetValue`。源码校验、149 项 Release 自动测试和 Release 构建通过；仍需真实 Playnite 宿主验证。
+
+- [x] UI-110：将 demo 的阅读卡、子卡、浮层卡和普通按钮别名从生产阴影继承链中拆出，统一为 demo 的 16/13/18 圆角、18/14/16 内边距和无阴影阅读表面；保留所有工作区命令、绑定、虚拟化和主题动态资源。源码校验、148 项 Release 自动测试和 Release 构建通过；仍需真实 Playnite 宿主验证视觉效果。
 
 - [x] UI-109：修复 Playnite 实机暴露的第二类 WPF 崩溃：共享 ListBox/DataGridHeader 模板不再把未解析 DynamicResource 或可选 Tag 绑定写入 `Border.CornerRadius`，避免 `DependencyProperty.UnsetValue` 在 Arrange 阶段终止 Playnite。源码校验、148 项 Release 自动测试和 Release 构建通过；仍需安装 0.6.59 后在 Playnite 真实宿主验证。
 

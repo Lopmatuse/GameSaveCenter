@@ -1837,6 +1837,23 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void DemoCardAliasesKeepReadingSurfacesFlatAndConsistent()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var redesign = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "Redesign.xaml"));
+
+        Assert.Contains("x:Key=\"GscReadingCardStyle\"", redesign);
+        Assert.Contains("CornerRadius\" Value=\"16\"", redesign);
+        Assert.Contains("Padding\" Value=\"18\"", redesign);
+        Assert.Contains("Effect\" Value=\"{x:Null}\"", redesign);
+        Assert.Contains("x:Key=\"GscSubCardStyle\"", redesign);
+        Assert.Contains("CornerRadius\" Value=\"13\"", redesign);
+        Assert.Contains("x:Key=\"GscFloatingCardStyle\"", redesign);
+        Assert.Contains("CornerRadius\" Value=\"18\"", redesign);
+        Assert.Contains("CornerRadius=\"10\" Padding=\"{TemplateBinding Padding}\"", redesign);
+    }
+
+    [Fact]
     public void SettingsAsyncFeedbackDoesNotTargetAnUnloadedPlaynitePage()
     {
         var repositoryRoot = FindRepositoryRoot();

@@ -11,7 +11,6 @@ using System.Windows.Threading;
 using GameSaveCenter.Playnite.Infrastructure;
 using GameSaveCenter.Playnite.ViewModels;
 using Playnite.SDK;
-using Snackbar = Wpf.Ui.Controls.Snackbar;
 
 namespace GameSaveCenter.Playnite.Views
 {
@@ -947,31 +946,10 @@ namespace GameSaveCenter.Playnite.Views
             if (!IsLoaded || !IsVisible) return;
             e.Handled = true;
 
-            // Error notifications retain the existing details action and recovery path. Other
-            // feedback uses WPF-UI first, with the local toast host as a non-destructive fallback.
-            if (e.Kind == UiNotificationKind.Error || !TryShowFrameworkSnackbar(e))
-                ShowToast(e.Title, e.Message, e.Kind);
-        }
-
-        private bool TryShowFrameworkSnackbar(UiNotificationEventArgs notification)
-        {
-            try
-            {
-                var snackbar = new Snackbar(SnackbarHost)
-                {
-                    Title = notification.Title,
-                    Content = notification.Message,
-                    Timeout = TimeSpan.FromSeconds(notification.Kind == UiNotificationKind.Warning ? 5 : 3.8),
-                    IsCloseButtonEnabled = true
-                };
-                snackbar.Show();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Logger.Error(ex, "GameSaveCenter WPF-UI snackbar failed; using the local toast fallback.");
-                return false;
-            }
+            // Keep notifications in the native page-local toast. WPF-UI's SnackbarPresenter
+            // contains deferred Border.CornerRadius resources that are unsafe in Playnite's host
+            // layout and must never be allowed to destabilize the extension window.
+            ShowToast(e.Title, e.Message, e.Kind);
         }
 
         private void OnUiConfirmationRequested(object? sender, UiConfirmationEventArgs e)
