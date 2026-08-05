@@ -1078,11 +1078,14 @@ def check_final_redesign_guards() -> None:
     # produce DependencyProperty.UnsetValue. WPF then throws during Arrange and
     # takes down the Playnite host, so shared templates must use deterministic
     # literal/static corner values.
-    for source, label in ((dashboard, "Dashboard"), (wpf_ui_production_text, "WpfUiProduction")):
+    redesign_text = (ROOT / "src/GameSaveCenter.Playnite/Themes/Redesign.xaml").read_text(encoding="utf-8")
+    for source, label in ((dashboard, "Dashboard"), (wpf_ui_production_text, "WpfUiProduction"), (redesign_text, "Redesign")):
         if 'CornerRadius="{Binding Tag' in source:
             fail(f"{label} must not bind CornerRadius to optional Tag (UnsetValue crash)")
         if 'CornerRadius="{DynamicResource GscCorner' in source:
             fail(f"{label} must not use an out-of-scope DynamicResource for CornerRadius")
+        if 'Property="CornerRadius" Value="{StaticResource GscCorner' in source:
+            fail(f"{label} must not resolve shared DesignTokens CornerRadius through StaticResource")
 
     for source, label, required in (
         (dashboard, "Dashboard final redesign",

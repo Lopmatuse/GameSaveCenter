@@ -414,7 +414,10 @@
         <Setter Property="Background" Value="{DynamicResource GscGlassStrongBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="{StaticResource GscCornerPanel}"/>
+        <!-- This dictionary is merged independently inside Playnite.  Do not reference a
+             CornerRadius resource owned by the sibling DesignTokens dictionary: WPF may defer
+             that StaticResource as UnsetValue and crash while the host arranges the Border. -->
+        <Setter Property="CornerRadius" Value="{StaticResource GscRedesignShellCorner}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
     </Style>
