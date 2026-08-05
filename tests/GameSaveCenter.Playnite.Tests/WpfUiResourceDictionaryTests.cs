@@ -1652,7 +1652,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Path=\"DashboardRefreshSeconds\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("CoreToolFields.Columns = twoColumns ? 2 : 1", settingsCode);
         Assert.Contains("AppearanceFields.Columns = twoColumns ? 2 : 1", settingsCode);
-        Assert.Contains("var contentWidth = Math.Max(320, width - horizontalMargin - trailingMargin);", settingsCode);
+        Assert.Contains("var contentWidth = Math.Max(320, width - horizontalMargin * 2 - 40);", settingsCode);
         Assert.Contains("AutomationIntervalFields.Columns = expanded && formWidth >= 930 ? 3 : formWidth >= 650 ? 2 : 1", settingsCode);
     }
 
@@ -2087,6 +2087,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Click=\"OnExportSettingsClick\"", settings);
         Assert.Contains("Click=\"OnImportSettingsClick\"", settings);
         Assert.Contains("SettingsSectionTabs.TabStripPlacement = compact ? Dock.Top : Dock.Left", settingsCode);
+        Assert.Contains("SettingsShell.HorizontalAlignment = HorizontalAlignment.Stretch", settingsCode);
+        Assert.Contains("SettingsShell.MaxWidth = 1360", settingsCode);
         Assert.Contains("tab.MinWidth = compact ? (narrow ? 132 : 158) : 218", settingsCode);
         Assert.Contains("x:Name=\"SettingsDemoShell\" Style=\"{StaticResource GscShellStyle}\"", settings);
         Assert.Contains("MaxWidth=\"1360\" HorizontalAlignment=\"Stretch\"", settings);

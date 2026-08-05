@@ -357,15 +357,18 @@ namespace GameSaveCenter.Playnite.Settings
             var expanded = width >= 1180;
             var compact = width < 920;
             var narrow = width < 720;
-            var horizontalMargin = narrow ? 14 : compact ? 18 : 28;
-            var trailingMargin = horizontalMargin + 4;
-            var contentWidth = Math.Max(320, width - horizontalMargin - trailingMargin);
+            var horizontalMargin = narrow ? 10 : 18;
+            var contentWidth = Math.Max(320, width - horizontalMargin * 2 - 40);
             var formWidth = compact ? contentWidth : Math.Max(320, contentWidth - 248);
 
-            SettingsShell.Margin = new Thickness(horizontalMargin, narrow ? 14 : 22, trailingMargin, 28);
-            SettingsShell.HorizontalAlignment = compact ? HorizontalAlignment.Stretch : HorizontalAlignment.Left;
-            SettingsShell.Width = compact ? double.NaN : Math.Min(1240, contentWidth);
-            SettingsShell.MaxWidth = compact ? double.PositiveInfinity : 1240;
+            // The outer SettingsDemoShell owns the product-level 18-DIP breathing room.
+            // Keep the inner content stretch-only so the demo shell does not regress into
+            // a narrow, left-aligned island when the Playnite settings host is wide.
+            SettingsDemoShell.Margin = new Thickness(horizontalMargin);
+            SettingsShell.Margin = new Thickness(0);
+            SettingsShell.HorizontalAlignment = HorizontalAlignment.Stretch;
+            SettingsShell.Width = double.NaN;
+            SettingsShell.MaxWidth = 1360;
             // SettingsScroller is the overflow channel. Keep context and save semantics
             // visible at every height; only constrain their width so compact headers wrap
             // instead of silently removing information.
