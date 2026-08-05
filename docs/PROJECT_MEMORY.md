@@ -25,6 +25,8 @@
 
 > UI-104：存档中心新增 `比较与保留` 页签，绑定 `LastBackupDiff`、`DiffSummary`、`LastRetentionPreview` 和 `RetentionSummary`，只展示真实 Worker 返回的比较/保留结果；`SaveCompareLayout` 在 980 DIP 或 760 DIP 高度以下把右侧保留检查器堆叠到比较内容下方，不执行任何删除操作。
 
+> UI-105：维护中心新增 `保留策略` 页签，使用 `PreviewRetentionCommand`、`RetentionSummary` 和 `LastRetentionPreview` 提供当前游戏的只读预览；不把预览误作删除操作，不新增页面级业务状态。
+
 > UI-101：媒体中心当前游戏媒体列表使用虚拟化 `ListBox` 卡片替代密集 DataGrid；`MediaGrid` 仍提供 `SelectedItem`/`SelectedItems` 给预览、元数据和批量命令，`MediaView`、缩略图/视频转换器、内部滚动和 Recycling 必须保持。卡片只使用不透明/轻表面，不对列表项应用 BlurEffect。
 
 > UI-102：媒体来源规则使用虚拟化 `ListBox` 来源卡片替代 DataGrid；每项仍通过父级 `UpdateMediaSourceCommand`/`DeleteMediaSourceCommand` 传入真实来源对象，目录使用省略和 Tooltip，表单继续保留独立有限滚动通道。

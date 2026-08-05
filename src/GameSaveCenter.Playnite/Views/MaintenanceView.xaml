@@ -70,6 +70,27 @@
                     <StackPanel x:Name="MaintenanceDeviceInspector" Grid.Row="2" Grid.Column="2" Margin="0,10,0,0"><ScrollViewer x:Name="MaintenanceDeviceDecisionScrollViewer" Style="{DynamicResource GscInspectorScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="150"><Border Style="{DynamicResource GscRedesignSubCard}" Padding="12"><StackPanel><TextBlock Text="人工决策" Style="{DynamicResource GscSectionTitleStyle}"/><ComboBox Style="{DynamicResource GscWpfUiComboBox}" ItemsSource="{Binding DeviceDecisionOptions}" SelectedItem="{Binding DeviceDecision}" Margin="0,12,0,8"/><TextBox Style="{DynamicResource GscWpfUiTextBox}" Text="{Binding DeviceDecisionComment, UpdateSourceTrigger=PropertyChanged}" MinHeight="64" MaxHeight="120" ToolTip="仅记录判断依据"/><ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding SaveDeviceDecisionCommand}" Content="保存决策" Margin="0,12,0,0"/></StackPanel></Border></ScrollViewer><ScrollViewer x:Name="MaintenanceRemoteRestoreScrollViewer" Style="{DynamicResource GscInspectorScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="210" Margin="0,10,0,0"><Border Style="{DynamicResource GscRedesignSubCard}" Padding="12"><StackPanel><TextBlock Text="受保护的远端恢复" Style="{DynamicResource GscSectionTitleStyle}"/><TextBlock Text="{Binding StagedRemoteBackupStatus}" TextWrapping="Wrap" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0"/><Border Style="{DynamicResource GscRedesignInfoBand}" Padding="10" Margin="0,12,0,0"><TextBlock Text="先下载并校验，再创建当前快照并恢复；不会直接覆盖或删除远端。" Foreground="{DynamicResource GscInfoBrush}" TextWrapping="Wrap"/></Border><ui:Button Style="{DynamicResource GscWpfUiContextButton}" Command="{Binding StageRemoteBackupCommand}" Content="1. 下载并校验" Margin="0,12,0,0"/><ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding RestoreStagedRemoteBackupCommand}" Content="2. 创建快照并恢复" Margin="0,8,0,0"/></StackPanel></Border></ScrollViewer></StackPanel>
                 </Grid>
             </TabItem>
+            <TabItem Header="保留策略">
+                <ScrollViewer Style="{DynamicResource GscPageScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,12,0,0">
+                    <StackPanel MaxWidth="1050" HorizontalAlignment="Left">
+                        <Border Style="{DynamicResource GscRedesignSectionCard}" Padding="16">
+                            <StackPanel>
+                                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <StackPanel><TextBlock Text="当前游戏保留策略只读预览" Style="{DynamicResource GscSectionTitleStyle}"/><TextBlock Text="只显示 Worker 的安全建议，不执行删除，也不会改变已锁定版本。" Style="{DynamicResource GscCaptionStyle}" Margin="0,4,0,0" TextWrapping="Wrap"/></StackPanel>
+                                    <ui:Button Grid.Column="1" Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding PreviewRetentionCommand}" Content="刷新预览"/>
+                                </Grid>
+                                <TextBlock Text="{Binding SelectedGame.Name, TargetNullValue=尚未选择游戏}" Style="{DynamicResource GscBodyStyle}" Margin="0,16,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedGame.Name}"/>
+                                <Border Style="{DynamicResource GscRedesignInfoBand}" Padding="12" Margin="0,12,0,0"><TextBlock Text="{Binding RetentionSummary, TargetNullValue=尚未生成保留预览。请先选择游戏并刷新。}" Foreground="{DynamicResource GscInfoBrush}" TextWrapping="Wrap"/></Border>
+                                <UniformGrid Columns="3" Margin="0,14,0,0">
+                                    <Border Style="{DynamicResource GscRedesignSubCard}" Margin="0,0,8,0"><StackPanel><TextBlock Text="预计保留" Style="{DynamicResource GscCaptionStyle}"/><TextBlock Text="{Binding LastRetentionPreview.KeepBackupIds.Count, TargetNullValue=—}" FontSize="28" FontWeight="SemiBold" Margin="0,8,0,0"/><TextBlock Text="个版本" Style="{DynamicResource GscCaptionStyle}" Margin="0,4,0,0"/></StackPanel></Border>
+                                    <Border Style="{DynamicResource GscRedesignSubCard}" Margin="0,0,8,0"><StackPanel><TextBlock Text="候选清理" Style="{DynamicResource GscCaptionStyle}"/><TextBlock Text="{Binding LastRetentionPreview.DeleteCandidateIds.Count, TargetNullValue=—}" FontSize="28" FontWeight="SemiBold" Margin="0,8,0,0"/><TextBlock Text="当前仅预览" Style="{DynamicResource GscCaptionStyle}" Margin="0,4,0,0"/></StackPanel></Border>
+                                    <Border Style="{DynamicResource GscRedesignSubCard}"><StackPanel><TextBlock Text="安全边界" Style="{DynamicResource GscCaptionStyle}"/><TextBlock Text="只读" FontSize="28" FontWeight="SemiBold" Margin="0,8,0,0"/><TextBlock Text="不会自动删除" Style="{DynamicResource GscCaptionStyle}" Margin="0,4,0,0"/></StackPanel></Border>
+                                </UniformGrid>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
             <TabItem Header="异常与审计">
                 <Grid Margin="0,12,0,12"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                         <Border Grid.Row="0" Style="{DynamicResource GscTableFrame}" MinHeight="0">

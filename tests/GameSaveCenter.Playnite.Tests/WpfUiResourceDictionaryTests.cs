@@ -800,6 +800,20 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void MaintenanceProvidesReadOnlyRetentionPreviewTab()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var maintenancePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml");
+        var maintenanceText = File.ReadAllText(maintenancePath);
+
+        Assert.Contains("<TabItem Header=\"保留策略\">", maintenanceText);
+        Assert.Contains("Command=\"{Binding PreviewRetentionCommand}\"", maintenanceText);
+        Assert.Contains("{Binding LastRetentionPreview.KeepBackupIds.Count", maintenanceText);
+        Assert.Contains("{Binding LastRetentionPreview.DeleteCandidateIds.Count", maintenanceText);
+        Assert.Contains("不会自动删除", maintenanceText);
+    }
+
+    [Fact]
     public void HeaderActionsKeepAnInternalHorizontalScrollChannelAtNarrowWidths()
     {
         var repositoryRoot = FindRepositoryRoot();
