@@ -5,6 +5,7 @@
 
 - [x] UI-090：将 demo 的共享视觉词汇扩展到生产资源字典，新增 Shell、标题、章节标题、正文和说明文字别名；设置页使用统一 demo 外壳；六个工作区页签改为 demo 同款“单一圆角页签带 + 横向可滚动标题 + 拉伸内容区”，不改变现有命令、绑定或业务逻辑。源码校验、145 项 Release 自动测试和 Release 构建通过；真实 Playnite 宿主、DPI 和主题渲染仍需用户环境验证。
 - [x] UI-091：移除任务中心和维护中心与 demo 不一致的常驻 Hero 行，改为摘要卡片/工具栏直接进入主体内容；修正设置页响应式测量，外层 demo Shell 负责留白、内层表单保持 Stretch。源码校验、145 项 Release 自动测试和 Release 构建通过；真实 Playnite 宿主、DPI 和主题渲染仍需用户环境验证。
+- [x] UI-092：Dashboard 主内容与侧栏加入 demo 同款统一 Shell 外壳，保留现有响应式列和所有覆盖层/Toast/对话框层级；不改变导航、选择游戏、命令和业务请求。源码校验、145 项 Release 自动测试和 Release 构建通过；真实 Playnite 宿主、DPI 和主题渲染仍需用户环境验证。
 
 - [x] UI-064：按 WPF Demo 的布局契约移除六个工作区的根级页面滚动；设备状态和异常审计改用 Grid 星号行，DataGrid/ListBox 保留内部虚拟化滚动；更新源码门禁与回归测试。Release 构建 0 警告/0 错误、Core 13、Worker 23、Playnite 107 共 143 项测试通过；真实 Playnite 宿主、DPI、主题和 900+ 游戏库回归仍待用户环境验证。
 

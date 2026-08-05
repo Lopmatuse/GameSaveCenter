@@ -680,6 +680,7 @@
             </Ellipse>
         </Grid>
 
+        <Border x:Name="DashboardDemoShell" Margin="14" Style="{StaticResource GscShellStyle}" Padding="14">
         <Grid x:Name="ResponsiveShell" Margin="18,16,18,14">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="SidebarColumn" Width="194"/>
@@ -1270,6 +1271,7 @@
         </Grid>
             </Grid>
         </Grid>
+        </Border>
 
         <!-- Snackbar is safe as a page-local floating surface. ContentDialogHost is deliberately
              excluded: WPF-UI permits only one host per Playnite Window. -->

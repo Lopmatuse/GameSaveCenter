@@ -903,6 +903,7 @@ public sealed class WpfUiResourceDictionaryTests
     {
         var repositoryRoot = FindRepositoryRoot();
         var redesign = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "Redesign.xaml"));
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
         Assert.Contains("x:Key=\"GscReadingCardStyle\"", redesign);
         Assert.Contains("x:Key=\"GscSubCardStyle\"", redesign);
         Assert.Contains("x:Key=\"GscShellStyle\"", redesign);
@@ -910,6 +911,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Key=\"GscSectionTitleStyle\"", redesign);
         Assert.Contains("x:Key=\"GscCaptionStyle\"", redesign);
         Assert.Contains("x:Key=\"GscBodyStyle\"", redesign);
+        Assert.Contains("x:Name=\"DashboardDemoShell\" Margin=\"14\" Style=\"{StaticResource GscShellStyle}\"", dashboard);
         Assert.Contains("x:Key=\"GscButtonStyle\"", redesign);
         Assert.Contains("x:Key=\"GscPrimaryButtonStyle\"", redesign);
         Assert.Contains("x:Key=\"GscTabControlStyle\"", redesign);
