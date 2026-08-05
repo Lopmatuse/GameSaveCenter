@@ -12,14 +12,30 @@
          focus and material tokens. This dictionary is merged only after DesignTokens.xaml
          inside a GameSaveCenter UserControl; it must never enter Playnite application-level resources. -->
     <Style x:Key="GscWpfUiCard"
-           TargetType="{x:Type ui:Card}"
-           BasedOn="{StaticResource {x:Type ui:Card}}">
+           TargetType="{x:Type ui:Card}">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="Padding" Value="16"/>
-        <!-- WPF-UI 4.3.0 Card exposes rounded corners through the Border.CornerRadius attached property. -->
-        <Setter Property="Border.CornerRadius" Value="18"/>
         <Setter Property="Background" Value="{DynamicResource GscGlassFillBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ui:Card}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}"
+                            CornerRadius="18"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="Effect">
@@ -442,15 +458,49 @@
     </Style>
 
     <Style x:Key="GscWpfUiButton"
-           TargetType="{x:Type ui:Button}"
-           BasedOn="{StaticResource {x:Type ui:Button}}">
+           TargetType="{x:Type ui:Button}">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="MinHeight" Value="38"/>
         <Setter Property="Padding" Value="14,7"/>
         <Setter Property="ui:Button.CornerRadius" Value="11"/>
+        <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="FocusVisualStyle" Value="{DynamicResource GscSharedFocusVisual}"/>
         <Setter Property="ToolTipService.ShowDuration" Value="12000"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ui:Button}">
+                    <Border x:Name="ButtonChrome"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}"
+                            CornerRadius="11"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ButtonChrome" Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="ButtonChrome" Property="Opacity" Value="0.88"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="ButtonChrome" Property="Opacity" Value="0.46"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <Style x:Key="GscWpfUiSecondaryButton"
@@ -513,12 +563,45 @@
     </Style>
 
     <Style x:Key="GscWpfUiToggleSwitch"
-           TargetType="{x:Type ui:ToggleSwitch}"
-           BasedOn="{StaticResource {x:Type ui:ToggleSwitch}}">
+           TargetType="{x:Type ui:ToggleSwitch}">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="MinHeight" Value="34"/>
         <Setter Property="FontFamily" Value="Segoe UI Variable Text, Segoe UI"/>
         <Setter Property="FocusVisualStyle" Value="{DynamicResource GscSharedFocusVisual}"/>
         <Setter Property="ToolTipService.ShowDuration" Value="12000"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ui:ToggleSwitch}">
+                    <Grid MinHeight="{TemplateBinding MinHeight}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="38"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border x:Name="Track" Width="32" Height="18" CornerRadius="9"
+                                Background="{DynamicResource GscControlStrokeBrush}"
+                                HorizontalAlignment="Left" VerticalAlignment="Center">
+                            <Ellipse x:Name="Thumb" Width="14" Height="14" Fill="{DynamicResource GscGlassStrongBrush}"
+                                     HorizontalAlignment="Left" Margin="2,0,0,0"/>
+                        </Border>
+                        <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          ContentStringFormat="{TemplateBinding ContentStringFormat}"
+                                          VerticalAlignment="Center"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource GscAccentBrush}"/>
+                            <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right"/>
+                            <Setter TargetName="Thumb" Property="Margin" Value="0,0,2,0"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.46"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- WPF-UI styles standard TextBox and ComboBox through ControlsDictionary. These keyed

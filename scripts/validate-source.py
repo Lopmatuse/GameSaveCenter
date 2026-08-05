@@ -936,18 +936,18 @@ def check_wpf_ui_probe_guards() -> None:
 
     for description, token, text in (("WPF-UI central version", "WPF-UI", packages),
                                      ("WPF-UI plugin reference", "WPF-UI", project),
-                                     # WPF-UI's ThemesDictionary is intentionally not merged in the
-                                     # Playnite host because deferred CornerRadius resources can
-                                     # resolve to UnsetValue during host layout. Keep the guard on
-                                     # the documented decision rather than requiring the unsafe tag.
-                                     ("WPF-UI resource dictionary", "ui:ControlsDictionary", base),
+                                     # WPF-UI's deferred dictionaries are intentionally not merged
+                                     # in the Playnite host. The production adapter owns explicit
+                                     # templates instead, so this guard checks the documented
+                                     # isolation decision rather than an unsafe dictionary tag.
+                                     ("WPF-UI host isolation", "WpfUiProduction.xaml supplies explicit", base),
                                      ("WPF-UI probe", "UiFrameworkProbeView", probe)):
         if token not in text:
             fail(f"{description} guard missing")
     for token in ("Version=\"4.3.0\"", "<PackageReference Include=\"WPF-UI\" />"):
         if token not in packages and token not in project:
             fail(f"WPF-UI 4.3.0 package guard missing: {token}")
-    for token in ("ResourceDictionary.MergedDictionaries", "ui:ThemesDictionary", "ui:ControlsDictionary"):
+    for token in ("Do not merge WPF-UI's ui:ControlsDictionary", "ui:ThemesDictionary", "ui:ControlsDictionary"):
         if token not in base:
             fail(f"WPF-UI local resource guard missing: {token}")
     for token in ("UserControl.Resources", "WpfUiBase.xaml", "SnackbarPresenter", "UiFrameworkProbeView"):
@@ -991,8 +991,10 @@ def check_shared_wpf_control_guards() -> None:
                   "GscWpfUiPrimaryActionButton", "GscWpfUiToolbarButton",
                   "GscWpfUiToolbarPrimaryButton", "GscWpfUiContextButton", "GscWpfUiToggleSwitch",
                   "GscWpfUiTextBox", "GscWpfUiComboBox",
-                  "BasedOn=\"{StaticResource {x:Type ui:Card}}\"",
-                  "<Setter Property=\"Border.CornerRadius\" Value=\"18\"/>",
+                  "OverridesDefaultStyle",
+                  "<ControlTemplate TargetType=\"{x:Type ui:Card}\">",
+                  "<ControlTemplate TargetType=\"{x:Type ui:Button}\">",
+                  "<ControlTemplate TargetType=\"{x:Type ui:ToggleSwitch}\">",
                   "<Trigger Property=\"IsEnabled\" Value=\"False\">",
                   "<Setter Property=\"Opacity\" Value=\"0.48\"/>"):
         if token not in production:
@@ -1014,8 +1016,8 @@ def check_shared_wpf_control_guards() -> None:
     for token in ('{DynamicResource GscSoftShadowColor}', '{DynamicResource GscSharedFocusVisual}'):
         if token not in production:
             fail(f"WPF-UI production adapter dynamic theme-token guard missing: {token}")
-    if '<Setter Property="CornerRadius"' in production:
-        fail("WPF-UI Card must use Border.CornerRadius; Card has no CornerRadius dependency property")
+    if 'BasedOn="{StaticResource {x:Type ui:Card}}"' in production:
+        fail("WPF-UI Card must not inherit the deferred host style")
     if production.count('<Setter Property="Margin" Value="0,0,8,8"/>') < 3:
         fail("WPF-UI action/context adapters must preserve the established WrapPanel spacing")
     for token in ("Themes/WpfUiProduction.xaml",

@@ -1,7 +1,9 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-08-05
-当前版本：`0.6.60-development-preview`
+当前版本：`0.6.61-development-preview`
+
+> UI-112：Playnite 宿主内生产 UI 不再合并 WPF-UI 的 `ui:ControlsDictionary`/`ui:ThemesDictionary`。这些字典包含延迟 CornerRadius/material 资源，可能在 Playnite 主窗口 Arrange 阶段产生 `DependencyProperty.UnsetValue`。`WpfUiProduction.xaml` 为 GameSaveCenter 使用的 Card、Button、ToggleSwitch 提供显式本地模板，保留功能和动态主题令牌；开发探针仍可单独使用框架资源，但不能进入生产 Dashboard。
 
 > UI-111：Playnite 宿主内不要使用生产 WPF-UI `SnackbarPresenter`，其延迟 material/corner 资源可能在主窗口 Arrange 阶段解析为 `UnsetValue`。生产通知统一使用 Dashboard/设置页的原生页面 Toast 或 MessageBox；`WpfUiBase.xaml` 只加载 `ControlsDictionary`，并保留确定性的 token fallback，运行时由 `AdaptiveThemePalette` 覆盖。
 

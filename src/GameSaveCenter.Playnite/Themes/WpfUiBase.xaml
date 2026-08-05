@@ -4,14 +4,11 @@
     <!-- This dictionary is merged only by GameSaveCenter probe/migration views. WpfUiThemeScope
          changes its local ThemesDictionary for each view; GameSaveCenter tokens merged after it
          remain final and the Playnite host stays outside this scope. -->
-    <ResourceDictionary.MergedDictionaries>
-        <!-- Production palette is applied by AdaptiveThemePalette. Do not merge WPF-UI's
-             ui:ThemesDictionary here: its deferred resources are unsafe in Playnite's host.
-             Do not restore the ui:ThemesDictionary element without a host-layout regression test.
-             theme dictionary here: its deferred corner/material resources can resolve to
-             DependencyProperty.UnsetValue while Playnite measures the embedded view. -->
-        <ui:ControlsDictionary/>
-    </ResourceDictionary.MergedDictionaries>
+    <!-- Do not merge WPF-UI's ui:ControlsDictionary or ui:ThemesDictionary into an embedded
+         Playnite view.  Both dictionaries contain deferred CornerRadius/material resources
+         that are safe in a standalone WPF Window but can resolve to DependencyProperty.UnsetValue
+         while Playnite arranges its own main Window.  WpfUiProduction.xaml supplies explicit,
+         host-independent templates for the small set of WPF-UI controls used by the plugin. -->
 
     <!-- Safe local fallbacks for WPF-UI token names.  The adaptive palette replaces these
          brushes at runtime; keeping concrete values here prevents a missing host/theme token
