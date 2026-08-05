@@ -1196,6 +1196,9 @@
 
                     <TabControl x:Name="DetailsTabControl" Grid.Row="3" MinHeight="0"
                                 Style="{StaticResource GscTabControl}"
+                                TabStripPlacement="None"
+                                KeyboardNavigation.TabNavigation="Local"
+                                AutomationProperties.Name="当前工作区内容"
                                 SelectionChanged="OnDetailsTabSelectionChanged">
                         <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource GscTabItem}"/></TabControl.Resources>
                         <TabItem x:Name="OverviewWorkspaceTab" Header="首页概览">
