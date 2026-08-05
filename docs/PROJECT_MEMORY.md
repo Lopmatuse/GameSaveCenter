@@ -11,6 +11,8 @@
 
 > UI-093/UI-094：修改器中心的 FLiNG 在线库/可下载版本与存档历史/版本详情均按 demo 采用“内容列表 + 右侧检查器”的信息层级。宽屏使用三列 Grid，窄窗口通过 `ApplyResponsiveLayout` 将检查器堆叠到列表下方；列表保持 DataGrid/ListBox 虚拟化和内部滚动，所有搜索、下载、备注、锁定、比较、恢复和撤销命令继续由父级 Dashboard DataContext 提供。
 
+> UI-095：媒体中心的“当前游戏媒体”必须保持 demo 的列表 + 检查器结构。`MediaCurrentLayout` 在宽屏使用左表格/右预览检查器，1100 DIP 以下将检查器堆叠到表格下方；`MediaInspectorScrollViewer` 仍是有限局部滚动通道，不能恢复成页面级无限滚动，也不能移除批量收藏、备注、打开、重新归类等现有命令。
+
 > UI-064：六个提取工作区不再使用根级 `GscPageScrollViewer` 承载整页；根布局必须由 Grid 的 Auto/* 行测量，DataGrid/ListBox 在自身模板内保留虚拟化和内部滚动。检查器、策略、诊断长文本等局部内容可以使用 `GscInspectorScrollViewer` 或有限的局部资源，但不得把工作区重新放回无限测量的页面 ScrollViewer。维护中心设备状态与异常审计使用星号行分配表格空间，不能恢复固定 `Height` 视口或 StackPanel 包裹表格。
 
 > 0.6.57 进一步阻止 100+ 游戏库在分段导入期间提前创建 Worker/目录同步任务，并将 Playnite 数据库切换/关闭期间的游戏数量读取变成安全回退。0.6.56 修复大库在 Playnite 分段导入期间仍被误判为空/小库的启动竞态，并在大库 Dashboard 卸载后停止隐藏通知轮询。0.6.55 将总览“需关注”指标改为可访问的圆角导航卡。0.6.54 让 Worker 启动日志同时写出期望程序集版本，便于和初始化日志核对。用户提供的崩溃日志实际加载的是 0.6.22；排查 900+ 游戏库时必须先确认 Playnite 与 `worker-launch.log` 都报告 0.6.57。

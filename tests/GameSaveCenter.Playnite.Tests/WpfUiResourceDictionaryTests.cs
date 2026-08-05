@@ -861,7 +861,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("RequiresAdmin", trainer);
         Assert.Contains("TrainerReleasesLayout.RowDefinitions", trainerCode);
         Assert.Contains("x:Name=\"MediaInspectorScrollViewer\"", media);
-        Assert.Contains("VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\" MaxHeight=\"240\"", media);
+        Assert.Contains("VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\" MaxHeight=\"520\"", media);
         Assert.Contains("MediaInspectorScrollViewer.MaxHeight = Math.Max(190, Math.Min(300, height * 0.42))", mediaCode);
         Assert.Contains("MinHeight=\"90\" MaxHeight=\"220\"", maintenance);
         Assert.Contains("TaskSummaryPanel.Columns", taskCode);
@@ -953,7 +953,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Property=\"EnableRowVirtualization\" Value=\"True\"", media);
         Assert.Contains("Text=\"{Binding MediaSummary.TotalSizeDisplay, Mode=OneWay}\"", media);
         Assert.DoesNotContain("MediaSummary.TotalSizeDisplay, Mode=TwoWay", media);
-        Assert.Contains("var stack = width < 1180", mediaCode);
+        Assert.Contains("var stack = width < 1100", mediaCode);
         Assert.Contains("Grid.SetRow(MediaMetadataPanel, stack ? 1 : 0)", mediaCode);
     }
 

@@ -127,21 +127,22 @@
                 </Grid>
             </TabItem>
             <TabItem Header="当前游戏媒体">
-                <Grid Margin="0,12,0,0">
-                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <WrapPanel Margin="0,0,0,10">
+                <Grid x:Name="MediaCurrentLayout" Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="330"/></Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="0"/></Grid.RowDefinitions>
+                    <WrapPanel Grid.ColumnSpan="3" Margin="0,0,0,10">
                         <Border Style="{DynamicResource GscRedesignCounterPill}" Margin="0,0,8,8"><TextBlock><Run Text="媒体 "/><Run Text="{Binding MediaSummary.TotalCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
                         <Border Style="{DynamicResource GscRedesignCounterPill}" Margin="0,0,8,8"><TextBlock><Run Text="截图 "/><Run Text="{Binding MediaSummary.ScreenshotCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
                         <Border Style="{DynamicResource GscRedesignCounterPill}" Margin="0,0,8,8"><TextBlock><Run Text="录像 "/><Run Text="{Binding MediaSummary.VideoCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
                         <Border Style="{DynamicResource GscRedesignCounterPill}" Margin="0,0,0,8"><TextBlock><Run Text="占用 "/><Run Text="{Binding MediaSummary.TotalSizeDisplay, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>
                     </WrapPanel>
-                    <Border Grid.Row="1" Style="{DynamicResource GscSurface}" Padding="10" Margin="0,0,0,10">
+                    <Border Grid.Row="1" Grid.ColumnSpan="3" Style="{DynamicResource GscSurface}" Padding="10" Margin="0,0,0,10">
                         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="170"/></Grid.ColumnDefinitions>
                             <TextBox Style="{DynamicResource GscWpfUiTextBox}" Text="{Binding MediaSearchText, UpdateSourceTrigger=PropertyChanged}" ToolTip="按文件名、备注或来源搜索当前游戏媒体"/>
                             <ComboBox Grid.Column="1" Style="{DynamicResource GscWpfUiComboBox}" ItemsSource="{Binding MediaFilterOptions}" SelectedItem="{Binding MediaFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="8,0,0,0" ToolTip="媒体类型筛选"/>
                         </Grid>
                     </Border>
-                    <Border Grid.Row="2" Style="{StaticResource MediaTableFrame}" MinHeight="190">
+                    <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MediaTableFrame}" MinHeight="190">
                         <Grid>
                         <DataGrid x:Name="MediaGrid" Style="{StaticResource MediaDataGrid}" ItemsSource="{Binding MediaView}" SelectedItem="{Binding SelectedMedia}" SelectionMode="Extended">
                             <DataGrid.Columns>
@@ -167,7 +168,7 @@
                         </TextBlock>
                         </Grid>
                     </Border>
-                    <ScrollViewer x:Name="MediaInspectorScrollViewer" Style="{DynamicResource GscInspectorScrollViewer}" Grid.Row="3" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="240" Margin="0,10,0,0">
+                    <ScrollViewer x:Name="MediaInspectorScrollViewer" Style="{DynamicResource GscInspectorScrollViewer}" Grid.Row="2" Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" MaxHeight="520">
                     <Border x:Name="MediaInspectorPanel" Style="{DynamicResource GscSurface}" CornerRadius="12" Padding="12">
                         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="170"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                             <Border x:Name="MediaPreviewPanel" Grid.Column="0" Height="104" CornerRadius="10" ClipToBounds="True" Background="{DynamicResource GscControlFillBrush}" Margin="0,0,12,0"><Grid><TextBlock Text="选择截图或录像可在此预览" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" Margin="14" Foreground="{DynamicResource GscSecondaryTextBrush}"/><Image Source="{Binding SelectedMedia.ArchivePath, Converter={StaticResource MediaThumbnailConverter}}" Stretch="UniformToFill"><Image.Style><Style TargetType="Image"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding SelectedMedia.Kind}" Value="{x:Static contracts:MediaKind.Screenshot}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Image.Style></Image><MediaElement Source="{Binding SelectedMedia.ArchivePath, Converter={StaticResource MediaVideoSourceConverter}}" LoadedBehavior="Play" UnloadedBehavior="Stop" IsMuted="True" Stretch="UniformToFill" ScrubbingEnabled="True"><MediaElement.Style><Style TargetType="MediaElement"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding SelectedMedia.Kind}" Value="{x:Static contracts:MediaKind.VideoClip}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></MediaElement.Style></MediaElement></Grid></Border>
