@@ -47,7 +47,7 @@
                     <TextBlock Text="当压缩包或目录中包含多个可执行文件时，GameSaveCenter 会要求你明确选择主程序；未确认前不会创建工具绑定。" Style="{DynamicResource GscCaptionStyle}" Margin="0,5,0,0" TextWrapping="Wrap"/>
                     <Border Style="{DynamicResource GscRedesignInfoBand}" Padding="12" Margin="0,16,0,0">
                         <StackPanel>
-                            <TextBlock FontWeight="SemiBold"><Run Text="待确认导入："/><Run Text="{Binding HasPendingGameToolEntrySelection, Mode=OneWay}"/></TextBlock>
+                            <TextBlock FontWeight="SemiBold"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Text" Value="暂无待确认导入"/><Style.Triggers><DataTrigger Binding="{Binding HasPendingGameToolEntrySelection, Mode=OneWay}" Value="True"><Setter Property="Text" Value="当前有一个导入项目待确认"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
                             <TextBlock Text="请选择要启动的 EXE，然后确认导入；取消会清理本次临时导入，不影响已有工具。" Style="{DynamicResource GscCaptionStyle}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>

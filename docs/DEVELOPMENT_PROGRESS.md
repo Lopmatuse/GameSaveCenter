@@ -21,6 +21,7 @@
 - [x] UI-105：维护中心新增 demo 同款“保留策略”只读预览页；复用当前游戏和 Worker 返回的真实保留摘要/数量，提供刷新入口并明确不会自动删除；不改变现有诊断、审计、设备和进程映射页。源码校验、Release 自动测试和 Release 构建通过；真实 Playnite 宿主、DPI、主题渲染仍需用户环境验证。
 - [x] UI-106：维护中心“异常与审计”改为 demo 风格左侧诊断列表 + 右侧诊断详情/最近审计检查器；宽屏并列，窄窗口堆叠，保留 Findings、SelectedFinding、Audit 及所有既有诊断数据绑定。源码校验、Release 自动测试和 Release 构建通过；真实 Playnite 宿主、DPI、主题渲染仍需用户环境验证。
 - [x] UI-107：修改器中心对齐 demo 页签结构，将“已安装”更名为“已绑定工具”，新增独立“导入确认”页签并复用真实候选选择、确认和取消命令；原已安装页内嵌提示保留兼容。源码校验、Release 自动测试和 Release 构建通过；真实 Playnite 宿主、DPI、主题渲染仍需用户环境验证。
+- [x] UI-108：修复 Playnite 实机日志暴露的 `Dock` 枚举崩溃风险；设置页 TabControl 模板不再把可能异常的 `TabStripPlacement` 直接转换为 `DockPanel.Dock`，改为安全的 Left 默认值和 Top 触发器，保留紧凑布局的 Top/Left 切换。源码校验、Release 自动测试和 Release 构建通过；需要用户重新安装当前构建验证 Playnite 启动。
 
 - [x] UI-064：按 WPF Demo 的布局契约移除六个工作区的根级页面滚动；设备状态和异常审计改用 Grid 星号行，DataGrid/ListBox 保留内部虚拟化滚动；更新源码门禁与回归测试。Release 构建 0 警告/0 错误、Core 13、Worker 23、Playnite 107 共 143 项测试通过；真实 Playnite 宿主、DPI、主题和 900+ 游戏库回归仍待用户环境验证。
 

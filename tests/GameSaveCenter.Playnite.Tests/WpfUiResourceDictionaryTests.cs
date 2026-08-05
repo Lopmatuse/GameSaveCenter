@@ -2150,6 +2150,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("tab.MinWidth = compact ? (narrow ? 132 : 158) : 218", settingsCode);
         Assert.Contains("x:Name=\"SettingsDemoShell\" Style=\"{StaticResource GscShellStyle}\"", settings);
         Assert.Contains("MaxWidth=\"1360\" HorizontalAlignment=\"Stretch\"", settings);
+        var redesign = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "Redesign.xaml"));
+        Assert.Contains("DockPanel.Dock=\"Left\"", redesign);
+        Assert.DoesNotContain("DockPanel.Dock=\"{TemplateBinding TabStripPlacement}\"", redesign);
     }
 
     [Fact]

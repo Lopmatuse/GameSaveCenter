@@ -31,6 +31,8 @@
 
 > UI-107：修改器中心的第一个页签使用“已绑定工具”语义，并增加“导入确认”页签；确认页只绑定现有 `ImportEntryCandidates`、`SelectedImportEntryCandidate`、`ConfirmGameToolImportCommand` 和 `CancelGameToolImportCommand`，不创建新的导入状态或后台逻辑。
 
+> UI-108：Playnite 运行日志曾出现 `FormatException: None 不是 Dock 的有效值`。`GscRedesignSettingsTabControl` 不再使用 `DockPanel.Dock="{TemplateBinding TabStripPlacement}"`，避免异常值在 BAML/Arrange 阶段崩溃；模板以 Left 为默认，只有 `TabStripPlacement=Top` 触发器切换到 Top。当前修复需要重新构建/安装后在 Playnite 验证。
+
 > UI-101：媒体中心当前游戏媒体列表使用虚拟化 `ListBox` 卡片替代密集 DataGrid；`MediaGrid` 仍提供 `SelectedItem`/`SelectedItems` 给预览、元数据和批量命令，`MediaView`、缩略图/视频转换器、内部滚动和 Recycling 必须保持。卡片只使用不透明/轻表面，不对列表项应用 BlurEffect。
 
 > UI-102：媒体来源规则使用虚拟化 `ListBox` 来源卡片替代 DataGrid；每项仍通过父级 `UpdateMediaSourceCommand`/`DeleteMediaSourceCommand` 传入真实来源对象，目录使用省略和 Tooltip，表单继续保留独立有限滚动通道。
