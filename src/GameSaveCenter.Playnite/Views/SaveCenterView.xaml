@@ -18,7 +18,14 @@
     </UserControl.Resources>
     <ScrollViewer x:Name="SavePageScrollViewer" Style="{DynamicResource GscPageScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" CanContentScroll="False">
     <Grid Margin="0,12,0,12">
-        <TabControl Style="{StaticResource SaveTabControl}"><TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource SaveTabItem}"/></TabControl.Resources>
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <Border x:Name="SaveWorkspaceHero" Grid.Row="0" Style="{DynamicResource GscRedesignWorkspaceHeroCard}">
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel><TextBlock Text="SAVES" Style="{DynamicResource GscRedesignHeroEyebrow}"/><TextBlock Text="存档中心" Style="{DynamicResource GscRedesignHeroTitle}"/><TextBlock Text="历史版本、候选路径和当前游戏备份策略都保留真实命令；恢复仍走现有安全确认与快照流程。" Style="{DynamicResource GscRedesignSectionSubtitle}" Margin="0,6,18,0"/></StackPanel>
+                <WrapPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right"><Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,8"><TextBlock><Run Text="历史 "/><Run Text="{Binding Backups.Count, Mode=OneWay}"/></TextBlock></Border><Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,0,8"><TextBlock><Run Text="候选 "/><Run Text="{Binding SaveCandidates.Count, Mode=OneWay}"/></TextBlock></Border></WrapPanel>
+            </Grid>
+        </Border>
+        <TabControl Grid.Row="1" Style="{StaticResource SaveTabControl}"><TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource SaveTabItem}"/></TabControl.Resources>
             <TabItem Header="历史版本"><Grid Margin="0,12,0,0"><Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                 <Border Style="{StaticResource SaveTableFrame}">
                     <Grid>

@@ -2036,6 +2036,35 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void ExtractedWorkspacesUseTheSharedDemoStyleHeroWithoutReplacingTheirRealContent()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var viewsRoot = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views");
+        var workspaceViews = new[]
+        {
+            "SaveCenterView.xaml",
+            "TrainerCenterView.xaml",
+            "MediaCenterView.xaml",
+            "TaskCenterView.xaml",
+            "MaintenanceView.xaml"
+        };
+
+        foreach (var view in workspaceViews)
+        {
+            var xaml = File.ReadAllText(Path.Combine(viewsRoot, view));
+            Assert.Contains("Style=\"{DynamicResource GscRedesignWorkspaceHeroCard}\"", xaml);
+            Assert.Contains("Style=\"{DynamicResource GscRedesignHeroEyebrow}\"", xaml);
+            Assert.Contains("Style=\"{DynamicResource GscRedesignHeroTitle}\"", xaml);
+        }
+
+        Assert.Contains("ItemsSource=\"{Binding Backups}\"", File.ReadAllText(Path.Combine(viewsRoot, "SaveCenterView.xaml")));
+        Assert.Contains("ItemsSource=\"{Binding GameTools}\"", File.ReadAllText(Path.Combine(viewsRoot, "TrainerCenterView.xaml")));
+        Assert.Contains("ItemsSource=\"{Binding MediaView}\"", File.ReadAllText(Path.Combine(viewsRoot, "MediaCenterView.xaml")));
+        Assert.Contains("ItemsSource=\"{Binding TasksView}\"", File.ReadAllText(Path.Combine(viewsRoot, "TaskCenterView.xaml")));
+        Assert.Contains("ItemsSource=\"{Binding Findings}\"", File.ReadAllText(Path.Combine(viewsRoot, "MaintenanceView.xaml")));
+    }
+
+    [Fact]
     public void FinalRedesignResourceDictionaryParsesInsideThePluginScope()
     {
         Exception? exception = null;
@@ -2055,6 +2084,9 @@ public sealed class WpfUiResourceDictionaryTests
 </ResourceDictionary>");
 
                 Assert.IsType<Style>(resources["GscRedesignSectionCard"]);
+                Assert.IsType<Style>(resources["GscRedesignWorkspaceHeroCard"]);
+                Assert.IsType<Style>(resources["GscRedesignHeroEyebrow"]);
+                Assert.IsType<Style>(resources["GscRedesignHeroTitle"]);
                 Assert.IsType<Style>(resources["GscRedesignSettingsTabControl"]);
                 Assert.IsType<Style>(resources["GscRedesignSettingsTabItem"]);
             }

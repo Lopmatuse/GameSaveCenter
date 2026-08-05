@@ -64,6 +64,30 @@
         <Setter Property="Effect" Value="{DynamicResource GscSurfaceEffect}"/>
     </Style>
 
+    <!-- Demo-inspired workspace hero used by the real Playnite pages. It is a
+         lightweight reading surface only: pages keep their existing commands,
+         bindings and virtualized data controls below this header. -->
+    <Style x:Key="GscRedesignWorkspaceHeroCard" TargetType="Border" BasedOn="{StaticResource GscRedesignHeroCard}">
+        <Setter Property="Padding" Value="18,16"/>
+        <Setter Property="Margin" Value="0,0,0,12"/>
+        <Setter Property="MinHeight" Value="92"/>
+        <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
+
+    <Style x:Key="GscRedesignHeroEyebrow" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource GscAccentBrush}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style x:Key="GscRedesignHeroTitle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Margin" Value="0,5,0,0"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
     <!-- Floating picker follows the demo handoff: it is an in-host material surface,
          not a WPF Popup or a default Button overlay, so Playnite cannot paint a
          system-blue hover layer over the page behind it. -->
