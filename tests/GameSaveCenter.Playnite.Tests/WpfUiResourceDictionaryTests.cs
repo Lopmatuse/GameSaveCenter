@@ -816,6 +816,20 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void TrainerCenterMatchesDemoImportConfirmationTab()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var trainerPath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml");
+        var trainerText = File.ReadAllText(trainerPath);
+
+        Assert.Contains("<TabItem Header=\"已绑定工具\">", trainerText);
+        Assert.Contains("<TabItem Header=\"导入确认\">", trainerText);
+        Assert.Contains("ItemsSource=\"{Binding ImportEntryCandidates}\"", trainerText);
+        Assert.Contains("Command=\"{Binding ConfirmGameToolImportCommand}\"", trainerText);
+        Assert.Contains("Command=\"{Binding CancelGameToolImportCommand}\"", trainerText);
+    }
+
+    [Fact]
     public void HeaderActionsKeepAnInternalHorizontalScrollChannelAtNarrowWidths()
     {
         var repositoryRoot = FindRepositoryRoot();
@@ -1259,14 +1273,17 @@ public sealed class WpfUiResourceDictionaryTests
 
         foreach (var target in targets)
         {
-            var comboBox = comboBoxes.SingleOrDefault(target.Match);
-            Assert.NotNull(comboBox);
-            Assert.True(
-                comboBox!.Descendants().Any(element =>
-                    element.Name.LocalName == "TextBlock"
-                    && ((element.Attribute("Style")?.Value.IndexOf("GscComboBoxLongText", StringComparison.Ordinal) ?? -1) >= 0
-                        || element.Attribute("TextTrimming")?.Value == "CharacterEllipsis")),
-                "受限宽度下拉选择未复用 GscComboBoxLongText：" + target.Description);
+            var matches = comboBoxes.Where(target.Match).ToList();
+            Assert.NotEmpty(matches);
+            foreach (var comboBox in matches)
+            {
+                Assert.True(
+                    comboBox.Descendants().Any(element =>
+                        element.Name.LocalName == "TextBlock"
+                        && ((element.Attribute("Style")?.Value.IndexOf("GscComboBoxLongText", StringComparison.Ordinal) ?? -1) >= 0
+                            || element.Attribute("TextTrimming")?.Value == "CharacterEllipsis")),
+                    "受限宽度下拉选择未复用 GscComboBoxLongText：" + target.Description);
+            }
         }
 
         Assert.DoesNotContain("DisplayMemberPath=\"Display\"", combined);
