@@ -1371,9 +1371,10 @@ public sealed class WpfUiResourceDictionaryTests
         var mediaPath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml");
         var media = XDocument.Parse(File.ReadAllText(mediaPath));
         var tabItem = media.Descendants().Single(element => element.Name.LocalName == "TabItem" && element.Attribute("Header")?.Value == "来源规则");
-        var dataGrid = tabItem.Descendants().Single(element => element.Name.LocalName == "DataGrid");
-        Assert.DoesNotContain(dataGrid.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
-        Assert.Contains(dataGrid.Ancestors(), ancestor => ancestor.Name.LocalName == "Border");
+        var sourceList = tabItem.Descendants().Single(element => element.Name.LocalName == "ListBox" && element.Attribute("ItemsSource")?.Value == "{Binding MediaSources}");
+        Assert.DoesNotContain(sourceList.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
+        Assert.Contains(sourceList.Ancestors(), ancestor => ancestor.Name.LocalName == "Border");
+        Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", File.ReadAllText(mediaPath));
         Assert.Contains(tabItem.Descendants(), element => element.Name.LocalName == "ScrollViewer" && element.Attribute("MaxHeight")?.Value == "190");
         Assert.Contains(tabItem.Descendants(), element => element.Name.LocalName == "RowDefinition" && element.Attribute("Height")?.Value == "*");
         Assert.Contains("Property=\"MinHeight\" Value=\"{DynamicResource GscWorkspaceTableMinHeight}\"", File.ReadAllText(mediaPath));
