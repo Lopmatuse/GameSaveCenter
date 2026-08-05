@@ -1,3 +1,8 @@
+# 0.6.54 Development Preview
+
+- Worker 启动日志现在会记录本次插件期望的 Worker 程序集版本，和初始化日志中的实际版本配对，便于定位 Playnite 扩展目录复用旧 Worker 的问题。
+- 这是诊断增强，不改变大库缓存优先、版本握手和按需匹配行为。
+
 # 0.6.53 Development Preview
 
 - Task and overview tables now render themed rounded status pills instead of a bare status dot/text pair.

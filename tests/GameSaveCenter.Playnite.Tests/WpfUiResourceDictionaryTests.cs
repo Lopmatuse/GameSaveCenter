@@ -1529,6 +1529,17 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void WorkerLaunchLogRecordsExpectedVersionForStaleInstallationDiagnostics()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var launcherCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Infrastructure", "WorkerLauncher.cs"));
+
+        Assert.Contains("expectedVersionLabel", launcherCode);
+        Assert.Contains("expected GameSaveCenter Worker version", launcherCode);
+        Assert.Contains("AppendLog(logPath", launcherCode);
+    }
+
+    [Fact]
     public void LargeLibraryDashboardDelaysInitialFullSynchronization()
     {
         var repositoryRoot = FindRepositoryRoot();

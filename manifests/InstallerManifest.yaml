@@ -1,10 +1,11 @@
 AddonId: 66e9f2d7-67bb-43ef-b62a-b8e60734fcec
 Packages:
-  - Version: 0.6.53
+  - Version: 0.6.54
     RequiredApiVersion: 6.16.0
     ReleaseDate: 2026-08-05
-    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.53/GameSaveCenter-0.6.53.pext
+    PackageUrl: https://github.com/Nikilua/GameSaveCenter/releases/download/v0.6.54/GameSaveCenter-0.6.54.pext
     Changelog:
+      - 0.6.54：Worker 启动日志写入期望程序集版本，便于确认 Playnite 是否仍复用了旧 Worker。
       - 0.6.53：任务、概览和维护表格使用可读的主题状态胶囊和诊断等级文本。
       - 0.6.52：修改器列表使用可读的自动启动状态，避免直接显示 True/False。
       - 0.6.51：存档历史使用可读状态胶囊；Worker 启动日志写入程序集版本，便于排查 Playnite 仍加载旧包的问题。

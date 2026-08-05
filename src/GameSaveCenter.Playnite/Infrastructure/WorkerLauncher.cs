@@ -98,7 +98,8 @@ namespace GameSaveCenter.Playnite.Infrastructure
                     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                     "GameSaveCenter", "Logs", "worker-launch.log");
                 Directory.CreateDirectory(Path.GetDirectoryName(logPath));
-                AppendLog(logPath, $"Starting Worker: {fullExecutable}");
+                var expectedVersionLabel = string.IsNullOrWhiteSpace(expectedVersion) ? "unknown" : expectedVersion;
+                AppendLog(logPath, $"Starting Worker: {fullExecutable} (expected GameSaveCenter Worker version {expectedVersionLabel})");
 
                 runningWorker?.Dispose();
                 var worker = new Process
