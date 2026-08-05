@@ -73,25 +73,18 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="0,12,0,12">
+    <Grid Margin="0,0,0,0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Border x:Name="MediaWorkspaceHero" Grid.Row="0" Style="{DynamicResource GscRedesignWorkspaceHeroCard}">
-            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                <StackPanel><TextBlock Text="MEDIA" Style="{DynamicResource GscRedesignHeroEyebrow}"/><TextBlock Text="媒体中心" Style="{DynamicResource GscRedesignHeroTitle}"/><TextBlock Text="公共截图、录像和媒体库继续使用现有归类、收藏、备注和来源规则；这里只调整工作区层级。" Style="{DynamicResource GscRedesignSectionSubtitle}" Margin="0,6,18,0"/></StackPanel>
-                <WrapPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right"><Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,8"><TextBlock><Run Text="媒体 "/><Run Text="{Binding MediaSummary.TotalCount, Mode=OneWay}"/></TextBlock></Border><Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,0,8"><TextBlock><Run Text="待归类 "/><Run Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}"/></TextBlock></Border></WrapPanel>
-            </Grid>
-        </Border>
-        <UniformGrid x:Name="MediaSummaryPanel" Grid.Row="1" Columns="4" Margin="0,0,0,12">
+        <UniformGrid x:Name="MediaSummaryPanel" Grid.Row="0" Columns="4" Margin="0,0,0,12">
             <Border Style="{DynamicResource GscRedesignSectionCard}" Padding="13" Margin="0,0,10,0"><StackPanel><TextBlock Text="媒体总数" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding MediaSummary.TotalCount, Mode=OneWay}" FontSize="21" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
             <Border Style="{DynamicResource GscRedesignSectionCard}" Padding="13" Margin="0,0,10,0"><StackPanel><TextBlock Text="截图 / 录像" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock FontSize="18" FontWeight="SemiBold" Margin="0,4,0,0"><Run Text="{Binding MediaSummary.ScreenshotCount, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding MediaSummary.VideoCount, Mode=OneWay}"/></TextBlock></StackPanel></Border>
             <Border Style="{DynamicResource GscRedesignSectionCard}" Padding="13" Margin="0,0,10,0"><StackPanel><TextBlock Text="收藏" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding MediaSummary.FavoriteCount, Mode=OneWay}" FontSize="21" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
             <Border Style="{DynamicResource GscRedesignSectionCard}" Padding="13"><StackPanel><TextBlock Text="待归类" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}" FontSize="21" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
         </UniformGrid>
-        <TabControl Grid.Row="2" Style="{StaticResource MediaTabControl}">
+        <TabControl Grid.Row="1" Style="{StaticResource MediaTabControl}">
             <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource MediaTabItem}"/></TabControl.Resources>
             <TabItem Header="待归类">
                 <Grid Margin="0,12,0,0">

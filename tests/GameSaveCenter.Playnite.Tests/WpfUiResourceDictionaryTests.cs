@@ -2102,9 +2102,19 @@ public sealed class WpfUiResourceDictionaryTests
         foreach (var view in workspaceViews)
         {
             var xaml = File.ReadAllText(Path.Combine(viewsRoot, view));
-            Assert.Contains("Style=\"{DynamicResource GscRedesignWorkspaceHeroCard}\"", xaml);
-            Assert.Contains("Style=\"{DynamicResource GscRedesignHeroEyebrow}\"", xaml);
-            Assert.Contains("Style=\"{DynamicResource GscRedesignHeroTitle}\"", xaml);
+            // Save/Trainer/Media use the Dashboard's single global game header to avoid
+            // duplicating a second hero card. Global workspaces keep their own demo-style
+            // hero because they have no selected-game header.
+            if (view is "TaskCenterView.xaml" or "MaintenanceView.xaml")
+            {
+                Assert.Contains("Style=\"{DynamicResource GscRedesignWorkspaceHeroCard}\"", xaml);
+                Assert.Contains("Style=\"{DynamicResource GscRedesignHeroEyebrow}\"", xaml);
+                Assert.Contains("Style=\"{DynamicResource GscRedesignHeroTitle}\"", xaml);
+            }
+            else
+            {
+                Assert.Contains("BasedOn=\"{StaticResource GscRedesignWorkspaceTabControl}\"", xaml);
+            }
         }
 
         Assert.Contains("ItemsSource=\"{Binding Backups}\"", File.ReadAllText(Path.Combine(viewsRoot, "SaveCenterView.xaml")));

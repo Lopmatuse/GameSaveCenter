@@ -898,3 +898,8 @@ UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，
 - 生产 `Redesign.xaml` 提供 `GscReadingCardStyle`、`GscSubCardStyle`、`GscButtonStyle`、`GscPrimaryButtonStyle` 和 `GscTabControlStyle` 等 demo 兼容别名，避免迁移页面时复制第二套主题。
 - Save/Trainer/Media/Maintenance 的工作区 TabControl 和 TabItem 必须显式 Stretch；内容由内部有限 Grid 行和表格自身滚动承载，不能因 desired-size 收缩。
 - 卡片表面应接近不透明，列表行和大型滚动区域不得添加 BlurEffect；主题、透明关闭和高对比度仍由运行时 palette 决定。
+
+### UI-089：游戏作用域页面不要重复 Hero
+
+- Dashboard 已提供唯一当前游戏上下文和操作头；Save/Trainer/Media 工作区应直接进入自己的内容页签，避免额外 Hero 在普通窗口中挤压表格和检查器。
+- Tasks/Maintenance 是全局工作区，可以保留独立 Hero。移除重复 Hero 不得移除任何真实绑定或命令。
