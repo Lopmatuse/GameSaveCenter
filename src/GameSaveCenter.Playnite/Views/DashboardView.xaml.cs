@@ -401,6 +401,13 @@ namespace GameSaveCenter.Playnite.Views
             var comfortableHeight = height >= 760;
             PageSubtitleText.Visibility = Visibility.Visible;
             PageSubtitleText.Opacity = comfortableHeight ? 1d : 0.92d;
+            if (DemoFooter != null)
+            {
+                // Keep the Demo's footer hierarchy, but do not let its secondary note
+                // consume the last few pixels on a short Playnite host.
+                DemoFooter.Padding = height < 700 ? new Thickness(10, 7, 10, 7) : new Thickness(14, 10, 14, 10);
+                DemoFooterHint.Visibility = width < 900 ? Visibility.Collapsed : Visibility.Visible;
+            }
             if (OverviewWorkspaceView != null)
             {
                 var stackOverview = width < 1180;

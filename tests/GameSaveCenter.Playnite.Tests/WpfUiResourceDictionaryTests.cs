@@ -2193,6 +2193,19 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void DashboardKeepsDemoFooterHierarchyWithoutReintroducingStatusBarLayout()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
+
+        Assert.Contains("x:Name=\"DemoFooter\" Grid.Row=\"3\"", dashboard);
+        Assert.Contains("x:Name=\"DemoFooterNote\"", dashboard);
+        Assert.Contains("x:Name=\"DemoFooterHint\"", dashboard);
+        Assert.Contains("TextTrimming=\"CharacterEllipsis\"", dashboard);
+        Assert.Contains("x:Name=\"StatusPill\" Visibility=\"Collapsed\"", dashboard);
+    }
+
+    [Fact]
     public void ExtractedWorkspacesUseTheSharedDemoLayoutWithoutReplacingTheirRealContent()
     {
         var repositoryRoot = FindRepositoryRoot();

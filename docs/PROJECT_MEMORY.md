@@ -1,7 +1,9 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-08-05
-当前版本：`0.6.65-development-preview`
+当前版本：`0.6.66-development-preview`
+
+> UI-114：Dashboard 的 `DemoFooter` 与 Demo 工作区底部表面保持一致；`StatusPill` 仅作为隐藏兼容节点保留，用户可见说明使用 `DemoFooterNote`/`DemoFooterHint`，短窗口由 `ApplyResponsiveLayout` 收紧并隐藏次要提示。
 
 > UI-113：工作区宿主使用透明的 Demo 兼容 PageHost（`GscWorkspaceHostSurface`），不再在六个工作区外层叠加厚重 Hero 卡片；顶部标题区仍由 `HeaderSurface` 提供统一表面。该改动只调整 WPF 外壳，不改变 Worker、IPC、命令、绑定或持久化。
 

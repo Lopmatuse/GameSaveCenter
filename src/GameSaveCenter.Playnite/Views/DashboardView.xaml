@@ -726,7 +726,7 @@
                             </Border>
                             <StackPanel x:Name="SidebarBrandText" Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="GameSaveCenter" FontWeight="SemiBold" FontSize="14"/>
-<TextBlock x:Name="SidebarVersionText" Text="v0.6.65" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+<TextBlock x:Name="SidebarVersionText" Text="v0.6.66" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
@@ -1269,9 +1269,30 @@
             </Border>
         </Grid>
 
-        <Grid Grid.Row="3" Margin="0" Visibility="Collapsed">
+        <Border x:Name="DemoFooter" Grid.Row="3" Margin="0,12,0,0"
+                Background="{DynamicResource GscGlassFillBrush}"
+                BorderBrush="{DynamicResource GscGlassStrokeBrush}"
+                BorderThickness="1,1,1,0"
+                CornerRadius="0,0,20,20"
+                Padding="14,10"
+                SnapsToDevicePixels="True">
+        <Grid>
             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-            <Border x:Name="StatusPill" Background="{DynamicResource GscGlassFillBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}"
+            <TextBlock x:Name="DemoFooterNote"
+                       Text="本地备份是主副本；恢复、删除和远端操作始终需要人工确认。"
+                       Foreground="{DynamicResource GscSecondaryTextBrush}"
+                       TextTrimming="CharacterEllipsis"
+                       ToolTip="本地备份是主副本；恢复、删除和远端操作始终需要人工确认。"
+                       VerticalAlignment="Center"/>
+            <TextBlock x:Name="DemoFooterHint"
+                       Grid.Column="1"
+                       Text="原生 WPF · 内部列表保留滚动"
+                       Foreground="{DynamicResource GscSecondaryTextBrush}"
+                       TextTrimming="CharacterEllipsis"
+                       ToolTip="原生 WPF · 内部列表保留滚动"
+                       Margin="18,0,0,0"
+                       VerticalAlignment="Center"/>
+            <Border x:Name="StatusPill" Visibility="Collapsed" Background="{DynamicResource GscGlassFillBrush}" BorderBrush="{DynamicResource GscGlassStrokeBrush}"
                     BorderThickness="1" CornerRadius="12" Padding="10,6" HorizontalAlignment="Left" MaxWidth="980">
                 <DockPanel LastChildFill="True">
                     <Border Width="8" Height="8" CornerRadius="4" Margin="0,0,7,0" DockPanel.Dock="Left" VerticalAlignment="Center">
@@ -1283,7 +1304,7 @@
                                TextTrimming="CharacterEllipsis" ToolTip="{Binding StatusMessage, Mode=OneWay}"/>
                 </DockPanel>
             </Border>
-            <Border Grid.Column="1" Background="{DynamicResource GscAccentTintBrush}" BorderBrush="{DynamicResource GscAccentTintStrongBrush}"
+            <Border Grid.Column="1" Visibility="Collapsed" Background="{DynamicResource GscAccentTintBrush}" BorderBrush="{DynamicResource GscAccentTintStrongBrush}"
                     BorderThickness="1" CornerRadius="12" Padding="10,6" Margin="12,0,0,0">
                 <Border.Style>
                     <Style TargetType="Border">
@@ -1299,6 +1320,7 @@
                 </StackPanel>
             </Border>
         </Grid>
+        </Border>
             </Grid>
         </Grid>
         </Border>
