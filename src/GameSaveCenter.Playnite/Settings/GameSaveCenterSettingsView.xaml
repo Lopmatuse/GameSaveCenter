@@ -41,19 +41,22 @@
         <ScrollViewer x:Name="SettingsScroller" Style="{DynamicResource GscPageScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" KeyboardNavigation.TabNavigation="Continue">
             <Grid x:Name="SettingsShell" Opacity="0" Margin="28,22,32,30" MaxWidth="1240" HorizontalAlignment="Left">
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                <Grid x:Name="SettingsHeader" Margin="0,0,0,6">
+                <Border x:Name="SettingsHeader" Style="{DynamicResource GscRedesignWorkspaceHeroCard}">
+                <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <Border x:Name="SettingsHeaderIcon" Width="46" Height="46" CornerRadius="15" Background="{DynamicResource GscAccentBrush}" Margin="0,0,12,0">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE713;" Foreground="{DynamicResource GscOnAccentTextBrush}" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="GameSaveCenter 设置" FontSize="25" FontWeight="SemiBold"/>
+                        <TextBlock Text="SETTINGS" Style="{DynamicResource GscRedesignHeroEyebrow}"/>
+                        <TextBlock Text="GameSaveCenter 设置" Style="{DynamicResource GscRedesignHeroTitle}"/>
                         <TextBlock x:Name="SettingsHeaderSubtitle" Text="工具路径、版本策略、外观效果与自动化安全" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,3,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                     <Border x:Name="SettingsSaveHint" Grid.Column="2" Style="{StaticResource GscRedesignContextPill}" VerticalAlignment="Center" Margin="14,0,0,0">
                         <TextBlock Text="由 Playnite 的保存按钮提交" Foreground="{DynamicResource GscSecondaryTextBrush}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
                     </Border>
                 </Grid>
+                </Border>
                 <TextBlock Grid.Row="1" Text="Playnite 管理游戏入口，Worker 执行存档、媒体与云端任务。切换左侧分类只改变显示内容，不会立即保存或执行任何业务操作。"
                            Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,5,0,18" TextWrapping="Wrap"/>
                 <TabControl x:Name="SettingsSectionTabs" Grid.Row="2" Style="{StaticResource GscRedesignSettingsTabControl}" ItemContainerStyle="{StaticResource GscRedesignSettingsTabItem}" SelectedIndex="0">

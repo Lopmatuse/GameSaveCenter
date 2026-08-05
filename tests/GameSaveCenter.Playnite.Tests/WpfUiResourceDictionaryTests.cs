@@ -2024,6 +2024,8 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("x:Name=\"SettingsSectionTabs\"", settings);
         Assert.Contains("Style=\"{StaticResource GscRedesignSettingsTabControl}\"", settings);
+        Assert.Contains("x:Name=\"SettingsHeader\" Style=\"{DynamicResource GscRedesignWorkspaceHeroCard}\"", settings);
+        Assert.Contains("Style=\"{DynamicResource GscRedesignHeroEyebrow}\"", settings);
         Assert.Contains("由 Playnite 的保存按钮提交", settings);
         Assert.Contains("Text=\"{Binding WorkerExecutable, UpdateSourceTrigger=PropertyChanged}\"", settings);
         Assert.Contains("SelectedValue=\"{Binding BackupFormat}\"", settings);
