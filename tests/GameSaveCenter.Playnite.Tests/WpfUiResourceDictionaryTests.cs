@@ -1461,7 +1461,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("private async Task SynchronizeLoopAsync()", pluginCode);
         Assert.Contains("TimeSpan.FromMilliseconds(180)", pluginCode);
         Assert.Contains("synchronizationRequested", pluginCode);
-        Assert.Contains("var initialDelay = PlayniteApi.Database.Games.Count >= 100 || PlayniteApi.Database.Games.Count == 0", pluginCode);
+        Assert.Contains("var initialDelay = observedCount >= LargeLibraryThreshold || observedCount == 0", pluginCode);
         Assert.Contains("TimeSpan.FromSeconds(60)", pluginCode);
         Assert.Contains("TimeSpan.FromSeconds(15)", pluginCode);
         Assert.Contains("ConfigureLargeLibraryStartupGate();", pluginCode);
@@ -1838,7 +1838,7 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("private volatile bool interactiveSurfaceOpened;", pluginCode);
         Assert.Contains("private void RequestLibrarySynchronization(string reason)", pluginCode);
-        Assert.Contains("var currentGameCount = PlayniteApi.Database.Games.Count;", pluginCode);
+        Assert.Contains("var currentGameCount = GetPlayniteGameCount(\"library callback\");", pluginCode);
         Assert.Contains("ObserveGameCount(currentGameCount);", pluginCode);
         Assert.Contains("if (currentGameCount == 0)", pluginCode);
         Assert.Contains("if (!interactiveSurfaceOpened && IsLargeLibrary())", pluginCode);
@@ -1856,8 +1856,9 @@ public sealed class WpfUiResourceDictionaryTests
         // A 900+ Playnite library may be published in several partial callbacks. Once the
         // settled probe sees 100 or more entries, the Worker must wait for explicit user intent
         // instead of starting against a partial catalog and spawning Ludusavi lookups.
-        Assert.Contains("if (gameCount >= 100)", pluginCode);
+        Assert.Contains("if (gameCount >= LargeLibraryThreshold)", pluginCode);
         Assert.Contains("keeping Worker startup and catalog synchronization deferred until GameSaveCenter is opened explicitly", pluginCode);
+        Assert.Contains("private const int LargeLibraryThreshold = 100", pluginCode);
     }
 
     [Fact]
@@ -1881,7 +1882,7 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("private bool taskNotificationMonitorDeferred;", pluginCode);
         Assert.Contains("if (taskNotificationTimer != null || taskNotificationMonitorDeferred && !interactiveSurfaceOpened)", pluginCode);
-        Assert.Contains("if ((observedGameCount == 0 || observedGameCount >= 100) && !interactiveSurfaceOpened)", pluginCode);
+        Assert.Contains("if ((observedGameCount == 0 || observedGameCount >= LargeLibraryThreshold) && !interactiveSurfaceOpened)", pluginCode);
         Assert.Contains("Deferring task notification monitor until GameSaveCenter is opened", pluginCode);
         Assert.Contains("taskNotificationMonitorDeferred = false;", pluginCode);
         Assert.Contains("StartTaskNotificationMonitor();", pluginCode);
@@ -1921,8 +1922,25 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("never turn this recovery path into a catalog synchronization", viewModelCode);
         Assert.Contains("VeryLargeLibraryBackgroundMatchBudget = 12", catalogCode);
         Assert.Contains("list.Count >= VeryLargeLibraryThreshold", catalogCode);
-        Assert.Contains("if (games.Count >= VeryLargeLibraryThreshold && !interactiveSurfaceOpened)", pluginCode);
+        Assert.Contains("if (games.Count >= LargeLibraryThreshold && !interactiveSurfaceOpened)", pluginCode);
         Assert.Contains("Playnite library is still empty", pluginCode);
+    }
+
+    [Fact]
+    public void PreDashboardCatalogGuardCoversPartialLargeLibrariesAndDatabaseShutdowns()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var pluginCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "GameSaveCenterPlugin.cs"));
+
+        // A partial 100–499 game snapshot must not start a catalog request merely because a
+        // library callback arrived before the final 900+ snapshot. The count read itself is
+        // also guarded because Playnite can close/swap its database during profile changes.
+        Assert.Contains("if (games.Count >= LargeLibraryThreshold && !interactiveSurfaceOpened)", pluginCode);
+        Assert.Contains("private int GetPlayniteGameCount(string reason)", pluginCode);
+        Assert.Contains("retaining observed count", pluginCode);
+        Assert.Contains("catch (Exception ex) when (!(ex is OutOfMemoryException) && !(ex is StackOverflowException))", pluginCode);
+        Assert.Contains("ObserveGameCount(GetPlayniteGameCount(\"dashboard creation\"));", pluginCode);
+        Assert.Contains("ObserveGameCount(GetPlayniteGameCount(\"settings view creation\"));", pluginCode);
     }
 
 

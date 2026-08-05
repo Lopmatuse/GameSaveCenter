@@ -594,7 +594,7 @@ def check_large_library_performance_guards() -> None:
     for token in ("StartWorkerAndScheduleSynchronizationAsync", "WaitForLibraryReadyAndStartWorkerAsync", "largeLibraryStartupSyncNotBeforeUtc", "TimeSpan.FromSeconds(25)", "ConfigureLargeLibraryStartupGate", "TimeSpan.FromSeconds(60)",
                   "VeryLargeLibraryThreshold = 500", "Skipping automatic dashboard catalog synchronization for very large library",
                   "Very large Playnite library", "public bool IsVeryLargeLibraryForUi",
-                  "games.Count >= VeryLargeLibraryThreshold && !interactiveSurfaceOpened",
+                  "games.Count >= LargeLibraryThreshold && !interactiveSurfaceOpened",
                   "Playnite game database is not ready at application start"):
         if token not in plugin:
             fail(f"Playnite large-library startup grace guard missing: {token}")
