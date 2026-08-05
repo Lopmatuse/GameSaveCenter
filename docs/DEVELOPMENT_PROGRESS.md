@@ -1288,3 +1288,9 @@
 - 修复 `DashboardView` 使用 `TabStripPlacement="None"` 导致 WPF 在 `TypeConverterMarkupExtension` 阶段抛出 `FormatException`、页面回退为“界面暂时无法加载”的问题。
 - 使用合法的 `Tag="HideHeaders"` 配合 `GscTabControl` 模板触发器隐藏内部标签头，不改变工作区选择、命令绑定或业务逻辑。
 - 增加源码门禁，禁止再次引入非法的 `TabStripPlacement="None"`；仍需用户在 Playnite 中安装后验证实际渲染。
+
+### UI-088：统一 demo 视觉词汇与工作区拉伸契约
+
+- `Redesign.xaml` 统一收敛圆角、卡片表面和 demo 兼容资源别名，普通内容卡片保持接近不透明，透明材质只保留给外壳、侧栏和浮层。
+- 存档、修改器、媒体和维护工作区的 TabControl/TabItem 显式继承 Stretch，避免移除页面级滚动后内容收缩为中间小区域或留下大块空白。
+- 未改变现有 Worker、IPC、备份、媒体、任务和修改器命令；仍需 Windows/Playnite 在 1600、1280、1024、850、700 DIP 与 125%/150% DPI 下实机回归。

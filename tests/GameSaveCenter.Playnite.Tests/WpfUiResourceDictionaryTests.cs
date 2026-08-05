@@ -899,6 +899,27 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void DemoVisualVocabularyAndWorkspaceStretchContractRemainAvailable()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var redesign = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "Redesign.xaml"));
+        Assert.Contains("x:Key=\"GscReadingCardStyle\"", redesign);
+        Assert.Contains("x:Key=\"GscSubCardStyle\"", redesign);
+        Assert.Contains("x:Key=\"GscButtonStyle\"", redesign);
+        Assert.Contains("x:Key=\"GscPrimaryButtonStyle\"", redesign);
+        Assert.Contains("x:Key=\"GscTabControlStyle\"", redesign);
+        Assert.Contains("HorizontalAlignment\" Value=\"Stretch\"", redesign);
+        Assert.Contains("VerticalAlignment\" Value=\"Stretch\"", redesign);
+
+        foreach (var viewName in new[] { "SaveCenterView.xaml", "TrainerCenterView.xaml", "MediaCenterView.xaml", "MaintenanceView.xaml" })
+        {
+            var view = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", viewName));
+            Assert.Contains("HorizontalContentAlignment\" Value=\"Stretch\"", view);
+            Assert.Contains("VerticalContentAlignment\" Value=\"Stretch\"", view);
+        }
+    }
+
+    [Fact]
     public void MaintenanceWorkspaceReflowsHealthCardsAndMappingEditor()
     {
         var repositoryRoot = FindRepositoryRoot();

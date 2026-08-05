@@ -892,3 +892,9 @@ UI-079：滚动条悬停 Thumb 必须使用当前运行时 Accent/AccentHover，
 - `TabStripPlacement` 的类型是 WPF `Dock` 枚举，不接受 `None`。该值会在 BAML 加载时抛出 `XamlParseException`，导致 Dashboard 无法构造。
 - 隐藏工作区内部标签头应通过模板触发器实现，而不是写入不存在的枚举值；当前实现使用 `Tag="HideHeaders"`。
 - `scripts/validate-source.py` 已加入回归门禁，Windows/Playnite 安装后仍需检查 Dashboard 首次打开、重复打开和主题切换。
+
+### UI-088：demo 视觉资源与工作区内容必须 Stretch
+
+- 生产 `Redesign.xaml` 提供 `GscReadingCardStyle`、`GscSubCardStyle`、`GscButtonStyle`、`GscPrimaryButtonStyle` 和 `GscTabControlStyle` 等 demo 兼容别名，避免迁移页面时复制第二套主题。
+- Save/Trainer/Media/Maintenance 的工作区 TabControl 和 TabItem 必须显式 Stretch；内容由内部有限 Grid 行和表格自身滚动承载，不能因 desired-size 收缩。
+- 卡片表面应接近不透明，列表行和大型滚动区域不得添加 BlurEffect；主题、透明关闭和高对比度仍由运行时 palette 决定。

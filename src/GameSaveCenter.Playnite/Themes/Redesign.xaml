@@ -9,12 +9,12 @@
 
     <!-- Final redesign geometry.  These values intentionally form a small, reusable scale
          rather than page-specific magic numbers. -->
-    <CornerRadius x:Key="GscRedesignShellCorner">26</CornerRadius>
-    <CornerRadius x:Key="GscRedesignSidebarCorner">24</CornerRadius>
-    <CornerRadius x:Key="GscRedesignCardCorner">20</CornerRadius>
-    <CornerRadius x:Key="GscRedesignControlCorner">14</CornerRadius>
-    <Thickness x:Key="GscRedesignPagePadding">20</Thickness>
-    <Thickness x:Key="GscRedesignCardPadding">18</Thickness>
+    <CornerRadius x:Key="GscRedesignShellCorner">24</CornerRadius>
+    <CornerRadius x:Key="GscRedesignSidebarCorner">20</CornerRadius>
+    <CornerRadius x:Key="GscRedesignCardCorner">18</CornerRadius>
+    <CornerRadius x:Key="GscRedesignControlCorner">11</CornerRadius>
+    <Thickness x:Key="GscRedesignPagePadding">18</Thickness>
+    <Thickness x:Key="GscRedesignCardPadding">16</Thickness>
 
     <Style x:Key="GscRedesignShellSurface" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource GscGlassStrongBrush}"/>
@@ -33,14 +33,17 @@
     </Style>
 
     <Style x:Key="GscRedesignSectionCard" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource GscGlassFillBrush}"/>
+        <!-- Demo cards are reading surfaces: mostly opaque, with translucency reserved for
+             the shell/sidebar and floating layers. This prevents the six workspaces from
+             becoming low-contrast glass panels when the host window is resized. -->
+        <Setter Property="Background" Value="{DynamicResource GscGlassStrongBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{StaticResource GscRedesignCardCorner}"/>
         <Setter Property="Padding" Value="{StaticResource GscRedesignCardPadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
-        <Setter Property="Effect" Value="{x:Null}"/>
+        <Setter Property="Effect" Value="{DynamicResource GscSurfaceEffect}"/>
     </Style>
 
     <!-- All workspace tables share one opaque reading surface. Keeping this in the shared
@@ -60,17 +63,17 @@
 
     <Style x:Key="GscRedesignHeroCard" TargetType="Border" BasedOn="{StaticResource GscRedesignSectionCard}">
         <Setter Property="Background" Value="{DynamicResource GscGlassStrongBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>
-        <Setter Property="Effect" Value="{DynamicResource GscSurfaceEffect}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/>
+        <Setter Property="Effect" Value="{x:Null}"/>
     </Style>
 
     <!-- Demo-inspired workspace hero used by the real Playnite pages. It is a
          lightweight reading surface only: pages keep their existing commands,
          bindings and virtualized data controls below this header. -->
     <Style x:Key="GscRedesignWorkspaceHeroCard" TargetType="Border" BasedOn="{StaticResource GscRedesignHeroCard}">
-        <Setter Property="Padding" Value="18,16"/>
+        <Setter Property="Padding" Value="16"/>
         <Setter Property="Margin" Value="0,0,0,12"/>
-        <Setter Property="MinHeight" Value="92"/>
+        <Setter Property="MinHeight" Value="76"/>
         <Setter Property="ClipToBounds" Value="True"/>
     </Style>
 
@@ -260,6 +263,8 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding" Value="0"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Stretch"/>
         <Setter Property="Template">
@@ -284,6 +289,7 @@
                         <ContentPresenter Grid.Row="1"
                                           x:Name="PART_SelectedContentHost"
                                           ContentSource="SelectedContent"
+                                          Margin="0"
                                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                           SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
@@ -392,4 +398,47 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- Demo-compatible aliases. Keeping these names in the production dictionary lets
+         migrated views use the same visual vocabulary as the standalone WPF demo without
+         duplicating a second theme or changing any command/binding contract. -->
+    <Style x:Key="GscReadingCardStyle" TargetType="Border" BasedOn="{StaticResource GscRedesignSectionCard}"/>
+    <Style x:Key="GscSubCardStyle" TargetType="Border" BasedOn="{StaticResource GscRedesignSubCard}"/>
+    <Style x:Key="GscFloatingCardStyle" TargetType="Border" BasedOn="{StaticResource GscRedesignFloatingPickerCard}"/>
+    <Style x:Key="GscButtonStyle" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="MinHeight" Value="38"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="FocusVisualStyle" Value="{DynamicResource GscSharedFocusVisual}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="11" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource GscAccentBrush}"/></Trigger>
+                        <Trigger Property="IsPressed" Value="True"><Setter TargetName="Root" Property="Opacity" Value="0.82"/></Trigger>
+                        <Trigger Property="IsEnabled" Value="False"><Setter TargetName="Root" Property="Opacity" Value="0.45"/></Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="GscPrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource GscButtonStyle}">
+        <Setter Property="Background" Value="{DynamicResource GscAccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource GscOnAccentTextBrush}"/>
+    </Style>
+    <Style x:Key="GscTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource GscWpfUiTextBox}"/>
+    <Style x:Key="GscComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource GscWpfUiComboBox}"/>
+    <Style x:Key="GscTabControlStyle" TargetType="TabControl" BasedOn="{StaticResource GscRedesignWorkspaceTabControl}"/>
+    <Style x:Key="GscTabItemStyle" TargetType="TabItem" BasedOn="{StaticResource GscRedesignWorkspaceTabItem}"/>
 </ResourceDictionary>

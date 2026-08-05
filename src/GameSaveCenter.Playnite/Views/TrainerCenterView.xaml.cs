@@ -20,6 +20,10 @@ namespace GameSaveCenter.Playnite.Views
 
         public void ApplyResponsiveLayout(double width, double height)
         {
+            InstalledToolsLayout.HorizontalAlignment = HorizontalAlignment.Stretch;
+            InstalledToolsLayout.VerticalAlignment = VerticalAlignment.Stretch;
+            TrainerCatalogLayout.HorizontalAlignment = HorizontalAlignment.Stretch;
+            TrainerCatalogLayout.VerticalAlignment = VerticalAlignment.Stretch;
             // Keep the selected-tool inspector reachable at short heights. The list remains
             // the primary star row; only the secondary settings card receives a finite scroll
             // channel so it cannot push the list or the tab content outside the viewport.

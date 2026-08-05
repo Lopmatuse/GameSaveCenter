@@ -25,6 +25,7 @@
                      makes the installed and catalog tabs collapse or leave large
                      unused regions when the host is resized. -->
                 <Setter Property="MinHeight" Value="{DynamicResource GscWorkspaceTableMinHeight}"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                 <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
                 <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
             </Style>
