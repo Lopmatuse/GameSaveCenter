@@ -49,10 +49,6 @@ function Assert-PackageContents {
             'extension.yaml',
             'GameSaveCenter.Playnite.dll',
             'GameSaveCenter.Contracts.dll',
-            'System.Memory.dll',
-            'System.Buffers.dll',
-            'System.Runtime.CompilerServices.Unsafe.dll',
-            'System.ValueTuple.dll',
             'Worker/GameSaveCenter.Worker.dll',
             'Worker/GameSaveCenter.Worker.runtimeconfig.json'
         )
@@ -117,12 +113,21 @@ $required = @(
     'GameSaveCenter.Playnite.dll',
     'GameSaveCenter.Contracts.dll',
     'Newtonsoft.Json.dll',
+    'extension.yaml',
+    'icon.png'
+)
+
+# These assemblies were previously emitted beside the .NET Framework plugin
+# when the old WPF-UI dependency was present. They are not plugin-level
+# dependencies in the native-WPF build, and some are already supplied by the
+# target framework. Keep them optional so packaging follows the actual build
+# output instead of failing on stale dependency assumptions. Worker runtime
+# dependencies remain under the published Worker directory.
+$optionalCompatibilityDependencies = @(
     'System.Memory.dll',
     'System.Buffers.dll',
     'System.Runtime.CompilerServices.Unsafe.dll',
-    'System.ValueTuple.dll',
-    'extension.yaml',
-    'icon.png'
+    'System.ValueTuple.dll'
 )
 
 foreach ($file in $required) {
@@ -134,6 +139,13 @@ foreach ($file in $required) {
         throw "打包缺少文件：$file。请检查前面的编译输出，不能跳过构建错误继续打包。"
     }
     Copy-Item $source $stage -Force
+}
+
+foreach ($file in $optionalCompatibilityDependencies) {
+    $source = Join-Path $pluginOutput $file
+    if (Test-Path $source) {
+        Copy-Item $source $stage -Force
+    }
 }
 
 
