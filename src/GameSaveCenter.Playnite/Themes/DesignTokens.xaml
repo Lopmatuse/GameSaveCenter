@@ -5,40 +5,40 @@
     <!-- Shared defaults. Runtime palette adaptation replaces the theme-sensitive brushes locally. -->
     <!-- Deterministic fallback values mirror the standalone demo. Runtime Playnite theme
          adaptation may replace these locally, but parsing must never depend on host resources. -->
-    <SolidColorBrush x:Key="GscAccentBrush" Color="#476FE7"/>
-    <SolidColorBrush x:Key="GscAccentHoverBrush" Color="#5A80EF"/>
-    <SolidColorBrush x:Key="GscAccentPressedBrush" Color="#365DCB"/>
-    <SolidColorBrush x:Key="GscAccentTintBrush" Color="#24476FE7"/>
-    <SolidColorBrush x:Key="GscAccentTintStrongBrush" Color="#38476FE7"/>
-    <SolidColorBrush x:Key="GscSuccessBrush" Color="#18875A"/>
-    <SolidColorBrush x:Key="GscWarningBrush" Color="#B56A0B"/>
-    <SolidColorBrush x:Key="GscErrorBrush" Color="#C83D52"/>
-    <SolidColorBrush x:Key="GscErrorTintBrush" Color="#20C83D52"/>
-    <SolidColorBrush x:Key="GscInfoBrush" Color="#2374B8"/>
+    <SolidColorBrush x:Key="GscAccentBrush" Color="#7897FF"/>
+    <SolidColorBrush x:Key="GscAccentHoverBrush" Color="#8CA6FF"/>
+    <SolidColorBrush x:Key="GscAccentPressedBrush" Color="#5F7DE8"/>
+    <SolidColorBrush x:Key="GscAccentTintBrush" Color="#2A7897FF"/>
+    <SolidColorBrush x:Key="GscAccentTintStrongBrush" Color="#3A7897FF"/>
+    <SolidColorBrush x:Key="GscSuccessBrush" Color="#4BD39B"/>
+    <SolidColorBrush x:Key="GscWarningBrush" Color="#F5B24D"/>
+    <SolidColorBrush x:Key="GscErrorBrush" Color="#FF6B80"/>
+    <SolidColorBrush x:Key="GscErrorTintBrush" Color="#24FF6B80"/>
+    <SolidColorBrush x:Key="GscInfoBrush" Color="#78A9FF"/>
     <SolidColorBrush x:Key="GscOnAccentTextBrush" Color="#FFFFFFFF"/>
     <SolidColorBrush x:Key="GscSelectionTextBrush" Color="#F2FFFFFF"/>
-    <SolidColorBrush x:Key="GscAccentIconFillBrush" Color="#24476FE7"/>
-    <SolidColorBrush x:Key="GscInfoIconFillBrush" Color="#202374B8"/>
-    <SolidColorBrush x:Key="GscSuccessIconFillBrush" Color="#2018875A"/>
-    <SolidColorBrush x:Key="GscErrorIconFillBrush" Color="#20C83D52"/>
-    <SolidColorBrush x:Key="GscWarningIconFillBrush" Color="#20B56A0B"/>
-    <SolidColorBrush x:Key="GscRestoreInfoFillBrush" Color="#142374B8"/>
-    <SolidColorBrush x:Key="GscRestoreInfoStrokeBrush" Color="#332374B8"/>
-    <SolidColorBrush x:Key="GscSafetyFillBrush" Color="#14B56A0B"/>
-    <SolidColorBrush x:Key="GscSafetyStrokeBrush" Color="#38B56A0B"/>
+    <SolidColorBrush x:Key="GscAccentIconFillBrush" Color="#2A7897FF"/>
+    <SolidColorBrush x:Key="GscInfoIconFillBrush" Color="#2478A9FF"/>
+    <SolidColorBrush x:Key="GscSuccessIconFillBrush" Color="#244BD39B"/>
+    <SolidColorBrush x:Key="GscErrorIconFillBrush" Color="#24FF6B80"/>
+    <SolidColorBrush x:Key="GscWarningIconFillBrush" Color="#24F5B24D"/>
+    <SolidColorBrush x:Key="GscRestoreInfoFillBrush" Color="#2478A9FF"/>
+    <SolidColorBrush x:Key="GscRestoreInfoStrokeBrush" Color="#6678A9FF"/>
+    <SolidColorBrush x:Key="GscSafetyFillBrush" Color="#24F5B24D"/>
+    <SolidColorBrush x:Key="GscSafetyStrokeBrush" Color="#66F5B24D"/>
     <SolidColorBrush x:Key="GscRowHoverStrongBrush" Color="#0CFFFFFF"/>
-    <SolidColorBrush x:Key="GscAmbientAccentBrush" Color="#24476FE7"/>
-    <SolidColorBrush x:Key="GscAmbientInfoBrush" Color="#202374B8"/>
-    <SolidColorBrush x:Key="GscAmbientSuccessBrush" Color="#1830D158"/>
-    <SolidColorBrush x:Key="GscPrimaryButtonBorderBrush" Color="#5A80EF"/>
-    <SolidColorBrush x:Key="GscMutedStatusBrush" Color="#8E8E93"/>
+    <SolidColorBrush x:Key="GscAmbientAccentBrush" Color="#2A7897FF"/>
+    <SolidColorBrush x:Key="GscAmbientInfoBrush" Color="#2478A9FF"/>
+    <SolidColorBrush x:Key="GscAmbientSuccessBrush" Color="#244BD39B"/>
+    <SolidColorBrush x:Key="GscPrimaryButtonBorderBrush" Color="#8CA6FF"/>
+    <SolidColorBrush x:Key="GscMutedStatusBrush" Color="#7D8EAA"/>
     <LinearGradientBrush x:Key="GscPrimaryButtonBrush" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#5A80EF" Offset="0"/>
-        <GradientStop Color="#365DCB" Offset="1"/>
+        <GradientStop Color="#7897FF" Offset="0"/>
+        <GradientStop Color="#5F7DE8" Offset="1"/>
     </LinearGradientBrush>
     <Color x:Key="GscSoftShadowColor">#22000000</Color>
     <Color x:Key="GscPopupShadowColor">#52000000</Color>
-    <Color x:Key="GscAccentShadowColor">#487C5CFC</Color>
+    <Color x:Key="GscAccentShadowColor">#507897FF</Color>
 
     <!-- Effects are deliberately null until a page enables its local material palette. This
          keeps initial, high-contrast and reduced-transparency parsing free of effect visuals. -->
@@ -51,29 +51,29 @@
     <sys:Boolean x:Key="GscPopupAllowsTransparency">False</sys:Boolean>
     <x:Static x:Key="GscPopupAnimation" Member="primitives:PopupAnimation.None"/>
 
-    <SolidColorBrush x:Key="GscGlassFillBrush" Color="#D8FFFFFF"/>
-    <SolidColorBrush x:Key="GscGlassStrongBrush" Color="#F0FFFFFF"/>
-    <SolidColorBrush x:Key="GscGlassStrokeBrush" Color="#2A000000"/>
-    <SolidColorBrush x:Key="GscGlassHighlightBrush" Color="#A8FFFFFF"/>
-    <SolidColorBrush x:Key="GscSidebarBrush" Color="#B8FFFFFF"/>
-    <SolidColorBrush x:Key="GscBackdropBrush" Color="#18F1F2F7"/>
-    <SolidColorBrush x:Key="GscPrimaryTextBrush" Color="#F2FFFFFF"/>
-    <SolidColorBrush x:Key="GscSecondaryTextBrush" Color="#BFFFFFFF"/>
-    <SolidColorBrush x:Key="GscMutedTextBrush" Color="#91FFFFFF"/>
-    <SolidColorBrush x:Key="GscDisabledTextBrush" Color="#61FFFFFF"/>
-    <SolidColorBrush x:Key="GscControlFillBrush" Color="#CC171A25"/>
-    <SolidColorBrush x:Key="GscControlStrokeBrush" Color="#30FFFFFF"/>
-    <SolidColorBrush x:Key="GscDividerBrush" Color="#2B8E8E93"/>
-    <SolidColorBrush x:Key="GscTableDividerBrush" Color="#168E8E93"/>
-    <SolidColorBrush x:Key="GscPopupBrush" Color="#FA202330"/>
-    <SolidColorBrush x:Key="GscTableHeaderBrush" Color="#16FFFFFF"/>
-    <SolidColorBrush x:Key="GscTableAlternateRowBrush" Color="#08000000"/>
-    <SolidColorBrush x:Key="GscRowHoverBrush" Color="#0AFFFFFF"/>
-    <SolidColorBrush x:Key="GscScrollTrackBrush" Color="#128E8E93"/>
-    <SolidColorBrush x:Key="GscScrollThumbBrush" Color="#5A8E8E93"/>
-    <SolidColorBrush x:Key="GscScrollThumbHoverBrush" Color="#887C5CFC"/>
-    <SolidColorBrush x:Key="GscOverlayBrush" Color="#66000000"/>
-    <SolidColorBrush x:Key="GscPickerScrimBrush" Color="#26000000"/>
+    <SolidColorBrush x:Key="GscGlassFillBrush" Color="#F0202A3A"/>
+    <SolidColorBrush x:Key="GscGlassStrongBrush" Color="#F820293A"/>
+    <SolidColorBrush x:Key="GscGlassStrokeBrush" Color="#382D3B52"/>
+    <SolidColorBrush x:Key="GscGlassHighlightBrush" Color="#182D3B52"/>
+    <SolidColorBrush x:Key="GscSidebarBrush" Color="#FA171F2D"/>
+    <SolidColorBrush x:Key="GscBackdropBrush" Color="#FF0F1724"/>
+    <SolidColorBrush x:Key="GscPrimaryTextBrush" Color="#FFF4F7FF"/>
+    <SolidColorBrush x:Key="GscSecondaryTextBrush" Color="#FFA7B5D0"/>
+    <SolidColorBrush x:Key="GscMutedTextBrush" Color="#FF7D8EAA"/>
+    <SolidColorBrush x:Key="GscDisabledTextBrush" Color="#FF59677F"/>
+    <SolidColorBrush x:Key="GscControlFillBrush" Color="#F5222D3E"/>
+    <SolidColorBrush x:Key="GscControlStrokeBrush" Color="#3A34445B"/>
+    <SolidColorBrush x:Key="GscDividerBrush" Color="#3A2A3850"/>
+    <SolidColorBrush x:Key="GscTableDividerBrush" Color="#302A3850"/>
+    <SolidColorBrush x:Key="GscPopupBrush" Color="#FC202B3D"/>
+    <SolidColorBrush x:Key="GscTableHeaderBrush" Color="#FF202A39"/>
+    <SolidColorBrush x:Key="GscTableAlternateRowBrush" Color="#18152332"/>
+    <SolidColorBrush x:Key="GscRowHoverBrush" Color="#282C4360"/>
+    <SolidColorBrush x:Key="GscScrollTrackBrush" Color="#24111A29"/>
+    <SolidColorBrush x:Key="GscScrollThumbBrush" Color="#995A6A83"/>
+    <SolidColorBrush x:Key="GscScrollThumbHoverBrush" Color="#CC7897FF"/>
+    <SolidColorBrush x:Key="GscOverlayBrush" Color="#AA060A12"/>
+    <SolidColorBrush x:Key="GscPickerScrimBrush" Color="#60060A12"/>
 
     <CornerRadius x:Key="GscCornerSmall">8</CornerRadius>
     <CornerRadius x:Key="GscCornerControl">11</CornerRadius>
@@ -86,20 +86,24 @@
     <!-- Keep rows comfortably readable instead of collapsing a table to two or three lines.
          The surrounding page owns the overflow channel, while the DataGrid keeps its own
          virtualized scrollbar for the remaining rows. -->
-    <sys:Double x:Key="GscTableRowHeight">60</sys:Double>
+    <sys:Double x:Key="GscTableRowHeight">48</sys:Double>
     <!-- A readable table should expose several rows at normal window sizes. Legacy and
          dashboard-hosted tables can still use the large viewport token below; extracted
          workspaces use the adaptive minimum so the page itself does not need a vertical
          scrollbar and the DataGrid keeps the overflow inside its own virtualized viewer. -->
-    <sys:Double x:Key="GscTableMinHeight">520</sys:Double>
-    <sys:Double x:Key="GscWorkspaceTableMinHeight">260</sys:Double>
+    <sys:Double x:Key="GscTableMinHeight">0</sys:Double>
+    <!-- Workspace tables live in a finite Grid star row.  A non-zero global minimum
+         causes the parent TabControl to grow during a resize and leaks the page scroll
+         channel outside the rounded frame.  DashboardView supplies a small height-aware
+         floor after the host is measured; zero is the safe initial value. -->
+    <sys:Double x:Key="GscWorkspaceTableMinHeight">0</sys:Double>
     <!-- Finite viewport used by page-level scroll channels. A fixed viewport keeps
          virtualization active while the page itself can reveal the action/inspector
          sections below a table on short windows. DashboardView updates this token at
          each breakpoint so normal hosts show several readable rows without clipping. -->
     <sys:Double x:Key="GscTableViewportHeight">720</sys:Double>
     <sys:Double x:Key="GscListViewportHeight">720</sys:Double>
-    <sys:Double x:Key="GscTableHeaderHeight">50</sys:Double>
+    <sys:Double x:Key="GscTableHeaderHeight">42</sys:Double>
 
     <!-- Page-level scrolling is deliberately keyed instead of implicit.  A page owns one
          vertical scroll channel; tables and lists own their own internal channels.  Keeping
@@ -114,7 +118,7 @@
         <Setter Property="PanningMode" Value="VerticalOnly"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Top"/>
-        <Setter Property="Padding" Value="0,0,8,18"/>
+        <Setter Property="Padding" Value="0,0,4,6"/>
         <Setter Property="Focusable" Value="False"/>
         <Setter Property="KeyboardNavigation.TabNavigation" Value="Local"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>

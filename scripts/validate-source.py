@@ -1257,11 +1257,12 @@ def check_final_redesign_guards() -> None:
             ancestors.append(local_name(parent.tag))
             ancestor_nodes.append(parent)
             parent = parent_map.get(parent)
-        # Maintenance audit deliberately uses a page-level ScrollViewer around two finite
-        # tables. Each DataGrid keeps a fixed 360-DIP viewport and its own virtualization;
+        # Maintenance audit deliberately uses a page-level ScrollViewer around two bounded
+        # tables. The audit log owns a small min/max viewport and its own virtualization;
         # the outer scroll channel is only there to reach the second table on short hosts.
         allowed_page_scroll = (
-            control.attrib.get("Height") == "360"
+            control.attrib.get("MinHeight") == "140"
+            and control.attrib.get("MaxHeight") == "280"
             and control.attrib.get("ItemsSource", "") in {
                 "{Binding Findings}",
                 "{Binding Audit}",

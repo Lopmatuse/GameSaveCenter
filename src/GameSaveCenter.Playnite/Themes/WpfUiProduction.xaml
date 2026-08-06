@@ -275,7 +275,6 @@
          keyed style. This covers future tables and prevents a host/template change from
          silently turning touchpad scrolling into page scrolling or disabling Recycling. -->
     <Style TargetType="DataGrid">
-        <Setter Property="Height" Value="{DynamicResource GscTableViewportHeight}"/>
         <Setter Property="GridLinesVisibility" Value="None"/>
         <Setter Property="HeadersVisibility" Value="Column"/>
         <Setter Property="RowBackground" Value="Transparent"/>
@@ -288,9 +287,15 @@
         <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
         <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
         <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
-        <!-- Tables may contain long paths and diagnostic messages.  Allow touchpad/pen
-             panning in both axes, while the page-level viewer remains vertical-only. -->
-        <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
+        <!-- Keep the virtualized rows anchored at the top of a short viewport.  Stretching
+             the DataGrid content vertically lets some host templates arrange a small item
+             set at the bottom and exposes phantom empty space after scrolling. -->
+        <Setter Property="VerticalContentAlignment" Value="Top"/>
+        <Setter Property="ScrollViewer.VerticalContentAlignment" Value="Top"/>
+        <!-- WPF creates a filler header when the visible columns do not consume the
+             viewport.  Give that generated header the same theme as real columns; otherwise
+             Playnite's host theme can paint the far-right strip white. -->
+        <Setter Property="ColumnHeaderStyle" Value="{DynamicResource GscDataGridColumnHeaderStyle}"/>
         <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
         <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
         <Setter Property="EnableRowVirtualization" Value="True"/>
@@ -303,6 +308,9 @@
     </Style>
 
     <Style TargetType="DataGridColumnHeader">
+        <!-- This is the production header template; do not let the Playnite host replace
+             it with its default (white) DataGrid header style. -->
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="Foreground" Value="{DynamicResource GscSecondaryTextBrush}"/>
         <Setter Property="Background" Value="{DynamicResource GscTableHeaderBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GscTableDividerBrush}"/>
@@ -363,6 +371,23 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style x:Key="GscDataGridColumnHeaderStyle"
+           TargetType="DataGridColumnHeader"
+           BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Background" Value="{DynamicResource GscTableHeaderBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GscTableDividerBrush}"/>
+    </Style>
+
+    <!-- The column-header presenter owns WPF's generated filler header.  Styling only real
+         DataGridColumnHeader instances leaves that unused strip to the Playnite host theme,
+         which is why the final header could remain white. -->
+    <Style TargetType="DataGridColumnHeadersPresenter">
+        <Setter Property="Background" Value="{DynamicResource GscTableHeaderBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
     </Style>
 
     <Style TargetType="DataGridCell">

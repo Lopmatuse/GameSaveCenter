@@ -245,21 +245,38 @@ namespace GameSaveCenter.Playnite.Views
             // extracted pages look like narrow centred islands. Keep the shell flush with
             // that inner padding at every breakpoint; workspace views own their local gaps.
             ResponsiveShell.Margin = new Thickness(0);
-            GameDetailCard.Padding = mode == LayoutMode.Expanded ? new Thickness(18)
-                : mode == LayoutMode.Standard ? new Thickness(16)
-                : mode == LayoutMode.Compact ? new Thickness(12)
-                : new Thickness(10);
+            GameDetailCard.Padding = mode == LayoutMode.Expanded ? new Thickness(12)
+                : mode == LayoutMode.Standard ? new Thickness(10)
+                : mode == LayoutMode.Compact ? new Thickness(8)
+                : new Thickness(6);
 
             // The normal table viewport is intentionally generous, but a 700-DIP host must
             // not turn that token into a hard minimum that pushes the inspector below the
             // window. DynamicResource consumers resize together, while DataGrid keeps its own
             // internal scroll channel for the rows that no longer fit.
+            // The table owns its finite star-row viewport.  A global 440–520 DIP minimum
+            // makes short pages measure past their card and is what produced the scrollbar
+            // leaking outside the frame and blank virtual rows at the bottom.  Keep only a
+            // small readability floor; individual workspaces provide their own explicit
+            // minimum when they genuinely need one.
+            // Workspace DataGrids must be allowed to consume the finite star row.  A
+            // permanent 220+ DIP minimum makes the parent TabControl grow past its
+            // viewport during a resize; WPF then exposes the parent scroll channel and
+            // virtualized rows appear as blank space below the real items.  Keep a small
+            // readability floor only when there is enough vertical room, and let the
+            // table's own Auto scrollbar handle the rest.
             var tableMinHeight = height < 650
-                ? 440d
+                ? 0d
                 : height < 760
-                    ? 500d
-                    : 520d;
+                    ? 96d
+                    : 140d;
+            var workspaceTableMinHeight = height < 650
+                ? 0d
+                : height < 760
+                    ? 112d
+                    : 160d;
             Resources["GscTableMinHeight"] = tableMinHeight;
+            Resources["GscWorkspaceTableMinHeight"] = workspaceTableMinHeight;
             // Keep a finite, generous viewport so each table shows a useful batch of rows
             // without allowing a DataGrid to consume the entire page measure. The outer page
             // ScrollViewer remains responsible for reaching action/inspector sections below it.
@@ -268,6 +285,7 @@ namespace GameSaveCenter.Playnite.Views
             foreach (var workspaceView in GetWorkspaceViews())
             {
                 workspaceView.Resources["GscTableMinHeight"] = tableMinHeight;
+                workspaceView.Resources["GscWorkspaceTableMinHeight"] = workspaceTableMinHeight;
                 workspaceView.Resources["GscTableViewportHeight"] = tableViewportHeight;
                 workspaceView.Resources["GscListViewportHeight"] = tableViewportHeight;
             }
@@ -307,12 +325,13 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetRow(GameSwitcherHost, pickerOnTopBar ? 0 : 1);
             Grid.SetColumn(GameSwitcherHost, pickerOnTopBar ? 1 : 0);
             Grid.SetColumnSpan(GameSwitcherHost, pickerOnTopBar ? 1 : 3);
-            GameSwitcherHost.MaxWidth = pickerOnTopBar
-                ? (mode == LayoutMode.Expanded ? 460 : 420)
-                : double.PositiveInfinity;
-            GameSwitcherHost.HorizontalAlignment = pickerOnTopBar
-                ? HorizontalAlignment.Center
-                : HorizontalAlignment.Stretch;
+            // The picker lives inside the same bordered header as the title and the
+            // contextual actions.  Give it a finite width so its Auto columns cannot
+            // measure beyond HeaderSurface at normal and high-DPI window sizes.
+            var pickerWidth = mode == LayoutMode.Expanded ? 380d : 330d;
+            GameSwitcherHost.Width = pickerOnTopBar ? pickerWidth : double.NaN;
+            GameSwitcherHost.MaxWidth = pickerOnTopBar ? pickerWidth : double.PositiveInfinity;
+            GameSwitcherHost.HorizontalAlignment = HorizontalAlignment.Stretch;
             GameSwitcherHost.Margin = pickerOnTopBar
                 ? new Thickness(0)
                 : new Thickness(0, 8, 0, 0);
@@ -405,7 +424,7 @@ namespace GameSaveCenter.Playnite.Views
             {
                 // Keep the Demo's footer hierarchy, but do not let its secondary note
                 // consume the last few pixels on a short Playnite host.
-                DemoFooter.Padding = height < 700 ? new Thickness(10, 7, 10, 7) : new Thickness(14, 10, 14, 10);
+                DemoFooter.Padding = height < 700 ? new Thickness(10, 5, 10, 5) : new Thickness(12, 7, 12, 7);
                 DemoFooterHint.Visibility = width < 900 ? Visibility.Collapsed : Visibility.Visible;
             }
             if (OverviewWorkspaceView != null)
@@ -419,12 +438,13 @@ namespace GameSaveCenter.Playnite.Views
 
             if (SelectedGameMetricPanel != null)
             {
-                // Metrics are part of the current-game context and remain reachable in every
-                // layout mode. Extracted workspaces own their table/inspector scroll surfaces.
-                SelectedGameMetricPanel.Visibility = Visibility.Visible;
+                // The extracted workspaces already expose the shared GamePicker context.
+                // Do not restore the legacy metric strip here: UpdateWorkspacePresentation
+                // intentionally collapses it so the page header does not duplicate the
+                // picker and consume the table viewport.
                 GameHeaderActions.Margin = width >= 1180
-                    ? new Thickness(62, 12, 0, 0)
-                    : new Thickness(0, 12, 0, 0);
+                    ? new Thickness(44, 7, 0, 0)
+                    : new Thickness(0, 7, 0, 0);
             }
 
             if (MediaWorkspaceView != null)
@@ -576,6 +596,16 @@ namespace GameSaveCenter.Playnite.Views
             SetVisibility(ValidateButton, saves);
             SetVisibility(DetectPathsButton, saves);
             SetVisibility(PolicyToggleButton, saves);
+            // Extracted Media/Trainer workspaces expose their own refresh/import actions.
+            // Keeping a second action row under the global picker created the oversized
+            // “Bongo Cat · ready” band and pushed the real workspace below the fold.
+            SetVisibility(GameHeaderActions, saves);
+            // The top GamePicker is the single source of game status and counts. The hero
+            // remains for game-scoped workspaces, but do not repeat its health pill and metric
+            // tiles directly underneath the picker; those duplicates are what made the second
+            // row feel oversized and visually overlap the global context.
+            SelectedGameHealthPill.Visibility = Visibility.Collapsed;
+            SelectedGameMetricPanel.Visibility = Visibility.Collapsed;
             SetVisibility(RestoreSafetyBanner, saves);
             if (!saves) BackupPolicyPanel.Visibility = Visibility.Collapsed;
 

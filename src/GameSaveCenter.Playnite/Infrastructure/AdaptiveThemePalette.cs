@@ -100,7 +100,10 @@ namespace GameSaveCenter.Playnite.Infrastructure
             }
 
             var isDark = RelativeLuminance(rawBackground) < 0.5;
-            var stableBase = Blend(rawBackground, isDark ? Color.FromRgb(13, 16, 26) : Color.FromRgb(248, 249, 252), 0.34);
+            // Keep the embedded page in the demo's quiet navy family even when the host theme
+            // exposes a vivid blue/black background. We still retain a small amount of the host
+            // character, but do not let a Playnite accent turn every card into saturated blue.
+            var stableBase = Blend(rawBackground, isDark ? Color.FromRgb(15, 23, 36) : Color.FromRgb(248, 249, 252), isDark ? 0.56 : 0.34);
             primaryText = ChooseBestText(stableBase, text, inverseText, isDark);
             if (ContrastRatio(primaryText, stableBase) < 7)
                 primaryText = isDark ? Colors.White : Colors.Black;
@@ -116,24 +119,34 @@ namespace GameSaveCenter.Playnite.Infrastructure
             // interaction language. FollowPlaynite still honors a host accent when one is
             // exposed; these values are the deterministic Light/Dark fallbacks used by the
             // demo and by themes that do not publish an accent resource.
-            var fallbackAccent = isDark ? Color.FromRgb(108, 146, 255) : Color.FromRgb(71, 111, 231);
+            var fallbackAccent = isDark ? Color.FromRgb(120, 151, 255) : Color.FromRgb(91, 116, 224);
             var hostAccent = !forcedLight && !forcedDark && !highContrast
                 ? ResolveFirstResourceColor(host, AccentResourceKeys)
                 : null;
-            var accent = EnsureContrast(highContrast ? SystemColors.HighlightColor : hostAccent ?? fallbackAccent, stableBase, isDark);
+            // FollowPlaynite keeps an explicitly published host accent intact. The local
+            // fallback is the quieter demo violet-blue used when the host has no accent.
+            var requestedAccent = hostAccent ?? fallbackAccent;
+            var accent = EnsureContrast(highContrast ? SystemColors.HighlightColor : requestedAccent, stableBase, isDark);
             var accentHover = Blend(accent, isDark ? Colors.White : Colors.Black, 0.1);
             var accentPressed = Blend(accent, Colors.Black, isDark ? 0.16 : 0.2);
+            // Keep the host accent for actions and focus rings, but soften large selected
+            // surfaces. Playnite themes often publish a saturated blue/purple accent; using
+            // that color at 24–34% opacity on every card makes the page look like a blue admin
+            // dashboard instead of the demo's restrained navy surface hierarchy.
+            var tintAccent = hostAccent.HasValue
+                ? Blend(accent, fallbackAccent, 0.42)
+                : accent;
             var onAccentText = highContrast
                 ? SystemColors.HighlightTextColor
                 : ChooseBestText(accent, Colors.White, Colors.Black, RelativeLuminance(accent) < 0.5);
             var info = highContrast
                 ? EnsureContrast(SystemColors.HighlightColor, stableBase, isDark)
-                : Color.FromRgb(35, 116, 184);
+                : Color.FromRgb(120, 169, 255);
             var success = highContrast
                 ? EnsureContrast(SystemColors.HotTrackColor, stableBase, isDark)
-                : Color.FromRgb(24, 135, 90);
-            var warning = highContrast ? primaryText : Color.FromRgb(181, 106, 11);
-            var error = highContrast ? primaryText : Color.FromRgb(200, 61, 82);
+                : Color.FromRgb(75, 211, 155);
+            var warning = highContrast ? primaryText : Color.FromRgb(245, 178, 77);
+            var error = highContrast ? primaryText : Color.FromRgb(255, 107, 128);
 
             var surfaceTop = glassEnabled
                 ? WithAlpha(strongControl, 0.86 * strength)
@@ -170,9 +183,9 @@ namespace GameSaveCenter.Playnite.Infrastructure
                 Accent = accent,
                 AccentHover = accentHover,
                 AccentPressed = accentPressed,
-                AccentTint = highContrast ? accent : WithAlpha(accent, isDark ? 0.24 : 0.14),
-                AccentTintStrong = highContrast ? accent : WithAlpha(accent, isDark ? 0.34 : 0.22),
-                AccentIconFill = highContrast ? accent : WithAlpha(accent, isDark ? 0.22 : 0.14),
+                AccentTint = highContrast ? accent : WithAlpha(tintAccent, isDark ? 0.20 : 0.12),
+                AccentTintStrong = highContrast ? accent : WithAlpha(tintAccent, isDark ? 0.28 : 0.18),
+                AccentIconFill = highContrast ? accent : WithAlpha(tintAccent, isDark ? 0.18 : 0.12),
                 OnAccentText = onAccentText,
                 Info = info,
                 Success = success,
@@ -303,8 +316,12 @@ namespace GameSaveCenter.Playnite.Infrastructure
             resources["GscGlassStrokeBrush"] = Brush(palette.ControlStroke);
             resources["GscGlassHighlightBrush"] = Brush(palette.Highlight);
             resources["GscBackdropBrush"] = Brush(palette.Backdrop);
-            resources["GscTableHeaderBrush"] = Brush(Color.FromArgb(
-                palette.IsDark ? (byte)22 : (byte)12, palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));
+            // Table headers are a real surface, not a translucent white wash. An opaque
+            // header keeps the last column from falling back to a host white brush and gives
+            // every workspace the same readable demo hierarchy.
+            resources["GscTableHeaderBrush"] = Brush(palette.IsDark
+                ? Color.FromRgb(32, 42, 57)
+                : Color.FromRgb(236, 240, 248));
             resources["GscTableAlternateRowBrush"] = Brush(Color.FromArgb(
                 SystemParameters.HighContrast ? (byte)0 : palette.IsDark ? (byte)14 : (byte)7,
                 palette.PrimaryText.R, palette.PrimaryText.G, palette.PrimaryText.B));

@@ -457,7 +457,12 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("RowHeight\" Value=\"{DynamicResource GscTableRowHeight}\"", production);
         Assert.Contains("ColumnHeaderHeight\" Value=\"{DynamicResource GscTableHeaderHeight}\"", production);
         Assert.Contains("HorizontalGridLinesBrush\" Value=\"{DynamicResource GscTableDividerBrush}\"", production);
-        Assert.Contains("ScrollViewer.PanningMode\" Value=\"Both\"", production);
+        Assert.Contains("VerticalContentAlignment\" Value=\"Top\"", production);
+        Assert.Contains("ScrollViewer.VerticalContentAlignment\" Value=\"Top\"", production);
+        Assert.Contains("<Style TargetType=\"DataGridColumnHeadersPresenter\">", production);
+        Assert.Contains("OverridesDefaultStyle\" Value=\"True\"", production);
+        // Keep the shared DataGrid on WPF's stable default panning contract.  Both-axis
+        // panning combined with the custom row template can produce phantom empty rows.
         Assert.Contains("KeyboardNavigation.TabNavigation\" Value=\"Local\"", production);
         Assert.Contains("KeyboardNavigation.DirectionalNavigation\" Value=\"Contained\"", production);
         Assert.Contains("VirtualizingPanel.VirtualizationMode\" Value=\"Recycling\"", production);
@@ -480,12 +485,13 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Key=\"GscTableRowHeight\"", designTokens);
         Assert.Contains("x:Key=\"GscTableMinHeight\"", designTokens);
         Assert.Contains("x:Key=\"GscTableViewportHeight\"", designTokens);
-        Assert.Contains("x:Key=\"GscTableRowHeight\">60</sys:Double>", designTokens);
-        Assert.Contains("x:Key=\"GscTableMinHeight\">520</sys:Double>", designTokens);
+        Assert.Contains("x:Key=\"GscTableRowHeight\">48</sys:Double>", designTokens);
+        Assert.Contains("x:Key=\"GscTableMinHeight\">0</sys:Double>", designTokens);
         Assert.Contains("x:Key=\"GscTableViewportHeight\">720</sys:Double>", designTokens);
-        Assert.Contains("x:Key=\"GscTableHeaderHeight\">50</sys:Double>", designTokens);
+        Assert.Contains("x:Key=\"GscTableHeaderHeight\">42</sys:Double>", designTokens);
         Assert.Contains("<Setter Property=\"ClipToBounds\" Value=\"True\"/>", redesign);
-        Assert.Contains("Property=\"Height\" Value=\"{DynamicResource GscTableViewportHeight}\"", production);
+        Assert.DoesNotContain("Property=\"Height\" Value=\"{DynamicResource GscTableViewportHeight}\"", production);
+        Assert.DoesNotContain("Property=\"Height\" Value=\"{DynamicResource GscTableViewportHeight}\"", File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml")));
         Assert.Contains("x:Key=\"GscTableHeaderHeight\"", designTokens);
         Assert.Contains("x:Key=\"GscTableAlternateRowBrush\"", designTokens);
         Assert.Contains("x:Key=\"GscPageScrollViewer\"", designTokens);
@@ -522,6 +528,24 @@ public sealed class WpfUiResourceDictionaryTests
             Assert.DoesNotContain("x:Name=\"MaintenancePageScrollViewer\"", text);
             Assert.DoesNotContain("BlurEffect", text);
         }
+    }
+
+    [Fact]
+    public void MediaInboxUsesStableItemScrollingAndMaintenanceHeadersOwnTheirTheme()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var media = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml"));
+        var maintenance = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml"));
+        var maintenanceCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml.cs"));
+
+        Assert.Contains("VirtualizingPanel.ScrollUnit\" Value=\"Item\"", media);
+        Assert.Contains("EnableColumnVirtualization\" Value=\"False\"", media);
+        Assert.Contains("x:Name=\"MediaInboxGrid\"", media);
+        Assert.Contains("ConfigureInboxGrid", File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml.cs")));
+        Assert.DoesNotContain("ScrollViewer.Background=\"{DynamicResource GscGlassStrongBrush}\"", media);
+        Assert.Contains("ColumnHeaderStyle\" Value=\"{StaticResource GscDataGridColumnHeaderStyle}\"", maintenance);
+        Assert.Contains("AddHandler(FrameworkElement.LoadedEvent, new RoutedEventHandler(ApplyHeaderTheme), true)", maintenanceCode);
+        Assert.Contains("header.OverridesDefaultStyle = true", maintenanceCode);
     }
 
     [Fact]
@@ -619,7 +643,10 @@ public sealed class WpfUiResourceDictionaryTests
         var maintenanceCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml.cs"));
 
         Assert.Contains("PageSubtitleText.Visibility = Visibility.Visible", dashboardCode);
-        Assert.Contains("SelectedGameMetricPanel.Visibility = Visibility.Visible", dashboardCode);
+        // The duplicate metric strip is intentionally collapsed; metrics are rendered by
+        // the workspace-specific overview cards so compact layouts do not reserve a
+        // second header row.
+        Assert.Contains("SelectedGameMetricPanel.Visibility = Visibility.Collapsed", dashboardCode);
         Assert.Contains("MediaSummaryPanel.Visibility = Visibility.Visible", mediaCode);
         Assert.Contains("TaskSummaryPanel.Visibility = Visibility.Visible", tasksCode);
         Assert.Contains("DiagnosticHealthPanel.Visibility = Visibility.Visible", maintenanceCode);
@@ -892,6 +919,7 @@ public sealed class WpfUiResourceDictionaryTests
         var trainer = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml"));
         var trainerCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml.cs"));
         var mediaCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml.cs"));
+        var maintenanceCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml.cs"));
         var taskCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TaskCenterView.xaml.cs"));
         var dashboard = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml"));
         var overview = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml"));
@@ -915,14 +943,20 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("RequiresAdmin", trainer);
         Assert.Contains("TrainerReleasesLayout.RowDefinitions", trainerCode);
         Assert.Contains("x:Name=\"MediaInspectorScrollViewer\"", media);
-        Assert.Contains("VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\" MaxHeight=\"520\"", media);
-        Assert.Contains("MediaInspectorScrollViewer.MaxHeight = Math.Max(190, Math.Min(300, height * 0.42))", mediaCode);
+        Assert.Contains("VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\"", media);
+        Assert.Contains("MinHeight=\"0\" ClipToBounds=\"True\"", media);
+        Assert.Contains("MinHeight=\"0\" ItemsSource=\"{Binding UnassignedMedia}\"", media);
+        Assert.Contains("SetResourceReference(Control.BackgroundProperty, \"GscTableHeaderBrush\")", maintenanceCode);
+        Assert.Contains("MediaInspectorScrollViewer.MaxHeight = width >= 1240", mediaCode);
         Assert.Contains("MinHeight=\"90\" MaxHeight=\"220\"", maintenance);
         Assert.Contains("TaskSummaryPanel.Columns", taskCode);
         var taskView = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TaskCenterView.xaml"));
         Assert.Contains("x:Name=\"TaskDetailScrollViewer\"", taskView);
+        Assert.Contains("SelectedIndex=\"0\"", taskView);
+        Assert.Contains("TaskGameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=全部, FallbackValue=全部", taskView);
+        Assert.Contains("TaskTypeFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=全部, FallbackValue=全部", taskView);
         Assert.Contains("TaskDetailScrollViewer.MaxHeight = Math.Max(180, Math.Min(520, height * (stack ? 0.42 : 0.90)))", taskCode);
-        Assert.Contains("VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\" MaxHeight=\"520\"", taskView);
+        Assert.Contains("VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\"", taskView);
         Assert.Contains("TaskWorkspaceView.ApplyResponsiveLayout(width, height)", workspaceCode);
         Assert.Contains("SaveWorkspaceView.ApplyResponsiveLayout(width, height)", workspaceCode);
         Assert.Contains("TrainerWorkspaceView.ApplyResponsiveLayout(width, height)", workspaceCode);
@@ -1007,7 +1041,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Property=\"EnableRowVirtualization\" Value=\"True\"", media);
         Assert.Contains("Text=\"{Binding MediaSummary.TotalSizeDisplay, Mode=OneWay}\"", media);
         Assert.DoesNotContain("MediaSummary.TotalSizeDisplay, Mode=TwoWay", media);
-        Assert.Contains("var stack = width < 1100", mediaCode);
+        Assert.Contains("var stack = width < 1240", mediaCode);
         Assert.Contains("Grid.SetRow(MediaMetadataPanel, stack ? 1 : 0)", mediaCode);
     }
 
@@ -1117,7 +1151,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Key=\"GscPageScrollViewer\"", designTokens);
         Assert.Contains("<Setter Property=\"HorizontalContentAlignment\" Value=\"Stretch\"/>", designTokens);
         Assert.Contains("<Setter Property=\"VerticalContentAlignment\" Value=\"Top\"/>", designTokens);
-        Assert.Contains("<Setter Property=\"Padding\" Value=\"0,0,8,18\"/>", designTokens);
+        Assert.Contains("<Setter Property=\"Padding\" Value=\"0,0,4,6\"/>", designTokens);
     }
 
     [Fact]
@@ -1333,6 +1367,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("GamePicker.StatusFilterOptions", dashboard);
         Assert.Contains("GamePicker.SortOptions", dashboard);
         Assert.Contains("GamePicker.PlatformFilterOptions", dashboard);
+        Assert.Contains("SelectedIndex=\"0\" ItemsSource=\"{Binding GamePicker.PlatformFilterOptions}\"", dashboard);
+        Assert.Contains("TargetNullValue=全部, FallbackValue=全部", dashboard);
         Assert.Contains("GameSwitcherHost.Visibility = gameScopedWorkspace", dashboardCode);
         Assert.Contains("ToggleGameBrowserButton.Visibility = Visibility.Collapsed", dashboardCode);
         Assert.Contains("LoadSelectionDetailsAsync", dashboardViewModel);
@@ -1897,13 +1933,14 @@ public sealed class WpfUiResourceDictionaryTests
         var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
 
         Assert.Contains("ResponsiveShell.Margin = new Thickness(", dashboardCode);
-        Assert.Contains("GameDetailCard.Padding = mode == LayoutMode.Expanded ? new Thickness(18)", dashboardCode);
-        Assert.Contains("mode == LayoutMode.Compact ? new Thickness(12)", dashboardCode);
+        Assert.Contains("GameDetailCard.Padding = mode == LayoutMode.Expanded ? new Thickness(12)", dashboardCode);
+        Assert.Contains("mode == LayoutMode.Compact ? new Thickness(8)", dashboardCode);
         Assert.Contains("var tableMinHeight = height < 650", dashboardCode);
         Assert.Contains("workspaceView.Resources[\"GscTableMinHeight\"] = tableMinHeight", dashboardCode);
-        Assert.Contains("? 440d", dashboardCode);
-        Assert.Contains("? 500d", dashboardCode);
-        Assert.Contains(": 520d", dashboardCode);
+        Assert.Contains("var workspaceTableMinHeight = height < 650", dashboardCode);
+        Assert.Contains("workspaceView.Resources[\"GscWorkspaceTableMinHeight\"] = workspaceTableMinHeight", dashboardCode);
+        Assert.Contains("? 112d", dashboardCode);
+        Assert.Contains(": 160d", dashboardCode);
         Assert.Contains("Math.Max(520d, Math.Min(820d", dashboardCode);
         Assert.Contains("height < 700 ? 0.94 : 0.95", dashboardCode);
         Assert.Contains("mode == LayoutMode.Expanded ? 12", dashboardCode);
@@ -2221,7 +2258,7 @@ public sealed class WpfUiResourceDictionaryTests
         var section = redesign.Substring(sectionStart, sectionEnd - sectionStart);
 
         Assert.Contains("CornerRadius\" Value=\"16\"", section);
-        Assert.Contains("Padding\" Value=\"18\"", section);
+        Assert.Contains("Padding\" Value=\"16\"", section);
         Assert.Contains("Effect\" Value=\"{x:Null}\"", section);
     }
 

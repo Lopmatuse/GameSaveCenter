@@ -21,7 +21,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         private CancellationTokenSource? refreshCancellation;
         private GamePickerItem? selectedItem;
         private string searchText = string.Empty;
-        private string statusFilter = "已安装";
+        private string statusFilter = "全部";
         private string platformFilter = "全部";
         private string sortMode = "名称";
         private int filteredCount;
@@ -39,7 +39,7 @@ namespace GameSaveCenter.Playnite.ViewModels
 
         public ObservableCollection<GamePickerItem> Items { get; } = new BatchObservableCollection<GamePickerItem>();
         public ICollectionView ItemsView { get; }
-        public IReadOnlyList<string> StatusFilterOptions { get; } = new[] { "已安装", "全部", "已匹配", "有备份", "需处理", "未匹配" };
+        public IReadOnlyList<string> StatusFilterOptions { get; } = new[] { "全部", "已安装", "已匹配", "有备份", "需处理", "未匹配" };
         public IReadOnlyList<string> SortOptions { get; } = new[] { "名称", "最近游玩", "最近备份" };
         public ObservableCollection<string> PlatformFilterOptions { get; } = new ObservableCollection<string> { "全部" };
 
@@ -77,7 +77,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             get => statusFilter;
             set
             {
-                value = string.IsNullOrWhiteSpace(value) ? "已安装" : value;
+                value = string.IsNullOrWhiteSpace(value) ? "全部" : value;
                 if (string.Equals(statusFilter, value, StringComparison.Ordinal)) return;
                 statusFilter = value;
                 OnPropertyChanged(nameof(StatusFilter));
@@ -132,7 +132,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         public void ApplyPersistedState(string? search, string? status, string? platform, string? sort)
         {
             searchText = search ?? string.Empty;
-            statusFilter = string.IsNullOrWhiteSpace(status) ? "已安装" : status!;
+            statusFilter = string.IsNullOrWhiteSpace(status) ? "全部" : status!;
             platformFilter = string.IsNullOrWhiteSpace(platform) ? "全部" : platform!;
             sortMode = string.IsNullOrWhiteSpace(sort) ? "名称" : sort!;
             OnPropertyChanged(nameof(SearchText));

@@ -9,6 +9,17 @@ namespace GameSaveCenter.Playnite.Tests
     public sealed class GamePickerViewModelTests
     {
         [Fact]
+        public void NewPickerShowsAllGamesByDefault()
+        {
+            using var picker = new GamePickerViewModel();
+
+            Assert.Equal("全部", picker.StatusFilter);
+            Assert.Equal("全部", picker.PlatformFilter);
+            Assert.Equal("名称", picker.SortMode);
+            Assert.Equal("全部", picker.StatusFilterOptions[0]);
+        }
+
+        [Fact]
         public void FiltersInstalledMatchedBackupAttentionAndUnmatchedLocally()
         {
             using var picker = new GamePickerViewModel();
