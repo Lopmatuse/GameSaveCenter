@@ -275,6 +275,7 @@
          keyed style. This covers future tables and prevents a host/template change from
          silently turning touchpad scrolling into page scrolling or disabling Recycling. -->
     <Style TargetType="DataGrid">
+        <Setter Property="Height" Value="{DynamicResource GscTableViewportHeight}"/>
         <Setter Property="GridLinesVisibility" Value="None"/>
         <Setter Property="HeadersVisibility" Value="Column"/>
         <Setter Property="RowBackground" Value="Transparent"/>
