@@ -53,6 +53,20 @@ namespace GameSaveCenter.Playnite.Views
             // columns make the labels unreadable long before the page needs to stack. Keep
             // the card readable by switching to two or one columns instead of shrinking text.
             OverviewMetricPanel.Columns = width >= 1180 ? 4 : width >= 760 ? 2 : 1;
+
+            // The Demo keeps the Home workbench actions in the card header.  At the
+            // narrowest widths let that action group become a vertical stack instead of
+            // allowing the buttons to push the title column out of the viewport.
+            if (OverviewHomeToolbarActions != null)
+            {
+                var stackActions = width < 720;
+                OverviewHomeToolbarActions.Orientation = stackActions
+                    ? Orientation.Vertical
+                    : Orientation.Horizontal;
+                OverviewHomeToolbarActions.HorizontalAlignment = stackActions
+                    ? HorizontalAlignment.Left
+                    : HorizontalAlignment.Right;
+            }
         }
 
         public void ApplyResponsiveHeight(double height, bool stack)

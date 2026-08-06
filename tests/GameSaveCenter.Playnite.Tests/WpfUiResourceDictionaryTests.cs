@@ -1081,7 +1081,7 @@ public sealed class WpfUiResourceDictionaryTests
             .Where(element => element.Name.LocalName == "Button" && (element.Attribute("Command")?.Value.IndexOf("OpenAttentionCenterCommand", StringComparison.Ordinal) ?? -1) >= 0)
             .ToList();
 
-        Assert.Equal(3, actions.Count);
+        Assert.Equal(4, actions.Count);
         Assert.Contains(actions, element => element.Attribute("AutomationProperties.Name")?.Value == "查看需要关注的游戏、原因和建议处理方式");
         Assert.Contains(actions, element => element.Attribute("AutomationProperties.Name")?.Value == "打开维护中心查看完整关注详情");
         Assert.Contains(actions, element => element.Attribute("ToolTip")?.Value == "点击查看需要关注的游戏、原因和建议处理方式");

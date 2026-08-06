@@ -83,8 +83,27 @@
         </Grid.ColumnDefinitions>
 
         <Grid x:Name="OverviewPrimaryPanel" Grid.Row="0" Grid.Column="0" MinWidth="0">
-            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-            <Border Style="{DynamicResource GscRedesignHeroCard}">
+            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+            <!-- Demo HomeView keeps global batch commands in a quiet, separate
+                 workbench surface instead of making the page header carry every
+                 action.  The commands remain the existing real Dashboard commands. -->
+            <Border x:Name="OverviewHomeToolbar" Style="{DynamicResource GscRedesignSectionCard}" Margin="0,0,0,14">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <StackPanel MinWidth="0" VerticalAlignment="Center">
+                        <TextBlock Style="{DynamicResource GscRedesignSectionTitle}" Text="今日工作台"/>
+                        <TextBlock Style="{DynamicResource GscRedesignSectionSubtitle}" Text="全局批量命令保留在首页，不与单游戏操作混在一起。" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <WrapPanel x:Name="OverviewHomeToolbarActions" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="12,0,0,0">
+                        <ui:Button Style="{DynamicResource GscWpfUiCompactButton}" Command="{Binding RefreshCommand}" Content="刷新"/>
+                        <ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding BackupAllCommand}" Content="全部备份" Margin="8,0,0,0"/>
+                        <ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding SyncMediaCommand}" Content="同步媒体" Margin="8,0,0,0"/>
+                        <ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding OpenAttentionCenterCommand}" Content="查看需关注项" Margin="8,0,0,0" AutomationProperties.Name="查看需要关注的游戏、原因和建议处理方式"/>
+                    </WrapPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1" Style="{DynamicResource GscRedesignHeroCard}">
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="84"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                     <Border Width="68" Height="68" CornerRadius="20" Background="{DynamicResource GscAccentTintBrush}" VerticalAlignment="Top" HorizontalAlignment="Left">
@@ -114,7 +133,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Style="{DynamicResource GscRedesignSectionCard}" Margin="0,14,0,0" MinHeight="0">
+            <Border Grid.Row="2" Style="{DynamicResource GscRedesignSectionCard}" Margin="0,14,0,0" MinHeight="0">
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
                     <Grid Margin="0,0,0,12">

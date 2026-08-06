@@ -1,7 +1,9 @@
 # 项目记忆与不可丢失约束
 
 更新时间：2026-08-05
-当前版本：`0.6.68-development-preview`
+当前版本：`0.6.69-development-preview`
+
+> UI-116：首页 `OverviewHomeToolbar` 是 Demo 迁移的独立“今日工作台”动作表面，按钮只绑定现有 Dashboard 命令；`OverviewView.ApplyResponsiveWidth` 在窄宽度将动作组改为纵向，避免标题区溢出。
 
 > BUILD-020：`scripts/package.ps1` 打包时 `extension.yaml` 必须直接来自 `src/GameSaveCenter.Playnite/extension.yaml`，不能优先使用 `bin/Release/net462` 中可能残留的副本；`dev-install-run.ps1` 在安装前必须确认暂存目录存在并再次比对版本。
 
