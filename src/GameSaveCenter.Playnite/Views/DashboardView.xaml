@@ -69,7 +69,7 @@
 
         <Style x:Key="GscTableFrame" TargetType="Border" BasedOn="{StaticResource GscRedesignTableFrame}">
             <Setter Property="CornerRadius" Value="16"/>
-            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Padding" Value="0,0,0,12"/>
             <Setter Property="ClipToBounds" Value="True"/>
             <Setter Property="Effect" Value="{x:Null}"/>
             <Setter Property="Background" Value="{DynamicResource GscGlassFillBrush}"/>
