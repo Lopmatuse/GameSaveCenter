@@ -711,7 +711,7 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
-    public void TrainerInspectorUsesAFiniteScrollChannelAtShortHeights()
+    public void TrainerInspectorFillsTheWorkspaceAndOnlyCapsWhenStacked()
     {
         var repositoryRoot = FindRepositoryRoot();
         var trainerPath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml");
@@ -724,8 +724,12 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Equal("Auto", scrollViewer.Attribute("VerticalScrollBarVisibility")?.Value);
         Assert.Equal("Disabled", scrollViewer.Attribute("HorizontalScrollBarVisibility")?.Value);
-        Assert.Equal("280", scrollViewer.Attribute("MaxHeight")?.Value);
-        Assert.Contains("TrainerToolsSettingsScrollViewer.MaxHeight = Math.Max(190, Math.Min(280, height * 0.36))", trainerCode);
+        Assert.Null(scrollViewer.Attribute("MaxHeight"));
+        Assert.Contains("TrainerToolsSettingsScrollViewer.MaxHeight = double.PositiveInfinity", trainerCode);
+        Assert.Contains("TrainerToolsSettingsScrollViewer.MaxHeight = stackInstalled", trainerCode);
+        Assert.Contains("Math.Min(420, height * 0.56)", trainerCode);
+        Assert.Contains("VerticalContentAlignment=\"Stretch\"", trainerText);
+        Assert.Contains("Style=\"{DynamicResource GscRedesignSectionCard}\"", trainerText);
         Assert.Contains("ScrollViewer.VerticalScrollBarVisibility\" Value=\"Auto\"", trainerText);
         Assert.Contains("ScrollViewer.HorizontalScrollBarVisibility\" Value=\"Disabled\"", trainerText);
     }

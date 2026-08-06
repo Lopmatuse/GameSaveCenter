@@ -24,10 +24,10 @@ namespace GameSaveCenter.Playnite.Views
             InstalledToolsLayout.VerticalAlignment = VerticalAlignment.Stretch;
             TrainerReleasesLayout.HorizontalAlignment = HorizontalAlignment.Stretch;
             TrainerReleasesLayout.VerticalAlignment = VerticalAlignment.Stretch;
-            // Keep the selected-tool inspector reachable at short heights. The list remains
-            // the primary star row; only the secondary settings card receives a finite scroll
-            // channel so it cannot push the list or the tab content outside the viewport.
-            TrainerToolsSettingsScrollViewer.MaxHeight = Math.Max(190, Math.Min(280, height * 0.36));
+            // The inspector is a full-height secondary pane in the normal two-column layout.
+            // Only the stacked compact layout receives a finite scroll channel; otherwise the
+            // card would collapse into a short block and leave a large unused area beside it.
+            TrainerToolsSettingsScrollViewer.MaxHeight = double.PositiveInfinity;
             var stackInstalled = width < 980;
             InstalledToolsLayout.ColumnDefinitions[1].Width = stackInstalled
                 ? new GridLength(0)
@@ -39,7 +39,7 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetRow(TrainerToolsSettingsScrollViewer, stackInstalled ? 3 : 0);
             Grid.SetRowSpan(TrainerToolsSettingsScrollViewer, stackInstalled ? 1 : 4);
             TrainerToolsSettingsScrollViewer.MaxHeight = stackInstalled
-                ? Math.Max(190, Math.Min(280, height * 0.36))
+                ? Math.Max(190, Math.Min(420, height * 0.56))
                 : double.PositiveInfinity;
             TrainerToolsSettingsScrollViewer.Margin = stackInstalled
                 ? new Thickness(0, 10, 0, 0)

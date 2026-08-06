@@ -1,7 +1,9 @@
 # 项目记忆与不可丢失约束
 
-更新时间：2026-08-05
-当前版本：`0.6.69-development-preview`
+更新时间：2026-08-06
+当前版本：`0.6.70-development-preview`
+
+> UI-117：修改器中心的 `TrainerToolsSettingsScrollViewer` 在宽屏必须保持 `MaxHeight=PositiveInfinity` 并填充右侧检查器列；仅在紧凑堆叠布局使用受控的 190–420 DIP 内部滚动。`TrainerReleaseInfoPanel` 使用 `GscRedesignSectionCard`，避免 Demo 对齐后出现短卡片和大片空白。不要恢复固定 280 DIP 的宽屏上限。
 
 > UI-116：首页 `OverviewHomeToolbar` 是 Demo 迁移的独立“今日工作台”动作表面，按钮只绑定现有 Dashboard 命令；`OverviewView.ApplyResponsiveWidth` 在窄宽度将动作组改为纵向，避免标题区溢出。
 
