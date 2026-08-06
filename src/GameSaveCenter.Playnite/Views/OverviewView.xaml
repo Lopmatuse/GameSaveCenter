@@ -41,6 +41,13 @@
                 <Setter Property="VerticalContentAlignment" Value="Stretch"/>
                 <Setter Property="ToolTipService.ShowDuration" Value="12000"/>
             </Style>
+            <Style x:Key="OverviewTableFrame" TargetType="Border" BasedOn="{StaticResource GscRedesignTableFrame}"/>
+            <Style x:Key="OverviewFirstColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                <Setter Property="Tag"><Setter.Value><CornerRadius>11,0,0,0</CornerRadius></Setter.Value></Setter>
+            </Style>
+            <Style x:Key="OverviewLastColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                <Setter Property="Tag"><Setter.Value><CornerRadius>0,11,0,0</CornerRadius></Setter.Value></Setter>
+            </Style>
             <Style x:Key="OverviewDataGrid" TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
                 <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
                 <Setter Property="Background" Value="Transparent"/>
@@ -141,14 +148,14 @@
                         <StackPanel><TextBlock Style="{DynamicResource GscRedesignSectionTitle}" Text="最近活动"/><TextBlock Style="{DynamicResource GscRedesignSectionSubtitle}" Text="最多显示最近 8 条真实任务记录" Margin="0,4,0,0"/></StackPanel>
                         <ui:Button Grid.Column="1" Style="{DynamicResource GscWpfUiCompactButton}" Command="{Binding RefreshCommand}" Content="刷新"/>
                     </Grid>
-                    <Border Grid.Row="1" Style="{DynamicResource GscSurface}">
+                    <Border Grid.Row="1" Style="{StaticResource OverviewTableFrame}">
                         <Grid>
                             <DataGrid Style="{StaticResource OverviewDataGrid}" ItemsSource="{Binding OverviewTasks}" SelectedItem="{Binding SelectedTask}" IsReadOnly="True">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn Header="时间" Binding="{Binding CreatedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="128"/>
+                                    <DataGridTextColumn HeaderStyle="{StaticResource OverviewFirstColumnHeader}" Header="时间" Binding="{Binding CreatedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="128"/>
                                     <DataGridTextColumn Header="活动" Binding="{Binding TaskTypeDisplay, Mode=OneWay}" Width="145" ElementStyle="{StaticResource OverviewLongTextCell}"/>
                                     <DataGridTextColumn Header="游戏" Binding="{Binding GameName, Mode=OneWay}" Width="*" MinWidth="150" ElementStyle="{StaticResource OverviewLongTextCell}"/>
-                                    <DataGridTemplateColumn Header="状态" Width="110"><DataGridTemplateColumn.CellTemplate><DataTemplate><Border x:Name="OverviewTaskStatusPill" Style="{DynamicResource GscRedesignTableStatusPill}"><TextBlock Text="{Binding StateDisplay, Mode=OneWay}" Foreground="{DynamicResource GscPrimaryTextBrush}" HorizontalAlignment="Center"/></Border><DataTemplate.Triggers><DataTrigger Binding="{Binding State}" Value="Succeeded"><Setter TargetName="OverviewTaskStatusPill" Property="Background" Value="{DynamicResource GscSuccessIconFillBrush}"/><Setter TargetName="OverviewTaskStatusPill" Property="BorderBrush" Value="{DynamicResource GscSuccessBrush}"/></DataTrigger><DataTrigger Binding="{Binding State}" Value="Failed"><Setter TargetName="OverviewTaskStatusPill" Property="Background" Value="{DynamicResource GscErrorTintBrush}"/><Setter TargetName="OverviewTaskStatusPill" Property="BorderBrush" Value="{DynamicResource GscErrorBrush}"/></DataTrigger><DataTrigger Binding="{Binding State}" Value="Running"><Setter TargetName="OverviewTaskStatusPill" Property="Background" Value="{DynamicResource GscInfoIconFillBrush}"/><Setter TargetName="OverviewTaskStatusPill" Property="BorderBrush" Value="{DynamicResource GscInfoBrush}"/></DataTrigger></DataTemplate.Triggers></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
+                                    <DataGridTemplateColumn HeaderStyle="{StaticResource OverviewLastColumnHeader}" Header="状态" Width="110"><DataGridTemplateColumn.CellTemplate><DataTemplate><Border x:Name="OverviewTaskStatusPill" Style="{DynamicResource GscRedesignTableStatusPill}"><TextBlock Text="{Binding StateDisplay, Mode=OneWay}" Foreground="{DynamicResource GscPrimaryTextBrush}" HorizontalAlignment="Center"/></Border><DataTemplate.Triggers><DataTrigger Binding="{Binding State}" Value="Succeeded"><Setter TargetName="OverviewTaskStatusPill" Property="Background" Value="{DynamicResource GscSuccessIconFillBrush}"/><Setter TargetName="OverviewTaskStatusPill" Property="BorderBrush" Value="{DynamicResource GscSuccessBrush}"/></DataTrigger><DataTrigger Binding="{Binding State}" Value="Failed"><Setter TargetName="OverviewTaskStatusPill" Property="Background" Value="{DynamicResource GscErrorTintBrush}"/><Setter TargetName="OverviewTaskStatusPill" Property="BorderBrush" Value="{DynamicResource GscErrorBrush}"/></DataTrigger><DataTrigger Binding="{Binding State}" Value="Running"><Setter TargetName="OverviewTaskStatusPill" Property="Background" Value="{DynamicResource GscInfoIconFillBrush}"/><Setter TargetName="OverviewTaskStatusPill" Property="BorderBrush" Value="{DynamicResource GscInfoBrush}"/></DataTrigger></DataTemplate.Triggers></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
                                 </DataGrid.Columns>
                             </DataGrid>
                             <TextBlock Text="暂无任务记录&#x0a;完成备份、同步或维护操作后会显示在这里。" IsHitTestVisible="False">
