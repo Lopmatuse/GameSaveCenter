@@ -110,28 +110,30 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Style="{DynamicResource GscRedesignHeroCard}">
+            <Border Grid.Row="1" Style="{DynamicResource GscRedesignSectionCard}" Padding="14">
                 <Grid>
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="84"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                    <Border Width="68" Height="68" CornerRadius="20" Background="{DynamicResource GscAccentTintBrush}" VerticalAlignment="Top" HorizontalAlignment="Left">
-                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" FontSize="27" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <Border Width="48" Height="48" CornerRadius="15" Background="{DynamicResource GscAccentTintBrush}" VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" FontSize="22" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <Grid Grid.Column="1" MinWidth="0">
-                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                        <StackPanel MinWidth="0">
-                            <TextBlock Text="当前游戏" Foreground="{DynamicResource GscAccentBrush}" FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding SelectedGame.Name, Mode=OneWay, TargetNullValue=请选择游戏}" FontSize="24" FontWeight="SemiBold" Margin="0,5,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedGame.Name, Mode=OneWay}"/>
+                    <Grid Grid.Column="1" Margin="12,0,0,0" MinWidth="0">
+                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <StackPanel MinWidth="0" VerticalAlignment="Center">
+                            <TextBlock Text="当前游戏" Foreground="{DynamicResource GscAccentBrush}" FontWeight="SemiBold" FontSize="11"/>
+                            <TextBlock Text="{Binding SelectedGame.Name, Mode=OneWay, TargetNullValue=请选择游戏}" FontSize="20" FontWeight="SemiBold" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedGame.Name, Mode=OneWay}"/>
                             <TextBlock FontSize="12" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0" TextTrimming="CharacterEllipsis">
                                 <Run Text="{Binding SelectedGame.PlatformDisplay, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding SelectedGame.HealthStateDisplay, Mode=OneWay}"/>
                             </TextBlock>
                         </StackPanel>
-                        <UniformGrid x:Name="OverviewMetricPanel" Grid.Row="1" Columns="4" Margin="0,14,0,0">
-                            <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="最新备份" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding SelectedGame.LastBackupLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}, TargetNullValue=暂无}" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
-                            <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="版本数量" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock FontWeight="SemiBold" Margin="0,4,0,0"><Run Text="{Binding SelectedGame.BackupVersionCount, Mode=OneWay}"/><Run Text=" 个"/></TextBlock></StackPanel></Border>
-                            <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="媒体" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock FontWeight="SemiBold" Margin="0,4,0,0"><Run Text="{Binding SelectedGame.MediaCount, Mode=OneWay}"/><Run Text=" 项"/></TextBlock></StackPanel></Border>
-                            <Border Style="{DynamicResource GscRedesignContextPill}"><StackPanel><TextBlock Text="云端" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding SelectedGame.CloudStateDisplay, Mode=OneWay}" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+                        <UniformGrid x:Name="OverviewMetricPanel" Grid.Column="1" Columns="4" Margin="16,0,0,0" VerticalAlignment="Center">
+                            <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,6,0"><StackPanel><TextBlock Text="版本" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding SelectedGame.BackupVersionCount, Mode=OneWay}" FontWeight="SemiBold" Margin="0,2,0,0" FontSize="12"/></StackPanel></Border>
+                            <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,6,0"><StackPanel><TextBlock Text="媒体" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock FontWeight="SemiBold" Margin="0,2,0,0" FontSize="12"><Run Text="{Binding SelectedGame.MediaCount, Mode=OneWay}"/><Run Text=" 项"/></TextBlock></StackPanel></Border>
+                            <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,6,0"><StackPanel><TextBlock Text="云端" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding SelectedGame.CloudStateDisplay, Mode=OneWay}" FontWeight="SemiBold" Margin="0,2,0,0" FontSize="12" TextTrimming="CharacterEllipsis"/></StackPanel></Border>
+                            <Border Style="{DynamicResource GscRedesignContextPill}"><StackPanel><TextBlock Text="最新备份" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding SelectedGame.LastBackupLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}, TargetNullValue=暂无}" FontWeight="SemiBold" Margin="0,2,0,0" FontSize="12"/></StackPanel></Border>
                         </UniformGrid>
-                        <WrapPanel Grid.Row="2" Margin="0,14,0,0">
+                        </Grid>
+                        <WrapPanel Grid.Row="1" Margin="0,10,0,0">
                             <ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份"/>
                             <ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding LoadDetailsCommand}" Content="刷新详情"/>
                             <ui:Button Style="{DynamicResource GscWpfUiActionButton}" AutomationProperties.Name="查看需要关注的游戏、原因和建议处理方式" Command="{Binding OpenAttentionCenterCommand}" Content="查看需关注项" Margin="0"/>
@@ -189,21 +191,21 @@
             <Border Style="{DynamicResource GscRedesignSectionCard}">
                 <StackPanel>
                     <TextBlock Style="{DynamicResource GscRedesignSectionTitle}" Text="今日概览"/>
-                    <UniformGrid Columns="2" Margin="0,12,0,0">
-                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,8"><StackPanel><TextBlock Text="管理游戏" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.ManagedGames, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
-                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,0,8"><StackPanel><TextBlock Text="已匹配存档" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.MatchedGames, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
-                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,8"><StackPanel><TextBlock Text="正在运行" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.RunningGames, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+                    <UniformGrid Columns="2" Margin="0,8,0,0">
+                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,6,6"><StackPanel><TextBlock Text="管理游戏" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding Snapshot.ManagedGames, Mode=OneWay}" FontSize="18" FontWeight="SemiBold" Margin="0,3,0,0"/></StackPanel></Border>
+                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,0,6"><StackPanel><TextBlock Text="已匹配存档" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding Snapshot.MatchedGames, Mode=OneWay}" FontSize="18" FontWeight="SemiBold" Margin="0,3,0,0"/></StackPanel></Border>
+                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,6,6"><StackPanel><TextBlock Text="正在运行" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding Snapshot.RunningGames, Mode=OneWay}" FontSize="18" FontWeight="SemiBold" Margin="0,3,0,0"/></StackPanel></Border>
                         <ui:Button Style="{StaticResource OverviewMetricActionButton}"
                                    Command="{Binding OpenAttentionCenterCommand}"
                                    ToolTip="点击查看需要关注的游戏、原因和建议处理方式"
                                    AutomationProperties.Name="查看需要关注的游戏、原因和建议处理方式">
                             <StackPanel>
-                                <TextBlock Text="需关注" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
-                                <TextBlock Text="{Binding Snapshot.WarningGames, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/>
+                                <TextBlock Text="需关注" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/>
+                                <TextBlock Text="{Binding Snapshot.WarningGames, Mode=OneWay}" FontSize="18" FontWeight="SemiBold" Margin="0,3,0,0"/>
                             </StackPanel>
                         </ui:Button>
-                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,0"><StackPanel><TextBlock Text="云端队列" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.PendingCloudTasks, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
-                        <Border Style="{DynamicResource GscRedesignContextPill}"><StackPanel><TextBlock Text="待归类媒体" Foreground="{DynamicResource GscSecondaryTextBrush}"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}" FontSize="22" FontWeight="SemiBold" Margin="0,4,0,0"/></StackPanel></Border>
+                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,6,0"><StackPanel><TextBlock Text="云端队列" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding Snapshot.PendingCloudTasks, Mode=OneWay}" FontSize="18" FontWeight="SemiBold" Margin="0,3,0,0"/></StackPanel></Border>
+                        <Border Style="{DynamicResource GscRedesignContextPill}"><StackPanel><TextBlock Text="待归类媒体" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}" FontSize="18" FontWeight="SemiBold" Margin="0,3,0,0"/></StackPanel></Border>
                     </UniformGrid>
                 </StackPanel>
             </Border>

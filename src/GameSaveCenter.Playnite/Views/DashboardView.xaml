@@ -190,7 +190,7 @@
              measured height and vertical center. Spacing is owned by the parent layout. -->
         <Style x:Key="GscToolbarButton" TargetType="Button" BasedOn="{StaticResource GscButtonBase}">
             <Setter Property="Margin" Value="0"/>
-            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="MinHeight" Value="38"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -198,7 +198,7 @@
 
         <Style x:Key="GscToolbarPrimaryButton" TargetType="Button" BasedOn="{StaticResource GscPrimaryButton}">
             <Setter Property="Margin" Value="0"/>
-            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="MinHeight" Value="38"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -866,7 +866,7 @@
                 Padding="18,0"
                 SnapsToDevicePixels="True">
         </Border>
-        <Grid x:Name="HeaderGrid" Grid.Row="0" Margin="4,0,0,16" MinWidth="0">
+        <Grid x:Name="HeaderGrid" Grid.Row="0" Margin="12,0,0,16" MinWidth="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -917,7 +917,9 @@
 
             <Border x:Name="GameSwitcherHost" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="1"
                     Margin="0" MaxWidth="640" HorizontalAlignment="Left"
-                    Style="{StaticResource GscRedesignSectionCard}" Padding="7" Visibility="Collapsed">
+                    Background="{DynamicResource GscGlassFillBrush}"
+                    BorderBrush="Transparent" BorderThickness="0"
+                    CornerRadius="16" Padding="5" Visibility="Collapsed">
                 <Button x:Name="CompactGameSelector" Style="{StaticResource GscRedesignGameContextButton}"
                         HorizontalAlignment="Stretch" Click="OnToggleGameBrowserClick"
                         AutomationProperties.Name="选择当前游戏"
