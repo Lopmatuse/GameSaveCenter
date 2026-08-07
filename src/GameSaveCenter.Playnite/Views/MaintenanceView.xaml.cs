@@ -55,6 +55,12 @@ namespace GameSaveCenter.Playnite.Views
             // diagnostics tables finite while their own controls handle overflow.
             DiagnosticHealthPanel.Visibility = Visibility.Visible;
             var compact = height < 760 || width < 980;
+            // The retention page is a left-aligned reading form capped at 1050.
+            // Give the StackPanel an explicit viewport width so the cards fill
+            // the form instead of collapsing to their content width, mirroring
+            // the SaveCenter policy page. The 4 is the right padding of
+            // GscPageScrollViewer.
+            MaintenanceRetentionStack.Width = Math.Max(0, Math.Min(width - 4, 1050));
             // The findings table has five readable columns plus an inspector. Keep the
             // inspector beside it only when the main table can still show those columns;
             // otherwise stack it before WPF starts compressing the text into a single strip.
