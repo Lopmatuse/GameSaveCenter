@@ -1,23 +1,19 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using System.Windows.Media;
-using System.Windows.Threading;
-using System.Collections.Generic;
 using System;
 
 namespace GameSaveCenter.Playnite.Views
 {
     public partial class MaintenanceView : UserControl
     {
-        private readonly HashSet<DataGrid> _headerThemeGrids = new HashSet<DataGrid>();
-
         public MaintenanceView()
         {
             InitializeComponent();
 
-            // Loaded is a direct WPF event. Subscribe to each concrete DataGrid so the
-            // deterministic header/scrolling fallback actually runs for generated headers.
+            // Loaded is a direct WPF event. Re-assert the explicit local header styles once
+            // per grid so generated headers never fall back to a Playnite host default.
+            // The XAML HeaderStyle declarations own the theme; no visual-tree scanning here.
             FindingsGrid.Loaded += DataGridLoaded;
             MaintenanceDeviceGrid.Loaded += DataGridLoaded;
             MaintenanceAuditFindingsGrid.Loaded += DataGridLoaded;
@@ -27,10 +23,7 @@ namespace GameSaveCenter.Playnite.Views
         private void DataGridLoaded(object sender, RoutedEventArgs e)
         {
             if (sender is DataGrid grid)
-            {
                 ApplyGridHeaderTheme(grid);
-                QueueGridHeaderTheme(grid);
-            }
         }
 
         private void ApplyGridHeaderTheme(DataGrid grid)
@@ -50,75 +43,6 @@ namespace GameSaveCenter.Playnite.Views
                     : index == grid.Columns.Count - 1 && lastStyle != null
                         ? lastStyle
                         : normalStyle;
-
-                if (string.Equals(column.Header as string, "建议处理", StringComparison.Ordinal))
-                {
-                    // Keep the action column readable without allowing it to consume the
-                    // majority of the diagnostic table at the initial layout pass.
-                    column.Width = new DataGridLength(0.75, DataGridLengthUnitType.Star);
-                    column.MinWidth = 180;
-                }
-            }
-
-            if (_headerThemeGrids.Add(grid))
-            {
-                grid.SizeChanged += GridSizeChanged;
-                grid.Unloaded += GridUnloaded;
-            }
-        }
-
-        private void GridSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (sender is DataGrid grid)
-                QueueGridHeaderTheme(grid);
-        }
-
-        private void GridUnloaded(object sender, RoutedEventArgs e)
-        {
-            if (sender is DataGrid grid)
-            {
-                grid.SizeChanged -= GridSizeChanged;
-                grid.Unloaded -= GridUnloaded;
-                _headerThemeGrids.Remove(grid);
-            }
-        }
-
-        private void QueueGridHeaderTheme(DataGrid grid)
-        {
-            Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() =>
-            {
-                if (!grid.IsLoaded)
-                    return;
-
-                ApplyGridHeaderTheme(grid);
-                foreach (var header in FindVisualChildren<DataGridColumnHeader>(grid))
-                    ApplyColumnHeaderTheme(header);
-            }));
-        }
-
-        private void ApplyColumnHeaderTheme(DataGridColumnHeader header)
-        {
-            if (TryFindResource("GscDataGridColumnHeaderStyle") is Style themedHeaderStyle)
-                header.Style = themedHeaderStyle;
-            header.OverridesDefaultStyle = true;
-            header.SetResourceReference(Control.BackgroundProperty, "GscTableHeaderBrush");
-            header.SetResourceReference(Control.ForegroundProperty, "GscPrimaryTextBrush");
-            header.SetResourceReference(Control.BorderBrushProperty, "GscTableDividerBrush");
-        }
-
-        private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root) where T : DependencyObject
-        {
-            if (root == null)
-                yield break;
-
-            for (var index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
-            {
-                var child = VisualTreeHelper.GetChild(root, index);
-                if (child is T match)
-                    yield return match;
-
-                foreach (var nested in FindVisualChildren<T>(child))
-                    yield return nested;
             }
         }
         public UniformGrid DiagnosticHealthPanelElement => DiagnosticHealthPanel;

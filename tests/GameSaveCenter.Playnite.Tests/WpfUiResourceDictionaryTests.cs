@@ -960,7 +960,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\"", media);
         Assert.Contains("MinHeight=\"0\" ClipToBounds=\"True\"", media);
         Assert.Contains("MinHeight=\"0\" ItemsSource=\"{Binding UnassignedMedia}\"", media);
-        Assert.Contains("SetResourceReference(Control.BackgroundProperty, \"GscTableHeaderBrush\")", maintenanceCode);
+        Assert.Contains("OverridesDefaultStyle\" Value=\"True\"", maintenance);
+        Assert.DoesNotContain("FindVisualChildren", maintenanceCode);
         Assert.Contains("MediaInspectorScrollViewer.MaxHeight = width >= 1080", mediaCode);
         Assert.Contains("MinHeight=\"90\" MaxHeight=\"220\"", maintenance);
         Assert.Contains("TaskSummaryPanel.Columns", taskCode);
