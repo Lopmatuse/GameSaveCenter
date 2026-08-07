@@ -1,7 +1,17 @@
 # 项目记忆与不可丢失约束
 
-更新时间：2026-08-06
+更新时间：2026-08-07
 当前版本：`0.6.70-development-preview`
+
+> UI-122：首页“无需处理/需处理”互斥胶囊的 Visibility 触发器必须作用于外层 Border 而非内部 TextBlock，否则文字隐藏时会残留一个空白胶囊框。当前实现用 `Border.Style`（BasedOn `GscRedesignContextPill`）承载 DataTrigger，绑定 `Snapshot.WarningGames` 保持 OneWay，禁止回退到 TextBlock.Style 折叠。
+
+> UI-121：首页 TODAY 大横幅与需处理胶囊全部绑定真实 `Snapshot.*`（WarningGames/WorkerHealthy/PendingCloudTasks/UnassignedMediaCount），不引入 Demo 假数据；Worker 异常触发器放在最前、`WarningGames==0` 的“整体状态安全”次之，保持纯 XAML 无 ViewModel 改动。
+
+> UI-120：共享布局令牌 `GscInspectorWidth`=360、`GscFormMaxWidth`=1120、`GscSidebarWidth`=228、`GscCompactSidebarWidth`=76、`GscSpacing1..8`/`GscSectionSpacing`=14；工作区检查器列宽与表单 MaxWidth 一律通过令牌取值，避免页级魔法数字漂移。例外：`MediaCenterView` 当前游戏媒体检查器必须保留字面量 `Width="370"`（回归断言）。
+
+> UI-119：工作区布局重构后必须同时通过 `WpfUiResourceDictionaryTests` 字符串断言（`GscRedesignSectionCard`=16/16、`GscTableRowHeight`=48、`GscTableViewportHeight`=720、`GscTableHeaderHeight`=42、各页 MaxWidth/断点），防止“能编译但布局契约回归”。
+
+> UI-118：工作区布局按 Demo 压缩后仍必须保留：Dashboard 游戏上下文命令（立即备份/刷新详情/查看需关注项）、任务中心筛选与详情检查器、维护中心保留策略只读预览、媒体待归类底部操作区独立于 DataGrid 滚动区、全部 Recycling/Standard 虚拟化。
 
 > UI-117：修改器中心的 `TrainerToolsSettingsScrollViewer` 在宽屏必须保持 `MaxHeight=PositiveInfinity` 并填充右侧检查器列；仅在紧凑堆叠布局使用受控的 190–420 DIP 内部滚动。`TrainerReleaseInfoPanel` 使用 `GscRedesignSectionCard`，避免 Demo 对齐后出现短卡片和大片空白。不要恢复固定 280 DIP 的宽屏上限。
 

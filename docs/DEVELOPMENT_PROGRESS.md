@@ -1,7 +1,17 @@
 # 开发实现进度
 
-更新时间：2026-08-06
+更新时间：2026-08-07
 当前版本：`0.6.70-development-preview`
+
+- [x] UI-122：修复首页“今日工作台”互斥状态胶囊在隐藏文字时残留空白胶囊框；把“无需处理/需处理”胶囊的 Visibility 触发器移到外层 Border（BasedOn 共享胶囊样式），隐藏时整颗胶囊一起折叠，绑定与文案原样保留。源码校验、XAML 门禁、Release 构建与 119 项 Playnite 测试通过，仍需 Playnite 宿主验证。
+
+- [x] UI-121：首页补齐 Demo 同款 TODAY 眉题 + 26px 整体状态大横幅与“需处理/无需处理”胶囊联动，全部绑定真实 `Snapshot.*`；当前游戏卡对齐 Demo 高度与留白，Dashboard 首页副标题同步新横幅布局。源码校验、Release 测试和构建通过后仍需 Playnite 宿主验证。
+
+- [x] UI-120：抽取共享布局令牌（`GscSpacing*`、`GscSectionSpacing`、`GscSidebarWidth`、`GscCompactSidebarWidth`、`GscInspectorWidth`=360、`GscFormMaxWidth`=1120），并让存档、修改器、任务、维护中心检查器列宽与表单 MaxWidth 接入令牌，消除页级魔法数字。源码校验、Release 测试和构建通过后仍需 Playnite 宿主验证。
+
+- [x] UI-119：修复共享令牌/工作区布局重构破坏的 Playnite 编译与 UI 布局断言；MediaCenter 当前游戏媒体检查器保留字面量 370 列宽以兼容既有断言。源码校验、Release 构建 0 警告/0 错误与 119 项 Playnite 测试通过，仍需 Playnite 宿主验证。
+
+- [x] UI-118：按 Demo 优化各工作区布局：Dashboard 游戏上下文卡压缩为单行节奏、任务中心指标卡收敛（MinHeight 76）、维护中心保留策略改只读预览布局、媒体待归类/当前游戏媒体与存档历史检查器、修改器导入确认表单 MaxWidth 对齐 Demo 比例；全部保留原命令、绑定与虚拟化。源码校验、Release 测试和构建通过后仍需 Playnite 宿主验证。
 
 - [x] UI-117：修复修改器中心“工具设置”检查器在宽屏固定为约 280 DIP、导致右侧卡片只显示窄条并留下大块空白；宽屏改为填满工作区，窄窗口才启用有限内部滚动，并将工具设置/下载任务表面统一为 Demo 阅读卡。源码校验、XAML 门禁、Release 测试和构建通过后仍需 Playnite 宿主验证。
 
