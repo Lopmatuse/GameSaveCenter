@@ -3,6 +3,8 @@
 更新时间：2026-08-07
 当前版本：`0.6.70-development-preview`
 
+> UI-124：维护中心表头主题必须保持声明式：`MaintenanceDataGrid` 的 `ColumnHeaderStyle` + 每列显式 `MaintenanceFirstColumnHeader`/`MaintenanceLastColumnHeader`/`GscLastColumnHeader`（含 `OverridesDefaultStyle`）承担主题所有权。禁止恢复 `VisualTreeHelper`/`FindVisualChildren` 周期扫描或 `SizeChanged` 内遍历表头来“修复”白色表头；`DataGridLoaded` 只做一次性资源应用。「建议处理」列宽为 `0.75* MinWidth=180`，不得再被运行时代码改写为其他值。
+
 > UI-122：首页“无需处理/需处理”互斥胶囊的 Visibility 触发器必须作用于外层 Border 而非内部 TextBlock，否则文字隐藏时会残留一个空白胶囊框。当前实现用 `Border.Style`（BasedOn `GscRedesignContextPill`）承载 DataTrigger，绑定 `Snapshot.WarningGames` 保持 OneWay，禁止回退到 TextBlock.Style 折叠。
 
 > UI-121：首页 TODAY 大横幅与需处理胶囊全部绑定真实 `Snapshot.*`（WarningGames/WorkerHealthy/PendingCloudTasks/UnassignedMediaCount），不引入 Demo 假数据；Worker 异常触发器放在最前、`WarningGames==0` 的“整体状态安全”次之，保持纯 XAML 无 ViewModel 改动。
