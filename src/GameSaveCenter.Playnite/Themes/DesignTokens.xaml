@@ -422,7 +422,7 @@
                                 </RepeatButton>
                             </Track.DecreaseRepeatButton>
                             <Track.Thumb>
-                                <Thumb Width="16" Height="16" Focusable="False">
+                                <Thumb Width="16" Height="16" Focusable="False" Background="{DynamicResource GscControlFillBrush}">
                                     <Thumb.Template>
                                         <ControlTemplate TargetType="Thumb">
                                             <Border x:Name="ThumbChrome" CornerRadius="8" Background="{TemplateBinding Background}"
@@ -435,7 +435,6 @@
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
                                     </Thumb.Template>
-                                    <Thumb.Background>{DynamicResource GscControlFillBrush}</Thumb.Background>
                                 </Thumb>
                             </Track.Thumb>
                             <Track.IncreaseRepeatButton>

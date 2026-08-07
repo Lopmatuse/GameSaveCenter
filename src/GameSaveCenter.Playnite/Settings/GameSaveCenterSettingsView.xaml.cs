@@ -376,10 +376,6 @@ namespace GameSaveCenter.Playnite.Settings
             {
                 StoragePolicyFields.Columns = twoColumns ? 2 : 1;
             }
-            if (CoreToolFields != null)
-            {
-                CoreToolFields.Columns = twoColumns ? 2 : 1;
-            }
             if (AppearanceFields != null)
             {
                 AppearanceFields.Columns = twoColumns ? 2 : 1;

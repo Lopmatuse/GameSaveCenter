@@ -1845,17 +1845,65 @@ public sealed class WpfUiResourceDictionaryTests
         var settings = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml"));
         var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
 
-        Assert.Contains("x:Name=\"CoreToolFields\" Columns=\"2\"", settings);
         Assert.Contains("x:Name=\"AppearanceFields\" Columns=\"2\"", settings);
         Assert.Contains("x:Name=\"AutomationIntervalFields\" Columns=\"3\"", settings);
         Assert.Contains("x:Name=\"SettingsScroller\" Style=\"{DynamicResource GscPageScrollViewer}\" VerticalScrollBarVisibility=\"Hidden\" HorizontalScrollBarVisibility=\"Disabled\"", settings);
         Assert.Contains("Path=\"DefaultBackupIntervalMinutes\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("Path=\"ProcessPollingSeconds\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("Path=\"DashboardRefreshSeconds\" UpdateSourceTrigger=\"LostFocus\"", settings);
-        Assert.Contains("CoreToolFields.Columns = twoColumns ? 2 : 1", settingsCode);
         Assert.Contains("AppearanceFields.Columns = twoColumns ? 2 : 1", settingsCode);
         Assert.Contains("var contentWidth = Math.Max(320, width - horizontalMargin * 2 - 40);", settingsCode);
         Assert.Contains("AutomationIntervalFields.Columns = expanded && formWidth >= 930 ? 3 : formWidth >= 650 ? 2 : 1", settingsCode);
+        // 核心工具路径字段保持单列全宽行（路径可读性），不再参与两列网格切换。
+        Assert.Contains("x:Name=\"CoreToolFields\"", settings);
+        Assert.DoesNotContain("CoreToolFields.Columns", settingsCode);
+    }
+
+    [Fact]
+    public void SettingsPathFieldsAreFullWidthReadableRowsPreservingEveryBinding()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var settings = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml"));
+
+        foreach (var binding in new[]
+        {
+            "WorkerExecutable", "LudusaviExecutable", "LudusaviBackupDirectory",
+            "RcloneExecutable", "RcloneDestination", "MediaArchiveDirectory"
+        })
+        {
+            Assert.Contains($"Text=\"{{Binding {binding}, UpdateSourceTrigger=PropertyChanged}}\"", settings);
+        }
+
+        Assert.Contains("x:Name=\"CoreToolFields\"", settings);
+        Assert.DoesNotContain("x:Name=\"CoreToolFields\" Columns=\"2\"", settings);
+        Assert.Contains("HorizontalScrollBarVisibility=\"Auto\"", settings);
+        Assert.Contains("Worker 执行任务；Playnite 负责设置入口和游戏事件。路径支持环境变量与相对路径，保存后由 Worker 校验。", settings);
+        Assert.DoesNotContain("#FFFFFF", settings);
+        Assert.DoesNotContain("#000000", settings);
+        Assert.DoesNotContain("#1E1E1E", settings);
+    }
+
+    [Fact]
+    public void SettingsSectionRhythmUsesTitlePlusCaptionRowsForToggles()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var settings = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml"));
+
+        Assert.Contains("页面淡入、滑动、悬停与按钮按压反馈", settings);
+        Assert.Contains("只用于侧栏、浮层和固定环境光，不应用到滚动内容", settings);
+        Assert.Contains("管理面板未打开时也可执行已配置任务", settings);
+        Assert.Contains("识别 Steam、Xbox、启动器和 MOD 管理器外部启动", settings);
+        Assert.Contains("对未匹配游戏记录启动前/退出后文件差异，生成候选路径", settings);
+        Assert.Contains("源文件删除不会删除归档", settings);
+        Assert.Contains("管理面板关闭时也会监测", settings);
+        Assert.Contains("IsChecked=\"{Binding EnableUiAnimations}\"", settings);
+        Assert.Contains("IsChecked=\"{Binding EnableGlassEffects}\"", settings);
+        Assert.Contains("IsChecked=\"{Binding AutoStartWorker}\"", settings);
+        Assert.Contains("IsChecked=\"{Binding EnableProcessDetection}\"", settings);
+        Assert.Contains("IsChecked=\"{Binding EnableSessionSavePathDetection}\"", settings);
+        Assert.Contains("IsChecked=\"{Binding EnableMediaSync}\"", settings);
+        Assert.Contains("IsChecked=\"{Binding EnableTaskNotifications}\"", settings);
+        Assert.Contains("Checked=\"OnVisualSettingChanged\" Unchecked=\"OnVisualSettingChanged\"", settings);
     }
 
     [Fact]
