@@ -167,7 +167,7 @@
             </TabItem>
             <TabItem Header="当前游戏媒体">
                 <Grid x:Name="MediaCurrentLayout" Margin="0,12,0,0" ClipToBounds="True">
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="370"/></Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="{StaticResource GscInspectorWidth}"/></Grid.ColumnDefinitions>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="0"/></Grid.RowDefinitions>
                     <WrapPanel Grid.ColumnSpan="3" Margin="0,0,0,10">
                         <Border Style="{DynamicResource GscRedesignCounterPill}" Margin="0,0,8,8"><TextBlock><Run Text="媒体 "/><Run Text="{Binding MediaSummary.TotalCount, Mode=OneWay}" FontWeight="SemiBold"/></TextBlock></Border>

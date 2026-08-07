@@ -36,8 +36,9 @@ namespace GameSaveCenter.Playnite.Views
             // work area on wide hosts; on compact hosts the inspector moves
             // below the table instead of becoming a narrow strip.
             var stack = width < 1080;
+            var inspectorWidth = MediaCurrentLayout.TryFindResource("GscInspectorWidth") is GridLength gl ? gl : new GridLength(360);
             MediaCurrentLayout.ColumnDefinitions[1].Width = stack ? new GridLength(0) : new GridLength(14);
-            MediaCurrentLayout.ColumnDefinitions[2].Width = stack ? new GridLength(0) : new GridLength(370);
+            MediaCurrentLayout.ColumnDefinitions[2].Width = stack ? new GridLength(0) : inspectorWidth;
             MediaCurrentLayout.RowDefinitions[3].Height = stack ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
             Grid.SetColumn(MediaInspectorFrame, stack ? 0 : 2);
             Grid.SetColumnSpan(MediaInspectorFrame, stack ? 3 : 1);
