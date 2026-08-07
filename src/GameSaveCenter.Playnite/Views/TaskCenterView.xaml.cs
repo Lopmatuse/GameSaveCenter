@@ -32,7 +32,7 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetColumnSpan(TaskDetailScrollViewer, stack ? 3 : 1);
             Grid.SetRow(TaskDetailScrollViewer, stack ? 3 : 2);
             TaskDetailScrollViewer.Margin = stack ? new Thickness(0, 10, 0, 0) : new Thickness(0);
-            TaskDetailScrollViewer.MaxHeight = Math.Max(180, Math.Min(520, height * (stack ? 0.42 : 0.90)));
+            TaskDetailScrollViewer.MaxHeight = stack ? Math.Max(180, height * 0.42) : double.PositiveInfinity;
         }
     }
 }

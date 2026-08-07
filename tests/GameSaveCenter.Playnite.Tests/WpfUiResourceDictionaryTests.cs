@@ -970,7 +970,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("SelectedIndex=\"0\"", taskView);
         Assert.Contains("TaskGameFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=全部, FallbackValue=全部", taskView);
         Assert.Contains("TaskTypeFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, TargetNullValue=全部, FallbackValue=全部", taskView);
-        Assert.Contains("TaskDetailScrollViewer.MaxHeight = Math.Max(180, Math.Min(520, height * (stack ? 0.42 : 0.90)))", taskCode);
+        Assert.Contains("TaskDetailScrollViewer.MaxHeight = stack ? Math.Max(180, height * 0.42) : double.PositiveInfinity", taskCode);
         Assert.Contains("VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Disabled\"", taskView);
         Assert.Contains("TaskWorkspaceView.ApplyResponsiveLayout(width, height)", workspaceCode);
         Assert.Contains("SaveWorkspaceView.ApplyResponsiveLayout(width, height)", workspaceCode);
