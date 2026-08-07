@@ -223,9 +223,9 @@
                       CanContentScroll="False"
                       MinHeight="0">
         <Grid x:Name="OverviewSecondaryPanel" MinWidth="0">
-            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-            <Border Style="{DynamicResource GscRedesignSectionCard}">
-                <StackPanel>
+            <Grid.RowDefinitions><RowDefinition x:Name="OverviewSummaryRow" Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <Border Style="{DynamicResource GscRedesignSectionCard}" VerticalAlignment="Stretch">
+                <StackPanel VerticalAlignment="Top">
                     <TextBlock Style="{DynamicResource GscRedesignSectionTitle}" Text="今日概览"/>
                     <UniformGrid Columns="2" Margin="0,8,0,0">
                         <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,6,6"><StackPanel><TextBlock Text="管理游戏" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding Snapshot.ManagedGames, Mode=OneWay}" Foreground="{DynamicResource GscInfoBrush}" FontSize="18" FontWeight="SemiBold" Margin="0,3,0,0"/></StackPanel></Border>
