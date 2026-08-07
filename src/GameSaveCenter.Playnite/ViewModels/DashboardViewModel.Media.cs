@@ -21,10 +21,13 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             var selectedId = SelectedInboxMedia?.MediaId;
             var targetId = InboxTargetGame?.PlayniteId;
-            var inbox = await plugin.RequestAsync<MediaItemDto[]>(MessageTypes.ListUnassignedMedia, new GameQueryDto { Limit = 5000 });
+            var inbox = (await plugin.RequestAsync<MediaItemDto[]>(MessageTypes.ListUnassignedMedia, new GameQueryDto { Limit = 5000 }))
+                ?? Array.Empty<MediaItemDto>();
             ApplyOnUi(() =>
             {
-                Replace(UnassignedMedia, inbox);
+                if (!InboxEquals(UnassignedMedia, inbox))
+                    UnassignedMedia = new System.Collections.ObjectModel.ObservableCollection<MediaItemDto>(inbox);
+
                 SelectedInboxMedia = UnassignedMedia.FirstOrDefault(x => string.Equals(x.MediaId, selectedId, StringComparison.OrdinalIgnoreCase))
                                      ?? UnassignedMedia.FirstOrDefault();
                 InboxTargetGame = Games.FirstOrDefault(x => string.Equals(x.PlayniteId, targetId, StringComparison.OrdinalIgnoreCase))
@@ -34,7 +37,26 @@ namespace GameSaveCenter.Playnite.ViewModels
             });
         }
 
-        private async Task SyncMediaAsync()
+        private static bool InboxEquals(IReadOnlyList<MediaItemDto> current, IReadOnlyList<MediaItemDto> incoming)
+        {
+            if (current.Count != incoming.Count)
+                return false;
+
+            for (var index = 0; index < current.Count; index++)
+            {
+                var left = current[index];
+                var right = incoming[index];
+                if (!string.Equals(left.MediaId, right.MediaId, StringComparison.OrdinalIgnoreCase)
+                    || left.CapturedUtc != right.CapturedUtc
+                    || !string.Equals(left.ClassificationReason, right.ClassificationReason, StringComparison.Ordinal)
+                    || !string.Equals(left.OriginalPath, right.OriginalPath, StringComparison.Ordinal)
+                    || left.SizeBytes != right.SizeBytes)
+                    return false;
+            }
+
+            return true;
+        }
+
         {
             if (!plugin.Settings.EnableMediaSync)
             {

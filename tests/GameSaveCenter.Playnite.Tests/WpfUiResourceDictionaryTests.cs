@@ -541,13 +541,19 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("VirtualizingPanel.ScrollUnit\" Value=\"Item\"", media);
         Assert.Contains("EnableColumnVirtualization\" Value=\"False\"", media);
         Assert.Contains("x:Name=\"MediaInboxGrid\"", media);
-        Assert.Contains("MediaInboxGrid.Loaded += InboxGridLoaded", File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml.cs")));
+        var mediaCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml.cs"));
+        Assert.DoesNotContain("MediaInboxGrid.Loaded += InboxGridLoaded", mediaCode);
+        Assert.DoesNotContain("ConfigureInboxGrid", mediaCode);
+        Assert.DoesNotContain("InboxGridSizeChanged", mediaCode);
+        Assert.DoesNotContain("FindVisualChild", mediaCode);
         Assert.DoesNotContain("ScrollViewer.Background=\"{DynamicResource GscGlassStrongBrush}\"", media);
         Assert.Contains("ColumnHeaderStyle\" Value=\"{StaticResource GscDataGridColumnHeaderStyle}\"", maintenance);
-        Assert.Contains("FindingsGrid.Loaded += DataGridLoaded", maintenanceCode);
-        Assert.DoesNotContain("AddHandler(FrameworkElement.LoadedEvent, new RoutedEventHandler(ApplyHeaderTheme), true)", maintenanceCode);
         Assert.Contains("HeaderStyle=\"{StaticResource MaintenanceLastColumnHeader}\" Header=\"建议处理\"", maintenance);
-        Assert.Contains("header.OverridesDefaultStyle = true", maintenanceCode);
+        Assert.Contains("DataGridLoaded", maintenanceCode);
+        Assert.DoesNotContain("AddHandler(FrameworkElement.LoadedEvent, new RoutedEventHandler(ApplyHeaderTheme), true)", maintenanceCode);
+        Assert.Contains("UnassignedMedia = new System.Collections.ObjectModel.ObservableCollection<MediaItemDto>(inbox)", File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "ViewModels", "DashboardViewModel.Media.cs")));
+        Assert.Contains("Limit = 5000", File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "ViewModels", "DashboardViewModel.Media.cs")));
+        Assert.DoesNotContain("if (loadInbox) await LoadInboxAsync();", File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "ViewModels", "DashboardViewModel.cs")));
     }
 
     [Fact]

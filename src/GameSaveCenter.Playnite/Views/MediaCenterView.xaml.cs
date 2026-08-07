@@ -2,16 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media;
-using System.Windows.Threading;
 
 namespace GameSaveCenter.Playnite.Views
 {
     public partial class MediaCenterView : UserControl
     {
-        private bool _inboxGridHooksAttached;
-
         public MediaCenterView()
         {
             InitializeComponent();
@@ -22,128 +17,6 @@ namespace GameSaveCenter.Playnite.Views
                 // that transition finite instead of placing both children in the same row.
                 inspectorGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
                 inspectorGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            }
-
-            // Loaded is a direct event in WPF; subscribe to the concrete grid instead of
-            // attempting to catch child Loaded events from the UserControl.
-            MediaInboxGrid.Loaded += InboxGridLoaded;
-            MediaInboxGrid.Unloaded += InboxGridUnloaded;
-        }
-
-        private void InboxGridLoaded(object sender, RoutedEventArgs e)
-        {
-            if (sender is not DataGrid grid)
-                return;
-
-            ConfigureInboxGrid(grid);
-            AttachInboxGridHooks(grid);
-            QueueInboxGridRefresh(grid);
-            foreach (var header in FindVisualChildren<DataGridColumnHeader>(grid))
-                ApplyColumnHeaderTheme(header);
-        }
-
-        private void AttachInboxGridHooks(DataGrid grid)
-        {
-            if (_inboxGridHooksAttached)
-                return;
-
-            _inboxGridHooksAttached = true;
-            grid.SizeChanged += InboxGridSizeChanged;
-        }
-
-        private void InboxGridSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (sender is DataGrid grid)
-                QueueInboxGridRefresh(grid);
-        }
-
-        private void InboxGridUnloaded(object sender, RoutedEventArgs e)
-        {
-            if (sender is DataGrid grid)
-            {
-                grid.SizeChanged -= InboxGridSizeChanged;
-                grid.Loaded -= InboxGridLoaded;
-                grid.Unloaded -= InboxGridUnloaded;
-            }
-
-            _inboxGridHooksAttached = false;
-        }
-
-        private void QueueInboxGridRefresh(DataGrid grid)
-        {
-            Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(() =>
-            {
-                if (!grid.IsLoaded)
-                    return;
-
-                ConfigureInboxGrid(grid);
-                foreach (var header in FindVisualChildren<DataGridColumnHeader>(grid))
-                    ApplyColumnHeaderTheme(header);
-            }));
-        }
-
-        private void ApplyColumnHeaderTheme(DataGridColumnHeader header)
-        {
-            if (TryFindResource("GscDataGridColumnHeaderStyle") is Style themedHeaderStyle)
-                header.Style = themedHeaderStyle;
-            header.OverridesDefaultStyle = true;
-            header.SetResourceReference(Control.BackgroundProperty, "GscTableHeaderBrush");
-            header.SetResourceReference(Control.ForegroundProperty, "GscPrimaryTextBrush");
-            header.SetResourceReference(Control.BorderBrushProperty, "GscTableDividerBrush");
-        }
-
-        private void ConfigureInboxGrid(DataGrid grid)
-        {
-            grid.VerticalContentAlignment = VerticalAlignment.Top;
-            grid.HorizontalContentAlignment = HorizontalAlignment.Stretch;
-            grid.ClipToBounds = true;
-            if (TryFindResource("GscGlassStrongBrush") is Brush surface)
-                grid.Background = surface;
-
-            var scrollViewer = FindVisualChild<ScrollViewer>(grid);
-            if (scrollViewer == null)
-                return;
-
-            scrollViewer.VerticalContentAlignment = VerticalAlignment.Top;
-            scrollViewer.HorizontalContentAlignment = HorizontalAlignment.Stretch;
-            scrollViewer.ClipToBounds = true;
-            if (TryFindResource("GscGlassStrongBrush") is Brush scrollSurface)
-                scrollViewer.Background = scrollSurface;
-
-            var itemsPresenter = FindVisualChild<ItemsPresenter>(scrollViewer);
-            if (itemsPresenter != null)
-                itemsPresenter.VerticalAlignment = VerticalAlignment.Top;
-        }
-
-        private static T? FindVisualChild<T>(DependencyObject root) where T : DependencyObject
-        {
-            for (var index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
-            {
-                var child = VisualTreeHelper.GetChild(root, index);
-                if (child is T match)
-                    return match;
-
-                var nested = FindVisualChild<T>(child);
-                if (nested != null)
-                    return nested;
-            }
-
-            return null;
-        }
-
-        private static IEnumerable<T> FindVisualChildren<T>(DependencyObject root) where T : DependencyObject
-        {
-            if (root == null)
-                yield break;
-
-            for (var index = 0; index < VisualTreeHelper.GetChildrenCount(root); index++)
-            {
-                var child = VisualTreeHelper.GetChild(root, index);
-                if (child is T match)
-                    yield return match;
-
-                foreach (var nested in FindVisualChildren<T>(child))
-                    yield return nested;
             }
         }
 

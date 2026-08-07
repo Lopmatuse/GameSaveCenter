@@ -191,7 +191,12 @@ namespace GameSaveCenter.Playnite.ViewModels
         public ObservableCollection<ProcessMappingDto> ProcessMappings { get; } = new ObservableCollection<ProcessMappingDto>();
         public ObservableCollection<BackupVersionDto> Backups { get; } = new ObservableCollection<BackupVersionDto>();
         public ObservableCollection<MediaItemDto> Media { get; } = new ObservableCollection<MediaItemDto>();
-        public ObservableCollection<MediaItemDto> UnassignedMedia { get; } = new ObservableCollection<MediaItemDto>();
+        private ObservableCollection<MediaItemDto> unassignedMedia = new ObservableCollection<MediaItemDto>();
+        public ObservableCollection<MediaItemDto> UnassignedMedia
+        {
+            get => unassignedMedia;
+            private set => SetValue(ref unassignedMedia, value);
+        }
         public ObservableCollection<AuditLogEntryDto> Audit { get; } = new ObservableCollection<AuditLogEntryDto>();
         public ObservableCollection<SavePathCandidateDto> SaveCandidates { get; } = new ObservableCollection<SavePathCandidateDto>();
         public ObservableCollection<MediaSourceRuleDto> MediaSources { get; } = new ObservableCollection<MediaSourceRuleDto>();
@@ -816,14 +821,11 @@ namespace GameSaveCenter.Playnite.ViewModels
                     DateTime.UtcNow-lastFullDashboardRefreshUtc>=TimeSpan.FromMinutes(1);
                 if(!refreshDashboard)return;
                 var refreshDetails = await RefreshDashboardAsync(false, true);
-                var loadInbox = false;
                 var loadDetails = false;
                 ApplyOnUi(() =>
                 {
-                    loadInbox = CurrentWorkspace == WorkspaceKind.Media;
                     loadDetails = refreshDetails && !IsBusy && SelectedGame != null;
                 });
-                if (loadInbox) await LoadInboxAsync();
                 if (loadDetails) await LoadDetailsAsync();
             }
             catch (Exception ex)
