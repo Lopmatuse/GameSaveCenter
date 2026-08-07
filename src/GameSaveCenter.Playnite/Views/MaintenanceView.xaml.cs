@@ -96,12 +96,15 @@ namespace GameSaveCenter.Playnite.Views
             MaintenanceDeviceLayout.ColumnDefinitions[1].Width = stackDevice ? new GridLength(0) : new GridLength(14);
             MaintenanceDeviceLayout.ColumnDefinitions[2].Width = stackDevice ? new GridLength(0) : new GridLength(360);
             MaintenanceDeviceLayout.RowDefinitions[3].Height = stackDevice ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
-            Grid.SetColumn(MaintenanceDeviceInspector, stackDevice ? 0 : 2);
-            Grid.SetColumnSpan(MaintenanceDeviceInspector, stackDevice ? 3 : 1);
-            Grid.SetRow(MaintenanceDeviceInspector, stackDevice ? 3 : 2);
-            MaintenanceDeviceInspector.Margin = stackDevice ? new Thickness(0, 10, 0, 0) : new Thickness(0, 10, 0, 0);
-            MaintenanceDeviceDecisionScrollViewer.MaxHeight = Math.Max(90, Math.Min(150, height * (compact ? 0.16 : 0.20)));
-            MaintenanceRemoteRestoreScrollViewer.MaxHeight = Math.Max(120, Math.Min(210, height * (compact ? 0.22 : 0.28)));
+            Grid.SetColumn(MaintenanceDeviceInspectorScrollViewer, stackDevice ? 0 : 2);
+            Grid.SetColumnSpan(MaintenanceDeviceInspectorScrollViewer, stackDevice ? 3 : 1);
+            Grid.SetRow(MaintenanceDeviceInspectorScrollViewer, stackDevice ? 3 : 2);
+            MaintenanceDeviceInspectorScrollViewer.Margin = new Thickness(0, 10, 0, 0);
+            // Single inspector scroll owner owns both the manual decision and the
+            // protected remote restore. It fills the table row on wide screens with
+            // its own internal scroll and only gets a finite budget when stacking
+            // below the table on compact windows.
+            MaintenanceDeviceInspectorScrollViewer.MaxHeight = stackDevice ? Math.Max(180, Math.Min(420, height * 0.42)) : double.PositiveInfinity;
 
             var stackAudit = width < 1120 || height < 700;
             MaintenanceAuditLayout.ColumnDefinitions[1].Width = stackAudit ? new GridLength(0) : new GridLength(14);

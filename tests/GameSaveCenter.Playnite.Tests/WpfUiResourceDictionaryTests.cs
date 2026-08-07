@@ -615,8 +615,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Name=\"OverviewRiskScrollViewer\" Style=\"{DynamicResource GscPageScrollViewer}\"", overview);
         Assert.Contains("<ScrollViewer Style=\"{DynamicResource GscPageScrollViewer}\" VerticalScrollBarVisibility=\"Hidden\"", save);
         Assert.Contains("<ScrollViewer Style=\"{DynamicResource GscPageScrollViewer}\" Grid.Row=\"0\" MaxHeight=\"190\"", media);
-        Assert.Contains("x:Name=\"MaintenanceDeviceDecisionScrollViewer\" Style=\"{DynamicResource GscInspectorScrollViewer}\"", maintenance);
-        Assert.Contains("x:Name=\"MaintenanceRemoteRestoreScrollViewer\" Style=\"{DynamicResource GscInspectorScrollViewer}\"", maintenance);
+        Assert.Contains("x:Name=\"MaintenanceDeviceInspectorScrollViewer\" Grid.Row=\"2\" Grid.Column=\"2\" Style=\"{DynamicResource GscInspectorScrollViewer}\"", maintenance);
+        Assert.DoesNotContain("MaintenanceDeviceDecisionScrollViewer", maintenance);
+        Assert.DoesNotContain("MaintenanceRemoteRestoreScrollViewer", maintenance);
         Assert.DoesNotContain("x:Name=\"MaintenanceAuditScrollViewer\"", maintenance);
     }
 
@@ -913,7 +914,7 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
-    public void MaintenanceDeviceActionsUseFiniteScrollChannels()
+    public void MaintenanceDeviceActionsUseSingleFiniteScrollChannel()
     {
         var repositoryRoot = FindRepositoryRoot();
         var maintenancePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml");
@@ -921,20 +922,24 @@ public sealed class WpfUiResourceDictionaryTests
         var maintenanceCode = File.ReadAllText(maintenancePath + ".cs");
         var maintenance = XDocument.Parse(maintenanceText);
 
-        foreach (var name in new[] { "MaintenanceDeviceDecisionScrollViewer", "MaintenanceRemoteRestoreScrollViewer" })
-        {
-            var viewer = maintenance.Descendants().Single(element =>
-                element.Name.LocalName == "ScrollViewer" &&
-                element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == name);
-            Assert.Equal("Auto", viewer.Attribute("VerticalScrollBarVisibility")?.Value);
-            Assert.Equal("Disabled", viewer.Attribute("HorizontalScrollBarVisibility")?.Value);
-            Assert.Equal("{DynamicResource GscInspectorScrollViewer}", viewer.Attribute("Style")?.Value);
-        }
+        // The device inspector is the single right-column scroll owner: one scroll
+        // channel owns both the manual decision and the protected remote restore,
+        // so the page never has two competing scroll bars beside the table.
+        Assert.DoesNotContain("MaintenanceDeviceDecisionScrollViewer", maintenanceText);
+        Assert.DoesNotContain("MaintenanceRemoteRestoreScrollViewer", maintenanceText);
+        var viewer = maintenance.Descendants().Single(element =>
+            element.Name.LocalName == "ScrollViewer" &&
+            element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "MaintenanceDeviceInspectorScrollViewer");
+        Assert.Equal("Auto", viewer.Attribute("VerticalScrollBarVisibility")?.Value);
+        Assert.Equal("Disabled", viewer.Attribute("HorizontalScrollBarVisibility")?.Value);
+        Assert.Equal("{DynamicResource GscInspectorScrollViewer}", viewer.Attribute("Style")?.Value);
+        Assert.Equal("Stretch", viewer.Attribute("VerticalContentAlignment")?.Value);
+        Assert.Null(viewer.Attribute("MaxHeight"));
 
-        Assert.Contains("MaintenanceDeviceDecisionScrollViewer.MaxHeight = Math.Max(90, Math.Min(150, height * (compact ? 0.16 : 0.20)))", maintenanceCode);
-        Assert.Contains("MaintenanceRemoteRestoreScrollViewer.MaxHeight = Math.Max(120, Math.Min(210, height * (compact ? 0.22 : 0.28)))", maintenanceCode);
-        Assert.Contains("MaxHeight=\"150\"", maintenanceText);
-        Assert.Contains("MaxHeight=\"210\"", maintenanceText);
+        Assert.Contains("MaintenanceDeviceInspectorScrollViewer.MaxHeight = stackDevice ? Math.Max(180, Math.Min(420, height * 0.42)) : double.PositiveInfinity;", maintenanceCode);
+        Assert.Contains("Command=\"{Binding SaveDeviceDecisionCommand}\"", maintenanceText);
+        Assert.Contains("Command=\"{Binding StageRemoteBackupCommand}\"", maintenanceText);
+        Assert.Contains("Command=\"{Binding RestoreStagedRemoteBackupCommand}\"", maintenanceText);
     }
 
     [Fact]
@@ -1376,7 +1381,7 @@ public sealed class WpfUiResourceDictionaryTests
         var repositoryRoot = FindRepositoryRoot();
         var maintenance = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml"));
 
-        Assert.Contains("x:Name=\"MaintenanceDeviceDecisionScrollViewer\"", maintenance);
+        Assert.Contains("x:Name=\"MaintenanceDeviceInspectorScrollViewer\"", maintenance);
         Assert.Contains("Command=\"{Binding SaveDeviceDecisionCommand}\"", maintenance);
         Assert.Contains("Command=\"{Binding StageRemoteBackupCommand}\"", maintenance);
         Assert.Contains("Command=\"{Binding RestoreStagedRemoteBackupCommand}\"", maintenance);
