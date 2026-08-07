@@ -249,8 +249,8 @@
             </TabItem>
             <TabItem Header="来源规则">
                 <Grid Margin="0,12,0,0">
-                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <ScrollViewer Style="{DynamicResource GscPageScrollViewer}" Grid.Row="0" MaxHeight="220" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <ScrollViewer Style="{DynamicResource GscPageScrollViewer}" Grid.Row="0" MaxHeight="190" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled">
                         <StackPanel>
                                                 <TextBlock Text="添加截图或录像来源" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="共享目录中无法唯一判断所属游戏的文件会进入待归类收件箱。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,12" TextWrapping="Wrap"/>
                                                 <UniformGrid x:Name="MediaSourceFields" Columns="2" Margin="0,0,0,4"><StackPanel Margin="0,0,12,10"><TextBlock Text="截图或录像目录" Margin="0,0,0,4"/><TextBox Style="{DynamicResource GscWpfUiTextBox}" Text="{Binding CustomMediaSourcePath, UpdateSourceTrigger=PropertyChanged}" ToolTip="公共截图、录像或游戏媒体目录"/></StackPanel><StackPanel Margin="0,0,12,10"><TextBlock Text="文件模式" Margin="0,0,0,4"/><TextBox Style="{DynamicResource GscWpfUiTextBox}" Text="{Binding CustomMediaPattern, UpdateSourceTrigger=PropertyChanged}" ToolTip="例如 *.png 或 *"/></StackPanel><StackPanel Margin="0,0,12,10"><TextBlock Text="目录类型" Margin="0,0,0,4"/><ui:ToggleSwitch Style="{DynamicResource GscWpfUiToggleSwitch}" Content="共享目录" OnContent="开" OffContent="关" IsChecked="{Binding CustomMediaShared}"/></StackPanel><StackPanel Margin="0,0,12,10"><TextBlock Text="操作" Margin="0,0,0,4"/><ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding AddMediaSourceCommand}" Content="添加来源" HorizontalAlignment="Left"/></StackPanel></UniformGrid>

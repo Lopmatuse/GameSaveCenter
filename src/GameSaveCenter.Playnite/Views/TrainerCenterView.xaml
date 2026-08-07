@@ -101,7 +101,7 @@
                         <ui:Button Grid.Row="2" Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding DownloadTrainerCommand}" Content="下载并绑定当前游戏" Margin="12" HorizontalAlignment="Stretch"/>
                     </Grid>
                 </Border>
-                <Border x:Name="TrainerReleaseInfoPanel" Grid.Column="2" Style="{DynamicResource GscReadingCardStyle}" Padding="18">
+                <Border x:Name="TrainerReleaseInfoPanel" Grid.Column="2" Style="{DynamicResource GscRedesignSectionCard}" Padding="18">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <StackPanel>
                             <TextBlock Text="下载任务" FontSize="16" FontWeight="SemiBold"/>
