@@ -77,7 +77,7 @@
         </Style>
 
         <Style x:Key="GscMetricCard" TargetType="{x:Type ui:Card}" BasedOn="{StaticResource GscWpfUiCard}">
-            <Setter Property="Padding" Value="16,13"/>
+            <Setter Property="Padding" Value="16,12"/>
             <Setter Property="Margin" Value="0,0,10,0"/>
             <Setter Property="MinHeight" Value="80"/>
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
@@ -628,7 +628,7 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="13,10"/>
+            <Setter Property="Padding" Value="12,10"/>
             <Setter Property="Margin" Value="0,0,0,5"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Cursor" Value="Hand"/>

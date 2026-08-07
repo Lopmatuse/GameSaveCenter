@@ -130,7 +130,7 @@
     <Style x:Key="GscRedesignHeaderButton" TargetType="{x:Type ui:Button}" BasedOn="{StaticResource GscWpfUiSecondaryButton}">
         <Setter Property="MinHeight" Value="42"/>
         <Setter Property="MinWidth" Value="42"/>
-        <Setter Property="Padding" Value="13,7"/>
+        <Setter Property="Padding" Value="12,8"/>
         <Setter Property="Margin" Value="0,0,8,0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
@@ -138,7 +138,7 @@
     <Style x:Key="GscRedesignPrimaryHeaderButton" TargetType="{x:Type ui:Button}" BasedOn="{StaticResource GscWpfUiPrimaryButton}">
         <Setter Property="MinHeight" Value="42"/>
         <Setter Property="MinWidth" Value="42"/>
-        <Setter Property="Padding" Value="13,7"/>
+        <Setter Property="Padding" Value="12,8"/>
         <Setter Property="Margin" Value="0,0,8,0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>

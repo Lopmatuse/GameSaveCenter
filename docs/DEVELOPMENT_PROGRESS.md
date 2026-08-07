@@ -3,6 +3,8 @@
 更新时间：2026-08-07
 当前版本：`0.6.70-development-preview`
 
+- [x] UI-125：收口共享样式中残留的非节奏间距：`GscRedesignHeaderButton`/`GscRedesignPrimaryHeaderButton` 的 `Padding 13,7` 对齐 Demo 控制填充 12,8，Dashboard `GscMetricCard` 16,13 与侧栏 `GscNavItem` 13,10 收为节奏值 16,12/12,10；全仓 `Margin/Padding` 不再出现 13/17/21/27/31 随机间距（仅装饰粒子与图标对齐保留字面量）。源码校验、XAML 门禁、Release 构建 0 警告/0 错误与 Core 13 + Worker 23 + Playnite 119 全部通过，仍需 Playnite 宿主验证。
+
 - [x] UI-124：移除维护中心四个 DataGrid 的运行时表头主题回填（`QueueGridHeaderTheme`/`FindVisualChildren`/`GridSizeChanged` 的 `VisualTreeHelper` 周期扫描），改为 Loaded 时一次性从本地资源应用首/末列 `HeaderStyle`，`GscLastColumnHeader`（含 `OverridesDefaultStyle`）声明式持有表头主题；「建议处理」列宽同步为实际生效的 `0.75*/180`。回归断言同步为锁定声明式方案并禁止视觉树扫描。源码校验、XAML 门禁、Release 构建 0 警告/0 错误与 Core 13 + Worker 23 + Playnite 119 全部通过，仍需 Playnite 宿主验证。
 
 - [x] UI-123：收口页面非节奏间距与手写子卡表面：Media/Overview/Settings 的 `Padding/Margin=13` 统一为节奏值 12，Overview 风险区两张通用信息卡改用共享 `GscRedesignSubCard`（语义色安全卡保留独立表面）；`WINDOWS_TEST_PLAN.md` 补充首页 TODAY 横幅与状态胶囊真机回归项。源码校验、XAML 门禁、Release 构建 0 警告/0 错误与 119 项 Playnite 测试通过，仍需 Playnite 宿主验证。
