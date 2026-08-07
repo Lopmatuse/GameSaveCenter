@@ -429,7 +429,7 @@ namespace GameSaveCenter.Playnite.Views
             }
             if (OverviewWorkspaceView != null)
             {
-                var stackOverview = width < 1180;
+                var stackOverview = width < 1040;
                 OverviewWorkspaceView.OverviewCompactSecondaryRowHeight = stackOverview ? GridLength.Auto : new GridLength(0);
                 OverviewWorkspaceView.ApplyResponsiveColumns(stackOverview);
                 OverviewWorkspaceView.ApplyResponsiveWidth(width);
@@ -442,9 +442,16 @@ namespace GameSaveCenter.Playnite.Views
                 // Do not restore the legacy metric strip here: UpdateWorkspacePresentation
                 // intentionally collapses it so the page header does not duplicate the
                 // picker and consume the table viewport.
-                GameHeaderActions.Margin = width >= 1180
-                    ? new Thickness(44, 7, 0, 0)
-                    : new Thickness(0, 7, 0, 0);
+                var stackGameHeaderActions = width < 1180;
+                Grid.SetRow(GameHeaderActions, stackGameHeaderActions ? 1 : 0);
+                Grid.SetColumn(GameHeaderActions, stackGameHeaderActions ? 0 : 1);
+                Grid.SetColumnSpan(GameHeaderActions, stackGameHeaderActions ? 2 : 1);
+                GameHeaderActions.HorizontalAlignment = stackGameHeaderActions
+                    ? HorizontalAlignment.Left
+                    : HorizontalAlignment.Right;
+                GameHeaderActions.Margin = stackGameHeaderActions
+                    ? new Thickness(54, 8, 0, 0)
+                    : new Thickness(16, 0, 0, 0);
             }
 
             if (MediaWorkspaceView != null)

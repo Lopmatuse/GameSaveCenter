@@ -16,7 +16,7 @@ namespace GameSaveCenter.Playnite.Views
             // inspector below the table so actions remain reachable without a
             // page-level scrollbar or clipped controls.
             SaveHistoryLayout.ColumnDefinitions[1].Width = compact ? new GridLength(0) : new GridLength(14);
-            SaveHistoryLayout.ColumnDefinitions[2].Width = compact ? new GridLength(0) : new GridLength(330);
+            SaveHistoryLayout.ColumnDefinitions[2].Width = compact ? new GridLength(0) : new GridLength(360);
             SaveHistoryLayout.RowDefinitions[1].Height = compact ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
             Grid.SetColumn(SaveHistoryActionsScrollViewer, compact ? 0 : 2);
             Grid.SetColumnSpan(SaveHistoryActionsScrollViewer, compact ? 3 : 1);
@@ -24,7 +24,7 @@ namespace GameSaveCenter.Playnite.Views
             SaveHistoryActionsScrollViewer.Margin = compact ? new Thickness(0, 10, 0, 0) : new Thickness(0);
             SaveHistoryActionsScrollViewer.MaxHeight = Math.Max(150, Math.Min(360, height * (compact ? 0.42 : 0.90)));
             SaveCandidateLayout.ColumnDefinitions[1].Width = compact ? new GridLength(0) : new GridLength(14);
-            SaveCandidateLayout.ColumnDefinitions[2].Width = compact ? new GridLength(0) : new GridLength(330);
+            SaveCandidateLayout.ColumnDefinitions[2].Width = compact ? new GridLength(0) : new GridLength(360);
             Grid.SetColumn(SaveCandidateReasonScrollViewer, compact ? 0 : 2);
             Grid.SetColumnSpan(SaveCandidateReasonScrollViewer, compact ? 3 : 1);
             Grid.SetRow(SaveCandidateReasonScrollViewer, compact ? 1 : 0);
@@ -50,7 +50,7 @@ namespace GameSaveCenter.Playnite.Views
 
             var stackCompare = width < 980 || height < 760;
             SaveCompareLayout.ColumnDefinitions[1].Width = stackCompare ? new GridLength(0) : new GridLength(14);
-            SaveCompareLayout.ColumnDefinitions[2].Width = stackCompare ? new GridLength(0) : new GridLength(330);
+            SaveCompareLayout.ColumnDefinitions[2].Width = stackCompare ? new GridLength(0) : new GridLength(360);
             Grid.SetColumn(SaveCompareRetentionScrollViewer, stackCompare ? 0 : 2);
             Grid.SetColumnSpan(SaveCompareRetentionScrollViewer, stackCompare ? 3 : 1);
             Grid.SetRow(SaveCompareRetentionScrollViewer, 0);

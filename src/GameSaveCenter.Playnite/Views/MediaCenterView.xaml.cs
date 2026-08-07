@@ -1,25 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 
 namespace GameSaveCenter.Playnite.Views
 {
     public partial class MediaCenterView : UserControl
     {
-        public MediaCenterView()
-        {
-            InitializeComponent();
-            if (MediaInspectorPanel.Child is Grid inspectorGrid && inspectorGrid.RowDefinitions.Count == 0)
-            {
-                // The inspector is a two-column surface on wide layouts and becomes a
-                // preview-over-details surface when the host is narrow. Explicit rows keep
-                // that transition finite instead of placing both children in the same row.
-                inspectorGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-                inspectorGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            }
-        }
+        public MediaCenterView() => InitializeComponent();
 
         public UniformGrid MediaSummaryPanelElement => MediaSummaryPanel;
         public UniformGrid MediaSourceFieldsElement => MediaSourceFields;
@@ -36,7 +23,7 @@ namespace GameSaveCenter.Playnite.Views
             // On wide layouts the inspector is a peer of the media list and must stretch to
             // the same finite Grid row. A hard 300-DIP cap made its border appear to float
             // outside the table frame and left unused space below it.
-            MediaInspectorScrollViewer.MaxHeight = width >= 1240
+            MediaInspectorScrollViewer.MaxHeight = width >= 1080
                 ? double.PositiveInfinity
                 : Math.Max(220, Math.Min(420, height * 0.56));
             MediaSummaryPanel.Columns = width >= 1180 ? 4 : width >= 820 ? 2 : 1;
@@ -47,19 +34,18 @@ namespace GameSaveCenter.Playnite.Views
             // Match the demo: the media table and its inspector share the main
             // work area on wide hosts; on compact hosts the inspector moves
             // below the table instead of becoming a narrow strip.
-            var stack = width < 1240;
+            var stack = width < 1080;
             MediaCurrentLayout.ColumnDefinitions[1].Width = stack ? new GridLength(0) : new GridLength(14);
-            MediaCurrentLayout.ColumnDefinitions[2].Width = stack ? new GridLength(0) : new GridLength(360);
+            MediaCurrentLayout.ColumnDefinitions[2].Width = stack ? new GridLength(0) : new GridLength(370);
             MediaCurrentLayout.RowDefinitions[3].Height = stack ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
             Grid.SetColumn(MediaInspectorFrame, stack ? 0 : 2);
             Grid.SetColumnSpan(MediaInspectorFrame, stack ? 3 : 1);
             Grid.SetRow(MediaInspectorFrame, stack ? 3 : 2);
             MediaInspectorFrame.Margin = stack ? new Thickness(0, 10, 0, 0) : new Thickness(0);
-            Grid.SetColumnSpan(MediaPreviewPanel, stack ? 2 : 1);
-            MediaPreviewPanel.Margin = stack ? new Thickness(0, 0, 0, 12) : new Thickness(0, 0, 12, 0);
-            Grid.SetColumn(MediaMetadataPanel, stack ? 0 : 1);
-            Grid.SetRow(MediaMetadataPanel, stack ? 1 : 0);
-            Grid.SetColumnSpan(MediaMetadataPanel, stack ? 2 : 1);
+            // The inspector itself always uses the demo's preview-over-details layout.
+            // Responsive work only moves that complete inspector beside/below the media list;
+            // it never rewrites the inspector's internal visual tree during a resize.
+            MediaPreviewPanel.Margin = new Thickness(0, 0, 0, 14);
         }
     }
 }

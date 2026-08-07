@@ -34,7 +34,7 @@ namespace GameSaveCenter.Playnite.Views
                 : new GridLength(14);
             InstalledToolsLayout.ColumnDefinitions[2].Width = stackInstalled
                 ? new GridLength(0)
-                : new GridLength(320);
+                : new GridLength(370);
             Grid.SetColumn(TrainerToolsSettingsScrollViewer, stackInstalled ? 0 : 2);
             Grid.SetRow(TrainerToolsSettingsScrollViewer, stackInstalled ? 3 : 0);
             Grid.SetRowSpan(TrainerToolsSettingsScrollViewer, stackInstalled ? 1 : 4);
@@ -54,7 +54,7 @@ namespace GameSaveCenter.Playnite.Views
                 : new GridLength(14);
             TrainerReleasesLayout.ColumnDefinitions[2].Width = stackReleases
                 ? new GridLength(0)
-                : new GridLength(320);
+                : new GridLength(370);
             Grid.SetRow(TrainerCatalogReleasesPanel, 0);
             Grid.SetColumn(TrainerCatalogReleasesPanel, 0);
             Grid.SetColumnSpan(TrainerCatalogReleasesPanel, stackReleases ? 3 : 1);

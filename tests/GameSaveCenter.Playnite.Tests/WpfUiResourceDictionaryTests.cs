@@ -961,7 +961,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("MinHeight=\"0\" ClipToBounds=\"True\"", media);
         Assert.Contains("MinHeight=\"0\" ItemsSource=\"{Binding UnassignedMedia}\"", media);
         Assert.Contains("SetResourceReference(Control.BackgroundProperty, \"GscTableHeaderBrush\")", maintenanceCode);
-        Assert.Contains("MediaInspectorScrollViewer.MaxHeight = width >= 1240", mediaCode);
+        Assert.Contains("MediaInspectorScrollViewer.MaxHeight = width >= 1080", mediaCode);
         Assert.Contains("MinHeight=\"90\" MaxHeight=\"220\"", maintenance);
         Assert.Contains("TaskSummaryPanel.Columns", taskCode);
         var taskView = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TaskCenterView.xaml"));
@@ -1055,8 +1055,28 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Property=\"EnableRowVirtualization\" Value=\"True\"", media);
         Assert.Contains("Text=\"{Binding MediaSummary.TotalSizeDisplay, Mode=OneWay}\"", media);
         Assert.DoesNotContain("MediaSummary.TotalSizeDisplay, Mode=TwoWay", media);
-        Assert.Contains("var stack = width < 1240", mediaCode);
-        Assert.Contains("Grid.SetRow(MediaMetadataPanel, stack ? 1 : 0)", mediaCode);
+        Assert.Contains("var stack = width < 1080", mediaCode);
+        Assert.Contains("MediaPreviewPanel.Margin = new Thickness(0, 0, 0, 14)", mediaCode);
+        Assert.Contains("ColumnDefinition Width=\"370\"", media);
+    }
+
+    [Fact]
+    public void DemoPhaseTwoLayoutKeepsNaturalFormsAndDesktopInspectors()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var saves = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "SaveCenterView.xaml"));
+        var trainers = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TrainerCenterView.xaml"));
+        var maintenance = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml"));
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        var maintenanceCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml.cs"));
+
+        Assert.Contains("MaxWidth=\"1120\" HorizontalAlignment=\"Left\"", saves);
+        Assert.Contains("MaxWidth=\"980\" HorizontalAlignment=\"Left\" VerticalAlignment=\"Top\"", trainers);
+        Assert.Contains("MaxWidth=\"1050\" HorizontalAlignment=\"Stretch\" VerticalAlignment=\"Top\"", maintenance);
+        Assert.Contains("var stackOverview = width < 1040", dashboardCode);
+        Assert.Contains("var stackDiagnostics = width < 1120", maintenanceCode);
+        Assert.Contains("var stackDevice = width < 1180", maintenanceCode);
+        Assert.DoesNotContain("width < 1360", maintenanceCode);
     }
 
     [Fact]

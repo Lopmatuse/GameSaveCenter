@@ -138,36 +138,40 @@ namespace GameSaveCenter.Playnite.Views
             // room for readable game/title/detail/action columns.  At common 1280-DIP and
             // high-DPI sizes the inspector must stack instead of forcing ellipses into every
             // column and exposing the host's white fallback header surface.
-            var stackDiagnostics = width < 1360;
+            var stackDiagnostics = width < 1120;
             MaintenanceDiagnosticsLayout.ColumnDefinitions[1].Width = stackDiagnostics ? new GridLength(0) : new GridLength(14);
-            MaintenanceDiagnosticsLayout.ColumnDefinitions[2].Width = stackDiagnostics ? new GridLength(0) : new GridLength(330);
+            MaintenanceDiagnosticsLayout.ColumnDefinitions[2].Width = stackDiagnostics ? new GridLength(0) : new GridLength(360);
             MaintenanceDiagnosticsLayout.RowDefinitions[1].Height = stackDiagnostics ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
             Grid.SetColumn(MaintenanceDiagnosticDetails, stackDiagnostics ? 0 : 2);
             Grid.SetColumnSpan(MaintenanceDiagnosticDetails, stackDiagnostics ? 3 : 1);
             Grid.SetRow(MaintenanceDiagnosticDetails, stackDiagnostics ? 1 : 0);
             MaintenanceDiagnosticDetails.Margin = stackDiagnostics ? new Thickness(0, 10, 0, 0) : new Thickness(0);
-            var stackProcess = width < 1360;
+            var stackProcess = width < 1040;
             MaintenanceProcessLayout.ColumnDefinitions[1].Width = stackProcess ? new GridLength(0) : new GridLength(14);
-            MaintenanceProcessLayout.ColumnDefinitions[2].Width = stackProcess ? new GridLength(0) : new GridLength(330);
+            MaintenanceProcessLayout.ColumnDefinitions[2].Width = stackProcess ? new GridLength(0) : new GridLength(360);
             MaintenanceProcessLayout.RowDefinitions[2].Height = stackProcess ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
             Grid.SetColumn(MaintenanceProcessInspector, stackProcess ? 0 : 2);
             Grid.SetColumnSpan(MaintenanceProcessInspector, stackProcess ? 3 : 1);
             Grid.SetRow(MaintenanceProcessInspector, stackProcess ? 2 : 1);
             MaintenanceProcessInspector.Margin = stackProcess ? new Thickness(0, 10, 0, 0) : new Thickness(0);
-            var stackDevice = width < 1360;
+            var stackDevice = width < 1180;
             MaintenanceDeviceLayout.ColumnDefinitions[1].Width = stackDevice ? new GridLength(0) : new GridLength(14);
-            MaintenanceDeviceLayout.ColumnDefinitions[2].Width = stackDevice ? new GridLength(0) : new GridLength(330);
+            MaintenanceDeviceLayout.ColumnDefinitions[2].Width = stackDevice ? new GridLength(0) : new GridLength(360);
             MaintenanceDeviceLayout.RowDefinitions[3].Height = stackDevice ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
             Grid.SetColumn(MaintenanceDeviceInspector, stackDevice ? 0 : 2);
             Grid.SetColumnSpan(MaintenanceDeviceInspector, stackDevice ? 3 : 1);
             Grid.SetRow(MaintenanceDeviceInspector, stackDevice ? 3 : 2);
             MaintenanceDeviceInspector.Margin = stackDevice ? new Thickness(0, 10, 0, 0) : new Thickness(0, 10, 0, 0);
-            MaintenanceDeviceDecisionScrollViewer.MaxHeight = Math.Max(90, Math.Min(150, height * (compact ? 0.16 : 0.20)));
-            MaintenanceRemoteRestoreScrollViewer.MaxHeight = Math.Max(120, Math.Min(210, height * (compact ? 0.22 : 0.28)));
+            MaintenanceDeviceDecisionScrollViewer.MaxHeight = stackDevice
+                ? Math.Max(110, Math.Min(190, height * 0.22))
+                : double.PositiveInfinity;
+            MaintenanceRemoteRestoreScrollViewer.MaxHeight = stackDevice
+                ? Math.Max(150, Math.Min(260, height * 0.30))
+                : double.PositiveInfinity;
 
-            var stackAudit = width < 1360 || height < 760;
+            var stackAudit = width < 1120 || height < 700;
             MaintenanceAuditLayout.ColumnDefinitions[1].Width = stackAudit ? new GridLength(0) : new GridLength(14);
-            MaintenanceAuditLayout.ColumnDefinitions[2].Width = stackAudit ? new GridLength(0) : new GridLength(350);
+            MaintenanceAuditLayout.ColumnDefinitions[2].Width = stackAudit ? new GridLength(0) : new GridLength(370);
             Grid.SetColumn(MaintenanceAuditInspector, stackAudit ? 0 : 2);
             Grid.SetColumnSpan(MaintenanceAuditInspector, stackAudit ? 3 : 1);
             Grid.SetRow(MaintenanceAuditInspector, stackAudit ? 1 : 0);
