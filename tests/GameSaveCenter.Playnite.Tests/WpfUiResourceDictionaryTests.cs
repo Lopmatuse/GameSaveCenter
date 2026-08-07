@@ -696,25 +696,35 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
-    public void DiagnosticExpanderUsesSharedRoundedThemeAndKeepsLongContentScrollable()
+    public void DiagnosticInspectorKeepsLongContentScrollableAndOwnsNoDeadRightColumn()
     {
         var repositoryRoot = FindRepositoryRoot();
-        var designTokens = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "DesignTokens.xaml"));
         var maintenancePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml");
         var maintenanceText = File.ReadAllText(maintenancePath);
         var maintenance = XDocument.Parse(maintenanceText);
-        var expander = maintenance.Descendants().Single(element => element.Name.LocalName == "Expander");
 
-        Assert.Contains("x:Key=\"GscExpander\"", designTokens);
-        Assert.Contains("TargetType=\"Expander\"", designTokens);
-        Assert.Contains("CornerRadius=\"{StaticResource GscCornerControl}\"", designTokens);
-        Assert.Contains("GscSharedFocusVisual", designTokens);
-        Assert.Equal("GscExpander", expander.Attribute("Style")?.Value?.Replace("{DynamicResource ", string.Empty).TrimEnd('}'));
+        // The diagnostics detail inspector mirrors the approved audit reading card:
+        // title / detail / suggested action with an info band, collapsed until a
+        // finding is selected so no fixed empty right column remains.
+        Assert.DoesNotContain(maintenance.Descendants(), element => element.Name.LocalName == "Expander");
+        Assert.DoesNotContain("x:Name=\"MaintenanceDiagnosticDetails\"", maintenanceText);
+        var inspector = maintenance.Descendants().Single(element =>
+            element.Name.LocalName == "ScrollViewer" &&
+            element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "MaintenanceDiagnosticsInspector");
+        Assert.Equal("Auto", inspector.Attribute("VerticalScrollBarVisibility")?.Value);
+        Assert.Equal("Disabled", inspector.Attribute("HorizontalScrollBarVisibility")?.Value);
+        Assert.Contains("Text=\"诊断详情\" Style=\"{DynamicResource GscSectionTitleStyle}\"", maintenanceText);
+        Assert.Contains("SelectedFinding.SuggestedAction, TargetNullValue=暂无建议处理方式", maintenanceText);
 
-        var textBox = expander.Descendants().Single(element => element.Name.LocalName == "TextBox");
+        // The full diagnostic summary left the inspector and lives in a full-width
+        // strip with both scrollbars enabled for long worker output.
+        var summary = maintenance.Descendants().Single(element =>
+            element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "MaintenanceDiagnosticSummaryGrid");
+        var textBox = summary.Descendants().Single(element => element.Name.LocalName == "TextBox");
         Assert.Equal("Auto", textBox.Attribute("VerticalScrollBarVisibility")?.Value);
         Assert.Equal("Auto", textBox.Attribute("HorizontalScrollBarVisibility")?.Value);
-        Assert.DoesNotContain("<Expander Grid.Row=\"1\" Header=\"查看完整诊断信息\" Margin=\"0,10,0,0\">", maintenanceText);
+        Assert.Equal("Consolas", textBox.Attribute("FontFamily")?.Value);
+        Assert.Equal("NoWrap", textBox.Attribute("TextWrapping")?.Value);
     }
 
     [Fact]
@@ -767,6 +777,32 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains(auditLog.Ancestors(), ancestor =>
             ancestor.Name.LocalName == "Border" && ancestor.Attribute("Grid.Row")?.Value == "2" && ancestor.Attribute("Grid.ColumnSpan")?.Value == "3");
         Assert.Contains("MaintenanceAuditLogGrid.MinHeight = stackAudit ? 96 : 140", File.ReadAllText(maintenancePath + ".cs"));
+    }
+
+    [Fact]
+    public void MaintenanceDiagnosticsTableSpansFullWidthUntilAFindingIsSelected()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var maintenancePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml");
+        var maintenanceText = File.ReadAllText(maintenancePath);
+        var maintenance = XDocument.Parse(maintenanceText);
+
+        // The findings table expands over the inspector column while nothing is
+        // selected, and the detail inspector collapses so no fixed empty right
+        // column remains on the diagnostics page.
+        Assert.Contains("x:Name=\"MaintenanceDiagnosticsTable\"", maintenanceText);
+        Assert.Contains("<DataTrigger Binding=\"{Binding SelectedFinding}\" Value=\"{x:Null}\">", maintenanceText);
+        Assert.Contains("<Setter Property=\"Grid.ColumnSpan\" Value=\"3\"/>", maintenanceText);
+        Assert.Contains("<Setter Property=\"Visibility\" Value=\"Collapsed\"/>", maintenanceText);
+        Assert.Contains("<Setter Property=\"Visibility\" Value=\"Visible\"/>", maintenanceText);
+
+        // The full diagnostic summary left the detail inspector and owns a full-width
+        // strip below the findings table instead of being squeezed into the 360-DIP column.
+        var summary = maintenance.Descendants().Single(element =>
+            element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "MaintenanceDiagnosticSummaryGrid");
+        Assert.Equal("1", summary.Attribute("Grid.Row")?.Value);
+        Assert.Equal("3", summary.Attribute("Grid.ColumnSpan")?.Value);
+        Assert.Contains("MaintenanceDiagnosticsInspector.MaxHeight = stackDiagnostics ? Math.Max(150, height * 0.34) : double.PositiveInfinity", File.ReadAllText(maintenancePath + ".cs"));
     }
 
     [Fact]
@@ -1020,7 +1056,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("OverridesDefaultStyle\" Value=\"True\"", maintenance);
         Assert.DoesNotContain("FindVisualChildren", maintenanceCode);
         Assert.Contains("MediaInspectorScrollViewer.MaxHeight = width >= 1080", mediaCode);
-        Assert.Contains("MinHeight=\"90\" MaxHeight=\"220\"", maintenance);
+        Assert.Contains("MinHeight=\"96\" MaxHeight=\"160\"", maintenance);
         Assert.Contains("TaskSummaryPanel.Columns", taskCode);
         var taskView = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "TaskCenterView.xaml"));
         Assert.Contains("x:Name=\"TaskDetailScrollViewer\"", taskView);

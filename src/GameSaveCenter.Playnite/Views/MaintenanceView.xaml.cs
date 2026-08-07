@@ -71,11 +71,19 @@ namespace GameSaveCenter.Playnite.Views
             var stackDiagnostics = width < 1120;
             MaintenanceDiagnosticsLayout.ColumnDefinitions[1].Width = stackDiagnostics ? new GridLength(0) : new GridLength(14);
             MaintenanceDiagnosticsLayout.ColumnDefinitions[2].Width = stackDiagnostics ? new GridLength(0) : new GridLength(360);
-            MaintenanceDiagnosticsLayout.RowDefinitions[1].Height = stackDiagnostics ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
-            Grid.SetColumn(MaintenanceDiagnosticDetails, stackDiagnostics ? 0 : 2);
-            Grid.SetColumnSpan(MaintenanceDiagnosticDetails, stackDiagnostics ? 3 : 1);
-            Grid.SetRow(MaintenanceDiagnosticDetails, stackDiagnostics ? 1 : 0);
-            MaintenanceDiagnosticDetails.Margin = stackDiagnostics ? new Thickness(0, 10, 0, 0) : new Thickness(0);
+            // The full diagnostic summary owns row 1 as an always-visible full-width strip;
+            // the detail inspector stacks into row 2 only in compact windows.
+            MaintenanceDiagnosticsLayout.RowDefinitions[2].Height = stackDiagnostics ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
+            Grid.SetColumn(MaintenanceDiagnosticsInspector, stackDiagnostics ? 0 : 2);
+            Grid.SetColumnSpan(MaintenanceDiagnosticsInspector, stackDiagnostics ? 3 : 1);
+            Grid.SetRow(MaintenanceDiagnosticsInspector, stackDiagnostics ? 2 : 0);
+            MaintenanceDiagnosticsInspector.Margin = stackDiagnostics ? new Thickness(0, 10, 0, 0) : new Thickness(0);
+            // The detail inspector owns only the selected finding; the full diagnostic
+            // summary strip stays below the table. In stacked mode both share a finite
+            // vertical budget so the findings table keeps the remaining rows.
+            MaintenanceDiagnosticsInspector.MaxHeight = stackDiagnostics ? Math.Max(150, height * 0.34) : double.PositiveInfinity;
+            MaintenanceDiagnosticSummaryGrid.MinHeight = stackDiagnostics ? 96 : 140;
+            MaintenanceDiagnosticSummaryGrid.MaxHeight = stackDiagnostics ? Math.Max(120, height * 0.20) : 280;
             var stackProcess = width < 1040;
             MaintenanceProcessLayout.ColumnDefinitions[1].Width = stackProcess ? new GridLength(0) : new GridLength(14);
             MaintenanceProcessLayout.ColumnDefinitions[2].Width = stackProcess ? new GridLength(0) : new GridLength(360);

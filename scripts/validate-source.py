@@ -381,7 +381,7 @@ def check_dashboard_regressions() -> None:
         'ItemsSource="{Binding TaskStatusFilterOptions}"',
         'TaskTypeDisplay, Mode=OneWay',
         'ItemsSource="{Binding OverviewTasks}"',
-        'Header="查看完整诊断信息"',
+        'Text="完整诊断摘要"',
     ):
         if token not in (dashboard + "\n" + workspace_ui):
             fail(f"Dashboard design-system guard is missing: {token}")
