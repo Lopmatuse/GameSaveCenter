@@ -37,6 +37,13 @@ namespace GameSaveCenter.Playnite.Views
             SaveCandidateReasonScrollViewer.MaxHeight = Math.Max(90, Math.Min(180, height * (compact ? 0.18 : 0.22)));
             SaveCandidateActionsScrollViewer.MaxHeight = Math.Max(70, Math.Min(140, height * (compact ? 0.14 : 0.18)));
             var stackPolicy = width < 980;
+            // The policy page is a left-aligned form capped by the shared
+            // GscFormMaxWidth token (1120). Give the StackPanel an explicit
+            // viewport width so the reading cards fill the form instead of
+            // collapsing to their content width, and so WPF never centers the
+            // capped form inside the page scroll channel. The 4 is the right
+            // padding of GscPageScrollViewer.
+            SavePolicyStack.Width = Math.Max(0, Math.Min(width - 4, 1120));
             SavePolicyCardsLayout.ColumnDefinitions[1].Width = stackPolicy ? new GridLength(0) : new GridLength(14);
             SavePolicyCardsLayout.ColumnDefinitions[2].Width = stackPolicy ? new GridLength(0) : new GridLength(1, GridUnitType.Star);
             SavePolicyCardsLayout.RowDefinitions[2].Height = stackPolicy ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);

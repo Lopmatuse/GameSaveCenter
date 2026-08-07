@@ -1084,7 +1084,7 @@ public sealed class WpfUiResourceDictionaryTests
         var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
         var maintenanceCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml.cs"));
 
-        Assert.Contains("MaxWidth=\"1120\" HorizontalAlignment=\"Left\"", saves);
+        Assert.Contains("MaxWidth=\"{StaticResource GscFormMaxWidth}\" HorizontalAlignment=\"Left\"", saves);
         Assert.Contains("MaxWidth=\"980\" HorizontalAlignment=\"Left\" VerticalAlignment=\"Top\"", trainers);
         Assert.Contains("MaxWidth=\"1050\" HorizontalAlignment=\"Left\"", maintenance);
         Assert.Contains("var stackOverview = width < 1040", dashboardCode);
