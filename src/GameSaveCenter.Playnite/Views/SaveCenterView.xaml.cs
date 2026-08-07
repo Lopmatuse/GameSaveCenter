@@ -22,7 +22,7 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetColumnSpan(SaveHistoryActionsScrollViewer, compact ? 3 : 1);
             Grid.SetRow(SaveHistoryActionsScrollViewer, compact ? 1 : 0);
             SaveHistoryActionsScrollViewer.Margin = compact ? new Thickness(0, 10, 0, 0) : new Thickness(0);
-            SaveHistoryActionsScrollViewer.MaxHeight = Math.Max(150, Math.Min(360, height * (compact ? 0.42 : 0.90)));
+            SaveHistoryActionsScrollViewer.MaxHeight = compact ? Math.Max(150, Math.Min(360, height * 0.42)) : double.PositiveInfinity;
             SaveCandidateLayout.ColumnDefinitions[1].Width = compact ? new GridLength(0) : new GridLength(14);
             SaveCandidateLayout.ColumnDefinitions[2].Width = compact ? new GridLength(0) : new GridLength(360);
             Grid.SetColumn(SaveCandidateReasonScrollViewer, compact ? 0 : 2);
@@ -55,7 +55,7 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetColumnSpan(SaveCompareRetentionScrollViewer, stackCompare ? 3 : 1);
             Grid.SetRow(SaveCompareRetentionScrollViewer, 0);
             SaveCompareRetentionScrollViewer.Margin = stackCompare ? new Thickness(0, 14, 0, 0) : new Thickness(0);
-            SaveCompareRetentionScrollViewer.MaxHeight = Math.Max(180, Math.Min(420, height * (stackCompare ? 0.42 : 0.90)));
+            SaveCompareRetentionScrollViewer.MaxHeight = stackCompare ? Math.Max(180, Math.Min(420, height * 0.42)) : double.PositiveInfinity;
         }
     }
 }

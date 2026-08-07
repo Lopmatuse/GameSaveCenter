@@ -800,7 +800,7 @@ public sealed class WpfUiResourceDictionaryTests
             Assert.Equal("{DynamicResource GscInspectorScrollViewer}", viewer.Attribute("Style")?.Value);
         }
 
-        Assert.Contains("SaveHistoryActionsScrollViewer.MaxHeight = Math.Max(150, Math.Min(360, height * (compact ? 0.42 : 0.90)))", saveCode);
+        Assert.Contains("SaveHistoryActionsScrollViewer.MaxHeight = compact ? Math.Max(150, Math.Min(360, height * 0.42)) : double.PositiveInfinity;", saveCode);
         Assert.Contains("SaveCandidateReasonScrollViewer.MaxHeight = Math.Max(90, Math.Min(180, height * (compact ? 0.18 : 0.22)))", saveCode);
         Assert.Contains("SaveCandidateActionsScrollViewer.MaxHeight = Math.Max(70, Math.Min(140, height * (compact ? 0.14 : 0.18)))", saveCode);
         Assert.Contains("MaxHeight=\"180\"", saveText);
@@ -824,7 +824,7 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Command=\"{Binding CompareBackupCommand}\"", saveText);
         Assert.Contains("Command=\"{Binding PreviewRetentionCommand}\"", saveText);
         Assert.Contains("var stackCompare = width < 980 || height < 760;", saveCode);
-        Assert.Contains("SaveCompareRetentionScrollViewer.MaxHeight", saveCode);
+        Assert.Contains("SaveCompareRetentionScrollViewer.MaxHeight = stackCompare ? Math.Max(180, Math.Min(420, height * 0.42)) : double.PositiveInfinity;", saveCode);
     }
 
     [Fact]
