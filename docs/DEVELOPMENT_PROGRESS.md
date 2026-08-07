@@ -3,6 +3,8 @@
 更新时间：2026-08-07
 当前版本：`0.6.70-development-preview`
 
+- [x] UI-132：媒体中心「来源规则」列表 Border 移除 `MaxHeight="360"` 固定上限，列表随星号行高度自然填充，来源很多时不再封顶在 360 并在下方留下死留白，无来源时也不再出现 360 高的大空框；空态保持 `MinHeight="220"` 紧凑提示，表单 `MaxHeight="190"` 有限滚动、ListBox Recycling 虚拟化与空态数据触发器原样保留。回归断言锁定来源列表 Border 不再声明 MaxHeight。源码校验、XAML 门禁、Release 构建 0 警告/0 错误与全部测试通过，仍需 Playnite 宿主验证。
+
 - [x] UI-131：存档中心「比较与保留」左侧主卡宽屏移除共享样式 280 固定上限，随行高填充；内层「变更文件」260 固定高滚动器移除，主卡成为唯一滚动属主，消除双层纵向滚动互抢；补齐行定义，堆叠模式把保留策略预览下移到第二行，修复窄窗口主卡与预览重叠。回归断言锁定 `SaveCompareMainScrollViewer` 命名、行定义与 `Max(220, Min(420, 高度*0.45))` 公式。源码校验、XAML 门禁、Release 构建 0 警告/0 错误与全部测试通过，仍需 Playnite 宿主验证。
 
 - [x] UI-130：维护中心「保留策略」补全只读明细预览：摘要卡下方新增「预计保留/候选清理」双列明细（真实绑定 `LastRetentionPreview.KeepBackupIds/DeleteCandidateIds`），页面改为 `GscPageScrollViewer` + `MaxWidth 1050` 表单节奏，内容有多少显示多少；锁定版本永不进入候选清理的文案与空态提示保留。源码校验、XAML 门禁、Release 构建 0 警告/0 错误与 Core 13 + Worker 23 + Playnite 119 全部通过，仍需 Playnite 宿主验证。

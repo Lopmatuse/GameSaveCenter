@@ -1518,6 +1518,8 @@ public sealed class WpfUiResourceDictionaryTests
         var sourceList = tabItem.Descendants().Single(element => element.Name.LocalName == "ListBox" && element.Attribute("ItemsSource")?.Value == "{Binding MediaSources}");
         Assert.DoesNotContain(sourceList.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
         Assert.Contains(sourceList.Ancestors(), ancestor => ancestor.Name.LocalName == "Border");
+        var sourceTableBorder = sourceList.Ancestors().First(ancestor => ancestor.Name.LocalName == "Border" && ancestor.Attribute("Grid.Row")?.Value == "1");
+        Assert.DoesNotContain(sourceTableBorder.Attributes(), attribute => attribute.Name.LocalName == "MaxHeight");
         Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", File.ReadAllText(mediaPath));
         Assert.Contains(tabItem.Descendants(), element => element.Name.LocalName == "ScrollViewer" && element.Attribute("MaxHeight")?.Value == "190");
         Assert.Contains(tabItem.Descendants(), element => element.Name.LocalName == "RowDefinition" && element.Attribute("Height")?.Value == "*");
