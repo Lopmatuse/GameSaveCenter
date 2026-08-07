@@ -96,7 +96,7 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetColumnSpan(MaintenanceAuditInspector, stackAudit ? 3 : 1);
             Grid.SetRow(MaintenanceAuditInspector, stackAudit ? 1 : 0);
             MaintenanceAuditInspector.Margin = stackAudit ? new Thickness(0, 10, 0, 0) : new Thickness(0);
-            MaintenanceAuditInspector.MaxHeight = Math.Max(180, Math.Min(560, height * (stackAudit ? 0.55 : 0.90)));
+            MaintenanceAuditInspector.MaxHeight = stackAudit ? Math.Max(180, height * 0.42) : double.PositiveInfinity;
         }
     }
 }

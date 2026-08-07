@@ -731,7 +731,12 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Name=\"MaintenanceAuditInspector\"", maintenanceText);
         Assert.Contains("x:Name=\"MaintenanceAuditFindingsGrid\" Style=\"{StaticResource MaintenanceDataGrid}\"", maintenanceText);
         Assert.Contains("x:Name=\"MaintenanceAuditLogGrid\" Style=\"{StaticResource MaintenanceDataGrid}\"", maintenanceText);
-        Assert.Contains("MaintenanceAuditInspector.MaxHeight", File.ReadAllText(maintenancePath + ".cs"));
+        var auditInspector = maintenance.Descendants().Single(element =>
+            element.Name.LocalName == "ScrollViewer" && element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "MaintenanceAuditInspector");
+        Assert.Equal("Auto", auditInspector.Attribute("VerticalScrollBarVisibility")?.Value);
+        Assert.Equal("Disabled", auditInspector.Attribute("HorizontalScrollBarVisibility")?.Value);
+        Assert.Null(auditInspector.Attribute("MaxHeight"));
+        Assert.Contains("MaintenanceAuditInspector.MaxHeight = stackAudit ? Math.Max(180, height * 0.42) : double.PositiveInfinity", File.ReadAllText(maintenancePath + ".cs"));
         Assert.DoesNotContain("Height=\"{DynamicResource GscTableViewportHeight}\"", maintenanceText);
     }
 
