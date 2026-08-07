@@ -14,16 +14,29 @@
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiProduction.xaml"/>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/Redesign.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+            <Style x:Key="MediaInboxColumnHeaderStyle" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
                 <Setter Property="OverridesDefaultStyle" Value="True"/>
                 <Setter Property="Background" Value="{DynamicResource GscTableHeaderBrush}"/>
                 <Setter Property="Foreground" Value="{DynamicResource GscSecondaryTextBrush}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource GscTableDividerBrush}"/>
+                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                <Setter Property="Padding" Value="12,9"/>
+                <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+            </Style>
+            <Style x:Key="MediaInboxStableRowStyle" TargetType="DataGridRow">
+                <Setter Property="MinHeight" Value="{DynamicResource GscTableRowHeight}"/>
+                <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
             </Style>
             <converters:MediaThumbnailConverter x:Key="MediaThumbnailConverter"/>
             <converters:MediaVideoSourceConverter x:Key="MediaVideoSourceConverter"/>
             <Style x:Key="MediaDataGrid" TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
-                <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+                <Setter Property="RowStyle" Value="{StaticResource MediaInboxStableRowStyle}"/>
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="GridLinesVisibility" Value="None"/>
@@ -52,12 +65,12 @@
                      prevents WPF's virtualized presenter from exposing a white phantom
                      viewport after the thumb is dragged. -->
                 <Setter Property="VirtualizingPanel.ScrollUnit" Value="Item"/>
-                <Setter Property="EnableColumnVirtualization" Value="False"/>
+                <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Standard"/>
                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                 <Setter Property="VerticalContentAlignment" Value="Top"/>
                 <Setter Property="ScrollViewer.VerticalContentAlignment" Value="Top"/>
                 <Setter Property="ClipToBounds" Value="True"/>
-                <Setter Property="ColumnHeaderStyle" Value="{DynamicResource GscDataGridColumnHeaderStyle}"/>
+                <Setter Property="ColumnHeaderStyle" Value="{StaticResource MediaInboxColumnHeaderStyle}"/>
             </Style>
             <Style x:Key="MediaLongText" TargetType="TextBlock">
                 <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
@@ -67,8 +80,9 @@
             <Style x:Key="MediaTableFrame" TargetType="Border" BasedOn="{StaticResource GscRedesignTableFrame}"/>
             <Style x:Key="MediaEmptyText" TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Center"/><Setter Property="VerticalAlignment" Value="Center"/><Setter Property="TextAlignment" Value="Center"/><Setter Property="Foreground" Value="{DynamicResource GscMutedTextBrush}"/><Setter Property="TextWrapping" Value="Wrap"/><Setter Property="Margin" Value="22"/></Style>
             <Style x:Key="MediaStatusPill" TargetType="Border"><Setter Property="MinWidth" Value="48"/><Setter Property="Padding" Value="12,8"/><Setter Property="CornerRadius" Value="12"/><Setter Property="Background" Value="{DynamicResource GscGlassStrongBrush}"/><Setter Property="BorderBrush" Value="{DynamicResource GscGlassStrokeBrush}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="HorizontalAlignment" Value="Right"/></Style>
-            <Style x:Key="MediaFirstColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource GscDataGridColumnHeaderStyle}"><Setter Property="Tag"><Setter.Value><CornerRadius>11,0,0,0</CornerRadius></Setter.Value></Setter></Style>
-            <Style x:Key="MediaLastColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource GscDataGridColumnHeaderStyle}"><Setter Property="Tag"><Setter.Value><CornerRadius>0,11,0,0</CornerRadius></Setter.Value></Setter></Style>
+            <Style x:Key="MediaFirstColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource MediaInboxColumnHeaderStyle}"><Setter Property="Tag"><Setter.Value><CornerRadius>11,0,0,0</CornerRadius></Setter.Value></Setter></Style>
+            <Style x:Key="MediaMiddleColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource MediaInboxColumnHeaderStyle}"/>
+            <Style x:Key="MediaLastColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource MediaInboxColumnHeaderStyle}"><Setter Property="Tag"><Setter.Value><CornerRadius>0,11,0,0</CornerRadius></Setter.Value></Setter></Style>
             <Style x:Key="MediaTabControl" TargetType="TabControl" BasedOn="{StaticResource GscRedesignWorkspaceTabControl}">
                 <Setter Property="HorizontalAlignment" Value="Stretch"/>
                 <Setter Property="VerticalAlignment" Value="Stretch"/>
@@ -114,6 +128,10 @@
                     <Border Grid.Row="1" Style="{StaticResource MediaTableFrame}" MinHeight="0" ClipToBounds="True">
                         <Grid>
                             <DataGrid x:Name="MediaInboxGrid" Style="{StaticResource MediaDataGrid}" MinHeight="0" ItemsSource="{Binding UnassignedMedia}" SelectedItem="{Binding SelectedInboxMedia}"
+                                      RowStyle="{StaticResource MediaInboxStableRowStyle}"
+                                      EnableRowVirtualization="True"
+                                      VirtualizingPanel.IsVirtualizing="True"
+                                      VirtualizingPanel.VirtualizationMode="Standard"
                                       VerticalContentAlignment="Top"
                                       HorizontalContentAlignment="Stretch"
                                       VirtualizingPanel.ScrollUnit="Item"
@@ -121,9 +139,9 @@
                                       ClipToBounds="True">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn HeaderStyle="{StaticResource MediaFirstColumnHeader}" Header="拍摄时间" Binding="{Binding CapturedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="110"/>
-                                    <DataGridTextColumn Header="类型" Binding="{Binding KindDisplay, Mode=OneWay}" Width="72"/>
-                                    <DataGridTextColumn Header="来源" Binding="{Binding SourceDisplay, Mode=OneWay}" Width="115"/>
-                                    <DataGridTextColumn Header="文件" Binding="{Binding FileName, Mode=OneWay}" Width="*" MinWidth="220"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource MediaLongText}"><Setter Property="ToolTip" Value="{Binding OriginalPath}"/></Style></DataGridTextColumn.ElementStyle></DataGridTextColumn>
+                                    <DataGridTextColumn HeaderStyle="{StaticResource MediaMiddleColumnHeader}" Header="类型" Binding="{Binding KindDisplay, Mode=OneWay}" Width="72"/>
+                                    <DataGridTextColumn HeaderStyle="{StaticResource MediaMiddleColumnHeader}" Header="来源" Binding="{Binding SourceDisplay, Mode=OneWay}" Width="115"/>
+                                    <DataGridTextColumn HeaderStyle="{StaticResource MediaMiddleColumnHeader}" Header="文件" Binding="{Binding FileName, Mode=OneWay}" Width="*" MinWidth="220"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource MediaLongText}"><Setter Property="ToolTip" Value="{Binding OriginalPath}"/></Style></DataGridTextColumn.ElementStyle></DataGridTextColumn>
                                     <DataGridTextColumn HeaderStyle="{StaticResource MediaLastColumnHeader}" Header="原因" Binding="{Binding ClassificationReason, Mode=OneWay}" Width="1.1*" MinWidth="220"><DataGridTextColumn.ElementStyle><Style TargetType="TextBlock" BasedOn="{StaticResource MediaLongText}"/></DataGridTextColumn.ElementStyle></DataGridTextColumn>
                                 </DataGrid.Columns>
                             </DataGrid>

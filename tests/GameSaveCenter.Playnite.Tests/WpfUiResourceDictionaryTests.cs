@@ -539,15 +539,21 @@ public sealed class WpfUiResourceDictionaryTests
         var maintenanceCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml.cs"));
 
         Assert.Contains("VirtualizingPanel.ScrollUnit\" Value=\"Item\"", media);
-        Assert.Contains("EnableColumnVirtualization\" Value=\"False\"", media);
         Assert.Contains("x:Name=\"MediaInboxGrid\"", media);
+        Assert.Contains("EnableColumnVirtualization\" Value=\"False\"", media);
+        Assert.Contains("VirtualizingPanel.VirtualizationMode\" Value=\"Standard\"", media);
+        Assert.Contains("x:Key=\"MediaInboxStableRowStyle\"", media);
+        Assert.Contains("RowStyle=\"{StaticResource MediaInboxStableRowStyle}\"", media);
+        Assert.Contains("HeaderStyle=\"{StaticResource MediaMiddleColumnHeader}\" Header=\"类型\"", media);
+        Assert.Contains("HeaderStyle=\"{StaticResource MediaMiddleColumnHeader}\" Header=\"来源\"", media);
+        Assert.Contains("HeaderStyle=\"{StaticResource MediaMiddleColumnHeader}\" Header=\"文件\"", media);
         var mediaCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml.cs"));
         Assert.DoesNotContain("MediaInboxGrid.Loaded += InboxGridLoaded", mediaCode);
         Assert.DoesNotContain("ConfigureInboxGrid", mediaCode);
         Assert.DoesNotContain("InboxGridSizeChanged", mediaCode);
         Assert.DoesNotContain("FindVisualChild", mediaCode);
         Assert.DoesNotContain("ScrollViewer.Background=\"{DynamicResource GscGlassStrongBrush}\"", media);
-        Assert.Contains("ColumnHeaderStyle\" Value=\"{StaticResource GscDataGridColumnHeaderStyle}\"", maintenance);
+        Assert.Contains("ColumnHeaderStyle\" Value=\"{StaticResource MediaInboxColumnHeaderStyle}\"", media);
         Assert.Contains("HeaderStyle=\"{StaticResource MaintenanceLastColumnHeader}\" Header=\"建议处理\"", maintenance);
         Assert.Contains("DataGridLoaded", maintenanceCode);
         Assert.DoesNotContain("AddHandler(FrameworkElement.LoadedEvent, new RoutedEventHandler(ApplyHeaderTheme), true)", maintenanceCode);
