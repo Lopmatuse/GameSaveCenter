@@ -96,8 +96,9 @@
             <!-- Demo HomeView keeps global batch commands in a quiet, separate
                  workbench surface instead of making the page header carry every
                  action.  The commands remain the existing real Dashboard commands. -->
-            <Border x:Name="OverviewHomeToolbar" Style="{DynamicResource GscRedesignSectionCard}" Margin="0,0,0,8">
+            <Border x:Name="OverviewHomeToolbar" Style="{DynamicResource GscRedesignSectionCard}" Margin="0,0,0,12">
                 <Grid>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                     <StackPanel MinWidth="0" VerticalAlignment="Center">
                         <TextBlock Style="{DynamicResource GscRedesignSectionTitle}" Text="今日工作台"/>
@@ -108,6 +109,13 @@
                         <ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding BackupAllCommand}" Content="全部备份" Margin="8,0,0,0" MinWidth="92"/>
                         <ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding SyncMediaCommand}" Content="同步媒体" Margin="8,0,0,0" MinWidth="92"/>
                         <ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding OpenAttentionCenterCommand}" Content="查看需关注项" Margin="8,0,0,0" MinWidth="116" AutomationProperties.Name="查看需要关注的游戏、原因和建议处理方式"/>
+                    </WrapPanel>
+                    <WrapPanel Grid.Row="1" Grid.ColumnSpan="2" Margin="0,12,0,0">
+                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,8"><StackPanel Orientation="Horizontal"><Ellipse Width="8" Height="8" Margin="0,0,7,0" VerticalAlignment="Center"><Ellipse.Style><Style TargetType="Ellipse"><Setter Property="Fill" Value="{DynamicResource GscErrorBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Snapshot.WorkerHealthy}" Value="True"><Setter Property="Fill" Value="{DynamicResource GscSuccessBrush}"/></DataTrigger></Style.Triggers></Style></Ellipse.Style></Ellipse><TextBlock FontSize="11"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Text" Value="Worker 异常"/><Setter Property="Foreground" Value="{DynamicResource GscErrorBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Snapshot.WorkerHealthy}" Value="True"><Setter Property="Text" Value="Worker 正常"/><Setter Property="Foreground" Value="{DynamicResource GscSuccessBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></StackPanel></Border>
+                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,8"><StackPanel Orientation="Horizontal"><Ellipse Width="8" Height="8" Margin="0,0,7,0" VerticalAlignment="Center"><Ellipse.Style><Style TargetType="Ellipse"><Setter Property="Fill" Value="{DynamicResource GscMutedStatusBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Snapshot.LudusaviAvailable}" Value="True"><Setter Property="Fill" Value="{DynamicResource GscSuccessBrush}"/></DataTrigger></Style.Triggers></Style></Ellipse.Style></Ellipse><TextBlock FontSize="11"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Text" Value="Ludusavi 不可用"/><Setter Property="Foreground" Value="{DynamicResource GscSecondaryTextBrush}"/><Style.Triggers><DataTrigger Binding="{Binding Snapshot.LudusaviAvailable}" Value="True"><Setter Property="Text" Value="Ludusavi 可用"/><Setter Property="Foreground" Value="{DynamicResource GscSuccessBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock></StackPanel></Border>
+                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,8"><TextBlock FontSize="11" Foreground="{DynamicResource GscWarningBrush}"><Run Text="{Binding Snapshot.WarningGames, Mode=OneWay}"/><Run Text=" 项需处理"/></TextBlock></Border>
+                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,8,8"><TextBlock FontSize="11" Foreground="{DynamicResource GscInfoBrush}"><Run Text="云端队列 "/><Run Text="{Binding Snapshot.PendingCloudTasks, Mode=OneWay}"/></TextBlock></Border>
+                        <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,0,8"><TextBlock FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}"><Run Text="待归类媒体 "/><Run Text="{Binding Snapshot.UnassignedMediaCount, Mode=OneWay}"/></TextBlock></Border>
                     </WrapPanel>
                 </Grid>
             </Border>
