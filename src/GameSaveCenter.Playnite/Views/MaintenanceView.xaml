@@ -52,7 +52,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid Margin="0" MinWidth="0" MinHeight="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="0"/></Grid.RowDefinitions>
         <TabControl Grid.Row="0" MinWidth="0" MinHeight="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" Style="{StaticResource MaintenanceTabControl}">
             <TabControl.Resources><Style TargetType="TabItem" BasedOn="{StaticResource MaintenanceTabItem}"/></TabControl.Resources>
             <TabItem Header="诊断">
