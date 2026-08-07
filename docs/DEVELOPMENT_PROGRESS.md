@@ -3,6 +3,8 @@
 更新时间：2026-08-08
 当前版本：`0.6.70-development-preview`
 
+- [x] UI-141：维护中心「异常与审计」「进程映射」无选中项时表格占满完整主宽度：`MaintenanceAuditFindingsTable` / `MaintenanceProcessTable` 外包 Border 以 `DataTrigger (Selected* == null)` 把 `Grid.ColumnSpan` 置 3，对应 Inspector（诊断详情 / 映射详情）同时折叠，不再固定预留 360–370 DIP 空右栏；选中项后才进入 Master/Detail。审计日志表从诊断 Inspector 内移出为全宽底部条带（`Grid.Row=2` 跨三列，MinHeight 140 / MaxHeight 280），堆叠模式 Inspector 高度预算收为 `Max(150, 高度*0.34)`、日志条带 `Max(120, 高度*0.20)`。进程映射顶部 EXE/目标游戏/绑定编辑栏、行内删除与删除选中映射命令、筛选与选择绑定原样保留。回归断言新增两条结构测试（表格占满全宽 / Inspector 折叠 / 审计日志全宽 / 核心绑定仍在）。源码校验、XAML 门禁、Release 构建 0 错误与 Core 13 + Worker 23 + Playnite 121 全部通过；离屏 QA 五个分辨率 tab3/tab4 均无空列，右侧原 Inspector 区域墨迹覆盖 53–99%，底部审计日志条带 91%+，仍需 Playnite 宿主验证。
+
 - [x] UI-140：任务中心 Phase E 对齐 demo：三张指标卡移除 76px 固定高覆盖，回归共享「约 84」紧凑契约；表格列宽收紧（游戏 150→140、进度 170/150→160/140、详情 260→240）消除窄屏横向挤压；Inspector 增强为 2×4 真实字段信息网格（状态语义胶囊 / 开始时间 / 耗时 / 任务 ID）+ 进度区块 + 完整详情 + 失败红色错误卡（真实 `ErrorMessage`/`ErrorCode`，仅在 `State == Failed` 显示），复制详情 / 安全重试 / 取消任务三个真实命令与筛选器原样保留。离屏 QA 五个分辨率 TaskCenter 渲染无空列空行，1280×720 右栏 Inspector 区域填充率由约 84% 提升到 96%，源码校验、XAML 门禁、Release 构建与 119 项 Playnite 测试全部通过，仍需 Playnite 宿主验证。
 
 - [x] UI-139：修改器中心 Phase D 逐页签核验收口：离屏 QA 新增 `RenderTabs` 逐页签渲染通道（TrainerCenter/MediaCenter/Maintenance 均按 `SelectedIndex` 逐个渲染），五个分辨率（1600×900 / 1366×768 / 1280×720 / 1100×700 / 980×640）下「已绑定工具 / FLiNG 在线库 / 可下载版本」无死空白列、主列表获得主要宽度、Inspector 列宽与窄屏堆叠阈值和既有断言一致；「导入确认」为 `MaxWidth 980 / 内层 760` 的左上对齐表单页，右侧与底部留白属任务书允许的自然背景留白，无待确认项时显示 Empty State。结构本身已在 UI-093/094/107/117/128 对齐 demo，本项以逐 tab 渲染 QA + 既有回归断言收口，未改动生产布局。源码校验与 Release 构建保持通过，仍需 Playnite 宿主验证。

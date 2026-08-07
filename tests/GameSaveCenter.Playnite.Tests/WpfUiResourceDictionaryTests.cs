@@ -736,8 +736,51 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Equal("Auto", auditInspector.Attribute("VerticalScrollBarVisibility")?.Value);
         Assert.Equal("Disabled", auditInspector.Attribute("HorizontalScrollBarVisibility")?.Value);
         Assert.Null(auditInspector.Attribute("MaxHeight"));
-        Assert.Contains("MaintenanceAuditInspector.MaxHeight = stackAudit ? Math.Max(180, height * 0.42) : double.PositiveInfinity", File.ReadAllText(maintenancePath + ".cs"));
+        Assert.Contains("MaintenanceAuditInspector.MaxHeight = stackAudit ? Math.Max(150, height * 0.34) : double.PositiveInfinity", File.ReadAllText(maintenancePath + ".cs"));
         Assert.DoesNotContain("Height=\"{DynamicResource GscTableViewportHeight}\"", maintenanceText);
+    }
+
+    [Fact]
+    public void MaintenanceAuditTableSpansFullWidthUntilAFindingIsSelected()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var maintenancePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml");
+        var maintenanceText = File.ReadAllText(maintenancePath);
+        var maintenance = XDocument.Parse(maintenanceText);
+
+        // The findings table expands over the inspector column while nothing is selected,
+        // and the detail inspector collapses so no fixed empty right column remains.
+        Assert.Contains("x:Name=\"MaintenanceAuditFindingsTable\"", maintenanceText);
+        Assert.Contains("<DataTrigger Binding=\"{Binding SelectedFinding}\" Value=\"{x:Null}\">", maintenanceText);
+        Assert.Contains("<Setter Property=\"Grid.ColumnSpan\" Value=\"3\"/>", maintenanceText);
+        Assert.Contains("<Setter Property=\"Visibility\" Value=\"Collapsed\"/>", maintenanceText);
+        Assert.Contains("<Setter Property=\"Visibility\" Value=\"Visible\"/>", maintenanceText);
+
+        // The recent audit log left the detail inspector and owns a full-width strip
+        // below the findings table instead of being squeezed into the 360-DIP column.
+        var auditInspector = maintenance.Descendants().Single(element =>
+            element.Name.LocalName == "ScrollViewer" && element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "MaintenanceAuditInspector");
+        Assert.DoesNotContain(auditInspector.Descendants(), element =>
+            element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "MaintenanceAuditLogGrid");
+        var auditLog = maintenance.Descendants().Single(element =>
+            element.Name.LocalName == "DataGrid" && element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "MaintenanceAuditLogGrid");
+        Assert.Contains(auditLog.Ancestors(), ancestor =>
+            ancestor.Name.LocalName == "Border" && ancestor.Attribute("Grid.Row")?.Value == "2" && ancestor.Attribute("Grid.ColumnSpan")?.Value == "3");
+        Assert.Contains("MaintenanceAuditLogGrid.MinHeight = stackAudit ? 96 : 140", File.ReadAllText(maintenancePath + ".cs"));
+    }
+
+    [Fact]
+    public void MaintenanceProcessTableSpansFullWidthUntilAMappingIsSelected()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var maintenanceText = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml"));
+
+        Assert.Contains("x:Name=\"MaintenanceProcessTable\"", maintenanceText);
+        Assert.Contains("x:Name=\"MaintenanceProcessInspector\"", maintenanceText);
+        Assert.Contains("<DataTrigger Binding=\"{Binding SelectedProcessMapping}\" Value=\"{x:Null}\">", maintenanceText);
+        Assert.Contains("Command=\"{Binding DeleteProcessMappingCommand}\" CommandParameter=\"{Binding SelectedProcessMapping}\"", maintenanceText);
+        Assert.Contains("Command=\"{Binding SaveProcessMappingCommand}\"", maintenanceText);
+        Assert.Contains("SelectedItem=\"{Binding ProcessMappingTargetGame}\"", maintenanceText);
     }
 
     [Fact]

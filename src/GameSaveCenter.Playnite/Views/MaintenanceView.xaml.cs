@@ -96,7 +96,12 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetColumnSpan(MaintenanceAuditInspector, stackAudit ? 3 : 1);
             Grid.SetRow(MaintenanceAuditInspector, stackAudit ? 1 : 0);
             MaintenanceAuditInspector.Margin = stackAudit ? new Thickness(0, 10, 0, 0) : new Thickness(0);
-            MaintenanceAuditInspector.MaxHeight = stackAudit ? Math.Max(180, height * 0.42) : double.PositiveInfinity;
+            // The detail inspector owns only the selected finding; the recent audit log
+            // lives in its own full-width strip. In stacked mode both share a finite
+            // vertical budget so the findings table keeps the remaining rows.
+            MaintenanceAuditInspector.MaxHeight = stackAudit ? Math.Max(150, height * 0.34) : double.PositiveInfinity;
+            MaintenanceAuditLogGrid.MinHeight = stackAudit ? 96 : 140;
+            MaintenanceAuditLogGrid.MaxHeight = stackAudit ? Math.Max(120, height * 0.20) : 280;
         }
     }
 }
