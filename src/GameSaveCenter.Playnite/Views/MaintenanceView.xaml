@@ -107,7 +107,7 @@
             </TabItem>
             <TabItem Header="异常与审计">
                 <Grid x:Name="MaintenanceAuditLayout" Margin="0,12,0,12">
-                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="370"/></Grid.ColumnDefinitions>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="{StaticResource GscInspectorWidth}"/></Grid.ColumnDefinitions>
                     <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                     <Border Grid.Column="0" Style="{DynamicResource GscTableFrame}">
                         <DataGrid x:Name="MaintenanceAuditFindingsGrid" Style="{StaticResource MaintenanceDataGrid}" ItemsSource="{Binding Findings}" SelectedItem="{Binding SelectedFinding}">
