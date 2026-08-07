@@ -541,10 +541,12 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("VirtualizingPanel.ScrollUnit\" Value=\"Item\"", media);
         Assert.Contains("EnableColumnVirtualization\" Value=\"False\"", media);
         Assert.Contains("x:Name=\"MediaInboxGrid\"", media);
-        Assert.Contains("ConfigureInboxGrid", File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml.cs")));
+        Assert.Contains("MediaInboxGrid.Loaded += InboxGridLoaded", File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml.cs")));
         Assert.DoesNotContain("ScrollViewer.Background=\"{DynamicResource GscGlassStrongBrush}\"", media);
         Assert.Contains("ColumnHeaderStyle\" Value=\"{StaticResource GscDataGridColumnHeaderStyle}\"", maintenance);
-        Assert.Contains("AddHandler(FrameworkElement.LoadedEvent, new RoutedEventHandler(ApplyHeaderTheme), true)", maintenanceCode);
+        Assert.Contains("FindingsGrid.Loaded += DataGridLoaded", maintenanceCode);
+        Assert.DoesNotContain("AddHandler(FrameworkElement.LoadedEvent, new RoutedEventHandler(ApplyHeaderTheme), true)", maintenanceCode);
+        Assert.Contains("HeaderStyle=\"{StaticResource MaintenanceLastColumnHeader}\" Header=\"建议处理\"", maintenance);
         Assert.Contains("header.OverridesDefaultStyle = true", maintenanceCode);
     }
 
