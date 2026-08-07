@@ -3,6 +3,8 @@
 更新时间：2026-08-07
 当前版本：`0.6.70-development-preview`
 
+> UI-136：首页 Overview 右栏 `OverviewSecondaryScrollViewer.MaxHeight` 只允许在堆叠模式限高（`stack` 时 `Max(260, Min(480, 高度*0.58))`）；宽屏非堆叠（宽度 ≥1040）必须保持 `PositiveInfinity` 拉伸到所在 `*` 行，即使窗口高度 <760 也不得恢复 `stack || compactHeight` 组合，否则右栏会出现底部死空白。内层 `OverviewRiskScrollViewer` 在堆叠或低高度时仍保留 `Max(180, Min(360, 高度*0.42))` 内部滚动上限。
+
 > UI-125：页面与共享样式的 `Margin/Padding` 只允许节奏值 8/12/14/16/18/24；13/17/21/27/31 一律不得回归。`GscRedesignHeaderButton`/`GscRedesignPrimaryHeaderButton` 固定 12,8，`GscMetricCard` 固定 16,12，`GscNavItem` 固定 12,10。装饰粒子（如 Dashboard 侧栏 Ellipse 35,21）与搜索图标对齐（32/38/11）属例外，不得据此放宽普通间距门禁。
 
 > UI-124：维护中心表头主题必须保持声明式：`MaintenanceDataGrid` 的 `ColumnHeaderStyle` + 每列显式 `MaintenanceFirstColumnHeader`/`MaintenanceLastColumnHeader`/`GscLastColumnHeader`（含 `OverridesDefaultStyle`）承担主题所有权。禁止恢复 `VisualTreeHelper`/`FindVisualChildren` 周期扫描或 `SizeChanged` 内遍历表头来“修复”白色表头；`DataGridLoaded` 只做一次性资源应用。「建议处理」列宽为 `0.75* MinWidth=180`，不得再被运行时代码改写为其他值。

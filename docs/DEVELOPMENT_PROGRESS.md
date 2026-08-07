@@ -3,6 +3,8 @@
 更新时间：2026-08-07
 当前版本：`0.6.70-development-preview`
 
+- [x] UI-136：首页 Overview 右栏外层滚动器 `OverviewSecondaryScrollViewer` 的 `MaxHeight` 上限从「堆叠或低高度」收紧为「仅堆叠」：宽屏（宽度 ≥1040）非堆叠时即使窗口高度 <760，外层通道也保持拉伸到所在 `*` 行高度，「今日概览」星号行吃掉多余高度、风险卡自然沉底，消除 1280×720 / 1100×700 下右栏约 150–160px 底部死空白；堆叠模式 `Max(260, Min(480, 高度*0.58))` 与外层 Hidden 滚动条不变，内层 `OverviewRiskScrollViewer` 仍保留 `stack || compactHeight` 的 `Max(180, Min(360, 高度*0.42))` 上限，避免超长关注列表把内容推出视口。回归断言锁定外层公式不再引用 `compactHeight`、内层仍引用。源码校验、XAML 门禁、Release 构建 0 警告/0 错误与全部测试通过，离屏 QA 五个分辨率渲染复核右栏无底部死空白，仍需 Playnite 宿主验证。
+
 - [x] UI-133：首页 Overview 右栏收口：右栏行定义对调为「今日概览」星号行 + 「风险与提醒」Auto 行，宽屏多余高度由今日概览卡吃掉（卡内顶部对齐），风险卡保持自然紧凑高度，消除右栏固定高度带来的大片死空白；窄屏/低高度有限高度公式与 Hidden 滚动条行为不变。回归断言锁定 `OverviewSummaryRow` 星号行与概览卡 Stretch/顶部对齐。源码校验、XAML 门禁、Release 构建 0 警告/0 错误与全部测试通过，仍需 Playnite 宿主验证。
 
 - [x] UI-132：媒体中心「来源规则」列表 Border 移除 `MaxHeight="360"` 固定上限，列表随星号行高度自然填充，来源很多时不再封顶在 360 并在下方留下死留白，无来源时也不再出现 360 高的大空框；空态保持 `MinHeight="220"` 紧凑提示，表单 `MaxHeight="190"` 有限滚动、ListBox Recycling 虚拟化与空态数据触发器原样保留。回归断言锁定来源列表 Border 不再声明 MaxHeight。源码校验、XAML 门禁、Release 构建 0 警告/0 错误与全部测试通过，仍需 Playnite 宿主验证。
