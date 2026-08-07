@@ -1851,8 +1851,16 @@ namespace GameSaveCenter.Playnite.ViewModels
         }
         private static void Replace<T>(ObservableCollection<T> target, IEnumerable<T> source)
         {
+            var incoming = (source ?? Enumerable.Empty<T>()).ToList();
+            var existing = target.ToList();
+            if (existing.SequenceEqual(incoming))
+                return;
+
+            // Avoid Clear()+Add for large virtualized DataGrids. Replacing the backing
+            // collection in one Reset keeps WPF's item extent and recycled row range in sync.
             target.Clear();
-            foreach (var item in source ?? Enumerable.Empty<T>()) target.Add(item);
+            foreach (var item in incoming)
+                target.Add(item);
         }
         private static string EmptyAsUnset(string value) => string.IsNullOrWhiteSpace(value) ? "（未配置）" : value;
     }

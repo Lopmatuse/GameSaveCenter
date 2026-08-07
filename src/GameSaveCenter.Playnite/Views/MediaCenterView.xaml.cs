@@ -23,21 +23,22 @@ namespace GameSaveCenter.Playnite.Views
                 inspectorGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
                 inspectorGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             }
-            // WPF may create a generated/filler header outside the column resources. Keep
-            // that header in the same theme as the real media columns.
-            AddHandler(FrameworkElement.LoadedEvent, new RoutedEventHandler(ApplyHeaderTheme), true);
+
+            // Loaded is a direct event in WPF; subscribe to the concrete grid instead of
+            // attempting to catch child Loaded events from the UserControl.
+            MediaInboxGrid.Loaded += InboxGridLoaded;
+            MediaInboxGrid.Unloaded += InboxGridUnloaded;
         }
 
-        private void ApplyHeaderTheme(object sender, RoutedEventArgs e)
+        private void InboxGridLoaded(object sender, RoutedEventArgs e)
         {
-            if (e.OriginalSource is DataGrid grid && ReferenceEquals(grid, MediaInboxGrid))
-            {
-                ConfigureInboxGrid(grid);
-                AttachInboxGridHooks(grid);
-                QueueInboxGridRefresh(grid);
-            }
+            if (sender is not DataGrid grid)
+                return;
 
-            if (e.OriginalSource is DataGridColumnHeader header)
+            ConfigureInboxGrid(grid);
+            AttachInboxGridHooks(grid);
+            QueueInboxGridRefresh(grid);
+            foreach (var header in FindVisualChildren<DataGridColumnHeader>(grid))
                 ApplyColumnHeaderTheme(header);
         }
 
@@ -48,7 +49,6 @@ namespace GameSaveCenter.Playnite.Views
 
             _inboxGridHooksAttached = true;
             grid.SizeChanged += InboxGridSizeChanged;
-            grid.Unloaded += InboxGridUnloaded;
         }
 
         private void InboxGridSizeChanged(object sender, SizeChangedEventArgs e)
@@ -62,6 +62,7 @@ namespace GameSaveCenter.Playnite.Views
             if (sender is DataGrid grid)
             {
                 grid.SizeChanged -= InboxGridSizeChanged;
+                grid.Loaded -= InboxGridLoaded;
                 grid.Unloaded -= InboxGridUnloaded;
             }
 
@@ -95,6 +96,7 @@ namespace GameSaveCenter.Playnite.Views
         {
             grid.VerticalContentAlignment = VerticalAlignment.Top;
             grid.HorizontalContentAlignment = HorizontalAlignment.Stretch;
+            grid.ClipToBounds = true;
             if (TryFindResource("GscGlassStrongBrush") is Brush surface)
                 grid.Background = surface;
 
@@ -111,8 +113,6 @@ namespace GameSaveCenter.Playnite.Views
             var itemsPresenter = FindVisualChild<ItemsPresenter>(scrollViewer);
             if (itemsPresenter != null)
                 itemsPresenter.VerticalAlignment = VerticalAlignment.Top;
-
-            scrollViewer.ScrollToTop();
         }
 
         private static T? FindVisualChild<T>(DependencyObject root) where T : DependencyObject

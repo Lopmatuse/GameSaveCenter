@@ -14,9 +14,10 @@
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiProduction.xaml"/>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/Redesign.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource GscDataGridColumnHeaderStyle}">
+            <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
+                <Setter Property="OverridesDefaultStyle" Value="True"/>
                 <Setter Property="Background" Value="{DynamicResource GscTableHeaderBrush}"/>
-                <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource GscSecondaryTextBrush}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource GscTableDividerBrush}"/>
             </Style>
             <converters:MediaThumbnailConverter x:Key="MediaThumbnailConverter"/>

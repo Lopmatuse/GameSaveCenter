@@ -21,7 +21,7 @@ namespace GameSaveCenter.Playnite.ViewModels
         {
             var selectedId = SelectedInboxMedia?.MediaId;
             var targetId = InboxTargetGame?.PlayniteId;
-            var inbox = await plugin.RequestAsync<MediaItemDto[]>(MessageTypes.ListUnassignedMedia, new GameQueryDto { Limit = 500 });
+            var inbox = await plugin.RequestAsync<MediaItemDto[]>(MessageTypes.ListUnassignedMedia, new GameQueryDto { Limit = 5000 });
             ApplyOnUi(() =>
             {
                 Replace(UnassignedMedia, inbox);

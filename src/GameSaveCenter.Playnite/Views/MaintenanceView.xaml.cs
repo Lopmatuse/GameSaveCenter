@@ -15,22 +15,22 @@ namespace GameSaveCenter.Playnite.Views
         public MaintenanceView()
         {
             InitializeComponent();
-            // DataGridColumnHeader instances created by WPF for the final viewport/filler
-            // column do not always inherit the Playnite host's merged style. Apply theme
-            // brushes at load time so the last header can never fall back to white.
-            AddHandler(FrameworkElement.LoadedEvent, new RoutedEventHandler(ApplyHeaderTheme), true);
+
+            // Loaded is a direct WPF event. Subscribe to each concrete DataGrid so the
+            // deterministic header/scrolling fallback actually runs for generated headers.
+            FindingsGrid.Loaded += DataGridLoaded;
+            MaintenanceDeviceGrid.Loaded += DataGridLoaded;
+            MaintenanceAuditFindingsGrid.Loaded += DataGridLoaded;
+            MaintenanceAuditLogGrid.Loaded += DataGridLoaded;
         }
 
-        private void ApplyHeaderTheme(object sender, RoutedEventArgs e)
+        private void DataGridLoaded(object sender, RoutedEventArgs e)
         {
-            if (e.OriginalSource is DataGrid grid)
+            if (sender is DataGrid grid)
             {
                 ApplyGridHeaderTheme(grid);
                 QueueGridHeaderTheme(grid);
             }
-
-            if (e.OriginalSource is DataGridColumnHeader header)
-                ApplyColumnHeaderTheme(header);
         }
 
         private void ApplyGridHeaderTheme(DataGrid grid)
