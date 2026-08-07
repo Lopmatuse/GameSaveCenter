@@ -51,11 +51,13 @@ namespace GameSaveCenter.Playnite.Views
             var stackCompare = width < 980 || height < 760;
             SaveCompareLayout.ColumnDefinitions[1].Width = stackCompare ? new GridLength(0) : new GridLength(14);
             SaveCompareLayout.ColumnDefinitions[2].Width = stackCompare ? new GridLength(0) : new GridLength(360);
+            SaveCompareLayout.RowDefinitions[1].Height = stackCompare ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
             Grid.SetColumn(SaveCompareRetentionScrollViewer, stackCompare ? 0 : 2);
             Grid.SetColumnSpan(SaveCompareRetentionScrollViewer, stackCompare ? 3 : 1);
-            Grid.SetRow(SaveCompareRetentionScrollViewer, 0);
+            Grid.SetRow(SaveCompareRetentionScrollViewer, stackCompare ? 1 : 0);
             SaveCompareRetentionScrollViewer.Margin = stackCompare ? new Thickness(0, 14, 0, 0) : new Thickness(0);
             SaveCompareRetentionScrollViewer.MaxHeight = stackCompare ? Math.Max(180, Math.Min(420, height * 0.42)) : double.PositiveInfinity;
+            SaveCompareMainScrollViewer.MaxHeight = stackCompare ? Math.Max(220, Math.Min(420, height * 0.45)) : double.PositiveInfinity;
         }
     }
 }

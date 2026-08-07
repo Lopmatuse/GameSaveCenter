@@ -135,8 +135,9 @@
             <TabItem Header="比较与保留">
                 <Grid x:Name="SaveCompareLayout" Margin="0,12,0,0">
                     <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="{StaticResource GscInspectorWidth}"/></Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="0"/></Grid.RowDefinitions>
                     <Border Grid.Column="0" Style="{DynamicResource GscReadingCardStyle}" Padding="18">
-                        <ScrollViewer Style="{DynamicResource GscInspectorScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ScrollViewer x:Name="SaveCompareMainScrollViewer" Style="{DynamicResource GscInspectorScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                             <StackPanel>
                                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                     <StackPanel><TextBlock Text="版本比较" Style="{DynamicResource GscSectionTitleStyle}"/><TextBlock Text="当前选中版本与上一版本的只读文件清单差异。" Style="{DynamicResource GscCaptionStyle}" Margin="0,4,0,0" TextWrapping="Wrap"/></StackPanel>
@@ -149,11 +150,9 @@
                                 </UniformGrid>
                                 <Border Style="{DynamicResource GscRedesignInfoBand}" Padding="12" Margin="0,14,0,0"><TextBlock Text="{Binding DiffSummary, TargetNullValue=尚未比较版本。选择历史版本后点击“比较所选版本”。}" TextWrapping="Wrap" Foreground="{DynamicResource GscInfoBrush}"/></Border>
                                 <TextBlock Text="变更文件" Style="{DynamicResource GscSectionTitleStyle}" Margin="0,18,0,8"/>
-                                <ScrollViewer MaxHeight="260" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                                    <ItemsControl ItemsSource="{Binding LastBackupDiff.Added}">
-                                        <ItemsControl.ItemTemplate><DataTemplate><Border Style="{DynamicResource GscRedesignSubCard}" Padding="10" Margin="0,0,0,6"><StackPanel><TextBlock Text="＋ 新增" Foreground="{DynamicResource GscSuccessBrush}" FontWeight="SemiBold"/><TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" ToolTip="{Binding}" Margin="0,3,0,0"/></StackPanel></Border></DataTemplate></ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                </ScrollViewer>
+                                <ItemsControl ItemsSource="{Binding LastBackupDiff.Added}">
+                                    <ItemsControl.ItemTemplate><DataTemplate><Border Style="{DynamicResource GscRedesignSubCard}" Padding="10" Margin="0,0,0,6"><StackPanel><TextBlock Text="＋ 新增" Foreground="{DynamicResource GscSuccessBrush}" FontWeight="SemiBold"/><TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" ToolTip="{Binding}" Margin="0,3,0,0"/></StackPanel></Border></DataTemplate></ItemsControl.ItemTemplate>
+                                </ItemsControl>
                                 <TextBlock Text="变更清单会在比较完成后显示；未执行比较时不会猜测文件状态。" Style="{DynamicResource GscCaptionStyle}" TextWrapping="Wrap" Margin="0,8,0,0"/>
                             </StackPanel>
                         </ScrollViewer>

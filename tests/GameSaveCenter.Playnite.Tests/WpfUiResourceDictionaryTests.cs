@@ -819,12 +819,17 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("<TabItem Header=\"比较与保留\">", saveText);
         Assert.Contains("x:Name=\"SaveCompareLayout\"", saveText);
         Assert.Contains("x:Name=\"SaveCompareRetentionScrollViewer\"", saveText);
+        Assert.Contains("x:Name=\"SaveCompareMainScrollViewer\"", saveText);
         Assert.Contains("{Binding LastBackupDiff.Added.Count", saveText);
         Assert.Contains("{Binding LastRetentionPreview.KeepBackupIds.Count", saveText);
         Assert.Contains("Command=\"{Binding CompareBackupCommand}\"", saveText);
         Assert.Contains("Command=\"{Binding PreviewRetentionCommand}\"", saveText);
         Assert.Contains("var stackCompare = width < 980 || height < 760;", saveCode);
         Assert.Contains("SaveCompareRetentionScrollViewer.MaxHeight = stackCompare ? Math.Max(180, Math.Min(420, height * 0.42)) : double.PositiveInfinity;", saveCode);
+        Assert.Contains("SaveCompareLayout.RowDefinitions[1].Height = stackCompare ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);", saveCode);
+        Assert.Contains("Grid.SetRow(SaveCompareRetentionScrollViewer, stackCompare ? 1 : 0);", saveCode);
+        Assert.Contains("SaveCompareMainScrollViewer.MaxHeight = stackCompare ? Math.Max(220, Math.Min(420, height * 0.45)) : double.PositiveInfinity;", saveCode);
+        Assert.DoesNotContain("MaxHeight=\"260\"", saveText);
     }
 
     [Fact]
