@@ -1567,9 +1567,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("OverviewSecondaryScrollViewer.MaxHeight = stack", File.ReadAllText(overviewPath + ".cs"));
         Assert.DoesNotContain("OverviewSecondaryScrollViewer.MaxHeight = stack || compactHeight", File.ReadAllText(overviewPath + ".cs"));
         Assert.Contains("OverviewSecondaryScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden", File.ReadAllText(overviewPath + ".cs"));
-        Assert.Contains("OverviewRiskScrollViewer.MaxHeight = stack || compactHeight", File.ReadAllText(overviewPath + ".cs"));
-        Assert.Contains("RowDefinition x:Name=\"OverviewSummaryRow\" Height=\"*\"", File.ReadAllText(overviewPath));
-        Assert.Contains("GscRedesignSectionCard}\" VerticalAlignment=\"Stretch\">", File.ReadAllText(overviewPath));
+        Assert.Contains("OverviewRiskScrollViewer.MaxHeight = Math.Max(180, Math.Min(360, height * 0.42))", File.ReadAllText(overviewPath + ".cs"));
+        Assert.Contains("RowDefinition x:Name=\"OverviewSummaryRow\" Height=\"Auto\"", File.ReadAllText(overviewPath));
+        Assert.Contains("GscRedesignSectionCard}\" VerticalAlignment=\"Top\">", File.ReadAllText(overviewPath));
         Assert.Contains("VerticalAlignment=\"Top\">", File.ReadAllText(overviewPath));
     }
 

@@ -69,19 +69,14 @@ namespace GameSaveCenter.Playnite.Views
 
         public void ApplyResponsiveHeight(double height, bool stack)
         {
-            // In stacked layouts the risk card is secondary content. Give it a bounded
-            // scroll channel so a long attention list cannot push recent activity away.
-            // On wide non-stacked layouts the outer channel must keep stretching to the
-            // row height even in short windows: the summary star row absorbs the extra
-            // height, so the right column never leaves dead space below the risk card.
-            var compactHeight = height < 760;
+            // Keep the risk card on a bounded scroll channel in every layout. On wide
+            // short windows the outer column also stays a finite scroll owner, so the
+            // right column never gets clipped by the row's hidden outer scrollbar.
             OverviewSecondaryScrollViewer.MaxHeight = stack
                 ? Math.Max(260, Math.Min(480, height * 0.58))
                 : double.PositiveInfinity;
             OverviewSecondaryScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            OverviewRiskScrollViewer.MaxHeight = stack || compactHeight
-                ? Math.Max(180, Math.Min(360, height * 0.42))
-                : double.PositiveInfinity;
+            OverviewRiskScrollViewer.MaxHeight = Math.Max(180, Math.Min(360, height * 0.42));
             OverviewRiskScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
         }
     }

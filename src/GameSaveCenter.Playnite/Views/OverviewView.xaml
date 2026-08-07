@@ -223,8 +223,8 @@
                       CanContentScroll="False"
                       MinHeight="0">
         <Grid x:Name="OverviewSecondaryPanel" MinWidth="0">
-            <Grid.RowDefinitions><RowDefinition x:Name="OverviewSummaryRow" Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-            <Border Style="{DynamicResource GscRedesignSectionCard}" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions><RowDefinition x:Name="OverviewSummaryRow" Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+            <Border Style="{DynamicResource GscRedesignSectionCard}" VerticalAlignment="Top">
                 <StackPanel VerticalAlignment="Top">
                     <TextBlock Style="{DynamicResource GscRedesignSectionTitle}" Text="今日概览"/>
                     <UniformGrid Columns="2" Margin="0,8,0,0">
