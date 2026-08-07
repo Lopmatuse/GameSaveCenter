@@ -120,7 +120,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Style="{DynamicResource GscRedesignSectionCard}" Padding="14">
+            <Border Grid.Row="1" Style="{DynamicResource GscRedesignSectionCard}" Padding="16" MinHeight="150">
                 <Grid>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                     <Border Width="48" Height="48" CornerRadius="15" Background="{DynamicResource GscAccentTintBrush}" VerticalAlignment="Center" HorizontalAlignment="Left">
