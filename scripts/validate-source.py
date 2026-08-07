@@ -1141,7 +1141,7 @@ def check_final_redesign_guards() -> None:
         (settings, "Settings final redesign",
          ('Themes/Redesign.xaml', 'x:Name="SettingsSectionTabs"',
           'GscRedesignSettingsTabControl', '由 Playnite 的保存按钮提交',
-          'x:Name="CoreToolFields"', 'x:Name="StoragePolicyFields"',
+          'x:Name="CoreToolFields"', 'x:Name="StorageFormatFields"', 'x:Name="StorageNumericFields"',
           'x:Name="AppearanceFields"', 'x:Name="AutomationIntervalFields"',
           'Click="OnExportSettingsClick"', 'Click="OnImportSettingsClick"')),
         (settings_code, "Settings final responsive behavior",

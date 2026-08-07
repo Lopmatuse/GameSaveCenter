@@ -94,30 +94,32 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,10"><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscInfoIconFillBrush}" Margin="0,0,9,0"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B7;" Foreground="{DynamicResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="存档格式与历史版本" FontSize="16" FontWeight="SemiBold" VerticalAlignment="Center"/></StackPanel>
                     <TextBlock Text="推荐 ZIP + Zstandard。Simple 模式只维护一个当前副本，不适合作为多版本恢复历史。" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,0,0,12" TextWrapping="Wrap"/>
-                    <UniformGrid x:Name="StoragePolicyFields" Columns="2">
-                        <StackPanel Margin="0,0,12,10">
+                    <UniformGrid x:Name="StorageFormatFields" Columns="2" Margin="0,0,0,12">
+                        <StackPanel Margin="0,0,12,0">
                         <TextBlock Text="备份格式" VerticalAlignment="Center" Margin="0,0,0,4"/>
                         <ComboBox Style="{StaticResource GscWpfUiComboBox}" SelectedValue="{Binding BackupFormat}" SelectedValuePath="Tag">
                             <ComboBoxItem Content="ZIP（多版本）" Tag="{x:Static contracts:BackupStorageFormat.Zip}"/>
                             <ComboBoxItem Content="Simple（单副本）" Tag="{x:Static contracts:BackupStorageFormat.Simple}"/>
                         </ComboBox>
                         </StackPanel>
-                        <StackPanel Margin="0,0,12,10">
+                        <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="压缩方式" VerticalAlignment="Center" Margin="0,0,0,4"/>
                         <ComboBox Style="{StaticResource GscWpfUiComboBox}" SelectedValue="{Binding Compression}" SelectedValuePath="Tag">
                             <ComboBoxItem Content="Zstandard" Tag="zstd"/><ComboBoxItem Content="Deflate" Tag="deflate"/>
                             <ComboBoxItem Content="Bzip2" Tag="bzip2"/><ComboBoxItem Content="不压缩" Tag="none"/>
                         </ComboBox>
                         </StackPanel>
-                        <StackPanel Margin="0,0,12,10">
+                    </UniformGrid>
+                    <UniformGrid x:Name="StorageNumericFields" Columns="3">
+                        <StackPanel Margin="0,0,12,0">
                         <TextBlock Text="完整版本数" VerticalAlignment="Center" Margin="0,0,0,4"/>
                         <TextBox Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" ToolTip="允许 1–255；离开输入框后提交。"><TextBox.Text><Binding Path="FullBackupLimit" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="1" Maximum="255"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
                         </StackPanel>
-                        <StackPanel Margin="0,0,12,10">
+                        <StackPanel Margin="0,0,12,0">
                         <TextBlock Text="每组差异版本数" VerticalAlignment="Center" Margin="0,0,0,4"/>
                         <TextBox Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" ToolTip="允许 0–255；离开输入框后提交。"><TextBox.Text><Binding Path="DifferentialBackupLimit" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="0" Maximum="255"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
                         </StackPanel>
-                        <StackPanel Margin="0,0,12,0">
+                        <StackPanel Margin="0,0,0,0">
                         <TextBlock Text="压缩等级" VerticalAlignment="Center" Margin="0,0,0,4"/>
                         <TextBox Style="{StaticResource GscNumericTextBox}" infra:SelectAllOnKeyboardFocus.Enabled="True" ToolTip="zstd 推荐 3；允许 -7 到 22；离开输入框后提交。"><TextBox.Text><Binding Path="CompressionLevel" UpdateSourceTrigger="LostFocus" ValidatesOnExceptions="True" NotifyOnValidationError="True"><Binding.ValidationRules><infra:IntegerRangeValidationRule Minimum="-7" Maximum="22"/></Binding.ValidationRules></Binding></TextBox.Text></TextBox>
                         </StackPanel>

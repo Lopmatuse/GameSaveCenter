@@ -1886,11 +1886,13 @@ public sealed class WpfUiResourceDictionaryTests
         var settings = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml"));
         var settingsCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Settings", "GameSaveCenterSettingsView.xaml.cs"));
 
-        Assert.Contains("x:Name=\"StoragePolicyFields\" Columns=\"2\"", settings);
+        Assert.Contains("x:Name=\"StorageFormatFields\" Columns=\"2\"", settings);
+        Assert.Contains("x:Name=\"StorageNumericFields\" Columns=\"3\"", settings);
         Assert.Contains("Path=\"FullBackupLimit\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("Path=\"DifferentialBackupLimit\" UpdateSourceTrigger=\"LostFocus\"", settings);
         Assert.Contains("Path=\"CompressionLevel\" UpdateSourceTrigger=\"LostFocus\"", settings);
-        Assert.Contains("StoragePolicyFields.Columns = twoColumns ? 2 : 1", settingsCode);
+        Assert.Contains("StorageFormatFields.Columns = twoColumns ? 2 : 1", settingsCode);
+        Assert.Contains("StorageNumericFields.Columns = formWidth >= 720 ? 3 : formWidth >= 480 ? 2 : 1", settingsCode);
     }
 
     [Fact]

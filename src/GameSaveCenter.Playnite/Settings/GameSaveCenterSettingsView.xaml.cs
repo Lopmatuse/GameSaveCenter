@@ -372,9 +372,13 @@ namespace GameSaveCenter.Playnite.Settings
             }
 
             var twoColumns = formWidth >= 720;
-            if (StoragePolicyFields != null)
+            if (StorageFormatFields != null)
             {
-                StoragePolicyFields.Columns = twoColumns ? 2 : 1;
+                StorageFormatFields.Columns = twoColumns ? 2 : 1;
+            }
+            if (StorageNumericFields != null)
+            {
+                StorageNumericFields.Columns = formWidth >= 720 ? 3 : formWidth >= 480 ? 2 : 1;
             }
             if (AppearanceFields != null)
             {
