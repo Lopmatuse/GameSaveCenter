@@ -614,7 +614,8 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("x:Name=\"OverviewSecondaryScrollViewer\"\n                      Style=\"{DynamicResource GscPageScrollViewer}\"", overview);
         Assert.Contains("x:Name=\"OverviewRiskScrollViewer\" Style=\"{DynamicResource GscPageScrollViewer}\"", overview);
         Assert.Contains("<ScrollViewer Style=\"{DynamicResource GscPageScrollViewer}\" VerticalScrollBarVisibility=\"Hidden\"", save);
-        Assert.Contains("<ScrollViewer Style=\"{DynamicResource GscPageScrollViewer}\" Grid.Row=\"0\" MaxHeight=\"190\"", media);
+        Assert.Contains("<ScrollViewer Style=\"{DynamicResource GscPageScrollViewer}\" Grid.Row=\"0\"", media);
+        Assert.DoesNotContain("Grid.Row=\"0\" MaxHeight=\"190\"", media);
         Assert.Contains("x:Name=\"MaintenanceDeviceInspectorScrollViewer\" Grid.Row=\"2\" Grid.Column=\"2\" Style=\"{DynamicResource GscInspectorScrollViewer}\"", maintenance);
         Assert.DoesNotContain("MaintenanceDeviceDecisionScrollViewer", maintenance);
         Assert.DoesNotContain("MaintenanceRemoteRestoreScrollViewer", maintenance);
@@ -1625,7 +1626,9 @@ public sealed class WpfUiResourceDictionaryTests
         var sourceTableBorder = sourceList.Ancestors().First(ancestor => ancestor.Name.LocalName == "Border" && ancestor.Attribute("Grid.Row")?.Value == "1");
         Assert.DoesNotContain(sourceTableBorder.Attributes(), attribute => attribute.Name.LocalName == "MaxHeight");
         Assert.Contains("VirtualizingPanel.VirtualizationMode=\"Recycling\"", File.ReadAllText(mediaPath));
-        Assert.Contains(tabItem.Descendants(), element => element.Name.LocalName == "ScrollViewer" && element.Attribute("MaxHeight")?.Value == "190");
+        var formScroller = tabItem.Descendants().Single(element => element.Name.LocalName == "ScrollViewer");
+        Assert.DoesNotContain(formScroller.Attributes(), attribute => attribute.Name.LocalName == "MaxHeight");
+        Assert.Equal("Auto", formScroller.Attribute("VerticalScrollBarVisibility")?.Value);
         Assert.Contains(tabItem.Descendants(), element => element.Name.LocalName == "RowDefinition" && element.Attribute("Height")?.Value == "*");
         Assert.Contains("Property=\"MinHeight\" Value=\"{DynamicResource GscWorkspaceTableMinHeight}\"", File.ReadAllText(mediaPath));
     }
