@@ -790,7 +790,7 @@ public sealed class WpfUiResourceDictionaryTests
         var saveCode = File.ReadAllText(saveCodePath);
         var save = XDocument.Parse(saveText);
 
-        foreach (var name in new[] { "SaveHistoryActionsScrollViewer", "SaveCandidateReasonScrollViewer", "SaveCandidateActionsScrollViewer" })
+        foreach (var name in new[] { "SaveHistoryActionsScrollViewer", "SaveCandidateInspectorScrollViewer" })
         {
             var viewer = save.Descendants().Single(element =>
                 element.Name.LocalName == "ScrollViewer" &&
@@ -801,10 +801,11 @@ public sealed class WpfUiResourceDictionaryTests
         }
 
         Assert.Contains("SaveHistoryActionsScrollViewer.MaxHeight = compact ? Math.Max(150, Math.Min(360, height * 0.42)) : double.PositiveInfinity;", saveCode);
-        Assert.Contains("SaveCandidateReasonScrollViewer.MaxHeight = Math.Max(90, Math.Min(180, height * (compact ? 0.18 : 0.22)))", saveCode);
-        Assert.Contains("SaveCandidateActionsScrollViewer.MaxHeight = Math.Max(70, Math.Min(140, height * (compact ? 0.14 : 0.18)))", saveCode);
-        Assert.Contains("MaxHeight=\"180\"", saveText);
-        Assert.Contains("MaxHeight=\"140\"", saveText);
+        Assert.Contains("SaveCandidateInspectorScrollViewer.MaxHeight = compact ? Math.Max(150, Math.Min(360, height * 0.42)) : double.PositiveInfinity;", saveCode);
+        Assert.Contains("Grid.SetRow(SaveCandidateInspectorScrollViewer, compact ? 1 : 0)", saveCode);
+        Assert.Contains("SaveCandidateInspectorScrollViewer", saveText);
+        Assert.DoesNotContain("SaveCandidateReasonScrollViewer", saveText);
+        Assert.DoesNotContain("SaveCandidateActionsScrollViewer", saveText);
         Assert.DoesNotContain("<Border Grid.Row=\"1\" Style=\"{DynamicResource GscSurface}\"", saveText);
     }
 
