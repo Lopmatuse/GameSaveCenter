@@ -1101,6 +1101,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("var stackReleases = width < 980", codeBehind);
         Assert.Contains("Grid.SetColumnSpan(TrainerCatalogReleasesPanel, stackReleases ? 3 : 1)", codeBehind);
         Assert.Contains("Grid.SetRow(TrainerReleaseInfoPanel, stackReleases ? 1 : 0)", codeBehind);
+        Assert.Contains("x:Name=\"TrainerReleaseInfoScrollViewer\"", trainer);
+        Assert.Contains("TrainerReleaseInfoScrollViewer.MaxHeight = stackReleases", codeBehind);
+        Assert.Contains("Math.Min(420, height * 0.42)", codeBehind);
     }
 
     [Fact]

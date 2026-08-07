@@ -62,6 +62,9 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetColumn(TrainerReleaseInfoPanel, stackReleases ? 0 : 2);
             Grid.SetColumnSpan(TrainerReleaseInfoPanel, stackReleases ? 3 : 1);
             TrainerCatalogReleasesPanel.Margin = new Thickness(0);
+            TrainerReleaseInfoScrollViewer.MaxHeight = stackReleases
+                ? Math.Max(180, Math.Min(420, height * 0.42))
+                : double.PositiveInfinity;
             TrainerReleaseInfoPanel.Margin = stackReleases
                 ? new Thickness(0, 10, 0, 0)
                 : new Thickness(0);
