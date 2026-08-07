@@ -215,20 +215,18 @@
                     <Border x:Name="MediaInspectorFrame" Grid.Row="2" Grid.Column="2" Background="Transparent" BorderThickness="0" ClipToBounds="True" Padding="0">
                     <ScrollViewer x:Name="MediaInspectorScrollViewer" Style="{DynamicResource GscPageScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0">
                     <Border x:Name="MediaInspectorPanel" Style="{DynamicResource GscReadingCardStyle}" Padding="14">
-                        <Grid>
-                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                            <Border x:Name="MediaPreviewPanel" Grid.Row="0" Height="178" CornerRadius="12" ClipToBounds="True" Background="{DynamicResource GscControlFillBrush}" Margin="0,0,0,14">
-                                <Grid>
-                                    <TextBlock Text="选择截图或录像可在此预览" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" Margin="14" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
-                                    <Image Source="{Binding SelectedMedia.ArchivePath, Converter={StaticResource MediaThumbnailConverter}}" Stretch="UniformToFill"><Image.Style><Style TargetType="Image"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding SelectedMedia.Kind}" Value="{x:Static contracts:MediaKind.Screenshot}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Image.Style></Image>
-                                    <MediaElement Source="{Binding SelectedMedia.ArchivePath, Converter={StaticResource MediaVideoSourceConverter}}" LoadedBehavior="Play" UnloadedBehavior="Stop" IsMuted="True" Stretch="UniformToFill" ScrubbingEnabled="True"><MediaElement.Style><Style TargetType="MediaElement"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding SelectedMedia.Kind}" Value="{x:Static contracts:MediaKind.VideoClip}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></MediaElement.Style></MediaElement>
-                                </Grid>
-                            </Border>
-                            <StackPanel Grid.Row="1" x:Name="MediaMetadataPanel">
+                        <StackPanel x:Name="MediaMetadataPanel">
                                 <TextBlock Text="媒体详情" Style="{DynamicResource GscSectionTitleStyle}"/>
                                 <TextBlock Text="{Binding SelectedMedia.FileName, TargetNullValue=未选择媒体}" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedMedia.FileName}" Margin="0,6,0,0"/>
                                 <TextBlock Text="{Binding SelectedMedia.ArchivePath}" Foreground="{DynamicResource GscMutedTextBrush}" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedMedia.ArchivePath}" Margin="0,4,0,0"/>
-                                <Separator Margin="0,14,0,12"/>
+                                <Border x:Name="MediaPreviewPanel" Height="178" CornerRadius="12" ClipToBounds="True" Background="{DynamicResource GscControlFillBrush}" Margin="0,14,0,14">
+                                    <Grid>
+                                        <TextBlock Text="选择截图或录像可在此预览" TextWrapping="Wrap" TextAlignment="Center" VerticalAlignment="Center" Margin="14" Foreground="{DynamicResource GscSecondaryTextBrush}"/>
+                                        <Image Source="{Binding SelectedMedia.ArchivePath, Converter={StaticResource MediaThumbnailConverter}}" Stretch="UniformToFill"><Image.Style><Style TargetType="Image"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding SelectedMedia.Kind}" Value="{x:Static contracts:MediaKind.Screenshot}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Image.Style></Image>
+                                        <MediaElement Source="{Binding SelectedMedia.ArchivePath, Converter={StaticResource MediaVideoSourceConverter}}" LoadedBehavior="Play" UnloadedBehavior="Stop" IsMuted="True" Stretch="UniformToFill" ScrubbingEnabled="True"><MediaElement.Style><Style TargetType="MediaElement"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding SelectedMedia.Kind}" Value="{x:Static contracts:MediaKind.VideoClip}"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></MediaElement.Style></MediaElement>
+                                    </Grid>
+                                </Border>
+                                <Separator Margin="0,0,0,12"/>
                                 <ui:ToggleSwitch Style="{DynamicResource GscWpfUiToggleSwitch}" Content="收藏" OnContent="开" OffContent="关" IsChecked="{Binding MediaFavorite}" Margin="0,0,0,10" HorizontalAlignment="Left"/>
                                 <TextBlock Text="备注" Style="{DynamicResource GscCaptionStyle}" Margin="0,0,0,5"/>
                                 <TextBox Style="{DynamicResource GscWpfUiTextBox}" Text="{Binding MediaComment, UpdateSourceTrigger=PropertyChanged}" ToolTip="为选中媒体添加备注" MinHeight="64" TextWrapping="Wrap" AcceptsReturn="True"/>
@@ -240,8 +238,7 @@
                                 <Separator Margin="0,14,0,12"/>
                                 <TextBlock Text="批量操作" Style="{DynamicResource GscCaptionStyle}" Margin="0,0,0,7"/>
                                 <WrapPanel><ui:Button Style="{DynamicResource GscWpfUiContextButton}" Command="{Binding FavoriteSelectedMediaCommand}" CommandParameter="{Binding SelectedItems, ElementName=MediaGrid}" Content="收藏所选" Margin="0,0,8,8"/><ui:Button Style="{DynamicResource GscWpfUiContextButton}" Command="{Binding UnfavoriteSelectedMediaCommand}" CommandParameter="{Binding SelectedItems, ElementName=MediaGrid}" Content="取消收藏" Margin="0,0,8,8"/><ui:Button Style="{DynamicResource GscWpfUiContextButton}" Command="{Binding CommentSelectedMediaCommand}" CommandParameter="{Binding SelectedItems, ElementName=MediaGrid}" Content="应用当前备注" Margin="0,0,8,8"/></WrapPanel>
-                            </StackPanel>
-                        </Grid>
+                        </StackPanel>
                     </Border>
                     </ScrollViewer>
                     </Border>

@@ -1114,7 +1114,18 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Text=\"{Binding MediaSummary.TotalSizeDisplay, Mode=OneWay}\"", media);
         Assert.DoesNotContain("MediaSummary.TotalSizeDisplay, Mode=TwoWay", media);
         Assert.Contains("var stack = width < 1080", mediaCode);
-        Assert.Contains("MediaPreviewPanel.Margin = new Thickness(0, 0, 0, 14)", mediaCode);
+        Assert.Contains("MediaPreviewPanel.Margin = new Thickness(0, 14, 0, 14)", mediaCode);
+        // Task book section 11: the current-game media inspector must keep the demo
+        // details-first order (媒体详情 -> 文件名/路径 -> 预览 -> 收藏) so the preview
+        // is never squeezed to the bottom of the card.
+        var detailsTitle = media.IndexOf("Text=\"媒体详情\"", StringComparison.Ordinal);
+        var fileNameLine = media.IndexOf("SelectedMedia.FileName, TargetNullValue=未选择媒体", StringComparison.Ordinal);
+        var previewPanel = media.IndexOf("x:Name=\"MediaPreviewPanel\"", StringComparison.Ordinal);
+        var favoriteToggle = media.IndexOf("Content=\"收藏\" OnContent=\"开\"", StringComparison.Ordinal);
+        Assert.True(detailsTitle >= 0 && fileNameLine >= 0 && previewPanel >= 0 && favoriteToggle >= 0,
+            "媒体中心 Inspector 缺少媒体详情、文件名或预览元素。");
+        Assert.True(detailsTitle < fileNameLine && fileNameLine < previewPanel && previewPanel < favoriteToggle,
+            "媒体中心 Inspector 顺序必须为 媒体详情 -> 文件名/路径 -> 预览 -> 收藏。");
         Assert.Contains("ColumnDefinition Width=\"370\"", media);
     }
 

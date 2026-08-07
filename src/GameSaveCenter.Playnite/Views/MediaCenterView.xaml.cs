@@ -43,10 +43,11 @@ namespace GameSaveCenter.Playnite.Views
             Grid.SetColumnSpan(MediaInspectorFrame, stack ? 3 : 1);
             Grid.SetRow(MediaInspectorFrame, stack ? 3 : 2);
             MediaInspectorFrame.Margin = stack ? new Thickness(0, 10, 0, 0) : new Thickness(0);
-            // The inspector itself always uses the demo's preview-over-details layout.
+            // The inspector itself always uses the demo's details-first layout:
+            // 媒体详情 -> 文件名/路径 -> 预览 -> 收藏/备注/保存/打开.
             // Responsive work only moves that complete inspector beside/below the media list;
             // it never rewrites the inspector's internal visual tree during a resize.
-            MediaPreviewPanel.Margin = new Thickness(0, 0, 0, 14);
+            MediaPreviewPanel.Margin = new Thickness(0, 14, 0, 14);
         }
     }
 }
