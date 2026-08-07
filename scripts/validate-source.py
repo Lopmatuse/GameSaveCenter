@@ -63,7 +63,7 @@ def read_workspace_ui() -> str:
 
 def check_structured_files() -> None:
     for path in ROOT.rglob("*.json"):
-        if any(part in {"bin", "obj", ".git", "artifacts"} for part in path.parts):
+        if any(part in {"bin", "obj", ".git", "artifacts", ".tmp"} for part in path.parts):
             continue
         try:
             json.loads(path.read_text(encoding="utf-8"))
@@ -72,7 +72,7 @@ def check_structured_files() -> None:
 
     for pattern in ("*.xaml", "*.csproj", "*.props"):
         for path in ROOT.rglob(pattern):
-            if any(part in {"bin", "obj", ".git", "artifacts"} for part in path.parts):
+            if any(part in {"bin", "obj", ".git", "artifacts", ".tmp"} for part in path.parts):
                 continue
             try:
                 ET.parse(path)
