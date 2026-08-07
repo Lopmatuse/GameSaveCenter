@@ -540,7 +540,7 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("VirtualizingPanel.ScrollUnit\" Value=\"Item\"", media);
         Assert.Contains("x:Name=\"MediaInboxGrid\"", media);
-        Assert.Contains("EnableColumnVirtualization\" Value=\"False\"", media);
+        Assert.Contains("EnableColumnVirtualization=\"False\"", media);
         Assert.Contains("VirtualizingPanel.VirtualizationMode\" Value=\"Standard\"", media);
         Assert.Contains("x:Key=\"MediaInboxStableRowStyle\"", media);
         Assert.Contains("RowStyle=\"{StaticResource MediaInboxStableRowStyle}\"", media);
