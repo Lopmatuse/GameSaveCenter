@@ -567,7 +567,7 @@ namespace GameSaveCenter.Playnite.Views
                 case WorkspaceKind.Maintenance:
                     PageTitleText.Text = "维护中心"; PageSubtitleText.Text = "关注项、诊断日志、进程映射、设备恢复与保留预览"; break;
                 default:
-                    PageTitleText.Text = "首页"; PageSubtitleText.Text = "今天是否安全、有什么需要处理，以及全局批量操作"; break;
+                    PageTitleText.Text = "首页"; PageSubtitleText.Text = "今日整体状态、需处理关注项与全局批量操作"; break;
             }
             if (compactGameBrowserOpen)
             {

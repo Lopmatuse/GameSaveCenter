@@ -880,7 +880,7 @@
             </Grid.ColumnDefinitions>
             <StackPanel x:Name="HeaderTitlePanel" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center" MinWidth="0">
                 <TextBlock x:Name="PageTitleText" Text="首页" FontSize="26" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
-                <TextBlock x:Name="PageSubtitleText" Text="今天是否安全、有什么需要处理，以及全局批量操作"
+                <TextBlock x:Name="PageSubtitleText" Text="今日整体状态、需处理关注项与全局批量操作"
                            Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,4,0,0"
                            TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}"/>
             </StackPanel>
