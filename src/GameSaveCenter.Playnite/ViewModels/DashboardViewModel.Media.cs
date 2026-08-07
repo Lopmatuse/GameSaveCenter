@@ -57,6 +57,7 @@ namespace GameSaveCenter.Playnite.ViewModels
             return true;
         }
 
+        private async Task SyncMediaAsync()
         {
             if (!plugin.Settings.EnableMediaSync)
             {
