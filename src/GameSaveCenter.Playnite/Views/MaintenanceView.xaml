@@ -87,8 +87,9 @@
                 </Grid>
             </TabItem>
             <TabItem Header="保留策略">
-                <Grid Margin="0,12,0,0">
-                    <Border Style="{DynamicResource GscReadingCardStyle}" Padding="18" MaxWidth="1050" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                <ScrollViewer Style="{DynamicResource GscPageScrollViewer}" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Disabled" Margin="0,12,0,0">
+                    <StackPanel MaxWidth="1050" HorizontalAlignment="Left">
+                        <Border Style="{DynamicResource GscReadingCardStyle}" Padding="18">
                             <StackPanel>
                                 <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                     <StackPanel><TextBlock Text="当前游戏保留策略只读预览" Style="{DynamicResource GscSectionTitleStyle}"/><TextBlock Text="只显示 Worker 的安全建议，不执行删除，也不会改变已锁定版本。" Style="{DynamicResource GscCaptionStyle}" Margin="0,4,0,0" TextWrapping="Wrap"/></StackPanel>
@@ -102,8 +103,36 @@
                                     <Border Style="{DynamicResource GscRedesignSubCard}"><StackPanel><TextBlock Text="安全边界" Style="{DynamicResource GscCaptionStyle}"/><TextBlock Text="只读" FontSize="28" FontWeight="SemiBold" Margin="0,8,0,0"/><TextBlock Text="不会自动删除" Style="{DynamicResource GscCaptionStyle}" Margin="0,4,0,0"/></StackPanel></Border>
                                 </UniformGrid>
                             </StackPanel>
-                    </Border>
-                </Grid>
+                        </Border>
+                        <Grid Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                            <Border Style="{DynamicResource GscReadingCardStyle}" Padding="16">
+                                <StackPanel>
+                                    <TextBlock Text="预计保留明细" Style="{DynamicResource GscSectionTitleStyle}"/>
+                                    <TextBlock Text="刷新预览后显示建议保留的版本。" Style="{DynamicResource GscCaptionStyle}" Margin="0,4,0,0"/>
+                                    <ItemsControl ItemsSource="{Binding LastRetentionPreview.KeepBackupIds}" Margin="0,10,0,0">
+                                        <ItemsControl.ItemTemplate><DataTemplate><Border Style="{DynamicResource GscRedesignSubCard}" Padding="10" Margin="0,0,0,6"><TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" ToolTip="{Binding}"/></Border></DataTemplate></ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <TextBlock Text="暂无保留明细，点击“刷新预览”生成。" Margin="0,10,0,0">
+                                        <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource GscCaptionStyle}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding LastRetentionPreview}" Value="{x:Null}"><Setter Property="Visibility" Value="Visible"/></DataTrigger><DataTrigger Binding="{Binding LastRetentionPreview.KeepBackupIds.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Style="{DynamicResource GscReadingCardStyle}" Padding="16">
+                                <StackPanel>
+                                    <TextBlock Text="候选清理明细" Style="{DynamicResource GscSectionTitleStyle}"/>
+                                    <TextBlock Text="锁定版本永不进入候选清理，预览只读不会执行删除。" Style="{DynamicResource GscCaptionStyle}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                    <ItemsControl ItemsSource="{Binding LastRetentionPreview.DeleteCandidateIds}" Margin="0,10,0,0">
+                                        <ItemsControl.ItemTemplate><DataTemplate><Border Style="{DynamicResource GscRedesignSubCard}" Padding="10" Margin="0,0,0,6"><TextBlock Text="{Binding}" TextTrimming="CharacterEllipsis" ToolTip="{Binding}"/></Border></DataTemplate></ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <TextBlock Text="当前无候选清理。" Margin="0,10,0,0">
+                                        <TextBlock.Style><Style TargetType="TextBlock" BasedOn="{StaticResource GscCaptionStyle}"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding LastRetentionPreview}" Value="{x:Null}"><Setter Property="Visibility" Value="Visible"/></DataTrigger><DataTrigger Binding="{Binding LastRetentionPreview.DeleteCandidateIds.Count}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
             </TabItem>
             <TabItem Header="异常与审计">
                 <Grid x:Name="MaintenanceAuditLayout" Margin="0,12,0,12">

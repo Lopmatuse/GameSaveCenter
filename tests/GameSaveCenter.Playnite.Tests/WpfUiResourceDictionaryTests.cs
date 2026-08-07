@@ -863,6 +863,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("Command=\"{Binding PreviewRetentionCommand}\"", maintenanceText);
         Assert.Contains("{Binding LastRetentionPreview.KeepBackupIds.Count", maintenanceText);
         Assert.Contains("{Binding LastRetentionPreview.DeleteCandidateIds.Count", maintenanceText);
+        Assert.Contains("ItemsSource=\"{Binding LastRetentionPreview.KeepBackupIds}\"", maintenanceText);
+        Assert.Contains("ItemsSource=\"{Binding LastRetentionPreview.DeleteCandidateIds}\"", maintenanceText);
+        Assert.Contains("Style=\"{DynamicResource GscPageScrollViewer}\"", maintenanceText);
         Assert.Contains("不会自动删除", maintenanceText);
     }
 
@@ -1078,7 +1081,7 @@ public sealed class WpfUiResourceDictionaryTests
 
         Assert.Contains("MaxWidth=\"1120\" HorizontalAlignment=\"Left\"", saves);
         Assert.Contains("MaxWidth=\"980\" HorizontalAlignment=\"Left\" VerticalAlignment=\"Top\"", trainers);
-        Assert.Contains("MaxWidth=\"1050\" HorizontalAlignment=\"Stretch\" VerticalAlignment=\"Top\"", maintenance);
+        Assert.Contains("MaxWidth=\"1050\" HorizontalAlignment=\"Left\"", maintenance);
         Assert.Contains("var stackOverview = width < 1040", dashboardCode);
         Assert.Contains("var stackDiagnostics = width < 1120", maintenanceCode);
         Assert.Contains("var stackDevice = width < 1180", maintenanceCode);

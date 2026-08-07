@@ -3,6 +3,8 @@
 更新时间：2026-08-07
 当前版本：`0.6.70-development-preview`
 
+- [x] UI-130：维护中心「保留策略」补全只读明细预览：摘要卡下方新增「预计保留/候选清理」双列明细（真实绑定 `LastRetentionPreview.KeepBackupIds/DeleteCandidateIds`），页面改为 `GscPageScrollViewer` + `MaxWidth 1050` 表单节奏，内容有多少显示多少；锁定版本永不进入候选清理的文案与空态提示保留。源码校验、XAML 门禁、Release 构建 0 警告/0 错误与 Core 13 + Worker 23 + Playnite 119 全部通过，仍需 Playnite 宿主验证。
+
 - [x] UI-129：存档中心「版本详情」与「保留策略预览」检查器宽屏移除固定高度上限（520/360），随行高填充；堆叠模式对 `SaveHistoryActionsScrollViewer` 保留 `Max(150, Min(360, 高度*0.42))`、对 `SaveCompareRetentionScrollViewer` 保留 `Max(180, Min(420, 高度*0.42))` 有限内部滚动，与任务/维护/修改器中心检查器收口一致。源码校验、XAML 门禁、Release 构建 0 警告/0 错误与全部测试通过，仍需 Playnite 宿主验证。
 
 - [x] UI-125：收口共享样式中残留的非节奏间距：`GscRedesignHeaderButton`/`GscRedesignPrimaryHeaderButton` 的 `Padding 13,7` 对齐 Demo 控制填充 12,8，Dashboard `GscMetricCard` 16,13 与侧栏 `GscNavItem` 13,10 收为节奏值 16,12/12,10；全仓 `Margin/Padding` 不再出现 13/17/21/27/31 随机间距（仅装饰粒子与图标对齐保留字面量）。源码校验、XAML 门禁、Release 构建 0 警告/0 错误与 Core 13 + Worker 23 + Playnite 119 全部通过，仍需 Playnite 宿主验证。
