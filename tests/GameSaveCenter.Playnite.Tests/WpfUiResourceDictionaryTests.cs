@@ -1457,6 +1457,9 @@ public sealed class WpfUiResourceDictionaryTests
 
         var overviewGrid = overview.Descendants().Single(element => element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "OverviewLayoutGrid");
         Assert.Contains(overviewGrid.Descendants(), element => element.Name.LocalName == "Grid");
+        var metricPanel = overview.Descendants().Single(element => element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "OverviewMetricPanel");
+        Assert.Equal("WrapPanel", metricPanel.Name.LocalName);
+        Assert.DoesNotContain("OverviewMetricPanel.Columns", File.ReadAllText(overviewPath + ".cs"));
         var dataGrid = overview.Descendants().Single(element => element.Name.LocalName == "DataGrid");
         Assert.Contains("x:Key=\"OverviewDataGrid\"", File.ReadAllText(overviewPath));
         Assert.Contains("<Setter Property=\"EnableRowVirtualization\" Value=\"True\"/>", File.ReadAllText(overviewPath));

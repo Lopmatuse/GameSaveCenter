@@ -27,7 +27,7 @@ namespace GameSaveCenter.Playnite.Views
         public UIElement OverviewSecondaryPanelElement => OverviewSecondaryPanel;
         public ScrollViewer OverviewSecondaryScrollViewerElement => OverviewSecondaryScrollViewer;
         public ScrollViewer OverviewRiskScrollViewerElement => OverviewRiskScrollViewer;
-        public UniformGrid OverviewMetricPanelElement => OverviewMetricPanel;
+        public Panel OverviewMetricPanelElement => OverviewMetricPanel;
 
         public void ApplyResponsiveColumns(bool stack)
         {
@@ -49,10 +49,8 @@ namespace GameSaveCenter.Playnite.Views
 
         public void ApplyResponsiveWidth(double width)
         {
-            // The hero card is still useful in a compact window, but four fixed metric
-            // columns make the labels unreadable long before the page needs to stack. Keep
-            // the card readable by switching to two or one columns instead of shrinking text.
-            OverviewMetricPanel.Columns = width >= 1180 ? 4 : width >= 760 ? 2 : 1;
+            // The metric pills size to their content and wrap naturally, so a compact
+            // window no longer needs to force fixed column counts that clip the values.
 
             // The Demo keeps the Home workbench actions in the card header.  At the
             // narrowest widths let that action group become a vertical stack instead of
