@@ -51,6 +51,7 @@ namespace GameSaveCenter.Playnite.Views
         public void ApplyResponsiveLayout(double width, double height)
         {
             DiagnosticHealthPanel.Columns = width >= 1320 ? 4 : width >= 980 ? 2 : 1;
+            var inspectorWidth = MaintenanceDiagnosticsLayout.TryFindResource("GscInspectorWidth") is GridLength gl ? gl : new GridLength(360);
             // Health cards remain useful context even in compact windows. Grid star rows keep
             // diagnostics tables finite while their own controls handle overflow.
             DiagnosticHealthPanel.Visibility = Visibility.Visible;
@@ -70,7 +71,7 @@ namespace GameSaveCenter.Playnite.Views
             // column and exposing the host's white fallback header surface.
             var stackDiagnostics = width < 1120;
             MaintenanceDiagnosticsLayout.ColumnDefinitions[1].Width = stackDiagnostics ? new GridLength(0) : new GridLength(14);
-            MaintenanceDiagnosticsLayout.ColumnDefinitions[2].Width = stackDiagnostics ? new GridLength(0) : new GridLength(360);
+            MaintenanceDiagnosticsLayout.ColumnDefinitions[2].Width = stackDiagnostics ? new GridLength(0) : inspectorWidth;
             // The full diagnostic summary owns row 1 as an always-visible full-width strip;
             // the detail inspector stacks into row 2 only in compact windows.
             MaintenanceDiagnosticsLayout.RowDefinitions[2].Height = stackDiagnostics ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
@@ -86,7 +87,7 @@ namespace GameSaveCenter.Playnite.Views
             MaintenanceDiagnosticSummaryGrid.MaxHeight = stackDiagnostics ? Math.Max(120, height * 0.20) : 280;
             var stackProcess = width < 1040;
             MaintenanceProcessLayout.ColumnDefinitions[1].Width = stackProcess ? new GridLength(0) : new GridLength(14);
-            MaintenanceProcessLayout.ColumnDefinitions[2].Width = stackProcess ? new GridLength(0) : new GridLength(360);
+            MaintenanceProcessLayout.ColumnDefinitions[2].Width = stackProcess ? new GridLength(0) : inspectorWidth;
             MaintenanceProcessLayout.RowDefinitions[2].Height = stackProcess ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
             Grid.SetColumn(MaintenanceProcessInspector, stackProcess ? 0 : 2);
             Grid.SetColumnSpan(MaintenanceProcessInspector, stackProcess ? 3 : 1);
@@ -94,7 +95,7 @@ namespace GameSaveCenter.Playnite.Views
             MaintenanceProcessInspector.Margin = stackProcess ? new Thickness(0, 10, 0, 0) : new Thickness(0);
             var stackDevice = width < 1180;
             MaintenanceDeviceLayout.ColumnDefinitions[1].Width = stackDevice ? new GridLength(0) : new GridLength(14);
-            MaintenanceDeviceLayout.ColumnDefinitions[2].Width = stackDevice ? new GridLength(0) : new GridLength(360);
+            MaintenanceDeviceLayout.ColumnDefinitions[2].Width = stackDevice ? new GridLength(0) : inspectorWidth;
             MaintenanceDeviceLayout.RowDefinitions[3].Height = stackDevice ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
             Grid.SetColumn(MaintenanceDeviceInspectorScrollViewer, stackDevice ? 0 : 2);
             Grid.SetColumnSpan(MaintenanceDeviceInspectorScrollViewer, stackDevice ? 3 : 1);
@@ -108,7 +109,7 @@ namespace GameSaveCenter.Playnite.Views
 
             var stackAudit = width < 1120 || height < 700;
             MaintenanceAuditLayout.ColumnDefinitions[1].Width = stackAudit ? new GridLength(0) : new GridLength(14);
-            MaintenanceAuditLayout.ColumnDefinitions[2].Width = stackAudit ? new GridLength(0) : new GridLength(370);
+            MaintenanceAuditLayout.ColumnDefinitions[2].Width = stackAudit ? new GridLength(0) : inspectorWidth;
             Grid.SetColumn(MaintenanceAuditInspector, stackAudit ? 0 : 2);
             Grid.SetColumnSpan(MaintenanceAuditInspector, stackAudit ? 3 : 1);
             Grid.SetRow(MaintenanceAuditInspector, stackAudit ? 1 : 0);

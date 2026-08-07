@@ -25,8 +25,9 @@ namespace GameSaveCenter.Playnite.Views
             // compact widths the inspector drops below the table instead of
             // compressing the task columns into an unreadable strip.
             var stack = width < 980;
+            var inspectorWidth = TaskWorkspaceLayout.TryFindResource("GscInspectorWidth") is GridLength gl ? gl : new GridLength(360);
             TaskWorkspaceLayout.ColumnDefinitions[1].Width = stack ? new GridLength(0) : new GridLength(14);
-            TaskWorkspaceLayout.ColumnDefinitions[2].Width = stack ? new GridLength(0) : new GridLength(360);
+            TaskWorkspaceLayout.ColumnDefinitions[2].Width = stack ? new GridLength(0) : inspectorWidth;
             TaskWorkspaceLayout.RowDefinitions[3].Height = stack ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
             Grid.SetColumn(TaskDetailScrollViewer, stack ? 0 : 2);
             Grid.SetColumnSpan(TaskDetailScrollViewer, stack ? 3 : 1);

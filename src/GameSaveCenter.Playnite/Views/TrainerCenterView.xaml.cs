@@ -24,6 +24,7 @@ namespace GameSaveCenter.Playnite.Views
             InstalledToolsLayout.VerticalAlignment = VerticalAlignment.Stretch;
             TrainerReleasesLayout.HorizontalAlignment = HorizontalAlignment.Stretch;
             TrainerReleasesLayout.VerticalAlignment = VerticalAlignment.Stretch;
+            var inspectorWidth = InstalledToolsLayout.TryFindResource("GscInspectorWidth") is GridLength gl ? gl : new GridLength(360);
             // The inspector is a full-height secondary pane in the normal two-column layout.
             // Only the stacked compact layout receives a finite scroll channel; otherwise the
             // card would collapse into a short block and leave a large unused area beside it.
@@ -34,7 +35,7 @@ namespace GameSaveCenter.Playnite.Views
                 : new GridLength(14);
             InstalledToolsLayout.ColumnDefinitions[2].Width = stackInstalled
                 ? new GridLength(0)
-                : new GridLength(370);
+                : inspectorWidth;
             Grid.SetColumn(TrainerToolsSettingsScrollViewer, stackInstalled ? 0 : 2);
             Grid.SetRow(TrainerToolsSettingsScrollViewer, stackInstalled ? 3 : 0);
             Grid.SetRowSpan(TrainerToolsSettingsScrollViewer, stackInstalled ? 1 : 4);
@@ -54,7 +55,7 @@ namespace GameSaveCenter.Playnite.Views
                 : new GridLength(14);
             TrainerReleasesLayout.ColumnDefinitions[2].Width = stackReleases
                 ? new GridLength(0)
-                : new GridLength(370);
+                : inspectorWidth;
             Grid.SetRow(TrainerCatalogReleasesPanel, 0);
             Grid.SetColumn(TrainerCatalogReleasesPanel, 0);
             Grid.SetColumnSpan(TrainerCatalogReleasesPanel, stackReleases ? 3 : 1);

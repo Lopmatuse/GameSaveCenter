@@ -11,12 +11,13 @@ namespace GameSaveCenter.Playnite.Views
         public void ApplyResponsiveLayout(double width, double height)
         {
             var compact = height < 760 || width < 980;
+            var inspectorWidth = SaveHistoryLayout.TryFindResource("GscInspectorWidth") is GridLength gl ? gl : new GridLength(360);
             // The demo keeps the history table and the selected-version inspector
             // side by side when there is room. On a compact host, stack the
             // inspector below the table so actions remain reachable without a
             // page-level scrollbar or clipped controls.
             SaveHistoryLayout.ColumnDefinitions[1].Width = compact ? new GridLength(0) : new GridLength(14);
-            SaveHistoryLayout.ColumnDefinitions[2].Width = compact ? new GridLength(0) : new GridLength(360);
+            SaveHistoryLayout.ColumnDefinitions[2].Width = compact ? new GridLength(0) : inspectorWidth;
             SaveHistoryLayout.RowDefinitions[1].Height = compact ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
             Grid.SetColumn(SaveHistoryActionsScrollViewer, compact ? 0 : 2);
             Grid.SetColumnSpan(SaveHistoryActionsScrollViewer, compact ? 3 : 1);
@@ -24,7 +25,7 @@ namespace GameSaveCenter.Playnite.Views
             SaveHistoryActionsScrollViewer.Margin = compact ? new Thickness(0, 10, 0, 0) : new Thickness(0);
             SaveHistoryActionsScrollViewer.MaxHeight = compact ? Math.Max(150, Math.Min(360, height * 0.42)) : double.PositiveInfinity;
             SaveCandidateLayout.ColumnDefinitions[1].Width = compact ? new GridLength(0) : new GridLength(14);
-            SaveCandidateLayout.ColumnDefinitions[2].Width = compact ? new GridLength(0) : new GridLength(360);
+            SaveCandidateLayout.ColumnDefinitions[2].Width = compact ? new GridLength(0) : inspectorWidth;
             SaveCandidateLayout.RowDefinitions[1].Height = compact ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
             Grid.SetColumn(SaveCandidateInspectorScrollViewer, compact ? 0 : 2);
             Grid.SetColumnSpan(SaveCandidateInspectorScrollViewer, compact ? 3 : 1);
@@ -52,7 +53,7 @@ namespace GameSaveCenter.Playnite.Views
 
             var stackCompare = width < 980 || height < 760;
             SaveCompareLayout.ColumnDefinitions[1].Width = stackCompare ? new GridLength(0) : new GridLength(14);
-            SaveCompareLayout.ColumnDefinitions[2].Width = stackCompare ? new GridLength(0) : new GridLength(360);
+            SaveCompareLayout.ColumnDefinitions[2].Width = stackCompare ? new GridLength(0) : inspectorWidth;
             SaveCompareLayout.RowDefinitions[1].Height = stackCompare ? new GridLength(1, GridUnitType.Auto) : new GridLength(0);
             Grid.SetColumn(SaveCompareRetentionScrollViewer, stackCompare ? 0 : 2);
             Grid.SetColumnSpan(SaveCompareRetentionScrollViewer, stackCompare ? 3 : 1);
