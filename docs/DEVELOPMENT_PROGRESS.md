@@ -3,6 +3,8 @@
 更新时间：2026-08-07
 当前版本：`0.6.70-development-preview`
 
+- [x] UI-123：收口页面非节奏间距与手写子卡表面：Media/Overview/Settings 的 `Padding/Margin=13` 统一为节奏值 12，Overview 风险区两张通用信息卡改用共享 `GscRedesignSubCard`（语义色安全卡保留独立表面）；`WINDOWS_TEST_PLAN.md` 补充首页 TODAY 横幅与状态胶囊真机回归项。源码校验、XAML 门禁、Release 构建 0 警告/0 错误与 119 项 Playnite 测试通过，仍需 Playnite 宿主验证。
+
 - [x] UI-122：修复首页“今日工作台”互斥状态胶囊在隐藏文字时残留空白胶囊框；把“无需处理/需处理”胶囊的 Visibility 触发器移到外层 Border（BasedOn 共享胶囊样式），隐藏时整颗胶囊一起折叠，绑定与文案原样保留。源码校验、XAML 门禁、Release 构建与 119 项 Playnite 测试通过，仍需 Playnite 宿主验证。
 
 - [x] UI-121：首页补齐 Demo 同款 TODAY 眉题 + 26px 整体状态大横幅与“需处理/无需处理”胶囊联动，全部绑定真实 `Snapshot.*`；当前游戏卡对齐 Demo 高度与留白，Dashboard 首页副标题同步新横幅布局。源码校验、Release 测试和构建通过后仍需 Playnite 宿主验证。
