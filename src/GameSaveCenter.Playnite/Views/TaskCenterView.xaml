@@ -71,7 +71,7 @@
     </UserControl.Resources>
 
     <Grid x:Name="TaskWorkspaceLayout" Margin="0" MinWidth="0" MinHeight="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="360"/></Grid.ColumnDefinitions>
+        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="14"/><ColumnDefinition Width="{StaticResource GscInspectorWidth}"/></Grid.ColumnDefinitions>
         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
         <UniformGrid x:Name="TaskSummaryPanel" Grid.Row="0" Grid.ColumnSpan="3" Columns="3" Margin="0,0,0,8">
             <Border Style="{StaticResource TaskMetricCard}" Padding="12,8"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="30" Height="30" CornerRadius="10" Background="{DynamicResource GscInfoIconFillBrush}" HorizontalAlignment="Left" VerticalAlignment="Center"><TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE9D5;" Foreground="{DynamicResource GscInfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14"/></Border><StackPanel Grid.Column="1"><TextBlock Text="任务总数" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="11"/><TextBlock Text="{Binding Tasks.Count, Mode=OneWay}" FontSize="20" FontWeight="SemiBold" Margin="0,2,0,0"/></StackPanel></Grid></Border>

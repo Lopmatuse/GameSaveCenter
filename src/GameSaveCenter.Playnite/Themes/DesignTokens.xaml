@@ -81,6 +81,28 @@
     <CornerRadius x:Key="GscCornerPanel">22</CornerRadius>
     <Thickness x:Key="GscFocusThickness">2</Thickness>
 
+    <!-- Shared layout geometry. One scale replaces page-specific magic numbers across
+         workspaces while preserving each page's existing density and responsiveness. -->
+    <sys:Double x:Key="GscSpacing1">4</sys:Double>
+    <sys:Double x:Key="GscSpacing2">8</sys:Double>
+    <sys:Double x:Key="GscSpacing3">12</sys:Double>
+    <sys:Double x:Key="GscSpacing4">16</sys:Double>
+    <sys:Double x:Key="GscSpacing5">20</sys:Double>
+    <sys:Double x:Key="GscSpacing6">24</sys:Double>
+    <sys:Double x:Key="GscSpacing8">32</sys:Double>
+    <!-- Vertical rhythm between section cards inside a page scroll channel. -->
+    <sys:Double x:Key="GscSectionSpacing">14</sys:Double>
+    <!-- Demo-aligned side navigation and workspace inspector channels. The dashboard
+         consumes the sidebar width at each breakpoint; workspace inspectors share one
+         width so the right-hand detail column stays consistent across pages. -->
+    <sys:Double x:Key="GscSidebarWidth">228</sys:Double>
+    <sys:Double x:Key="GscCompactSidebarWidth">76</sys:Double>
+    <!-- GridLength so the resource binds directly to ColumnDefinition.Width without
+         runtime conversion. -->
+    <GridLength x:Key="GscInspectorWidth">360</GridLength>
+    <!-- Form pages keep a readable content column instead of stretching across the host. -->
+    <sys:Double x:Key="GscFormMaxWidth">1120</sys:Double>
+
     <!-- Shared table geometry. Each workspace keeps its DataGrid in a finite Grid row, while
          these tokens provide one readable density across light, dark and host themes. -->
     <!-- Keep rows comfortably readable instead of collapsing a table to two or three lines.
