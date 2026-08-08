@@ -506,7 +506,9 @@ public sealed class WpfUiResourceDictionaryTests
         Assert.Contains("<SelectiveScrollingGrid>", File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml")));
         Assert.Contains("<DataGridDetailsPresenter", File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml")));
 
-        foreach (var workspace in new[] { "OverviewView.xaml", "SaveCenterView.xaml", "MediaCenterView.xaml", "TaskCenterView.xaml", "MaintenanceView.xaml" })
+        // OverviewView hosts the recent-activity tile list instead of a DataGrid table now,
+        // so the shared table chrome contract is verified on the remaining table workspaces.
+        foreach (var workspace in new[] { "SaveCenterView.xaml", "MediaCenterView.xaml", "TaskCenterView.xaml", "MaintenanceView.xaml" })
         {
             var text = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", workspace));
             Assert.Contains("BasedOn=\"{StaticResource {x:Type DataGrid}}\"", text);
@@ -520,7 +522,6 @@ public sealed class WpfUiResourceDictionaryTests
             Assert.Contains("Property=\"ColumnHeaderHeight\" Value=\"{DynamicResource GscTableHeaderHeight}\"", text);
             Assert.Contains("Property=\"AlternatingRowBackground\" Value=\"{DynamicResource GscTableAlternateRowBrush}\"", text);
             Assert.DoesNotContain("PageScrollViewer\" Style=\"{DynamicResource GscPageScrollViewer}", text);
-            Assert.DoesNotContain("x:Name=\"OverviewPageScrollViewer\"", text);
             Assert.DoesNotContain("x:Name=\"SavePageScrollViewer\"", text);
             Assert.DoesNotContain("x:Name=\"TrainerPageScrollViewer\"", text);
             Assert.DoesNotContain("x:Name=\"MediaPageScrollViewer\"", text);
@@ -1342,6 +1343,72 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void OverviewRecentActivityUsesDemoIconTileRhythmWithSemanticTriggers()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var overviewPath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml");
+        var overview = XDocument.Parse(File.ReadAllText(overviewPath));
+        var overviewText = File.ReadAllText(overviewPath);
+        var xamlName = XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml");
+        var list = overview.Descendants().Single(element => element.Name.LocalName == "ListBox" && element.Attribute(xamlName)?.Value == "OverviewActivityList");
+
+        // The demo home card renders recent activity as a 38/*/Auto row with a 34x34
+        // rounded icon tile, a title, a muted subtitle and the local time on the right.
+        // Production keeps the same rhythm while staying bound to real tasks and to the
+        // existing SelectedTask cross-page detail linkage.
+        Assert.Equal("{Binding OverviewTasks}", list.Attribute("ItemsSource")?.Value);
+        Assert.Equal("{Binding SelectedTask}", list.Attribute("SelectedItem")?.Value);
+        Assert.Equal("Stretch", list.Attribute("HorizontalContentAlignment")?.Value);
+        Assert.Equal("True", list.Attribute("VirtualizingPanel.IsVirtualizing")?.Value);
+        Assert.Equal("Recycling", list.Attribute("VirtualizingPanel.VirtualizationMode")?.Value);
+        Assert.Equal("True", list.Attribute("ScrollViewer.CanContentScroll")?.Value);
+        var template = list.Elements().Single(element => element.Name.LocalName == "ListBox.ItemTemplate").Elements().Single();
+        Assert.Equal("DataTemplate", template.Name.LocalName);
+        var grid = template.Elements().Single(element => element.Name.LocalName == "Grid");
+        var columnWidths = grid.Elements().Single(element => element.Name.LocalName == "Grid.ColumnDefinitions")
+            .Elements().Select(element => element.Attribute("Width")?.Value).ToArray();
+        Assert.Equal(new[] { "38", "*", "Auto" }, columnWidths);
+
+        var tile = grid.Descendants().Single(element => element.Attribute(xamlName)?.Value == "OverviewTaskStatusPill");
+        Assert.Equal("34", tile.Attribute("Width")?.Value);
+        Assert.Equal("34", tile.Attribute("Height")?.Value);
+        Assert.Equal("10", tile.Attribute("CornerRadius")?.Value);
+        Assert.Equal("{DynamicResource GscSuccessIconFillBrush}", tile.Attribute("Background")?.Value);
+        Assert.Contains("Text=\"&#xE73E;\"", overviewText);
+
+        // Long names and details must trim with a tooltip instead of pushing the row.
+        var title = grid.Descendants().Single(element => element.Name.LocalName == "TextBlock" && element.Attribute("Text")?.Value == "{Binding GameName, Mode=OneWay, TargetNullValue=全局}");
+        Assert.Equal("SemiBold", title.Attribute("FontWeight")?.Value);
+        Assert.Equal("CharacterEllipsis", title.Attribute("TextTrimming")?.Value);
+        Assert.Equal("{Binding GameName}", title.Attribute("ToolTip")?.Value);
+        var subtitle = grid.Descendants().Single(element => element.Name.LocalName == "TextBlock" && element.Attribute("Margin")?.Value == "0,3,0,0");
+        Assert.Equal("11", subtitle.Attribute("FontSize")?.Value);
+        Assert.Equal("CharacterEllipsis", subtitle.Attribute("TextTrimming")?.Value);
+        Assert.Equal("{Binding DetailMessage}", subtitle.Attribute("ToolTip")?.Value);
+        Assert.Contains("TaskTypeDisplay", subtitle.ToString());
+        Assert.Contains("StateDisplay", subtitle.ToString());
+        Assert.Contains("StringFormat={}{0:MM-dd HH:mm}", overviewText);
+
+        // Failed / Running / Cancelled must stay semantically distinct on the tile.
+        var triggers = template.Elements().Single(element => element.Name.LocalName == "DataTemplate.Triggers")
+            .Elements().Where(element => element.Name.LocalName == "DataTrigger").ToList();
+        Assert.Contains(triggers, trigger => trigger.Attribute("Value")?.Value == "Failed"
+            && trigger.Descendants().Any(setter => setter.Attribute("TargetName")?.Value == "OverviewTaskStatusPill" && setter.Attribute("Property")?.Value == "Background" && setter.Attribute("Value")?.Value == "{DynamicResource GscErrorTintBrush}"));
+        Assert.Contains(triggers, trigger => trigger.Attribute("Value")?.Value == "Running"
+            && trigger.Descendants().Any(setter => setter.Attribute("TargetName")?.Value == "OverviewTaskStatusPill" && setter.Attribute("Property")?.Value == "Background" && setter.Attribute("Value")?.Value == "{DynamicResource GscInfoIconFillBrush}"));
+        Assert.Contains(triggers, trigger => trigger.Attribute("Value")?.Value == "Cancelled"
+            && trigger.Descendants().Any(setter => setter.Attribute("TargetName")?.Value == "OverviewTaskStatusPill" && setter.Attribute("Property")?.Value == "Background" && setter.Attribute("Value")?.Value == "{DynamicResource GscControlFillBrush}"));
+
+        // The shared implicit ListBox contract keeps the capped list virtualized and
+        // locally scrollable instead of inheriting a square host panel.
+        var production = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "WpfUiProduction.xaml"));
+        Assert.Contains("<Style TargetType=\"ListBox\">", production);
+        Assert.Contains("VirtualizingPanel.IsVirtualizing\" Value=\"True\"", production);
+        Assert.Contains("VirtualizingPanel.VirtualizationMode\" Value=\"Recycling\"", production);
+        Assert.Contains("ScrollViewer.VerticalScrollBarVisibility\" Value=\"Auto\"", production);
+    }
+
+    [Fact]
     public void OverviewShowsTheSameAttentionAndRuntimeCountersReturnedByTheSnapshot()
     {
         var repositoryRoot = FindRepositoryRoot();
@@ -1538,7 +1605,6 @@ public sealed class WpfUiResourceDictionaryTests
         var columns = documents.SelectMany(document => document.Descendants().Where(element => element.Name.LocalName == "DataGridTextColumn"));
         foreach (var column in new[]
         {
-            new { Header = "活动", Binding = "TaskTypeDisplay" },
             new { Header = "目标游戏", Binding = "GameName" },
             new { Header = "其他设备", Binding = "RemoteDevice" },
             new { Header = "人工决策", Binding = "DecisionDisplay" },
@@ -1688,10 +1754,14 @@ public sealed class WpfUiResourceDictionaryTests
         var metricPanel = overview.Descendants().Single(element => element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "OverviewMetricPanel");
         Assert.Equal("WrapPanel", metricPanel.Name.LocalName);
         Assert.DoesNotContain("OverviewMetricPanel.Columns", File.ReadAllText(overviewPath + ".cs"));
-        var dataGrid = overview.Descendants().Single(element => element.Name.LocalName == "DataGrid");
-        Assert.Contains("x:Key=\"OverviewDataGrid\"", File.ReadAllText(overviewPath));
-        Assert.Contains("<Setter Property=\"EnableRowVirtualization\" Value=\"True\"/>", File.ReadAllText(overviewPath));
-        Assert.DoesNotContain(dataGrid.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
+        var activityList = overview.Descendants().Single(element => element.Name.LocalName == "ListBox" && element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "OverviewActivityList");
+        Assert.Equal("{Binding OverviewTasks}", activityList.Attribute("ItemsSource")?.Value);
+        Assert.Equal("{Binding SelectedTask}", activityList.Attribute("SelectedItem")?.Value);
+        Assert.DoesNotContain(activityList.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
+        var productionTheme = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "WpfUiProduction.xaml"));
+        Assert.Contains("<Style TargetType=\"ListBox\">", productionTheme);
+        Assert.Contains("VirtualizingPanel.IsVirtualizing\" Value=\"True\"", productionTheme);
+        Assert.Contains("VirtualizingPanel.VirtualizationMode\" Value=\"Recycling\"", productionTheme);
         Assert.Contains("OpenAttentionFindingCommand", File.ReadAllText(overviewPath));
         Assert.Contains("x:Name=\"OverviewRiskScrollViewer\"", File.ReadAllText(overviewPath));
         Assert.Contains("x:Name=\"OverviewSecondaryScrollViewer\"", File.ReadAllText(overviewPath));

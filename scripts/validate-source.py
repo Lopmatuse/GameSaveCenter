@@ -1208,25 +1208,23 @@ def check_final_redesign_guards() -> None:
         root for name, root in zip(workspace_views, workspace_roots)
         if name == "OverviewView.xaml"
     )
-    overview_activity_column = next(
+    overview_activity_list = next(
         (
             node for node in overview_root.iter()
-            if local_name(node.tag) == "DataGridTextColumn"
-            and node.attrib.get("Header") == "活动"
-            and "TaskTypeDisplay" in node.attrib.get("Binding", "")
+            if local_name(node.tag) == "ListBox"
+            and node.attrib.get("ItemsSource") == "{Binding OverviewTasks}"
         ),
         None,
     )
-    if overview_activity_column is None:
-        fail("Final redesign overview activity column is missing")
-    elif (
-        "LongTextCell" not in overview_activity_column.attrib.get("ElementStyle", "")
-        and not any(
-            local_name(node.tag) == "Style" and "LongTextCell" in node.attrib.get("BasedOn", "")
-            for node in overview_activity_column.iter()
-        )
+    if overview_activity_list is None:
+        fail("Final redesign overview activity list is missing")
+    elif not any(
+        local_name(node.tag) == "TextBlock"
+        and node.attrib.get("TextTrimming") == "CharacterEllipsis"
+        and "GameName" in node.attrib.get("ToolTip", "")
+        for node in overview_activity_list.iter()
     ):
-        fail("Final redesign overview activity column must reuse GscLongTextCell")
+        fail("Final redesign overview activity rows must trim long text with a tooltip")
 
     # Large-library controls must retain finite Grid measurement and recycling after the
     # visual redesign.  This cross-platform gate mirrors the Windows xUnit regression test,

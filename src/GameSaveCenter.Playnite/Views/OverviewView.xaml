@@ -14,11 +14,6 @@
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/WpfUiProduction.xaml"/>
                 <ResourceDictionary Source="/GameSaveCenter.Playnite;component/Themes/Redesign.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            <Style x:Key="OverviewLongTextCell" TargetType="TextBlock">
-                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-                <Setter Property="TextWrapping" Value="NoWrap"/>
-                <Setter Property="ToolTip" Value="{Binding Text, RelativeSource={RelativeSource Self}}"/>
-            </Style>
             <Style x:Key="OverviewEmptyText" TargetType="TextBlock">
                 <Setter Property="HorizontalAlignment" Value="Center"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
@@ -50,39 +45,6 @@
                 <EventSetter Event="MouseLeave" Handler="OnStatCardMouseLeave"/>
             </Style>
             <Style x:Key="OverviewTableFrame" TargetType="Border" BasedOn="{StaticResource GscRedesignTableFrame}"/>
-            <Style x:Key="OverviewFirstColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
-                <Setter Property="Tag"><Setter.Value><CornerRadius>11,0,0,0</CornerRadius></Setter.Value></Setter>
-            </Style>
-            <Style x:Key="OverviewLastColumnHeader" TargetType="DataGridColumnHeader" BasedOn="{StaticResource {x:Type DataGridColumnHeader}}">
-                <Setter Property="Tag"><Setter.Value><CornerRadius>0,11,0,0</CornerRadius></Setter.Value></Setter>
-            </Style>
-            <Style x:Key="OverviewDataGrid" TargetType="DataGrid" BasedOn="{StaticResource {x:Type DataGrid}}">
-                <Setter Property="Foreground" Value="{DynamicResource GscPrimaryTextBrush}"/>
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="GridLinesVisibility" Value="None"/>
-                <Setter Property="HeadersVisibility" Value="Column"/>
-                <Setter Property="RowBackground" Value="Transparent"/>
-                <Setter Property="AlternatingRowBackground" Value="{DynamicResource GscTableAlternateRowBrush}"/>
-                <Setter Property="RowHeight" Value="{DynamicResource GscTableRowHeight}"/>
-                <Setter Property="MinHeight" Value="{DynamicResource GscWorkspaceTableMinHeight}"/>
-                <Setter Property="ColumnHeaderHeight" Value="{DynamicResource GscTableHeaderHeight}"/>
-                <Setter Property="RowHeaderWidth" Value="0"/>
-                <Setter Property="SelectionUnit" Value="FullRow"/>
-                <Setter Property="CanUserAddRows" Value="False"/>
-                <Setter Property="CanUserResizeColumns" Value="True"/>
-                <Setter Property="CanUserReorderColumns" Value="False"/>
-                <Setter Property="CanUserSortColumns" Value="True"/>
-                <Setter Property="IsReadOnly" Value="True"/>
-                <Setter Property="AutoGenerateColumns" Value="False"/>
-                <Setter Property="EnableRowVirtualization" Value="True"/>
-                <Setter Property="EnableColumnVirtualization" Value="True"/>
-                <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
-                <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
-                <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
-                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -260,14 +222,46 @@
                     </Grid>
                     <Border Grid.Row="1" Style="{StaticResource OverviewTableFrame}">
                         <Grid>
-                            <DataGrid Style="{StaticResource OverviewDataGrid}" ItemsSource="{Binding OverviewTasks}" SelectedItem="{Binding SelectedTask}" IsReadOnly="True">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn HeaderStyle="{StaticResource OverviewFirstColumnHeader}" Header="时间" Binding="{Binding CreatedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" Width="128"/>
-                                    <DataGridTextColumn Header="活动" Binding="{Binding TaskTypeDisplay, Mode=OneWay}" Width="145" ElementStyle="{StaticResource OverviewLongTextCell}"/>
-                                    <DataGridTextColumn Header="游戏" Binding="{Binding GameName, Mode=OneWay}" Width="*" MinWidth="150" ElementStyle="{StaticResource OverviewLongTextCell}"/>
-                                    <DataGridTemplateColumn HeaderStyle="{StaticResource OverviewLastColumnHeader}" Header="状态" Width="110"><DataGridTemplateColumn.CellTemplate><DataTemplate><Border x:Name="OverviewTaskStatusPill" Style="{DynamicResource GscRedesignTableStatusPill}"><TextBlock Text="{Binding StateDisplay, Mode=OneWay}" Foreground="{DynamicResource GscPrimaryTextBrush}" HorizontalAlignment="Center"/></Border><DataTemplate.Triggers><DataTrigger Binding="{Binding State}" Value="Succeeded"><Setter TargetName="OverviewTaskStatusPill" Property="Background" Value="{DynamicResource GscSuccessIconFillBrush}"/><Setter TargetName="OverviewTaskStatusPill" Property="BorderBrush" Value="{DynamicResource GscSuccessBrush}"/></DataTrigger><DataTrigger Binding="{Binding State}" Value="Failed"><Setter TargetName="OverviewTaskStatusPill" Property="Background" Value="{DynamicResource GscErrorTintBrush}"/><Setter TargetName="OverviewTaskStatusPill" Property="BorderBrush" Value="{DynamicResource GscErrorBrush}"/></DataTrigger><DataTrigger Binding="{Binding State}" Value="Running"><Setter TargetName="OverviewTaskStatusPill" Property="Background" Value="{DynamicResource GscInfoIconFillBrush}"/><Setter TargetName="OverviewTaskStatusPill" Property="BorderBrush" Value="{DynamicResource GscInfoBrush}"/></DataTrigger></DataTemplate.Triggers></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
-                                </DataGrid.Columns>
-                            </DataGrid>
+                            <!-- Demo HomeView renders recent activity as icon-tile cards
+                                 instead of a table. Each real task keeps its semantic
+                                 status color on the 34x34 tile and stays selectable so the
+                                 existing SelectedTask cross-page detail linkage is intact.
+                                 The shared ListBox contract keeps local scrolling and
+                                 Recycling virtualization on the capped 8-row list. -->
+                            <ListBox x:Name="OverviewActivityList" ItemsSource="{Binding OverviewTasks}" SelectedItem="{Binding SelectedTask}" HorizontalContentAlignment="Stretch" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ScrollViewer.CanContentScroll="True">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="0,2,0,2">
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="38"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                            <Border x:Name="OverviewTaskStatusPill" Width="34" Height="34" CornerRadius="10" Background="{DynamicResource GscSuccessIconFillBrush}" HorizontalAlignment="Left" VerticalAlignment="Top">
+                                                <TextBlock x:Name="RecentActivityGlyph" FontFamily="Segoe MDL2 Assets" Text="&#xE73E;" FontSize="14" Foreground="{DynamicResource GscSuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel Grid.Column="1" Margin="0,0,8,0" VerticalAlignment="Center" MinWidth="0">
+                                                <TextBlock Text="{Binding GameName, Mode=OneWay, TargetNullValue=全局}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding GameName}"/>
+                                                <TextBlock FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}" Margin="0,3,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding DetailMessage}"><Run Text="{Binding TaskTypeDisplay, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding StateDisplay, Mode=OneWay}"/></TextBlock>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding CreatedLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}}" FontSize="11" Foreground="{DynamicResource GscSecondaryTextBrush}" VerticalAlignment="Center"/>
+                                        </Grid>
+                                        <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding State}" Value="Failed">
+                                                <Setter TargetName="OverviewTaskStatusPill" Property="Background" Value="{DynamicResource GscErrorTintBrush}"/>
+                                                <Setter TargetName="RecentActivityGlyph" Property="Text" Value="&#xE711;"/>
+                                                <Setter TargetName="RecentActivityGlyph" Property="Foreground" Value="{DynamicResource GscErrorBrush}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding State}" Value="Running">
+                                                <Setter TargetName="OverviewTaskStatusPill" Property="Background" Value="{DynamicResource GscInfoIconFillBrush}"/>
+                                                <Setter TargetName="RecentActivityGlyph" Property="Text" Value="&#xE895;"/>
+                                                <Setter TargetName="RecentActivityGlyph" Property="Foreground" Value="{DynamicResource GscInfoBrush}"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding State}" Value="Cancelled">
+                                                <Setter TargetName="OverviewTaskStatusPill" Property="Background" Value="{DynamicResource GscControlFillBrush}"/>
+                                                <Setter TargetName="RecentActivityGlyph" Property="Text" Value="&#xE711;"/>
+                                                <Setter TargetName="RecentActivityGlyph" Property="Foreground" Value="{DynamicResource GscMutedStatusBrush}"/>
+                                            </DataTrigger>
+                                        </DataTemplate.Triggers>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
                             <TextBlock Text="暂无任务记录&#x0a;完成备份、同步或维护操作后会显示在这里。" IsHitTestVisible="False">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource OverviewEmptyText}">
