@@ -69,7 +69,7 @@
                 <Border Style="{DynamicResource GscReadingCardStyle}" Padding="16" MaxWidth="1080" HorizontalAlignment="Left">
                     <Grid>
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <TextBox Style="{DynamicResource GscWpfUiTextBox}" Height="38" MaxWidth="680" HorizontalAlignment="Stretch" VerticalAlignment="Center" Text="{Binding TrainerSearchText, UpdateSourceTrigger=PropertyChanged}" ToolTip="输入游戏名称，搜索本地缓存的 FLiNG 目录"/>
+                        <TextBox Style="{DynamicResource GscWpfUiTextBox}" Height="38" MinWidth="620" MaxWidth="680" HorizontalAlignment="Stretch" VerticalAlignment="Center" Text="{Binding TrainerSearchText, UpdateSourceTrigger=PropertyChanged}" ToolTip="输入游戏名称，搜索本地缓存的 FLiNG 目录"/>
                         <ui:Button Grid.Column="1" Style="{DynamicResource GscWpfUiPrimaryActionButton}" MinHeight="38" VerticalAlignment="Center" Command="{Binding SearchTrainerCatalogCommand}" Content="搜索目录" Margin="8,0,8,0"/>
                         <ui:Button Grid.Column="2" Style="{DynamicResource GscWpfUiActionButton}" MinHeight="38" VerticalAlignment="Center" Command="{Binding SyncTrainerCatalogCommand}" Content="刷新目录" Margin="0,0,0,0"/>
                     </Grid>
