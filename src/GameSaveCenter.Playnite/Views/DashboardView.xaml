@@ -849,10 +849,10 @@
                 BorderBrush="{DynamicResource GscGlassStrokeBrush}"
                 BorderThickness="1"
                 CornerRadius="20"
-                Padding="14,0"
+                Padding="16,2"
+                ClipToBounds="True"
                 SnapsToDevicePixels="True">
-        </Border>
-        <Grid x:Name="HeaderGrid" Grid.Row="0" Margin="20,4,20,4" MinWidth="0">
+            <Grid x:Name="HeaderGrid" Margin="12,0,12,0" MinWidth="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -932,7 +932,8 @@
                     </Grid>
                 </Button>
             </Border>
-        </Grid>
+            </Grid>
+        </Border>
 
         <Grid x:Name="WorkspaceGrid" Grid.Row="2" MinHeight="0">
             <Grid.RowDefinitions>
