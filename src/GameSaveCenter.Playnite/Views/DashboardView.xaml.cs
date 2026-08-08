@@ -1262,6 +1262,7 @@ namespace GameSaveCenter.Playnite.Views
             {
                 AdaptiveThemePaletteFactory.ApplyRuntimeThemeResources(workspaceView.Resources, palette, glassEnabled, MotionEnabled);
             }
+            OverviewWorkspaceView.UiAnimationsEnabled = MotionEnabled;
 
             // The ambient ellipses are the only fixed BlurEffect surfaces in the dashboard.
             // Collapse them instead of merely making them transparent so reduced-transparency

@@ -1332,6 +1332,41 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void OverviewStatStripKeepsSixRealSnapshotCardsWithMotionGatedHover()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var overview = XDocument.Parse(File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml")));
+        var strip = overview.Descendants().Single(element => element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "OverviewStatStrip");
+        var cards = strip.Elements().Where(element => element.Name.LocalName == "Border").ToList();
+
+        // The six cards are real Snapshot counters, never demo placeholders.
+        Assert.Equal(6, cards.Count);
+        Assert.All(cards, card => Assert.Equal("{StaticResource OverviewStatCard}", card.Attribute("Style")?.Value));
+        Assert.Contains("Binding Snapshot.ManagedGames, Mode=OneWay", strip.ToString());
+        Assert.Contains("Binding Snapshot.MatchedGames, Mode=OneWay", strip.ToString());
+        Assert.Contains("Binding Snapshot.RunningGames, Mode=OneWay", strip.ToString());
+        Assert.Contains("Binding Snapshot.WarningGames, Mode=OneWay", strip.ToString());
+        Assert.Contains("Binding Snapshot.PendingCloudTasks, Mode=OneWay", strip.ToString());
+        Assert.Contains("Binding Snapshot.UnassignedMediaCount, Mode=OneWay", strip.ToString());
+
+        // Hover feedback stays render-only and is wired through EventSetters on the card style.
+        var overviewText = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml"));
+        Assert.Contains("<EventSetter Event=\"MouseEnter\" Handler=\"OnStatCardMouseEnter\"/>", overviewText);
+        Assert.Contains("<EventSetter Event=\"MouseLeave\" Handler=\"OnStatCardMouseLeave\"/>", overviewText);
+        Assert.Contains("RenderTransformOrigin", overviewText);
+
+        // The dashboard motion gate must reach the overview cards so animations are
+        // disabled when the user turns off animations, enables High Contrast, or the
+        // system disables client-area animation.
+        var dashboardCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "DashboardView.xaml.cs"));
+        Assert.Contains("OverviewWorkspaceView.UiAnimationsEnabled = MotionEnabled;", dashboardCode);
+        var overviewCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml.cs"));
+        Assert.Contains("SystemParameters.HighContrast", overviewCode);
+        Assert.Contains("SystemParameters.ClientAreaAnimation", overviewCode);
+        Assert.Contains("AnimateTranslate(sender as FrameworkElement, 0, -3, 160)", overviewCode);
+    }
+
+    [Fact]
     public void SharedPageScrollViewerStretchesContentAndLeavesBottomBreathingRoom()
     {
         var repositoryRoot = FindRepositoryRoot();

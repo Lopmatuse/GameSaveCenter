@@ -2,6 +2,9 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace GameSaveCenter.Playnite.Views
 {
@@ -12,7 +15,50 @@ namespace GameSaveCenter.Playnite.Views
     /// </summary>
     public partial class OverviewView : UserControl
     {
+        /// <summary>
+        /// Mirrors the dashboard motion gate so hover feedback stays render-only and
+        /// respects the user's animation/transparency preferences. The dashboard
+        /// refreshes this flag whenever theme, settings or system parameters change.
+        /// </summary>
+        public bool UiAnimationsEnabled { get; set; } = true;
+
         public OverviewView() => InitializeComponent();
+
+        private void OnStatCardMouseEnter(object sender, MouseEventArgs e)
+            => AnimateTranslate(sender as FrameworkElement, 0, -3, 160);
+
+        private void OnStatCardMouseLeave(object sender, MouseEventArgs e)
+            => AnimateTranslate(sender as FrameworkElement, 0, 0, 180);
+
+        private void AnimateTranslate(FrameworkElement? element, double x, double y, int milliseconds)
+        {
+            if (element == null || !UiAnimationsEnabled || SystemParameters.HighContrast || !SystemParameters.ClientAreaAnimation) return;
+            var translate = GetMutableTranslateTransform(element);
+            var easing = new CubicEase { EasingMode = EasingMode.EaseOut };
+            translate.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(x, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
+            translate.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(y, TimeSpan.FromMilliseconds(milliseconds)) { EasingFunction = easing });
+        }
+
+        private static TranslateTransform GetMutableTranslateTransform(FrameworkElement element)
+        {
+            var translate = element.RenderTransform as TranslateTransform;
+            if (translate == null)
+            {
+                translate = new TranslateTransform();
+                element.RenderTransform = translate;
+                return translate;
+            }
+
+            // Freezables declared in a Style setter are shared and frozen by WPF. They cannot be
+            // animated directly, so every element must receive its own mutable clone first.
+            if (translate.IsFrozen)
+            {
+                translate = (TranslateTransform)translate.CloneCurrentValue();
+                element.RenderTransform = translate;
+            }
+
+            return translate;
+        }
 
         public GridLength OverviewCompactSecondaryRowHeight
         {

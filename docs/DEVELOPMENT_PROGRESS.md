@@ -3,6 +3,8 @@
 更新时间：2026-08-08
 当前版本：`0.6.70-development-preview`
 
+- [x] UI-160：首页六卡指标行补充 Demo 式悬浮微动效：`OverviewStatCard`（基于共享 `GscRedesignMetricBorder`）新增 `RenderTransformOrigin=0.5,0.5` 与 `MouseEnter/MouseLeave` EventSetter，code-behind 以独占可变 `TranslateTransform` 做 160/180ms `CubicEase` 上浮回落（仅渲染属性，不触碰布局）；共享 `GscRedesignMetricBorder` 补 `IsMouseOver` BorderBrush 高亮触发器，指标卡在任务/维护等页共享同一悬浮反馈。动效由 `OverviewView.UiAnimationsEnabled` 门禁控制，Dashboard 在每次主题/设置/系统参数变化时以 `MotionEnabled` 同步该标志，并在高对比度或系统关闭客户端区域动画时直接跳过，符合「关闭动画安全降级」。六张卡仍为真实 `Snapshot.*` OneWay 绑定，无 demo 假数据。新增结构回归测试锁定六卡数量、真实绑定、EventSetter 与 motion gate 接线。源码校验、Release 构建 0 警告/0 错误与 Core 13 + Worker 23 + Playnite 126 全部通过，仍需 Playnite 宿主验证。
+
 - [x] UI-159：首页主栏补齐 Demo 式六卡指标行：`OverviewPrimaryPanel` 行定义由 `Auto/Auto/*` 扩为 `Auto/Auto/Auto/*`，在工具卡之后、当前游戏卡之前插入 `OverviewStatStrip`（`UniformGrid Columns=3`）六张等高 `OverviewStatCard`（基于共享 `GscRedesignMetricBorder`，Padding 14,12、CornerRadius 18、MinHeight 84，卡间距与内边距只用 8），依次为已管理游戏（`Snapshot.ManagedGames`/`GscInfoBrush`）、已匹配存档（`Snapshot.MatchedGames`/`GscAccentBrush`）、正在运行（`Snapshot.RunningGames`/`GscSuccessBrush`）、需要注意（`Snapshot.WarningGames`/`GscWarningBrush`，普通 Border 非按钮，保持 `OpenAttentionCenterCommand` 按钮恰 4 个的既有断言）、云端队列（`Snapshot.PendingCloudTasks`/`GscInfoBrush`）、待归类媒体（`Snapshot.UnassignedMediaCount`/`GscWarningBrush`）；数值全部 OneWay 绑定真实 Snapshot，副文案为静态安全提示（“失败不会撤销本地备份”“来自共享截图目录”），无 demo 假数据。源码校验、Release 构建 0 警告/0 错误与 WpfUiResourceDictionaryTests 100 项全部通过，仍需 Playnite 宿主验证。
 
 - [x] UI-158：首页工作台补充 Demo 式环境光：`OverviewView` 今日工作台 Hero 标题后方新增装饰性 `Ellipse 230×230`（`RadialGradientBrush` 由 `GscAccentShadowColor` 渐变到 Transparent，`IsHitTestVisible=False`、不拦截输入），让 Hero 区不再像一块平板；demo 原版使用模糊椭圆，但生产工作区有大型游戏库性能门禁禁 BlurEffect，故以主题自适应径向渐变模拟环境光，不引入模糊开销。纯装饰，未触碰任何绑定/命令/布局行。
