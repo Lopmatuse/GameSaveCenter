@@ -3,6 +3,10 @@
 更新时间：2026-08-08
 当前版本：`0.6.70-development-preview`
 
+- [x] UI-170：导入确认页卡片撑满可用宽度，修复空内容收缩：`TrainerCenterView` 「导入确认」页签外层卡片此前 `HorizontalAlignment="Left"`，在无待确认项/短内容时按内容自然宽度收缩，卡片只占左侧窄条；现改为 `HorizontalAlignment="Stretch"`（仍受 `MaxWidth=980` 上限），内层 `StackPanel` 同步 `HorizontalAlignment="Stretch"`，表单内容保持 `MaxWidth=760` 不铺满。全部导入确认命令/绑定原样保留。结构回归断言同步锁定 `MaxWidth="980" HorizontalAlignment="Stretch" VerticalAlignment="Top"`。源码校验、Release 构建与全部测试通过，仍需 Playnite 宿主验证。
+
+- [x] UI-169：FLiNG 在线库搜索输入框固定最小宽度，修复搜索卡空内容收缩：`TrainerCenterView` 搜索卡内 TextBox 此前只有 `MaxWidth=680` 无下限，窗口较宽时 `HorizontalAlignment=Stretch` 仍会撑满，但窗口收窄后输入框随内容收缩到很窄、搜索卡显得空荡；现补 `MinWidth=620`，与 `MaxWidth=680` 一起把输入框固定在 620–680 DIP 区间，按钮与输入框对齐不变。源码校验、Release 构建与全部测试通过，仍需 Playnite 宿主验证。
+
 - [x] UI-168：首页「当前游戏」行图标与文字垂直居中修正：外层 Grid 原只有列定义，48×48 图标 Border 对整个区块（含下方按钮行）垂直居中，视觉偏低。现补 `Grid.RowDefinitions`（Auto/Auto 两行），图标 Border 固定 `Grid.Row=0` 保持垂直居中，文字 Grid（游戏名 + 状态说明 + 操作按钮）`Grid.Row=0 Grid.RowSpan=2` 横跨两行，图标与文字在视觉中线对齐。全部绑定/命令/按钮原样保留。源码校验、Release 构建 0 警告/0 错误与 Core 13 + Worker 23 + Playnite 130 全部通过，仍需 Playnite 宿主验证。
 
 - [x] UI-167：Dashboard 顶部标题/游戏选框嵌入 Header 圆角框内：此前 `HeaderGrid` 是 `HeaderSurface`（圆角 Border）的兄弟元素，`HeaderSurface.Padding="14,0"` 从未生效，标题与游戏选框被裁在框线外、贴边缘。现将 `HeaderGrid` 移入 `HeaderSurface` 内部，`HeaderSurface` 设 `Padding="16,2"` + `ClipToBounds=True`，`HeaderGrid` 设 `Margin="12,0,12,0"`，标题/游戏选框/顶部操作按钮真正落在圆角框内且与框线保持统一边距。同时解决「各页面顶部标题/说明文字太靠左边缘线」与「顶部游戏选框超出外层框线」两点。源码校验、Release 构建与全部测试通过，仍需 Playnite 宿主验证。
