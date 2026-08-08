@@ -3,6 +3,8 @@
 更新时间：2026-08-08
 当前版本：`0.6.70-development-preview`
 
+- [x] UI-159：首页主栏补齐 Demo 式六卡指标行：`OverviewPrimaryPanel` 行定义由 `Auto/Auto/*` 扩为 `Auto/Auto/Auto/*`，在工具卡之后、当前游戏卡之前插入 `OverviewStatStrip`（`UniformGrid Columns=3`）六张等高 `OverviewStatCard`（基于共享 `GscRedesignMetricBorder`，Padding 14,12、CornerRadius 18、MinHeight 84，卡间距与内边距只用 8），依次为已管理游戏（`Snapshot.ManagedGames`/`GscInfoBrush`）、已匹配存档（`Snapshot.MatchedGames`/`GscAccentBrush`）、正在运行（`Snapshot.RunningGames`/`GscSuccessBrush`）、需要注意（`Snapshot.WarningGames`/`GscWarningBrush`，普通 Border 非按钮，保持 `OpenAttentionCenterCommand` 按钮恰 4 个的既有断言）、云端队列（`Snapshot.PendingCloudTasks`/`GscInfoBrush`）、待归类媒体（`Snapshot.UnassignedMediaCount`/`GscWarningBrush`）；数值全部 OneWay 绑定真实 Snapshot，副文案为静态安全提示（“失败不会撤销本地备份”“来自共享截图目录”），无 demo 假数据。源码校验、Release 构建 0 警告/0 错误与 WpfUiResourceDictionaryTests 100 项全部通过，仍需 Playnite 宿主验证。
+
 - [x] UI-158：首页工作台补充 Demo 式环境光：`OverviewView` 今日工作台 Hero 标题后方新增装饰性 `Ellipse 230×230`（`RadialGradientBrush` 由 `GscAccentShadowColor` 渐变到 Transparent，`IsHitTestVisible=False`、不拦截输入），让 Hero 区不再像一块平板；demo 原版使用模糊椭圆，但生产工作区有大型游戏库性能门禁禁 BlurEffect，故以主题自适应径向渐变模拟环境光，不引入模糊开销。纯装饰，未触碰任何绑定/命令/布局行。
 
 - [x] UI-157：共享进度条补齐不确定态扫光动画：`GscRedesignProgressBar`（不确定态）模板在 `PART_Indicator` 上加 `TranslateTransform`，`IsIndeterminate=True` 时固定 24px 滑动块并启动 `GscIndeterminateSweep` Storyboard（`RenderTransform.(TranslateTransform.X)` 从 -56 扫到 560，2 秒循环，`RepeatBehavior=Forever`），退出不确定态时 `StopStoryboard` 并恢复宽度；确定态仍由宿主只缩放 `PART_Indicator`，不改变任何依赖属性契约。全部任务/同步进度条共享该扫光，无需逐页重复声明动画。
