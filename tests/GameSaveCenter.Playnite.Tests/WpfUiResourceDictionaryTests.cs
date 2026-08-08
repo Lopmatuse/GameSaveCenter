@@ -1367,6 +1367,35 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void OverviewStatCardsShowRealRatioBarsThatCollapseOnEmptyLibrary()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var overview = XDocument.Parse(File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml")));
+        var strip = overview.Descendants().Single(element => element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "OverviewStatStrip");
+        var bars = strip.Descendants().Where(element => element.Name.LocalName == "ProgressBar").ToList();
+
+        // Lightweight real-data charts: the coverage and attention ratio bars reuse the
+        // shared ProgressBar template and bind only real Snapshot counters, OneWay.
+        Assert.Equal(2, bars.Count);
+        var matchedBar = Assert.Single(bars, bar => bar.Attribute("Value")?.Value == "{Binding Snapshot.MatchedGames, Mode=OneWay}");
+        Assert.Equal("{Binding Snapshot.ManagedGames, Mode=OneWay}", matchedBar.Attribute("Maximum")?.Value);
+        var warningBar = Assert.Single(bars, bar => bar.Attribute("Value")?.Value == "{Binding Snapshot.WarningGames, Mode=OneWay}");
+        Assert.Equal("{Binding Snapshot.ManagedGames, Mode=OneWay}", warningBar.Attribute("Maximum")?.Value);
+        Assert.Equal("{DynamicResource GscWarningBrush}", warningBar.Attribute("Foreground")?.Value);
+
+        // Zero-denominator guard: both bars collapse when the library is empty so the
+        // host ProgressBar never sizes PART_Indicator against Maximum == 0.
+        var collapseTriggers = strip.Descendants()
+            .Where(element => element.Name.LocalName == "DataTrigger"
+                && element.Attribute("Binding")?.Value == "{Binding Snapshot.ManagedGames}"
+                && element.Attribute("Value")?.Value == "0")
+            .ToList();
+        Assert.Equal(2, collapseTriggers.Count);
+        Assert.All(collapseTriggers, trigger =>
+            Assert.Contains("Setter Property=\"Visibility\" Value=\"Collapsed\"", trigger.ToString()));
+    }
+
+    [Fact]
     public void SharedPageScrollViewerStretchesContentAndLeavesBottomBreathingRoom()
     {
         var repositoryRoot = FindRepositoryRoot();
