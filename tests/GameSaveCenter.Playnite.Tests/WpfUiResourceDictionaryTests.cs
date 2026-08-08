@@ -1168,7 +1168,12 @@ public sealed class WpfUiResourceDictionaryTests
             "媒体中心 Inspector 缺少媒体详情、文件名或预览元素。");
         Assert.True(detailsTitle < fileNameLine && fileNameLine < previewPanel && previewPanel < favoriteToggle,
             "媒体中心 Inspector 顺序必须为 媒体详情 -> 文件名/路径 -> 预览 -> 收藏。");
-        Assert.Contains("ColumnDefinition Width=\"370\"", media);
+        // Inspector width converged to the shared token (UI-152/UI-153): the
+        // MediaCenter column must reference GscInspectorWidth, and the token
+        // value must stay within the 350-380 DIP contract.
+        Assert.Contains("Width=\"{StaticResource GscInspectorWidth}\"", media);
+        var tokens = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Themes", "DesignTokens.xaml"));
+        Assert.Contains("x:Key=\"GscInspectorWidth\">360</GridLength>", tokens);
     }
 
     [Fact]
