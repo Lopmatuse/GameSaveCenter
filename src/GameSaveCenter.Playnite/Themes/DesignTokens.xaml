@@ -959,9 +959,34 @@
                 <ControlTemplate TargetType="ProgressBar">
                     <Border CornerRadius="4" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
                         <Grid ClipToBounds="True">
-                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" CornerRadius="4" HorizontalAlignment="Left"/>
+                            <Border x:Name="PART_Indicator" Background="{TemplateBinding Foreground}" CornerRadius="4" HorizontalAlignment="Left">
+                                <Border.RenderTransform>
+                                    <TranslateTransform/>
+                                </Border.RenderTransform>
+                            </Border>
                         </Grid>
                     </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- The host control only sizes PART_Indicator in determinate mode, so
+                             the indeterminate state supplies a fixed sliding chunk and animates
+                             it across the track.  The trigger width is removed again when the
+                             bar returns to a determinate value. -->
+                        <Trigger Property="IsIndeterminate" Value="True">
+                            <Setter TargetName="PART_Indicator" Property="Width" Value="24"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard x:Name="GscIndeterminateSweep">
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="PART_Indicator"
+                                                         Storyboard.TargetProperty="RenderTransform.(TranslateTransform.X)"
+                                                         From="-56" To="560" Duration="0:0:2"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <StopStoryboard BeginStoryboardName="GscIndeterminateSweep"/>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
