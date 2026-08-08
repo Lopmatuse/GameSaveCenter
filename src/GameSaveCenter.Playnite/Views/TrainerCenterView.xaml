@@ -41,8 +41,8 @@
             </ScrollViewer>
         </Grid></TabItem>
         <TabItem Header="导入确认">
-            <Border Style="{DynamicResource GscReadingCardStyle}" Padding="22" Margin="0,12,0,0" MaxWidth="980" HorizontalAlignment="Left" VerticalAlignment="Top">
-                <StackPanel MaxWidth="760" HorizontalAlignment="Left">
+            <Border Style="{DynamicResource GscReadingCardStyle}" Padding="22" Margin="0,12,0,0" MaxWidth="980" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+                <StackPanel MaxWidth="760" HorizontalAlignment="Stretch">
                     <TextBlock Text="确认导入" Style="{DynamicResource GscSectionTitleStyle}"/>
                     <TextBlock Text="当压缩包或目录中包含多个可执行文件时，GameSaveCenter 会要求你明确选择主程序；未确认前不会创建工具绑定。" Style="{DynamicResource GscCaptionStyle}" Margin="0,5,0,0" TextWrapping="Wrap"/>
                     <Border Style="{DynamicResource GscRedesignInfoBand}" Padding="12" Margin="0,16,0,0">

@@ -1224,7 +1224,9 @@ public sealed class WpfUiResourceDictionaryTests
         var maintenanceCode = File.ReadAllText(Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml.cs"));
 
         Assert.Contains("MaxWidth=\"{StaticResource GscFormMaxWidth}\" HorizontalAlignment=\"Left\"", saves);
-        Assert.Contains("MaxWidth=\"980\" HorizontalAlignment=\"Left\" VerticalAlignment=\"Top\"", trainers);
+        // UI-170: the import-confirmation card stretches to fill the available
+        // width (capped at 980) instead of shrinking to its natural width.
+        Assert.Contains("MaxWidth=\"980\" HorizontalAlignment=\"Stretch\" VerticalAlignment=\"Top\"", trainers);
         Assert.Contains("MaxWidth=\"1050\" HorizontalAlignment=\"Left\"", maintenance);
         Assert.Contains("var stackOverview = width < 1040", dashboardCode);
         Assert.Contains("var stackDiagnostics = width < 1120", maintenanceCode);
