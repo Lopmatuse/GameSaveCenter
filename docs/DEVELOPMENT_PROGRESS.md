@@ -3,6 +3,8 @@
 更新时间：2026-08-08
 当前版本：`0.6.70-development-preview`
 
+- [x] UI-171：FLiNG 在线库搜索卡窄屏按钮换行，避免裁剪：搜索卡原为三列 Grid（`*/Auto/Auto`，TextBox `MinWidth=620` 常驻首行，两个按钮被钉在右侧），窗口收窄到约 850–1000 DIP 时按钮被裁剪出卡外；现改为两行 Grid（Auto/Auto），第一行 TextBox（`MinWidth=620`/`MaxWidth=680`/`TrainerSearchText` 绑定与 `ToolTip` 原样保留），第二行 `WrapPanel`（`Grid.Row=1`，Margin `0,12,0,0`）承载「搜索目录」「刷新目录」两个按钮，窄窗自动换行、宽窗两按钮并排，卡片 `HorizontalAlignment` 改为 `Stretch`、`VerticalAlignment=Top`（`MaxWidth=1080` 保留）。搜索/刷新命令、TextBox 绑定与输入逻辑均未改动。新增结构回归断言锁定两行布局/两按钮命令。源码校验、Release 构建与全部测试通过，仍需 Playnite 宿主验证。
+
 - [x] UI-170：导入确认页卡片撑满可用宽度，修复空内容收缩：`TrainerCenterView` 「导入确认」页签外层卡片此前 `HorizontalAlignment="Left"`，在无待确认项/短内容时按内容自然宽度收缩，卡片只占左侧窄条；现改为 `HorizontalAlignment="Stretch"`（仍受 `MaxWidth=980` 上限），内层 `StackPanel` 同步 `HorizontalAlignment="Stretch"`，表单内容保持 `MaxWidth=760` 不铺满。全部导入确认命令/绑定原样保留。结构回归断言同步锁定 `MaxWidth="980" HorizontalAlignment="Stretch" VerticalAlignment="Top"`。源码校验、Release 构建与全部测试通过，仍需 Playnite 宿主验证。
 
 - [x] UI-169：FLiNG 在线库搜索输入框固定最小宽度，修复搜索卡空内容收缩：`TrainerCenterView` 搜索卡内 TextBox 此前只有 `MaxWidth=680` 无下限，窗口较宽时 `HorizontalAlignment=Stretch` 仍会撑满，但窗口收窄后输入框随内容收缩到很窄、搜索卡显得空荡；现补 `MinWidth=620`，与 `MaxWidth=680` 一起把输入框固定在 620–680 DIP 区间，按钮与输入框对齐不变。源码校验、Release 构建与全部测试通过，仍需 Playnite 宿主验证。
