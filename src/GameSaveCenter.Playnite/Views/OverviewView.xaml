@@ -31,8 +31,7 @@
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="ui:Button.CornerRadius" Value="12"/>
                 <Setter Property="Padding" Value="10,5"/>
-                <Setter Property="Margin" Value="0,0,0,8"/>
-                <Setter Property="MinHeight" Value="72"/>
+                <Setter Property="Margin" Value="0,0,0,6"/>
                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                 <Setter Property="VerticalContentAlignment" Value="Top"/>
                 <Setter Property="ScrollViewer.VerticalContentAlignment" Value="Top"/>
@@ -303,7 +302,7 @@
                                    AutomationProperties.Name="查看需要关注的游戏、原因和建议处理方式">
                             <StackPanel>
                                 <TextBlock Text="需关注" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/>
-                                <TextBlock Text="{Binding Snapshot.WarningGames, Mode=OneWay}" FontSize="18" FontWeight="SemiBold" Margin="0,3,0,0"/>
+                                <TextBlock Text="{Binding Snapshot.WarningGames, Mode=OneWay}" Foreground="{DynamicResource GscErrorBrush}" FontSize="18" FontWeight="SemiBold" Margin="0,3,0,0"/>
                             </StackPanel>
                         </ui:Button>
                         <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,6,0"><StackPanel><TextBlock Text="云端队列" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding Snapshot.PendingCloudTasks, Mode=OneWay}" Foreground="{DynamicResource GscInfoBrush}" FontSize="18" FontWeight="SemiBold" Margin="0,3,0,0"/></StackPanel></Border>
