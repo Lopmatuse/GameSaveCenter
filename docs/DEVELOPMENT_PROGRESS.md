@@ -3,6 +3,8 @@
 更新时间：2026-08-08
 当前版本：`0.6.70-development-preview`
 
+- [x] UI-155：900+ 游戏库性能说明收口（文档化答复，未改动生产代码）：针对「游戏很多（900+）是否会造成启动与持续卡顿」的问题，按当前 0.6.70 代码路径逐一核实并落档。结论：启动阶段与持续使用不会出现整库 Ludusavi 风暴式卡顿——`GameSaveCenterPlugin` 以 `LargeLibraryThreshold=100`/`VeryLargeLibraryThreshold=500` 双阈值建立启动闸门（`ConfigureLargeLibraryStartupGate` 先于库回调配置 25 秒静默窗口；`OnApplicationStarted` 时 100+ 库不立即拉起整库同步，Worker 改为 Dashboard 打开/游戏启动时按需启动）；`OnLibraryUpdated` 在 Dashboard 未打开且库≥100 时跳过自动目录同步（缓存优先）；Dashboard 首次打开对 500+ 库只读 SQLite 持久化缓存，显式刷新才整库匹配；`observedGameCount` 只增不减，防止 Playnite 导入期瞬时空快照把 900+ 降级成小库路径；Worker 健康检查对 500+ 库关闭破坏性 Kill/重启（`terminateUnhealthyProcess: !IsVeryLargeLibrary()`）。Worker 侧 `GameCatalogService` 先持久化变化描述并立即返回 IPC，超过 20 个待匹配项转入后台：初始延迟 30 秒、每轮 4 个、批间 180ms 让步，500+ 库每轮预算 64 个（超大库 12 个），只优先已安装/90 天内游玩的游戏，未安装条目延后；匹配输入哈希缓存去重，未变化条目不再重写 SQLite。任务通知长轮询对 100+ 或 0 观测库延迟 60 秒启动，失败按 5→10→20→40→60 秒指数退避；Worker 使用当前用户级命名管道 Mutex 单实例互斥。因此首次打开面板后可能存在一个有界后台同步窗口（取决于待匹配数量），但 UI 保持缓存优先渲染 + DataGrid 虚拟化，可交互、不阻塞；真实 900+ 库回归仍需用户环境按 0.6.70 复测（旧 0.6.22 日志不适用）。本项只更新文档，未触碰生产 XAML/业务层。
+
 - [x] UI-154：媒体中心检查器测试断言收敛到共享令牌，消除 370 字面量漂移：`MediaInspector` 断言不再检查 `ColumnDefinition Width="370"`，改为同时校验 XAML 使用 `{StaticResource GscInspectorWidth}` 与 `DesignTokens.xaml` 中令牌值为 `360`（350–380 DIP 契约），测试与令牌单一来源对齐。源码校验、Release 构建 0 错误与 Core 13 + Worker 23 + Playnite 124 全部通过，仍需 Playnite 宿主验证。
 
 - [x] UI-153：工作区检查器宽度全部收敛到共享令牌，消除响应式代码中的 360/370 字面量漂移：Maintenance（诊断/进程/设备/审计）、SaveCenter（历史/候选/比较）、TaskCenter、TrainerCenter（已安装/可下载版本）的 `ApplyResponsiveLayout` 全部改为 `TryFindResource("GscInspectorWidth")`（fallback `new GridLength(360)`），与 `DesignTokens.xaml` 的 `GscInspectorWidth=360` 单一来源对齐；窄屏堆叠阈值、Inspector 高度预算与滚动行为不变。源码校验、Release 构建 0 错误与 Core 13 + Worker 23 + Playnite 124 全部通过，仍需 Playnite 宿主验证。

@@ -3,6 +3,8 @@
 更新时间：2026-08-07
 当前版本：`0.6.70-development-preview`
 
+> UI-155：900+ 游戏库的性能保护是不可丢失约束：`LargeLibraryThreshold=100`/`VeryLargeLibraryThreshold=500` 双阈值、`ConfigureLargeLibraryStartupGate` 25 秒静默窗、Dashboard 未打开时跳过自动目录同步、500+ 库 Dashboard 首次打开缓存优先（显式刷新才整库匹配）、`observedGameCount` 只增不减、500+ 库 Worker 健康检查不 Kill/重启、`GameCatalogService` 后台匹配（30 秒初始延迟、每轮 4 个、批间 180ms、500+ 库预算 64/超大库 12、只优先已安装/90 天内游玩）、任务通知长轮询 60 秒延迟 + 指数退避、Worker 单实例 Mutex。任何重构不得把这些闸门换成同步整库匹配或循环拉起 Ludusavi 进程；否则 900+ 游戏库会复现 0.6.22 的 967 次 `findTitle` 风暴与管道超时。
+
 > UI-136：首页 Overview 右栏 `OverviewSecondaryScrollViewer.MaxHeight` 只允许在堆叠模式限高（`stack` 时 `Max(260, Min(480, 高度*0.58))`）；宽屏非堆叠（宽度 ≥1040）必须保持 `PositiveInfinity` 拉伸到所在 `*` 行，即使窗口高度 <760 也不得恢复 `stack || compactHeight` 组合，否则右栏会出现底部死空白。内层 `OverviewRiskScrollViewer` 在堆叠或低高度时仍保留 `Max(180, Min(360, 高度*0.42))` 内部滚动上限。
 
 > UI-125：页面与共享样式的 `Margin/Padding` 只允许节奏值 8/12/14/16/18/24；13/17/21/27/31 一律不得回归。`GscRedesignHeaderButton`/`GscRedesignPrimaryHeaderButton` 固定 12,8，`GscMetricCard` 固定 16,12，`GscNavItem` 固定 12,10。装饰粒子（如 Dashboard 侧栏 Ellipse 35,21）与搜索图标对齐（32/38/11）属例外，不得据此放宽普通间距门禁。
