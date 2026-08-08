@@ -183,12 +183,12 @@
                 <Grid>
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                    <Border Grid.Row="0" Width="48" Height="48" CornerRadius="15" Background="{DynamicResource GscAccentTintBrush}" VerticalAlignment="Center" HorizontalAlignment="Left">
+                    <!-- 图标与文本/指标共享第 0 行垂直居中；按钮行独立下沉到第 1 行，避免图标随整块内容下移 -->
+                    <Border Grid.Row="0" Grid.Column="0" Width="48" Height="48" CornerRadius="15" Background="{DynamicResource GscAccentTintBrush}" VerticalAlignment="Center" HorizontalAlignment="Left">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE7FC;" FontSize="22" Foreground="{DynamicResource GscAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <Grid Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="12,0,0,0" MinWidth="0">
-                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <Grid Grid.Row="0" Grid.Column="1" Margin="12,0,0,0" MinWidth="0">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                         <StackPanel MinWidth="0" VerticalAlignment="Center">
                             <TextBlock Text="当前游戏" Foreground="{DynamicResource GscAccentBrush}" FontWeight="SemiBold" FontSize="11"/>
                             <TextBlock Text="{Binding SelectedGame.Name, Mode=OneWay, TargetNullValue=请选择游戏}" FontSize="20" FontWeight="SemiBold" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding SelectedGame.Name, Mode=OneWay}"/>
@@ -202,13 +202,12 @@
                             <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,6,0"><StackPanel><TextBlock Text="云端" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding SelectedGame.CloudStateDisplay, Mode=OneWay}" FontWeight="SemiBold" Margin="0,2,0,0" FontSize="12" TextTrimming="CharacterEllipsis"/></StackPanel></Border>
                             <Border Style="{DynamicResource GscRedesignContextPill}"><StackPanel><TextBlock Text="最新备份" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding SelectedGame.LastBackupLocal, Mode=OneWay, StringFormat={}{0:MM-dd HH:mm}, TargetNullValue=暂无}" FontWeight="SemiBold" Margin="0,2,0,0" FontSize="12"/></StackPanel></Border>
                         </WrapPanel>
-                        </Grid>
-                        <WrapPanel Grid.Row="1" Margin="0,10,0,0">
-                            <ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份" MinWidth="92"/>
-                            <ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding LoadDetailsCommand}" Content="刷新详情" MinWidth="92"/>
-                            <ui:Button Style="{DynamicResource GscWpfUiActionButton}" AutomationProperties.Name="查看需要关注的游戏、原因和建议处理方式" Command="{Binding OpenAttentionCenterCommand}" Content="查看需关注项" MinWidth="116" Margin="0,0,8,8"/>
-                        </WrapPanel>
                     </Grid>
+                    <WrapPanel Grid.Row="1" Grid.Column="1" Margin="0,10,0,0">
+                        <ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" Command="{Binding BackupSelectedCommand}" Content="立即备份" MinWidth="92"/>
+                        <ui:Button Style="{DynamicResource GscWpfUiActionButton}" Command="{Binding LoadDetailsCommand}" Content="刷新详情" MinWidth="92"/>
+                        <ui:Button Style="{DynamicResource GscWpfUiActionButton}" AutomationProperties.Name="查看需要关注的游戏、原因和建议处理方式" Command="{Binding OpenAttentionCenterCommand}" Content="查看需关注项" MinWidth="116" Margin="0,0,8,8"/>
+                    </WrapPanel>
                 </Grid>
             </Border>
 
@@ -293,7 +292,11 @@
             <Border Style="{DynamicResource GscRedesignSectionCard}" VerticalAlignment="Top">
                 <StackPanel VerticalAlignment="Top">
                     <TextBlock Style="{DynamicResource GscRedesignSectionTitle}" Text="今日概览"/>
-                    <UniformGrid Columns="2" Margin="0,8,0,0">
+                    <!-- 六枚胶囊共享同一字体与字重，避免宿主/按钮模板继承差异导致
+                         需关注按钮与其它胶囊的文字度量不一致（UI-172）。 -->
+                    <UniformGrid Columns="2" Margin="0,8,0,0"
+                                 TextElement.FontFamily="Segoe UI Variable Text, Segoe UI"
+                                 TextElement.FontWeight="SemiBold">
                         <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,6,6"><StackPanel><TextBlock Text="管理游戏" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding Snapshot.ManagedGames, Mode=OneWay}" Foreground="{DynamicResource GscInfoBrush}" FontSize="18" FontWeight="SemiBold" Margin="0,3,0,0"/></StackPanel></Border>
                         <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,0,6"><StackPanel><TextBlock Text="已匹配存档" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding Snapshot.MatchedGames, Mode=OneWay}" Foreground="{DynamicResource GscAccentBrush}" FontSize="18" FontWeight="SemiBold" Margin="0,3,0,0"/></StackPanel></Border>
                         <Border Style="{DynamicResource GscRedesignContextPill}" Margin="0,0,6,6"><StackPanel><TextBlock Text="正在运行" Foreground="{DynamicResource GscSecondaryTextBrush}" FontSize="10"/><TextBlock Text="{Binding Snapshot.RunningGames, Mode=OneWay}" Foreground="{DynamicResource GscSuccessBrush}" FontSize="18" FontWeight="SemiBold" Margin="0,3,0,0"/></StackPanel></Border>
