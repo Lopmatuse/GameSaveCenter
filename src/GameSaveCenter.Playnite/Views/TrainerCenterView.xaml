@@ -66,12 +66,14 @@
         <TabItem Header="FLiNG 在线库">
             <Grid Margin="0,12,0,0">
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                <Border Style="{DynamicResource GscReadingCardStyle}" Padding="16" MaxWidth="1080" HorizontalAlignment="Left">
+                <Border Style="{DynamicResource GscReadingCardStyle}" Padding="16" MaxWidth="1080" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                     <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                         <TextBox Style="{DynamicResource GscWpfUiTextBox}" Height="38" MinWidth="620" MaxWidth="680" HorizontalAlignment="Stretch" VerticalAlignment="Center" Text="{Binding TrainerSearchText, UpdateSourceTrigger=PropertyChanged}" ToolTip="输入游戏名称，搜索本地缓存的 FLiNG 目录"/>
-                        <ui:Button Grid.Column="1" Style="{DynamicResource GscWpfUiPrimaryActionButton}" MinHeight="38" VerticalAlignment="Center" Command="{Binding SearchTrainerCatalogCommand}" Content="搜索目录" Margin="8,0,8,0"/>
-                        <ui:Button Grid.Column="2" Style="{DynamicResource GscWpfUiActionButton}" MinHeight="38" VerticalAlignment="Center" Command="{Binding SyncTrainerCatalogCommand}" Content="刷新目录" Margin="0,0,0,0"/>
+                        <WrapPanel Grid.Row="1" Margin="0,12,0,0">
+                            <ui:Button Style="{DynamicResource GscWpfUiPrimaryActionButton}" MinHeight="38" Command="{Binding SearchTrainerCatalogCommand}" Content="搜索目录" Margin="0,0,8,0"/>
+                            <ui:Button Style="{DynamicResource GscWpfUiActionButton}" MinHeight="38" Command="{Binding SyncTrainerCatalogCommand}" Content="刷新目录" Margin="0,0,0,0"/>
+                        </WrapPanel>
                     </Grid>
                 </Border>
                 <Border x:Name="TrainerCatalogResultsPanel" Grid.Row="1" Style="{StaticResource TrainerTableFrame}" Margin="0,12,0,0">
