@@ -563,6 +563,42 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void MediaInboxActionsStayOutsideTheGridScrollSurface()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var mediaPath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MediaCenterView.xaml");
+        var document = XDocument.Parse(File.ReadAllText(mediaPath));
+        var tabItem = document.Descendants()
+            .Single(element => element.Name.LocalName == "TabItem" && element.Attribute("Header")?.Value == "待归类");
+        var tabGrid = tabItem.Elements().First();
+        Assert.Equal("Grid", tabGrid.Name.LocalName);
+
+        var rowHeights = tabGrid.Descendants()
+            .Where(element => element.Name.LocalName == "RowDefinition")
+            .Select(element => element.Attribute("Height")?.Value)
+            .ToList();
+        Assert.Equal(new[] { "Auto", "*", "Auto" }, rowHeights);
+
+        var xamlName = XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml");
+        var inboxGrid = document.Descendants()
+            .Single(element => element.Name.LocalName == "DataGrid" && element.Attribute(xamlName)?.Value == "MediaInboxGrid");
+        var tableFrame = inboxGrid.Ancestors()
+            .FirstOrDefault(element => element.Name.LocalName == "Border"
+                && (element.Attribute("Style")?.Value ?? "").Contains("MediaTableFrame"));
+        Assert.NotNull(tableFrame);
+        Assert.Equal("1", tableFrame.Attribute("Grid.Row")?.Value);
+
+        var actionBar = tabGrid.Descendants()
+            .Single(element => element.Name.LocalName == "WrapPanel"
+                && element.DescendantsAndSelf().Any(descendant => descendant.Attribute("Command")?.Value == "{Binding AssignInboxMediaCommand}"));
+        Assert.Equal("2", actionBar.Attribute("Grid.Row")?.Value);
+        Assert.False(actionBar.Ancestors().Contains(tableFrame),
+            "待归类确认/忽略按钮与归类目标不能放进 MediaInboxGrid 的滚动面。");
+        Assert.Contains(actionBar.Descendants(), element => element.Attribute("Command")?.Value == "{Binding IgnoreInboxMediaCommand}");
+        Assert.Contains(actionBar.Descendants(), element => element.Attribute("SelectedItem")?.Value == "{Binding InboxTargetGame}");
+    }
+
+    [Fact]
     public void ExtractedWorkspacesUseGridRootsAndInternalTableScrolling()
     {
         var repositoryRoot = FindRepositoryRoot();
