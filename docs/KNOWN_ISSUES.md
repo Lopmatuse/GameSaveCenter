@@ -275,7 +275,7 @@
 
 - **根因**：`GscNavItem`、`GscMetricCard` 和按钮样式通过 `Style.Setter` 共享 `TranslateTransform`/`ScaleTransform`。WPF 会冻结这些 `Freezable`，随后 `BeginAnimation` 抛出 `InvalidOperationException`。
 - **日志证据**：Playnite 主日志多次指向 `DashboardView.AnimateTranslate`，由 `OnNavigationMouseEnter` 和 `OnMetricCardMouseEnter` 触发。
-- **修复**：移除 Style 中的动画 Transform；动画入口对已有冻结 Transform 使用 `CloneCurrentValue()`，再把独立可变实例回写到当前元素。
+- **修复**：移除 Style 中的动画 Transform；动画入口对已有冻结 Transform 使用 `CloneCurrentValue()`，再把独立可变实例回写到当前元素。（UI-162 进一步删除 Dashboard 死样式 `GscMetricCard` 及 `OnMetricCardMouseEnter/Leave` 处理器，该类触发入口已彻底移除。）
 - **状态**：已精确修复，待 Windows 悬停回归。
 - **门禁**：反复经过侧栏、指标卡和按钮至少 2 分钟，不出现扩展崩溃，动画持续可用。
 

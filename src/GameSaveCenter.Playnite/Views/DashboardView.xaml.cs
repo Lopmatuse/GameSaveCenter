@@ -820,12 +820,6 @@ namespace GameSaveCenter.Playnite.Views
             }
         }
 
-        private void OnMetricCardMouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
-            => AnimateTranslate(sender as FrameworkElement, 0, -3, 160);
-
-        private void OnMetricCardMouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
-            => AnimateTranslate(sender as FrameworkElement, 0, 0, 180);
-
         private void OnNavigationMouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
             => AnimateTranslate(sender as FrameworkElement, 3, 0, 140);
 

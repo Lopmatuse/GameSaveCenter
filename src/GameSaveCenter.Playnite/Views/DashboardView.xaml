@@ -76,20 +76,6 @@
             <Setter Property="BorderBrush" Value="{DynamicResource GscControlStrokeBrush}"/>
         </Style>
 
-        <Style x:Key="GscMetricCard" TargetType="{x:Type ui:Card}" BasedOn="{StaticResource GscWpfUiCard}">
-            <Setter Property="Padding" Value="16,12"/>
-            <Setter Property="Margin" Value="0,0,10,0"/>
-            <Setter Property="MinHeight" Value="80"/>
-            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-            <EventSetter Event="MouseEnter" Handler="OnMetricCardMouseEnter"/>
-            <EventSetter Event="MouseLeave" Handler="OnMetricCardMouseLeave"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource GscAccentTintStrongBrush}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
         <Style x:Key="GscButtonBase" TargetType="Button">
             <Setter Property="OverridesDefaultStyle" Value="True"/>
             <Setter Property="FocusVisualStyle" Value="{StaticResource GscFocusVisual}"/>

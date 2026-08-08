@@ -1758,7 +1758,9 @@ public sealed class WpfUiResourceDictionaryTests
             ("TrainerCenterView.xaml", "TrainerCatalogResults.Count"),
             ("TrainerCenterView.xaml", "TrainerReleases.Count"),
             ("MaintenanceView.xaml", "Findings.Count"),
-            ("MaintenanceView.xaml", "DeviceComparisons.Count")
+            ("MaintenanceView.xaml", "DeviceComparisons.Count"),
+            ("MaintenanceView.xaml", "Audit.Count"),
+            ("MaintenanceView.xaml", "ProcessMappings.Count")
         };
 
         foreach (var (file, trigger) in views)
@@ -1777,6 +1779,29 @@ public sealed class WpfUiResourceDictionaryTests
             {
                 Assert.DoesNotContain(overlay.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
             }
+        }
+    }
+
+    [Fact]
+    public void EveryMaintenanceDataGridHasAnEmptyStateOverlay()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var maintenancePath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "MaintenanceView.xaml");
+        var maintenance = XDocument.Parse(File.ReadAllText(maintenancePath));
+
+        // Diagnostics, device, audit findings, audit log and process mappings tables all
+        // own a centered, hit-test-free empty state so an empty page never shows a blank
+        // DataGrid frame without explaining the next step.
+        var dataGrids = maintenance.Descendants().Where(element => element.Name.LocalName == "DataGrid").ToArray();
+        Assert.Equal(5, dataGrids.Length);
+        foreach (var grid in dataGrids)
+        {
+            var overlay = grid.Parent?.Elements().FirstOrDefault(element =>
+                element.Name.LocalName == "TextBlock" &&
+                element.Attribute("IsHitTestVisible")?.Value == "False");
+            Assert.NotNull(overlay);
+            Assert.Contains("BasedOn=\"{StaticResource GscEmptyStateText}\"", overlay!.ToString());
+            Assert.DoesNotContain(overlay.Ancestors(), ancestor => ancestor.Name.LocalName == "StackPanel");
         }
     }
 
