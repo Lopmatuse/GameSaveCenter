@@ -112,6 +112,26 @@
                     </WrapPanel>
                     <Grid Grid.Row="1" Grid.ColumnSpan="2" Margin="0,14,0,0">
                         <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <!-- Demo HomeView hero carries a soft ambient glow behind the
+                             TODAY headline; the same decorative light keeps the workbench
+                             header from reading as a flat panel. Purely decorative.
+                             The demo uses a blurred ellipse, but the production workspace
+                             views forbid expensive blur effects (large-library performance
+                             guard), so this glow is a theme-adaptive radial gradient that
+                             fades to transparent. -->
+                        <Ellipse Width="230" Height="230"
+                                 IsHitTestVisible="False"
+                                 Grid.ColumnSpan="2"
+                                 HorizontalAlignment="Right"
+                                 VerticalAlignment="Top"
+                                 Margin="0,-112,-86,0">
+                            <Ellipse.Fill>
+                                <RadialGradientBrush>
+                                    <GradientStop Offset="0" Color="{DynamicResource GscAccentShadowColor}"/>
+                                    <GradientStop Offset="1" Color="Transparent"/>
+                                </RadialGradientBrush>
+                            </Ellipse.Fill>
+                        </Ellipse>
                         <StackPanel MinWidth="0" VerticalAlignment="Center" Margin="0,0,20,0">
                             <TextBlock Style="{DynamicResource GscRedesignHeroEyebrow}" Text="TODAY"/>
                             <TextBlock FontSize="26" FontWeight="SemiBold" Margin="0,4,0,0" TextTrimming="CharacterEllipsis" ToolTip="{Binding Text, RelativeSource={RelativeSource Self}}">
