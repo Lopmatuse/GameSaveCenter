@@ -1316,6 +1316,32 @@ public sealed class WpfUiResourceDictionaryTests
     }
 
     [Fact]
+    public void AttentionFindingRowsUseDemoIconTileRhythmWithAReasonButton()
+    {
+        var repositoryRoot = FindRepositoryRoot();
+        var overviewPath = Path.Combine(repositoryRoot, "src", "GameSaveCenter.Playnite", "Views", "OverviewView.xaml");
+        var overview = XDocument.Parse(File.ReadAllText(overviewPath));
+        var itemsControl = overview.Descendants().Single(element => element.Name.LocalName == "ItemsControl" && (element.Attribute("ItemsSource")?.Value.IndexOf("AttentionFindings", StringComparison.Ordinal) ?? -1) >= 0);
+        var template = itemsControl.Elements().Single(element => element.Name.LocalName == "ItemsControl.ItemTemplate").Elements().Single();
+
+        // The demo home card renders each attention finding as a 34x34 rounded icon tile
+        // with a game title, a muted reason line and a per-row "查看原因" action. The
+        // production row keeps the same rhythm while staying bound to real findings.
+        Assert.Equal("DataTemplate", template.Name.LocalName);
+        var grid = template.Elements().Single(element => element.Name.LocalName == "Grid");
+        Assert.Equal("38", grid.Elements().Single(element => element.Name.LocalName == "Grid.ColumnDefinitions").Elements().ElementAt(0).Attribute("Width")?.Value);
+        var tile = grid.Descendants().Single(element => element.Attribute(XName.Get("Name", "http://schemas.microsoft.com/winfx/2006/xaml"))?.Value == "AttentionFindingIcon");
+        Assert.Equal("34", tile.Attribute("Width")?.Value);
+        Assert.Equal("34", tile.Attribute("Height")?.Value);
+        Assert.Equal("10", tile.Attribute("CornerRadius")?.Value);
+        Assert.Contains(grid.Descendants(), element => element.Name.LocalName == "Button" && (element.Attribute("Content")?.Value == "查看原因") && ((element.Attribute("Command")?.Value.IndexOf("OpenAttentionFindingCommand", StringComparison.Ordinal) ?? -1) >= 0));
+        Assert.Contains(template.Elements(), element => element.Name.LocalName == "DataTemplate.Triggers");
+        var overviewText = File.ReadAllText(overviewPath);
+        Assert.Contains("Value=\"Error\"", overviewText);
+        Assert.Contains("Value=\"Critical\"", overviewText);
+    }
+
+    [Fact]
     public void OverviewShowsTheSameAttentionAndRuntimeCountersReturnedByTheSnapshot()
     {
         var repositoryRoot = FindRepositoryRoot();
